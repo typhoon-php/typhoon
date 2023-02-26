@@ -1,0 +1,38 @@
+{
+    "name": "php-extended-type-system/reflection",
+    "description": "PHP Extended Type System • Reflection",
+    "license": "MIT",
+    "type": "library",
+    "authors": [
+        {
+            "name": "Valentin Udaltsov",
+            "email": "udaltsov.valentin@gmail.com"
+        }
+    ],
+    "require": {
+        "php": "^8.1",
+        "php-extended-type-system/type": "^0.1@dev"
+    },
+    "require-dev": {
+        "ergebnis/composer-normalize": "^2.30",
+        "friendsofphp/php-cs-fixer": "^3.14.4",
+        "phpyh/coding-standard": "^2.0.0",
+        "vimeo/psalm": "^5.7.7"
+    },
+    "autoload": {
+        "psr-4": {
+            "PHP\\ExtendedTypeSystem\\Reflection\\": "src/"
+        }
+    },
+    "config": {
+        "allow-plugins": {
+            "ergebnis/composer-normalize": true
+        },
+        "sort-packages": true
+    },
+    "scripts": {
+        "cleanup": "find var ! -path var ! -path var/.gitignore -exec rm -rf {} +",
+        "fixcs": "PHP_CS_FIXER_IGNORE_ENV=1 vendor/bin/php-cs-fixer fix -v",
+        "psalm": "vendor/bin/psalm --show-info"
+    }
+}
