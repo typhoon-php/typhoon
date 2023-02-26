@@ -7,7 +7,8 @@ namespace PHP\ExtendedTypeSystem\Type;
 /**
  * @psalm-api
  * @psalm-immutable
- * @implements Type<object>
+ * @template T of object
+ * @implements Type<T>
  */
 final class StaticT implements Type
 {
@@ -18,8 +19,10 @@ final class StaticT implements Type
 
     /**
      * @no-named-arguments
+     * @param class-string<T> $class
      */
     public function __construct(
+        public readonly string $class,
         Type ...$templateArguments,
     ) {
         $this->templateArguments = $templateArguments;
