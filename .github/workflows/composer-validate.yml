@@ -1,0 +1,43 @@
+name: Composer validate
+
+on:
+  push:
+    branches: [main]
+
+  pull_request:
+    paths:
+      - composer.json
+
+jobs:
+  composer-validate:
+    strategy:
+      matrix:
+        php: [8.1, 8.2]
+
+    name: PHP ${{ matrix.php }}
+
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3.3.0
+
+      - name: Install PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: ${{ matrix.php }}
+          tools: composer:v2, cs2pr
+          coverage: none
+
+      - name: Determine Composer cache directory
+        run: echo "COMPOSER_CACHE_DIR=$(composer config cache-dir)" >> $GITHUB_ENV
+
+      - name: Cache dependencies
+        uses: actions/cache@v3.2.6
+        with:
+          path: ${{ env.COMPOSER_CACHE_DIR }}
+          key: php-${{ matrix.php }}-composer-${{ hashFiles('composer.json') }}
+          restore-keys: php-${{ matrix.php }}-composer-
+
+      - name: Validate composer.json
+        run: composer validate --strict
