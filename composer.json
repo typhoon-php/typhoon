@@ -31,10 +31,9 @@
         "vimeo/psalm": "^5.7.7"
     },
     "scripts": {
-        "var": "mkdir -p var",
-        "fixcs": ["@var", "PHP_CS_FIXER_IGNORE_ENV=1 vendor/bin/php-cs-fixer fix -v"],
-        "psalm": ["@var", "vendor/bin/psalm --show-info"],
-        "cleanup": "rm -rf ./var/"
+        "fixcs": "PHP_CS_FIXER_IGNORE_ENV=1 vendor/bin/php-cs-fixer fix -v",
+        "psalm": "vendor/bin/psalm --show-info",
+        "cleanup": "find var ! -path var ! -path var/.gitignore -exec rm -rf {} +"
     },
     "config": {
         "sort-packages": true
