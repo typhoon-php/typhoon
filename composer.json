@@ -1,5 +1,5 @@
 {
-    "name": "php-extended-type-system/stringifier",
+    "name": "php-extended-type-system/type-stringifier",
     "description": "PHP Extended Type System • Type Stringifier",
     "license": "MIT",
     "type": "library",
