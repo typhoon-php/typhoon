@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace PHP\ExtendedTypeSystem\Reflection;
+namespace PHP\ExtendedTypeSystem\TypeReflection;
 
 use PHP\ExtendedTypeSystem\Type\MixedT;
 use PHP\ExtendedTypeSystem\Type\Type;

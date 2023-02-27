@@ -1,6 +1,6 @@
 {
-    "name": "php-extended-type-system/reflection",
-    "description": "PHP Extended Type System • Reflection",
+    "name": "php-extended-type-system/type-reflection",
+    "description": "PHP Extended Type System • Type Reflection",
     "license": "MIT",
     "type": "library",
     "authors": [
@@ -21,7 +21,7 @@
     },
     "autoload": {
         "psr-4": {
-            "PHP\\ExtendedTypeSystem\\Reflection\\": "src/"
+            "PHP\\ExtendedTypeSystem\\TypeReflection\\": "src/"
         }
     },
     "config": {
