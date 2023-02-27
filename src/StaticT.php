@@ -7,7 +7,7 @@ namespace PHP\ExtendedTypeSystem\Type;
 /**
  * @psalm-api
  * @psalm-immutable
- * @template T of object
+ * @template-covariant T of object
  * @implements Type<T>
  */
 final class StaticT implements Type
