@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "4d7dd00675cb409fd6e5d77669ff7160",
+    "content-hash": "bacb2cd5596b88d9f741546f65238437",
     "packages": [
         {
             "name": "php-extended-type-system/type",
