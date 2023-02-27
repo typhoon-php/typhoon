@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "bacb2cd5596b88d9f741546f65238437",
+    "content-hash": "4d7dd00675cb409fd6e5d77669ff7160",
     "packages": [
         {
             "name": "php-extended-type-system/type",
@@ -12,12 +12,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/php-extended-type-system/type.git",
-                "reference": "36dbe7a6e59d96eced6d1762b5318bfe01b80efc"
+                "reference": "daf5e9db6c2bfdfd706d7a1dd95f073bc35ab9e9"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/php-extended-type-system/type/zipball/36dbe7a6e59d96eced6d1762b5318bfe01b80efc",
-                "reference": "36dbe7a6e59d96eced6d1762b5318bfe01b80efc",
+                "url": "https://api.github.com/repos/php-extended-type-system/type/zipball/daf5e9db6c2bfdfd706d7a1dd95f073bc35ab9e9",
+                "reference": "daf5e9db6c2bfdfd706d7a1dd95f073bc35ab9e9",
                 "shasum": ""
             },
             "require": {
@@ -51,7 +51,7 @@
                 "issues": "https://github.com/php-extended-type-system/type/issues",
                 "source": "https://github.com/php-extended-type-system/type/tree/0.1.x"
             },
-            "time": "2023-02-26T23:35:40+00:00"
+            "time": "2023-02-27T00:57:22+00:00"
         }
     ],
     "packages-dev": [

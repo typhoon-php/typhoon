@@ -346,7 +346,7 @@ final class TypeStringifier implements TypeVisitor
 
     public function visitTemplate(TemplateT $type): mixed
     {
-        return sprintf('%s:%s', $type->name, $this->stringifyAt($type->definedAt));
+        return sprintf('%s:%s', $type->name, $this->stringifyAt($type->declaredAt));
     }
 
     public function visitIntersection(IntersectionT $type): mixed
@@ -404,12 +404,12 @@ final class TypeStringifier implements TypeVisitor
         )));
     }
 
-    private function stringifyAt(AtFunction|AtClass|AtMethod $definedAt): string
+    private function stringifyAt(AtFunction|AtClass|AtMethod $at): string
     {
-        return match ($definedAt::class) {
-            AtFunction::class => sprintf('%s()', $definedAt->function),
-            AtClass::class => $definedAt->class,
-            AtMethod::class => sprintf('%s::%s()', $definedAt->class, $definedAt->method),
+        return match ($at::class) {
+            AtFunction::class => sprintf('%s()', $at->function),
+            AtClass::class => $at->class,
+            AtMethod::class => sprintf('%s::%s()', $at->class, $at->method),
         };
     }
 
