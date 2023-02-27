@@ -14,7 +14,7 @@ final class TemplateT implements Type
 {
     public function __construct(
         public readonly string $name,
-        public readonly AtFunction|AtClass|AtMethod $definedAt,
+        public readonly AtFunction|AtClass|AtMethod $declaredAt,
     ) {
     }
 
