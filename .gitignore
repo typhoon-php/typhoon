@@ -1,4 +1,3 @@
 /vendor/
 /.php-cs-fixer.php
-/phpstan.neon
 /psalm.xml
