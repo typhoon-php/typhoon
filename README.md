@@ -3,7 +3,7 @@
 ## Installation
 
 ```
-composer require php-extended-type-system/type-stringifier
+composer require extended-type-system/type-stringifier
 ```
 
 ## Usage
@@ -17,7 +17,7 @@ use PHP\ExtendedTypeSystem\Type\StringT;
 use PHP\ExtendedTypeSystem\TypeStringifier\TypeStringifier;
 
 $type = new NamedObjectT(
-    \ArrayObject::class,
+    ArrayObject::class,
     new IntRangeT(max: 10),
     new ArrayShapeT(
         items: ['a' => new ArrayShapeItem(new StringT(), optional: true)],
