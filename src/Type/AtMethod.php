@@ -12,6 +12,7 @@ final class AtMethod
 {
     /**
      * @param class-string $class
+     * @param non-empty-string $method
      */
     public function __construct(
         public readonly string $class,

@@ -17,6 +17,7 @@ final class ClassConstantT implements Type
 {
     /**
      * @param class-string $class
+     * @param non-empty-string $constant
      */
     public function __construct(
         public readonly string $class,

@@ -15,6 +15,9 @@ use ExtendedTypeSystem\TypeVisitor;
  */
 final class TemplateT implements Type
 {
+    /**
+     * @param non-empty-string $name
+     */
     public function __construct(
         public readonly string $name,
         public readonly AtFunction|AtClass|AtMethod $declaredAt,

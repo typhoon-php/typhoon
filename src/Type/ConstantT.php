@@ -15,6 +15,9 @@ use ExtendedTypeSystem\TypeVisitor;
  */
 final class ConstantT implements Type
 {
+    /**
+     * @param non-empty-string $constant
+     */
     public function __construct(
         public readonly string $constant,
     ) {
