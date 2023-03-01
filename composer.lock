@@ -59,12 +59,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/php-extended-type-system/type-stringifier.git",
-                "reference": "9042e0c0369770533afd0cc68f96bc431676e182"
+                "reference": "60351950d351c5dd1aa1ed649b9806b08d5f12a5"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/php-extended-type-system/type-stringifier/zipball/9042e0c0369770533afd0cc68f96bc431676e182",
-                "reference": "9042e0c0369770533afd0cc68f96bc431676e182",
+                "url": "https://api.github.com/repos/php-extended-type-system/type-stringifier/zipball/60351950d351c5dd1aa1ed649b9806b08d5f12a5",
+                "reference": "60351950d351c5dd1aa1ed649b9806b08d5f12a5",
                 "shasum": ""
             },
             "require": {
@@ -101,7 +101,7 @@
                 "issues": "https://github.com/php-extended-type-system/type-stringifier/issues",
                 "source": "https://github.com/php-extended-type-system/type-stringifier/tree/0.1.x"
             },
-            "time": "2023-03-01T10:38:37+00:00"
+            "time": "2023-03-01T12:39:36+00:00"
         },
         {
             "name": "phpdocumentor/reflection-common",
