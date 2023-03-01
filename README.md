@@ -1,4 +1,4 @@
-# PHP Extended Type System Types
+# PHP Extended Type System • Type
 
 Collection of value objects that represent the types of PHP Extended Type System.
 Currently, all the types are inspired by popular PHP static analysis tools: [Psalm](https://psalm.dev/) and [PHPStan](https://phpstan.org/).
