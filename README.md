@@ -1,17 +1,17 @@
-# PHP Extended Type System • Type
+# PHP Extended Type System Types
 
 Collection of value objects that represent the types of PHP Extended Type System.
 Currently, all the types are inspired by popular PHP static analysis tools: [Psalm](https://psalm.dev/) and [PHPStan](https://phpstan.org/).
 
 All implementations of `Type` should be treated as sealed, `Type` interface MUST NOT be implemented in userland!
-If one needs an alias for a complex compound type, implement `TypeAlias` or create a builder/function instead.
+If you need an alias for a complex compound type, extend `TypeAlias`.
 
 This library will never have any dependencies. Once full and stable, it might be proposed as a [PSR](https://www.php-fig.org/psr/) or [PER](https://www.php-fig.org/per/).
 
 ## Installation
 
 ```
-composer require php-extended-type-system/type
+composer require extended-type-system/type
 ```
 
 ## Naming
