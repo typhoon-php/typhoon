@@ -9,12 +9,12 @@ composer require extended-type-system/type-stringifier
 ## Usage
 
 ```php
-use PHP\ExtendedTypeSystem\Type\ArrayShapeItem;
-use PHP\ExtendedTypeSystem\Type\ArrayShapeT;
-use PHP\ExtendedTypeSystem\Type\IntRangeT;
-use PHP\ExtendedTypeSystem\Type\NamedObjectT;
-use PHP\ExtendedTypeSystem\Type\StringT;
-use PHP\ExtendedTypeSystem\TypeStringifier\TypeStringifier;
+use ExtendedTypeSystem\Type\ArrayShapeItem;
+use ExtendedTypeSystem\Type\ArrayShapeT;
+use ExtendedTypeSystem\Type\IntRangeT;
+use ExtendedTypeSystem\Type\NamedObjectT;
+use ExtendedTypeSystem\Type\StringT;
+use ExtendedTypeSystem\TypeStringifier;
 
 $type = new NamedObjectT(
     ArrayObject::class,
