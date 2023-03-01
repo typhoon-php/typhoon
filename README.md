@@ -19,3 +19,7 @@ composer require php-extended-type-system/type
 Value objects, representing native PHP types cannot be named after them, because words like `Int`, `Strind` etc. are [reserved](https://www.php.net/manual/en/reserved.php).
 A suffix might be introduced to fix this problem. `Type` suffix is too verbose, so we have chosen `T`: `int -> IntT`, `float -> FloatT`.
 Although types like `non-empty-list` can be safely named `NonEmptyList`, for now we have decided to follow the T-convention for all types.
+
+## Идеи
+1. Не запрещать Type
+2. Оставить Extended Type System

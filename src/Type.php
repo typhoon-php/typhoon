@@ -2,10 +2,10 @@
 
 declare(strict_types=1);
 
-namespace PHP\ExtendedTypeSystem\Type;
+namespace ExtendedTypeSystem;
 
 /**
- * This interface must not be implemented outside PHP\ExtendedTypeSystem\Type!
+ * This interface must not be implemented outside ExtendedTypeSystem!
  *
  * @psalm-api
  * @psalm-immutable

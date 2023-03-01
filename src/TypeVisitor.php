@@ -2,7 +2,53 @@
 
 declare(strict_types=1);
 
-namespace PHP\ExtendedTypeSystem\Type;
+namespace ExtendedTypeSystem;
+
+use ExtendedTypeSystem\Type\ArrayShapeT;
+use ExtendedTypeSystem\Type\ArrayT;
+use ExtendedTypeSystem\Type\BoolT;
+use ExtendedTypeSystem\Type\CallableArrayT;
+use ExtendedTypeSystem\Type\CallableStringT;
+use ExtendedTypeSystem\Type\CallableT;
+use ExtendedTypeSystem\Type\ClassConstantT;
+use ExtendedTypeSystem\Type\ClassStringT;
+use ExtendedTypeSystem\Type\ClosedResourceT;
+use ExtendedTypeSystem\Type\ClosureT;
+use ExtendedTypeSystem\Type\ConstantT;
+use ExtendedTypeSystem\Type\EnumStringT;
+use ExtendedTypeSystem\Type\FalseT;
+use ExtendedTypeSystem\Type\FloatLiteralT;
+use ExtendedTypeSystem\Type\FloatT;
+use ExtendedTypeSystem\Type\InterfaceStringT;
+use ExtendedTypeSystem\Type\IntersectionT;
+use ExtendedTypeSystem\Type\IntLiteralT;
+use ExtendedTypeSystem\Type\IntRangeT;
+use ExtendedTypeSystem\Type\IntT;
+use ExtendedTypeSystem\Type\IterableT;
+use ExtendedTypeSystem\Type\KeyOfT;
+use ExtendedTypeSystem\Type\ListT;
+use ExtendedTypeSystem\Type\LiteralIntT;
+use ExtendedTypeSystem\Type\LiteralStringT;
+use ExtendedTypeSystem\Type\MixedT;
+use ExtendedTypeSystem\Type\NamedClassStringT;
+use ExtendedTypeSystem\Type\NamedObjectT;
+use ExtendedTypeSystem\Type\NeverT;
+use ExtendedTypeSystem\Type\NonEmptyArrayT;
+use ExtendedTypeSystem\Type\NonEmptyListT;
+use ExtendedTypeSystem\Type\NonEmptyStringT;
+use ExtendedTypeSystem\Type\NullT;
+use ExtendedTypeSystem\Type\NumericT;
+use ExtendedTypeSystem\Type\ObjectT;
+use ExtendedTypeSystem\Type\ResourceT;
+use ExtendedTypeSystem\Type\StaticT;
+use ExtendedTypeSystem\Type\StringLiteralT;
+use ExtendedTypeSystem\Type\StringT;
+use ExtendedTypeSystem\Type\TemplateT;
+use ExtendedTypeSystem\Type\TraitStringT;
+use ExtendedTypeSystem\Type\TrueT;
+use ExtendedTypeSystem\Type\UnionT;
+use ExtendedTypeSystem\Type\ValueOfT;
+use ExtendedTypeSystem\Type\VoidT;
 
 /**
  * @psalm-api

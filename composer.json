@@ -20,15 +20,15 @@
     },
     "autoload": {
         "psr-4": {
-            "PHP\\ExtendedTypeSystem\\Type\\": "src/"
+            "ExtendedTypeSystem\\": "src/"
         }
     },
     "autoload-dev": {
         "psr-4": {
-            "PHP\\ExtendedTypeSystem\\Type\\": "tests/"
+            "ExtendedTypeSystem\\": "tests/"
         },
         "files": [
-            "tests/functions.php"
+            "tests/Type/functions.php"
         ]
     },
     "config": {
