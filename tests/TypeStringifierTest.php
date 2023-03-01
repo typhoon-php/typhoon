@@ -2,56 +2,54 @@
 
 declare(strict_types=1);
 
-namespace PHP\ExtendedTypeSystem\TypeStringifier;
+namespace ExtendedTypeSystem;
 
-use PHP\ExtendedTypeSystem\Type\ArrayKeyT;
-use PHP\ExtendedTypeSystem\Type\ArrayShapeItem;
-use PHP\ExtendedTypeSystem\Type\ArrayShapeT;
-use PHP\ExtendedTypeSystem\Type\ArrayT;
-use PHP\ExtendedTypeSystem\Type\AtClass;
-use PHP\ExtendedTypeSystem\Type\AtFunction;
-use PHP\ExtendedTypeSystem\Type\AtMethod;
-use PHP\ExtendedTypeSystem\Type\BoolT;
-use PHP\ExtendedTypeSystem\Type\CallableParameter;
-use PHP\ExtendedTypeSystem\Type\CallableT;
-use PHP\ExtendedTypeSystem\Type\ClosureT;
-use PHP\ExtendedTypeSystem\Type\FalseT;
-use PHP\ExtendedTypeSystem\Type\FloatLiteralT;
-use PHP\ExtendedTypeSystem\Type\FloatT;
-use PHP\ExtendedTypeSystem\Type\GeneratorT;
-use PHP\ExtendedTypeSystem\Type\IntersectionT;
-use PHP\ExtendedTypeSystem\Type\IntLiteralT;
-use PHP\ExtendedTypeSystem\Type\IntRangeT;
-use PHP\ExtendedTypeSystem\Type\IntT;
-use PHP\ExtendedTypeSystem\Type\IterableT;
-use PHP\ExtendedTypeSystem\Type\ListT;
-use PHP\ExtendedTypeSystem\Type\MixedT;
-use PHP\ExtendedTypeSystem\Type\NamedObjectT;
-use PHP\ExtendedTypeSystem\Type\NeverT;
-use PHP\ExtendedTypeSystem\Type\NonEmptyArrayT;
-use PHP\ExtendedTypeSystem\Type\NonEmptyListT;
-use PHP\ExtendedTypeSystem\Type\NonEmptyStringT;
-use PHP\ExtendedTypeSystem\Type\NullableT;
-use PHP\ExtendedTypeSystem\Type\NullT;
-use PHP\ExtendedTypeSystem\Type\NumericStringT;
-use PHP\ExtendedTypeSystem\Type\NumericT;
-use PHP\ExtendedTypeSystem\Type\ObjectT;
-use PHP\ExtendedTypeSystem\Type\PositiveIntT;
-use PHP\ExtendedTypeSystem\Type\ResourceT;
-use PHP\ExtendedTypeSystem\Type\ScalarT;
-use PHP\ExtendedTypeSystem\Type\StringLiteralT;
-use PHP\ExtendedTypeSystem\Type\StringT;
-use PHP\ExtendedTypeSystem\Type\TemplateT;
-use PHP\ExtendedTypeSystem\Type\TrueT;
-use PHP\ExtendedTypeSystem\Type\Type;
-use PHP\ExtendedTypeSystem\Type\TypeAlias;
-use PHP\ExtendedTypeSystem\Type\UnionT;
-use PHP\ExtendedTypeSystem\Type\VoidT;
+use ExtendedTypeSystem\Type\ArrayKeyT;
+use ExtendedTypeSystem\Type\ArrayShapeItem;
+use ExtendedTypeSystem\Type\ArrayShapeT;
+use ExtendedTypeSystem\Type\ArrayT;
+use ExtendedTypeSystem\Type\AtClass;
+use ExtendedTypeSystem\Type\AtFunction;
+use ExtendedTypeSystem\Type\AtMethod;
+use ExtendedTypeSystem\Type\BoolT;
+use ExtendedTypeSystem\Type\CallableParameter;
+use ExtendedTypeSystem\Type\CallableT;
+use ExtendedTypeSystem\Type\ClosureT;
+use ExtendedTypeSystem\Type\FalseT;
+use ExtendedTypeSystem\Type\FloatLiteralT;
+use ExtendedTypeSystem\Type\FloatT;
+use ExtendedTypeSystem\Type\GeneratorT;
+use ExtendedTypeSystem\Type\IntersectionT;
+use ExtendedTypeSystem\Type\IntLiteralT;
+use ExtendedTypeSystem\Type\IntRangeT;
+use ExtendedTypeSystem\Type\IntT;
+use ExtendedTypeSystem\Type\IterableT;
+use ExtendedTypeSystem\Type\ListT;
+use ExtendedTypeSystem\Type\MixedT;
+use ExtendedTypeSystem\Type\NamedObjectT;
+use ExtendedTypeSystem\Type\NeverT;
+use ExtendedTypeSystem\Type\NonEmptyArrayT;
+use ExtendedTypeSystem\Type\NonEmptyListT;
+use ExtendedTypeSystem\Type\NonEmptyStringT;
+use ExtendedTypeSystem\Type\NullableT;
+use ExtendedTypeSystem\Type\NullT;
+use ExtendedTypeSystem\Type\NumericStringT;
+use ExtendedTypeSystem\Type\NumericT;
+use ExtendedTypeSystem\Type\ObjectT;
+use ExtendedTypeSystem\Type\PositiveIntT;
+use ExtendedTypeSystem\Type\ResourceT;
+use ExtendedTypeSystem\Type\ScalarT;
+use ExtendedTypeSystem\Type\StringLiteralT;
+use ExtendedTypeSystem\Type\StringT;
+use ExtendedTypeSystem\Type\TemplateT;
+use ExtendedTypeSystem\Type\TrueT;
+use ExtendedTypeSystem\Type\UnionT;
+use ExtendedTypeSystem\Type\VoidT;
 use PHPUnit\Framework\TestCase;
 
 /**
  * @internal
- * @covers \PHP\ExtendedTypeSystem\TypeStringifier\TypeStringifier
+ * @covers \ExtendedTypeSystem\TypeStringifier
  */
 final class TypeStringifierTest extends TestCase
 {
