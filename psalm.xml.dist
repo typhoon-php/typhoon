@@ -21,6 +21,10 @@
         <extension name="random"/>
     </enableExtensions>
 
+    <plugins>
+        <pluginClass class="Psalm\PhpUnitPlugin\Plugin"/>
+    </plugins>
+
     <projectFiles>
         <directory name="src"/>
         <ignoreFiles>
@@ -28,4 +32,9 @@
             <directory name="vendor"/>
         </ignoreFiles>
     </projectFiles>
+
+    <ignoreExceptions>
+        <classAndDescendants name="LogicException"/>
+        <classAndDescendants name="RuntimeException"/>
+    </ignoreExceptions>
 </psalm>

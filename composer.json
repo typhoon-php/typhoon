@@ -1,5 +1,5 @@
 {
-    "name": "php-extended-type-system/type-reflection",
+    "name": "extended-type-system/type-reflection",
     "description": "PHP Extended Type System • Type Reflection",
     "license": "MIT",
     "type": "library",
@@ -11,17 +11,30 @@
     ],
     "require": {
         "php": "^8.1",
-        "php-extended-type-system/type": "^0.1@dev"
+        "extended-type-system/type": "^0.1@dev",
+        "extended-type-system/type-stringifier": "^0.1@dev",
+        "phpdocumentor/reflection-docblock": "^5.2",
+        "phpdocumentor/type-resolver": "^1.3",
+        "phpstan/phpdoc-parser": "^1.0",
+        "phpyh/lru-memoizer": "^0.2"
     },
     "require-dev": {
         "ergebnis/composer-normalize": "^2.30",
         "friendsofphp/php-cs-fixer": "^3.14.4",
+        "phpunit/phpunit": "^9.6.3",
         "phpyh/coding-standard": "^2.0.0",
+        "psalm/plugin-phpunit": "^0.18.4",
+        "symfony/finder": "^6.2.5",
         "vimeo/psalm": "^5.7.7"
     },
     "autoload": {
         "psr-4": {
-            "PHP\\ExtendedTypeSystem\\TypeReflection\\": "src/"
+            "ExtendedTypeSystem\\": "src/"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "ExtendedTypeSystem\\": "tests/"
         }
     },
     "config": {
@@ -33,6 +46,7 @@
     "scripts": {
         "cleanup": "find var ! -path var ! -path var/.gitignore -exec rm -rf {} +",
         "fixcs": "PHP_CS_FIXER_IGNORE_ENV=1 vendor/bin/php-cs-fixer fix -v",
-        "psalm": "vendor/bin/psalm --show-info"
+        "psalm": "psalm --show-info",
+        "test": "phpunit"
     }
 }

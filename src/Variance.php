@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace PHP\ExtendedTypeSystem\TypeReflection;
+namespace ExtendedTypeSystem;
 
 /**
  * @psalm-api
