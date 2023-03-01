@@ -4,8 +4,6 @@ declare(strict_types=1);
 
 use PHPyh\CodingStandard\PhpCsFixerCodingStandard;
 
-require_once __DIR__.'/vendor/autoload.php';
-
 $finder = PhpCsFixer\Finder::create()
     ->in([
         __DIR__.'/src',
