@@ -9,7 +9,7 @@ $_emptyArrayShape = extractType(new ArrayShapeT());
 
 /** @var ArrayShapeT<array{a?: string, 10: int}> */
 $_arrayShapeType = new ArrayShapeT([
-    'a' => new ArrayShapeItem(new StringT(), optional: true),
+    'a' => new ArrayElement(new StringT(), optional: true),
     10 => new IntT(),
 ]);
 /** @psalm-check-type-exact $_arrayShape = array{a?: string, 10: int} */

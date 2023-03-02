@@ -16,20 +16,20 @@ use ExtendedTypeSystem\TypeVisitor;
 final class ArrayShapeT implements Type
 {
     /**
-     * @var array<ArrayShapeItem>
+     * @var array<ArrayElement>
      */
-    public readonly array $items;
+    public readonly array $elements;
 
     /**
-     * @param array<Type|ArrayShapeItem> $items
+     * @param array<Type|ArrayElement> $elements
      */
     public function __construct(
-        array $items = [],
+        array $elements = [],
         public readonly bool $sealed = true,
     ) {
-        $this->items = array_map(
-            static fn (Type|ArrayShapeItem $item): ArrayShapeItem => $item instanceof Type ? new ArrayShapeItem($item) : $item,
-            $items,
+        $this->elements = array_map(
+            static fn (Type|ArrayElement $element): ArrayElement => $element instanceof Type ? new ArrayElement($element) : $element,
+            $elements,
         );
     }
 
