@@ -22,10 +22,10 @@ final class StaticT implements Type
 
     /**
      * @no-named-arguments
-     * @param class-string<TObject> $class
+     * @param class-string<TObject> $declaringClass
      */
     public function __construct(
-        public readonly string $class,
+        public readonly string $declaringClass,
         Type ...$templateArguments,
     ) {
         $this->templateArguments = $templateArguments;
