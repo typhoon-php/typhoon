@@ -63,7 +63,7 @@ use ExtendedTypeSystem\Type\VoidT;
 /**
  * @psalm-api
  * @psalm-immutable
- * @implements TypeVisitor<string>
+ * @implements TypeVisitor<non-empty-string>
  * @psalm-suppress ImpureFunctionCall
  */
 final class TypeStringifier implements TypeVisitor
@@ -72,6 +72,9 @@ final class TypeStringifier implements TypeVisitor
     {
     }
 
+    /**
+     * @return non-empty-string
+     */
     public static function stringify(Type $type): string
     {
         return $type->accept(new self());
