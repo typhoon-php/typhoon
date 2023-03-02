@@ -10,8 +10,16 @@ $_intLiteral = extractType(new IntLiteralT(123));
 /** @psalm-check-type-exact $_negativeIntLiteral = -223 */
 $_negativeIntLiteral = extractType(new IntLiteralT(-223));
 
-/** @psalm-check-type-exact $_genericInt = int */
-$_genericInt = extractType(new IntLiteralT(crc32('')));
+/**
+ * @return literal-int
+ */
+function generateLiteralInt(): int
+{
+    return 123;
+}
+
+/** @psalm-check-type-exact $_genericLiteralInt = literal-int */
+$_genericLiteralInt = extractType(new IntLiteralT(generateLiteralInt()));
 
 /**
  * @param IntLiteralT<1|2> $_type
