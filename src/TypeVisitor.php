@@ -7,7 +7,7 @@ namespace ExtendedTypeSystem;
 /**
  * @psalm-api
  * @psalm-immutable
- * @template TReturn
+ * @template-covariant TReturn
  */
 interface TypeVisitor
 {
