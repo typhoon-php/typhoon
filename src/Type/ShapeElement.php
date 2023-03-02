@@ -11,7 +11,7 @@ use ExtendedTypeSystem\Type;
  * @psalm-immutable
  * @template-covariant TType
  */
-final class ArrayElement
+final class ShapeElement
 {
     /**
      * @param Type<TType> $type

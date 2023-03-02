@@ -13,28 +13,28 @@ use ExtendedTypeSystem\TypeVisitor;
  * @template-covariant TArray of array
  * @implements Type<TArray>
  */
-final class ArrayShapeT implements Type
+final class ShapeT implements Type
 {
     /**
-     * @var array<ArrayElement>
+     * @var array<ShapeElement>
      */
     public readonly array $elements;
 
     /**
-     * @param array<Type|ArrayElement> $elements
+     * @param array<Type|ShapeElement> $elements
      */
     public function __construct(
         array $elements = [],
         public readonly bool $sealed = true,
     ) {
         $this->elements = array_map(
-            static fn (Type|ArrayElement $element): ArrayElement => $element instanceof Type ? new ArrayElement($element) : $element,
+            static fn (Type|ShapeElement $element): ShapeElement => $element instanceof Type ? new ShapeElement($element) : $element,
             $elements,
         );
     }
 
     public function accept(TypeVisitor $visitor): mixed
     {
-        return $visitor->visitArrayShape($this);
+        return $visitor->visitShape($this);
     }
 }
