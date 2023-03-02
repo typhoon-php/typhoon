@@ -135,7 +135,13 @@ interface TypeVisitor
     public function visitValueOf(Type\ValueOfT $type): mixed;
 
     /** @return TReturn */
-    public function visitTemplate(Type\TemplateT $type): mixed;
+    public function visitFunctionTemplate(Type\FunctionTemplateT $type): mixed;
+
+    /** @return TReturn */
+    public function visitClassTemplate(Type\ClassTemplateT $type): mixed;
+
+    /** @return TReturn */
+    public function visitMethodTemplate(Type\MethodTemplateT $type): mixed;
 
     /** @return TReturn */
     public function visitIntersection(Type\IntersectionT $type): mixed;

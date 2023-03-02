@@ -13,19 +13,20 @@ use ExtendedTypeSystem\TypeVisitor;
  * @template-covariant TType
  * @implements Type<TType>
  */
-final class TemplateT implements Type
+final class FunctionTemplateT implements Type
 {
     /**
      * @param non-empty-string $name
+     * @param callable-string $function
      */
     public function __construct(
         public readonly string $name,
-        public readonly AtFunction|AtClass|AtMethod $declaredAt,
+        public readonly string $function,
     ) {
     }
 
     public function accept(TypeVisitor $visitor): mixed
     {
-        return $visitor->visitTemplate($this);
+        return $visitor->visitFunctionTemplate($this);
     }
 }
