@@ -15,9 +15,6 @@ use ExtendedTypeSystem\TypeVisitor;
  */
 final class ValueOfT implements Type
 {
-    /**
-     * @param Type<TType> $type
-     */
     public function __construct(
         public readonly Type $type,
     ) {
