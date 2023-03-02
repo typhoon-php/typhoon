@@ -11,15 +11,16 @@ use ExtendedTypeSystem\Type;
  * @psalm-immutable
  * @template-covariant TType
  */
-final class CallableParameter
+final class Parameter
 {
     /**
      * @param Type<TType> $type
      */
     public function __construct(
         public readonly Type $type = new MixedT(),
-        public readonly bool $hasDefault = false,
+        public readonly bool $default = false,
         public readonly bool $variadic = false,
     ) {
+        \assert(!($default && $variadic), 'Parameter can be either default or variadic.');
     }
 }

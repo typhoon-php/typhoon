@@ -16,12 +16,12 @@ use ExtendedTypeSystem\TypeVisitor;
 final class ClosureT implements Type
 {
     /**
-     * @var list<CallableParameter>
+     * @var list<Parameter>
      */
     public readonly array $parameters;
 
     /**
-     * @param list<Type|CallableParameter> $parameters
+     * @param list<Type|Parameter> $parameters
      * @param Type<TReturn> $returnType
      */
     public function __construct(
@@ -29,7 +29,7 @@ final class ClosureT implements Type
         public readonly ?Type $returnType = null,
     ) {
         $this->parameters = array_map(
-            static fn (Type|CallableParameter $parameter): CallableParameter => $parameter instanceof Type ? new CallableParameter($parameter) : $parameter,
+            static fn (Type|Parameter $parameter): Parameter => $parameter instanceof Type ? new Parameter($parameter) : $parameter,
             $parameters,
         );
     }
