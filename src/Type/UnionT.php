@@ -10,21 +10,21 @@ use ExtendedTypeSystem\TypeVisitor;
 /**
  * @psalm-api
  * @psalm-immutable
- * @template-covariant T
- * @implements Type<T>
+ * @template-covariant TType
+ * @implements Type<TType>
  */
 final class UnionT implements Type
 {
     /**
-     * @var non-empty-list<Type<T>>
+     * @var non-empty-list<Type<TType>>
      */
     public readonly array $types;
 
     /**
      * @no-named-arguments
-     * @param Type<T> $type1
-     * @param Type<T> $type2
-     * @param Type<T> ...$moreTypes
+     * @param Type<TType> $type1
+     * @param Type<TType> $type2
+     * @param Type<TType> ...$moreTypes
      */
     public function __construct(
         Type $type1,

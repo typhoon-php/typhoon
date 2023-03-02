@@ -10,13 +10,13 @@ use ExtendedTypeSystem\TypeAlias;
 /**
  * @psalm-api
  * @psalm-immutable
- * @template-covariant T
- * @extends TypeAlias<T|null>
+ * @template-covariant TType
+ * @extends TypeAlias<TType|null>
  */
 final class NullableT extends TypeAlias
 {
     /**
-     * @param Type<T> $type
+     * @param Type<TType> $type
      */
     public function __construct(
         public readonly Type $type,

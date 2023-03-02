@@ -10,8 +10,8 @@ use ExtendedTypeSystem\TypeVisitor;
 /**
  * @psalm-api
  * @psalm-immutable
- * @template-covariant T of int
- * @implements Type<T>
+ * @template-covariant TInt of int
+ * @implements Type<TInt>
  */
 final class IntRangeT implements Type
 {

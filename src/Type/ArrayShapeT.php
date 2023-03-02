@@ -10,8 +10,8 @@ use ExtendedTypeSystem\TypeVisitor;
 /**
  * @psalm-api
  * @psalm-immutable
- * @template-covariant T of array
- * @implements Type<T>
+ * @template-covariant TArray of array
+ * @implements Type<TArray>
  */
 final class ArrayShapeT implements Type
 {

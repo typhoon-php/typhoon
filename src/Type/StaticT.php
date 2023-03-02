@@ -10,8 +10,8 @@ use ExtendedTypeSystem\TypeVisitor;
 /**
  * @psalm-api
  * @psalm-immutable
- * @template-covariant T of object
- * @implements Type<T>
+ * @template-covariant TObject of object
+ * @implements Type<TObject>
  */
 final class StaticT implements Type
 {
@@ -22,7 +22,7 @@ final class StaticT implements Type
 
     /**
      * @no-named-arguments
-     * @param class-string<T> $class
+     * @param class-string<TObject> $class
      */
     public function __construct(
         public readonly string $class,

@@ -7,8 +7,8 @@ namespace ExtendedTypeSystem;
 /**
  * @psalm-api
  * @psalm-immutable
- * @template-covariant T
- * @implements Type<T>
+ * @template-covariant TType
+ * @implements Type<TType>
  */
 abstract class TypeAlias implements Type
 {
@@ -18,7 +18,7 @@ abstract class TypeAlias implements Type
     }
 
     /**
-     * @return Type<T>
+     * @return Type<TType>
      */
     abstract public function type(): Type;
 }

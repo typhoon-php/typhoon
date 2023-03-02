@@ -9,7 +9,7 @@ namespace ExtendedTypeSystem;
  *
  * @psalm-api
  * @psalm-immutable
- * @template-covariant T
+ * @template-covariant TType
  */
 interface Type
 {

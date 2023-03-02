@@ -10,13 +10,13 @@ use ExtendedTypeSystem\TypeVisitor;
 /**
  * @psalm-api
  * @psalm-immutable
- * @template-covariant T of object
- * @implements Type<class-string<T>>
+ * @template-covariant TObject of object
+ * @implements Type<class-string<TObject>>
  */
 final class NamedClassStringT implements Type
 {
     /**
-     * @param Type<T> $type
+     * @param Type<TObject> $type
      */
     public function __construct(
         public readonly Type $type,

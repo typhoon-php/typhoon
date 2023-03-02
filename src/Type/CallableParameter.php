@@ -9,12 +9,12 @@ use ExtendedTypeSystem\Type;
 /**
  * @psalm-api
  * @psalm-immutable
- * @template-covariant T
+ * @template-covariant TType
  */
 final class CallableParameter
 {
     /**
-     * @param Type<T> $type
+     * @param Type<TType> $type
      */
     public function __construct(
         public readonly Type $type = new MixedT(),

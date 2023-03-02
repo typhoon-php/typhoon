@@ -10,8 +10,8 @@ use ExtendedTypeSystem\TypeVisitor;
 /**
  * @psalm-api
  * @psalm-immutable
- * @template-covariant T
- * @implements Type<T>
+ * @template-covariant TConstant
+ * @implements Type<TConstant>
  */
 final class ConstantT implements Type
 {
