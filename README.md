@@ -31,7 +31,7 @@ use ExtendedTypeSystem\types;
 $type = types::unsealedShape([
     'a' => types::nonEmptyString,
     'b' => types::optionalKey(types::union(types::int, types::float)),
-    'c' => types::objectOf(Traversable::class, types::numericString, types::false),
+    'c' => types::object(Traversable::class, types::numericString, types::false),
     'd' => types::callable(
         parameters: [
             types::classConstant(PDO::class, '*'),

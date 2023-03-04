@@ -202,7 +202,7 @@ final class types
      * @param class-string<TObject> $class
      * @return Type\NamedObjectType<TObject>
      */
-    public static function objectOf(string $class, Type ...$templateArguments): Type\NamedObjectType
+    public static function object(string $class, Type ...$templateArguments): Type\NamedObjectType
     {
         return new Type\NamedObjectType($class, $templateArguments);
     }
