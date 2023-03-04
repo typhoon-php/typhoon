@@ -335,6 +335,27 @@ final class types
 
     /**
      * @psalm-pure
+     * @param non-empty-string $name
+     * @param class-string $class
+     * @param non-empty-string $method
+     */
+    public static function methodTemplate(string $name, string $class, string $method): Type\MethodTemplateType
+    {
+        return new Type\MethodTemplateType($name, $class, $method);
+    }
+
+    /**
+     * @psalm-pure
+     * @param non-empty-string $name
+     * @param callable-string $function
+     */
+    public static function functionTemplate(string $name, string $function): Type\FunctionTemplateType
+    {
+        return new Type\FunctionTemplateType($name, $function);
+    }
+
+    /**
+     * @psalm-pure
      * @no-named-arguments
      * @template TType
      * @param Type<TType> $type
