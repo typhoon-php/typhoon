@@ -14,13 +14,15 @@ use ExtendedTypeSystem\Type;
 final class Parameter
 {
     /**
+     * @internal
+     * @psalm-internal ExtendedTypeSystem
      * @param Type<TType> $type
      */
     public function __construct(
-        public readonly Type $type = new MixedT(),
-        public readonly bool $default = false,
+        public readonly Type $type = MixedType::self,
+        public readonly bool $hasDefault = false,
         public readonly bool $variadic = false,
     ) {
-        \assert(!($default && $variadic), 'Parameter can be either default or variadic.');
+        \assert(!($hasDefault && $variadic), 'Parameter can be either default or variadic.');
     }
 }

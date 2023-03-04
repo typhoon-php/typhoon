@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace ExtendedTypeSystem\Type;
 
 /** @psalm-check-type-exact $_stringLiteral = 'abc' */
-$_stringLiteral = extractType(new StringLiteralT('abc'));
+$_stringLiteral = extractType(new StringLiteralType('abc'));
 
 /**
  * @return literal-string
@@ -16,13 +16,13 @@ function generateLiteralString(): string
 }
 
 /** @psalm-check-type-exact $_genericLiteralString = literal-string */
-$_genericLiteralString = extractType(new StringLiteralT(generateLiteralString()));
+$_genericLiteralString = extractType(new StringLiteralType(generateLiteralString()));
 
 /**
- * @param StringLiteralT<'abc'|'xyz'> $_type
+ * @param StringLiteralType<'abc'|'xyz'> $_type
  */
-function testStringLiteralIsCovariant(StringLiteralT $_type): void
+function testStringLiteralIsCovariant(StringLiteralType $_type): void
 {
 }
 
-testStringLiteralIsCovariant(new StringLiteralT('abc'));
+testStringLiteralIsCovariant(new StringLiteralType('abc'));

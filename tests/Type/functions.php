@@ -7,12 +7,12 @@ namespace ExtendedTypeSystem\Type;
 use ExtendedTypeSystem\Type;
 
 /**
- * @template T
- * @param Type<T> $_type
- * @return T
+ * @template TType
+ * @param Type<TType> $_type
+ * @return TType
  */
 function extractType(Type $_type): mixed
 {
-    /** @var T */
+    /** @var TType */
     return null;
 }

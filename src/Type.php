@@ -5,8 +5,6 @@ declare(strict_types=1);
 namespace ExtendedTypeSystem;
 
 /**
- * This interface must not be implemented outside ExtendedTypeSystem!
- *
  * @psalm-api
  * @psalm-immutable
  * @template-covariant TType

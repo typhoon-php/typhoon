@@ -5,19 +5,16 @@ declare(strict_types=1);
 namespace ExtendedTypeSystem\Type;
 
 /** @psalm-check-type-exact $_nullable = ?int */
-$_nullable = extractType(new NullableT(new IntT()));
+$_nullable = extractType(new NullableType(IntType::self));
 
 /** @psalm-check-type-exact $_nullableNullableInt = ?int */
-$_nullableNullableInt = extractType(new NullableT(new NullableT(new IntT())));
-
-/** @psalm-check-type-exact $_nullableUnionNullOrInt = ?int */
-$_nullableUnionNullOrInt = extractType(new NullableT(new UnionT(new NullT(), new IntT())));
+$_nullableNullableInt = extractType(new NullableType(new NullableType(IntType::self)));
 
 /**
- * @param NullableT<int|string> $_type
+ * @param NullableType<int|string> $_type
  */
-function testNullableIsCovariant(NullableT $_type): void
+function testNullableIsCovariant(NullableType $_type): void
 {
 }
 
-testNullableIsCovariant(new NullableT(new IntT()));
+testNullableIsCovariant(new NullableType(IntType::self));

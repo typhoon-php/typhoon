@@ -14,6 +14,8 @@ use ExtendedTypeSystem\Type;
 final class ShapeElement
 {
     /**
+     * @internal
+     * @psalm-internal ExtendedTypeSystem
      * @param Type<TType> $type
      */
     public function __construct(

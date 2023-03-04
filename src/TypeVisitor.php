@@ -12,146 +12,167 @@ namespace ExtendedTypeSystem;
 interface TypeVisitor
 {
     /** @return TReturn */
-    public function visitNever(Type\NeverT $type): mixed;
+    public function visitNever(Type\NeverType $type): mixed;
 
     /** @return TReturn */
-    public function visitVoid(Type\VoidT $type): mixed;
+    public function visitVoid(Type\VoidType $type): mixed;
 
     /** @return TReturn */
-    public function visitNull(Type\NullT $type): mixed;
+    public function visitNull(Type\NullType $type): mixed;
 
     /** @return TReturn */
-    public function visitFalse(Type\FalseT $type): mixed;
+    public function visitFalse(Type\FalseType $type): mixed;
 
     /** @return TReturn */
-    public function visitTrue(Type\TrueT $type): mixed;
+    public function visitTrue(Type\TrueType $type): mixed;
 
     /** @return TReturn */
-    public function visitBool(Type\BoolT $type): mixed;
+    public function visitBool(Type\BoolType $type): mixed;
 
     /** @return TReturn */
-    public function visitIntLiteral(Type\IntLiteralT $type): mixed;
+    public function visitIntLiteral(Type\IntLiteralType $type): mixed;
 
     /** @return TReturn */
-    public function visitLiteralInt(Type\LiteralIntT $type): mixed;
+    public function visitLiteralInt(Type\LiteralIntType $type): mixed;
 
     /** @return TReturn */
-    public function visitIntRange(Type\IntRangeT $type): mixed;
+    public function visitNegativeInt(Type\NegativeIntType $type): mixed;
 
     /** @return TReturn */
-    public function visitInt(Type\IntT $type): mixed;
+    public function visitNonPositiveInt(Type\NonPositiveIntType $type): mixed;
 
     /** @return TReturn */
-    public function visitFloatLiteral(Type\FloatLiteralT $type): mixed;
+    public function visitNonNegativeInt(Type\NonNegativeIntType $type): mixed;
 
     /** @return TReturn */
-    public function visitFloat(Type\FloatT $type): mixed;
+    public function visitPositiveInt(Type\PositiveIntType $type): mixed;
 
     /** @return TReturn */
-    public function visitStringLiteral(Type\StringLiteralT $type): mixed;
+    public function visitIntRange(Type\IntRangeType $type): mixed;
 
     /** @return TReturn */
-    public function visitLiteralString(Type\LiteralStringT $type): mixed;
+    public function visitInt(Type\IntType $type): mixed;
 
     /** @return TReturn */
-    public function visitNonEmptyString(Type\NonEmptyStringT $type): mixed;
+    public function visitFloatLiteral(Type\FloatLiteralType $type): mixed;
 
     /** @return TReturn */
-    public function visitNamedClassString(Type\NamedClassStringT $type): mixed;
+    public function visitFloat(Type\FloatType $type): mixed;
 
     /** @return TReturn */
-    public function visitClassString(Type\ClassStringT $type): mixed;
+    public function visitStringLiteral(Type\StringLiteralType $type): mixed;
 
     /** @return TReturn */
-    public function visitCallableString(Type\CallableStringT $type): mixed;
+    public function visitLiteralString(Type\LiteralStringType $type): mixed;
 
     /** @return TReturn */
-    public function visitInterfaceString(Type\InterfaceStringT $type): mixed;
+    public function visitNumericString(Type\NumericStringType $type): mixed;
 
     /** @return TReturn */
-    public function visitEnumString(Type\EnumStringT $type): mixed;
+    public function visitNamedClassString(Type\NamedClassStringType $type): mixed;
 
     /** @return TReturn */
-    public function visitTraitString(Type\TraitStringT $type): mixed;
+    public function visitClassString(Type\ClassStringType $type): mixed;
 
     /** @return TReturn */
-    public function visitString(Type\StringT $type): mixed;
+    public function visitCallableString(Type\CallableStringType $type): mixed;
 
     /** @return TReturn */
-    public function visitNumeric(Type\NumericT $type): mixed;
+    public function visitInterfaceString(Type\InterfaceStringType $type): mixed;
 
     /** @return TReturn */
-    public function visitNonEmptyList(Type\NonEmptyListT $type): mixed;
+    public function visitEnumString(Type\EnumStringType $type): mixed;
 
     /** @return TReturn */
-    public function visitList(Type\ListT $type): mixed;
+    public function visitTraitString(Type\TraitStringType $type): mixed;
 
     /** @return TReturn */
-    public function visitShape(Type\ShapeT $type): mixed;
+    public function visitNonEmptyString(Type\NonEmptyStringType $type): mixed;
 
     /** @return TReturn */
-    public function visitNonEmptyArray(Type\NonEmptyArrayT $type): mixed;
+    public function visitString(Type\StringType $type): mixed;
 
     /** @return TReturn */
-    public function visitCallableArray(Type\CallableArrayT $type): mixed;
+    public function visitNumeric(Type\NumericType $type): mixed;
 
     /** @return TReturn */
-    public function visitArray(Type\ArrayT $type): mixed;
+    public function visitArrayKey(Type\ArrayKeyType $type): mixed;
 
     /** @return TReturn */
-    public function visitIterable(Type\IterableT $type): mixed;
+    public function visitScalar(Type\ScalarType $type): mixed;
 
     /** @return TReturn */
-    public function visitNamedObject(Type\NamedObjectT $type): mixed;
+    public function visitNonEmptyList(Type\NonEmptyListType $type): mixed;
 
     /** @return TReturn */
-    public function visitStatic(Type\StaticT $type): mixed;
+    public function visitList(Type\ListType $type): mixed;
 
     /** @return TReturn */
-    public function visitObject(Type\ObjectT $type): mixed;
+    public function visitShape(Type\ShapeType $type): mixed;
 
     /** @return TReturn */
-    public function visitResource(Type\ResourceT $type): mixed;
+    public function visitNonEmptyArray(Type\NonEmptyArrayType $type): mixed;
 
     /** @return TReturn */
-    public function visitClosedResource(Type\ClosedResourceT $type): mixed;
+    public function visitCallableArray(Type\CallableArrayType $type): mixed;
 
     /** @return TReturn */
-    public function visitClosure(Type\ClosureT $type): mixed;
+    public function visitArray(Type\ArrayType $type): mixed;
 
     /** @return TReturn */
-    public function visitCallable(Type\CallableT $type): mixed;
+    public function visitIterable(Type\IterableType $type): mixed;
 
     /** @return TReturn */
-    public function visitConstant(Type\ConstantT $type): mixed;
+    public function visitNamedObject(Type\NamedObjectType $type): mixed;
 
     /** @return TReturn */
-    public function visitClassConstant(Type\ClassConstantT $type): mixed;
+    public function visitStatic(Type\StaticType $type): mixed;
 
     /** @return TReturn */
-    public function visitKeyOf(Type\KeyOfT $type): mixed;
+    public function visitObject(Type\ObjectType $type): mixed;
 
     /** @return TReturn */
-    public function visitValueOf(Type\ValueOfT $type): mixed;
+    public function visitResource(Type\ResourceType $type): mixed;
 
     /** @return TReturn */
-    public function visitFunctionTemplate(Type\FunctionTemplateT $type): mixed;
+    public function visitClosedResource(Type\ClosedResourceType $type): mixed;
 
     /** @return TReturn */
-    public function visitClassTemplate(Type\ClassTemplateT $type): mixed;
+    public function visitClosure(Type\ClosureType $type): mixed;
 
     /** @return TReturn */
-    public function visitMethodTemplate(Type\MethodTemplateT $type): mixed;
+    public function visitCallable(Type\CallableType $type): mixed;
 
     /** @return TReturn */
-    public function visitIntersection(Type\IntersectionT $type): mixed;
+    public function visitConstant(Type\ConstantType $type): mixed;
 
     /** @return TReturn */
-    public function visitUnion(Type\UnionT $type): mixed;
+    public function visitClassConstant(Type\ClassConstantType $type): mixed;
 
     /** @return TReturn */
-    public function visitMixed(Type\MixedT $type): mixed;
+    public function visitKeyOf(Type\KeyOfType $type): mixed;
 
     /** @return TReturn */
-    public function visitAlias(TypeAlias $type): mixed;
+    public function visitValueOf(Type\ValueOfType $type): mixed;
+
+    /** @return TReturn */
+    public function visitFunctionTemplate(Type\FunctionTemplateType $type): mixed;
+
+    /** @return TReturn */
+    public function visitClassTemplate(Type\ClassTemplateType $type): mixed;
+
+    /** @return TReturn */
+    public function visitMethodTemplate(Type\MethodTemplateType $type): mixed;
+
+    /** @return TReturn */
+    public function visitIntersection(Type\IntersectionType $type): mixed;
+
+    /** @return TReturn */
+    public function visitNullable(Type\NullableType $type): mixed;
+
+    /** @return TReturn */
+    public function visitUnion(Type\UnionType $type): mixed;
+
+    /** @return TReturn */
+    public function visitMixed(Type\MixedType $type): mixed;
 }
