@@ -336,6 +336,18 @@ final class types
     /**
      * @psalm-pure
      * @no-named-arguments
+     * @template TType
+     * @param Type<TType> $type
+     * @return Type\NullableType<TType>
+     */
+    public static function nullable(Type $type): Type\NullableType
+    {
+        return new Type\NullableType($type);
+    }
+
+    /**
+     * @psalm-pure
+     * @no-named-arguments
      */
     public static function intersection(Type $type1, Type $type2, Type ...$moreTypes): Type\IntersectionType
     {
