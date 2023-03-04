@@ -10,7 +10,7 @@ use ExtendedTypeSystem\TypeVisitor;
 /**
  * @psalm-api
  * @psalm-immutable
- * @template-covariant TValue of literal-string
+ * @template-covariant TValue of string
  * @implements Type<TValue>
  */
 final class StringLiteralType implements Type

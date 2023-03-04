@@ -49,7 +49,7 @@ final class types
 
     /**
      * @psalm-pure
-     * @template TValue of literal-int
+     * @template TValue of int
      * @param TValue $value
      * @return Type\IntLiteralType<TValue>
      */
@@ -79,7 +79,7 @@ final class types
 
     /**
      * @psalm-pure
-     * @template TValue of literal-string
+     * @template TValue of string
      * @param TValue $value
      * @return Type\StringLiteralType<TValue>
      */

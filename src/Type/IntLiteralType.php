@@ -10,7 +10,7 @@ use ExtendedTypeSystem\TypeVisitor;
 /**
  * @psalm-api
  * @psalm-immutable
- * @template-covariant TValue of literal-int
+ * @template-covariant TValue of int
  * @implements Type<TValue>
  */
 final class IntLiteralType implements Type
