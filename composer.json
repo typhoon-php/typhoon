@@ -11,12 +11,9 @@
     ],
     "require": {
         "php": "^8.1",
-        "extended-type-system/type": "^0.1@dev",
-        "extended-type-system/type-stringifier": "^0.1@dev",
-        "phpdocumentor/reflection-docblock": "^5.2",
-        "phpdocumentor/type-resolver": "^1.3",
-        "phpstan/phpdoc-parser": "^1.0",
-        "phpyh/lru-memoizer": "^0.2"
+        "extended-type-system/type": "^0.2@dev",
+        "nikic/php-parser": "^4.15",
+        "phpstan/phpdoc-parser": "^1.0"
     },
     "require-dev": {
         "ergebnis/composer-normalize": "^2.30",
@@ -24,7 +21,6 @@
         "phpunit/phpunit": "^9.6.3",
         "phpyh/coding-standard": "^2.0.0",
         "psalm/plugin-phpunit": "^0.18.4",
-        "symfony/finder": "^6.2.5",
         "vimeo/psalm": "^5.7.7"
     },
     "autoload": {

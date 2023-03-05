@@ -8,13 +8,13 @@ use PHPUnit\Framework\TestCase;
 
 /**
  * @internal
- * @covers \ExtendedTypeSystem\PHPStanOverPsalmOverOtherTagsPrioritizer
+ * @covers \ExtendedTypeSystem\PHPStanOverPsalmOverOtherPHPDocTagPrioritizer
  */
-final class PHPStanOverPsalmOverOtherTagsPrioritizerTest extends TestCase
+final class PHPStanOverPsalmOverOtherPHPDocTagPrioritizerTest extends TestCase
 {
     public function testPhpStanTagHasHigherPriorityOverPsalmTag(): void
     {
-        $prioritizer = new PHPStanOverPsalmOverOtherTagsPrioritizer();
+        $prioritizer = new PHPStanOverPsalmOverOtherPHPDocTagPrioritizer();
 
         $phpStanPriority = $prioritizer->priorityFor('@phpstan-var');
         $psalmPriority = $prioritizer->priorityFor('@psalm-var');
@@ -24,7 +24,7 @@ final class PHPStanOverPsalmOverOtherTagsPrioritizerTest extends TestCase
 
     public function testPsalmTagHasHigherPriorityOverStandardTag(): void
     {
-        $prioritizer = new PHPStanOverPsalmOverOtherTagsPrioritizer();
+        $prioritizer = new PHPStanOverPsalmOverOtherPHPDocTagPrioritizer();
 
         $psalmPriority = $prioritizer->priorityFor('@psalm-var');
         $standardTagPriority = $prioritizer->priorityFor('@var');

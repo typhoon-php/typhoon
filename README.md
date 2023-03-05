@@ -26,23 +26,23 @@ final class A
 }
 
 $reflector = new TypeReflector();
+$classReflection = $reflector->reflectClass(A::class);
 
-// object(ExtendedTypeSystem\Type\TemplateT) {
+// object(ExtendedTypeSystem\Type\ClassTemplateType) {
 //   name => string(1) "T"
-//   declaredAt => object(ExtendedTypeSystem\Type\AtClass) {
-//     class => string(7) "A"
-//   }
+//   class => string(1) "A"
 // }
-var_dump($reflector->reflectPropertyType(A::class, 'a'));
+var_dump($classReflection->propertyType('a'));
 
 // array(1) {
-//   0 => object(ExtendedTypeSystem\Template) {
+//   ["T"] => object(ExtendedTypeSystem\TemplateReflection) {
+//     index => int(0)
 //     name => string(1) "T"
-//     constraint => object(ExtendedTypeSystem\Type\NonEmptyListT) {
-//       valueType => object(ExtendedTypeSystem\Type\MixedT) {}
+//     constraint => object(ExtendedTypeSystem\Type\NonEmptyListType) {
+//       valueType => object(ExtendedTypeSystem\Type\MixedType) {}
 //     }
 //     variance => enum(ExtendedTypeSystem\Variance::COVARIANT)
 //   }
 // }
-var_dump($reflector->reflectClassTemplates(A::class));
+var_dump($classReflection->templates);
 ```

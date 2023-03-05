@@ -2,10 +2,11 @@
 
 declare(strict_types=1);
 
-namespace ExtendedTypeSystem\Parser;
+namespace ExtendedTypeSystem\TypeReflector;
 
-use ExtendedTypeSystem\PHPStanOverPsalmOverOtherTagsPrioritizer;
-use ExtendedTypeSystem\TagPrioritizer;
+use ExtendedTypeSystem\PHPDocTagPrioritizer;
+use ExtendedTypeSystem\PHPStanOverPsalmOverOtherPHPDocTagPrioritizer;
+use PhpParser\Node;
 use PHPStan\PhpDocParser\Ast\PhpDoc\PhpDocTagNode;
 use PHPStan\PhpDocParser\Lexer\Lexer;
 use PHPStan\PhpDocParser\Parser\ConstExprParser;
@@ -25,14 +26,19 @@ final class PHPDocParser
             new ConstExprParser(),
         ),
         private readonly Lexer $lexer = new Lexer(),
-        private readonly TagPrioritizer $prioritizer = new PHPStanOverPsalmOverOtherTagsPrioritizer(),
+        private readonly PHPDocTagPrioritizer $prioritizer = new PHPStanOverPsalmOverOtherPHPDocTagPrioritizer(),
     ) {
     }
 
-    public function parsePhpDoc(string|false $phpDoc): PHPDocTags
+    /**
+     * @return list<PhpDocTagNode>
+     */
+    public function parseNodePHPDoc(Node $node): array
     {
-        if (!$phpDoc) {
-            return new PHPDocTags([]);
+        $phpDoc = $node->getDocComment()?->getText() ?? '';
+
+        if (trim($phpDoc) === '') {
+            return [];
         }
 
         $tokens = $this->lexer->tokenize($phpDoc);
@@ -42,6 +48,6 @@ final class PHPDocParser
             fn (PhpDocTagNode $a, PhpDocTagNode $b): int => $this->prioritizer->priorityFor($b->name) <=> $this->prioritizer->priorityFor($a->name),
         );
 
-        return new PHPDocTags($tags);
+        return $tags;
     }
 }

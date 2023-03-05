@@ -6,8 +6,10 @@ namespace ExtendedTypeSystem;
 
 /**
  * This prioritizer tells to consider {@phpstan-*} tags first, then {@psalm-*} tags, and finally the others.
+ *
+ * @psalm-api
  */
-final class PHPStanOverPsalmOverOtherTagsPrioritizer implements TagPrioritizer
+final class PHPStanOverPsalmOverOtherPHPDocTagPrioritizer implements PHPDocTagPrioritizer
 {
     public function priorityFor(string $tagName): int
     {
