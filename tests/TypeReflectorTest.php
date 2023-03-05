@@ -8,143 +8,89 @@ use ExtendedTypeSystem\Source\ClassLocatorChain;
 use ExtendedTypeSystem\Source\SingleClassLocator;
 use ExtendedTypeSystem\Source\Source;
 use ExtendedTypeSystem\Stub\Base;
-use ExtendedTypeSystem\Stub\Some;
+use ExtendedTypeSystem\Stub\Main;
 use PHPUnit\Framework\TestCase;
 use function PHPUnit\Framework\assertEquals;
 
 /**
  * @internal
  * @covers \ExtendedTypeSystem\TypeReflector
- * @group unit
+ * @covers \ExtendedTypeSystem\TypeReflector\ClassLikeContext
+ * @covers \ExtendedTypeSystem\TypeReflector\ClassVisitor
+ * @covers \ExtendedTypeSystem\TypeReflector\Context
+ * @covers \ExtendedTypeSystem\TypeReflector\MethodContext
+ * @covers \ExtendedTypeSystem\TypeReflector\PHPDocParser
+ * @covers \ExtendedTypeSystem\TypeReflector\PropertyContext
+ * @covers \ExtendedTypeSystem\TypeReflector\TypeResolver
  */
 final class TypeReflectorTest extends TestCase
 {
     /**
      * @dataProvider nativeTypes
      */
-    public function testItReflectsNativePropertyType(string $type, Type $expectedType): void
+    public function testItReflectsNativeTypesAtProperty(string $type, Type $expectedType): void
     {
         $code = <<<PHP
             namespace ExtendedTypeSystem\\Stub;
-            class Some {
+            class Main extends \\ArrayObject {
                 public {$type} \$test;
             }
             PHP;
-        $reflector = new TypeReflector($this->classLocator($code, Some::class));
+        $typeReflector = new TypeReflector($this->locateCode($code));
 
-        $reflectedType = $reflector->reflectClass(Some::class)->propertyType('test');
+        $reflectedType = $typeReflector->reflectClass(Main::class)->propertyType('test');
 
         assertEquals($expectedType, $reflectedType);
-    }
-
-    public function testItReflectsNativePropertySelfType(): void
-    {
-        $code = <<<'PHP'
-            namespace ExtendedTypeSystem\Stub;
-            class Some {
-                public self $test;
-            }
-            PHP;
-        $reflector = new TypeReflector($this->classLocator($code, Some::class));
-
-        $reflectedType = $reflector->reflectClass(Some::class)->propertyType('test');
-
-        assertEquals(types::object(Some::class), $reflectedType);
-    }
-
-    public function testItReflectsNativePropertyParentType(): void
-    {
-        $code = <<<'PHP'
-            namespace ExtendedTypeSystem\Stub;
-            class Some extends \ArrayObject {
-                public parent $test;
-            }
-            PHP;
-        $reflector = new TypeReflector($this->classLocator($code, Some::class));
-
-        $reflectedType = $reflector->reflectClass(Some::class)->propertyType('test');
-
-        assertEquals(types::object(\ArrayObject::class), $reflectedType);
-    }
-
-    public function testItReflectsNativePropertyInheritedParentType(): void
-    {
-        $code = <<<'PHP'
-            namespace ExtendedTypeSystem\Stub;
-            class Base extends \ArrayObject {
-                public parent $test;
-            }
-            class Some extends Base {
-            }
-            PHP;
-        $reflector = new TypeReflector($this->classLocator($code, Base::class, Some::class));
-
-        $reflectedType = $reflector->reflectClass(Some::class)->propertyType('test');
-
-        assertEquals(types::object(\ArrayObject::class), $reflectedType);
     }
 
     /**
      * @dataProvider nativeTypes
      */
-    public function testItReflectsNativePromotedPropertyType(string $type, Type $expectedType): void
+    public function testItReflectsNativeTypesAtPromotedProperty(string $type, Type $expectedType): void
     {
         $code = <<<PHP
             namespace ExtendedTypeSystem\\Stub;
-            class Some {
+            class Main extends \\ArrayObject {
                 public function __construct(public {$type} \$test) {}
             }
             PHP;
-        $reflector = new TypeReflector($this->classLocator($code, Some::class));
+        $typeReflector = new TypeReflector($this->locateCode($code));
 
-        $reflectedType = $reflector->reflectClass(Some::class)->propertyType('test');
+        $reflectedType = $typeReflector->reflectClass(Main::class)->propertyType('test');
 
         assertEquals($expectedType, $reflectedType);
     }
 
-    public function testItReflectsNativePromotedPropertySelfType(): void
+    public function testItReflectsInheritedParentNativeTypeAtProperty(): void
     {
         $code = <<<'PHP'
             namespace ExtendedTypeSystem\Stub;
-            class Some {
-                public function __construct(public self $test) {}
+            class Base extends \ArrayObject {
+                public parent $test;
+            }
+            class Main extends Base {
             }
             PHP;
-        $reflector = new TypeReflector($this->classLocator($code, Some::class));
+        $typeReflector = new TypeReflector($this->locateCode($code));
 
-        $reflectedType = $reflector->reflectClass(Some::class)->propertyType('test');
-
-        assertEquals(types::object(Some::class), $reflectedType);
-    }
-
-    public function testItReflectsNativePromotedPropertyParentType(): void
-    {
-        $code = <<<'PHP'
-            namespace ExtendedTypeSystem\Stub;
-            class Some extends \ArrayObject {
-                public function __construct(public parent $test) {}
-            }
-            PHP;
-        $reflector = new TypeReflector($this->classLocator($code, Some::class));
-
-        $reflectedType = $reflector->reflectClass(Some::class)->propertyType('test');
+        $reflectedType = $typeReflector->reflectClass(Main::class)->propertyType('test');
 
         assertEquals(types::object(\ArrayObject::class), $reflectedType);
     }
 
-    public function testItReflectsNativePromotedPropertyInheritedParentType(): void
+    public function testItReflectsInheritedParentNativeTypeAtPromotedProperty(): void
     {
         $code = <<<'PHP'
             namespace ExtendedTypeSystem\Stub;
             class Base extends \ArrayObject {
                 public function __construct(public parent $test) {}
             }
-            class Some extends Base {
+            class Main extends Base {
             }
             PHP;
-        $reflector = new TypeReflector($this->classLocator($code, Base::class, Some::class));
+        $typeReflector = new TypeReflector($this->locateCode($code));
 
-        $reflectedType = $reflector->reflectClass(Some::class)->propertyType('test');
+        $reflectedType = $typeReflector->reflectClass(Main::class)->propertyType('test');
 
         assertEquals(types::object(\ArrayObject::class), $reflectedType);
     }
@@ -153,477 +99,90 @@ final class TypeReflectorTest extends TestCase
      * @dataProvider nativeTypes
      * @dataProvider callableType
      */
-    public function testItReflectsNativeMethodParameterType(string $type, Type $expectedType): void
+    public function testItReflectsNativeTypesAtMethodParameter(string $type, Type $expectedType): void
     {
         $code = <<<PHP
             namespace ExtendedTypeSystem\\Stub;
-            class Some {
+            class Main extends \\ArrayObject {
                 public function test({$type} \$test) {}
             }
             PHP;
-        $reflector = new TypeReflector($this->classLocator($code, Some::class));
+        $typeReflector = new TypeReflector($this->locateCode($code));
 
-        $reflectedType = $reflector->reflectClass(Some::class)->method('test')->parameterType('test');
+        $reflectedType = $typeReflector->reflectClass(Main::class)->method('test')->parameterType('test');
 
         assertEquals($expectedType, $reflectedType);
     }
 
-    public function testItReflectsNativeMethodSelfParameterType(): void
-    {
-        $code = <<<'PHP'
-            namespace ExtendedTypeSystem\Stub;
-            class Some {
-                public function test(self $test) {}
-            }
-            PHP;
-        $reflector = new TypeReflector($this->classLocator($code, Some::class));
-
-        $reflectedType = $reflector->reflectClass(Some::class)->method('test')->parameterType('test');
-
-        assertEquals(types::object(Some::class), $reflectedType);
-    }
-
-    public function testItReflectsNativeMethodParentParameterType(): void
-    {
-        $code = <<<'PHP'
-            namespace ExtendedTypeSystem\Stub;
-            class Some extends \ArrayObject {
-                public function test(parent $test) {}
-            }
-            PHP;
-        $reflector = new TypeReflector($this->classLocator($code, Some::class));
-
-        $reflectedType = $reflector->reflectClass(Some::class)->method('test')->parameterType('test');
-
-        assertEquals(types::object(\ArrayObject::class), $reflectedType);
-    }
-
-    public function testItReflectsNativeMethodInheritedParentParameterType(): void
+    public function testItReflectsInheritedParentNativeTypeAtMethodParameter(): void
     {
         $code = <<<'PHP'
             namespace ExtendedTypeSystem\Stub;
             class Base extends \ArrayObject {
                 public function test(parent $test) {}
             }
-            class Some extends Base {
+            class Main extends Base {
             }
             PHP;
-        $reflector = new TypeReflector($this->classLocator($code, Base::class, Some::class));
+        $typeReflector = new TypeReflector($this->locateCode($code));
 
-        $reflectedType = $reflector->reflectClass(Some::class)->method('test')->parameterType('test');
+        $reflectedType = $typeReflector->reflectClass(Main::class)->method('test')->parameterType('test');
 
         assertEquals(types::object(\ArrayObject::class), $reflectedType);
     }
 
     /**
      * @dataProvider nativeTypes
+     * @dataProvider staticType
      * @dataProvider callableType
      * @dataProvider voidType
      * @dataProvider neverType
      */
-    public function testItReflectsNativeMethodReturnType(string $type, Type $expectedType): void
+    public function testItReflectsNativeTypesAtMethodReturn(string $type, Type $expectedType): void
     {
         $typeDeclaration = $type === '' ? '' : ': '.$type;
         $code = <<<PHP
             namespace ExtendedTypeSystem\\Stub;
-            class Some {
+            class Main extends \\ArrayObject {
                 public function test(){$typeDeclaration} {}
             }
             PHP;
-        $reflector = new TypeReflector($this->classLocator($code, Some::class));
+        $typeReflector = new TypeReflector($this->locateCode($code));
 
-        $reflectedType = $reflector->reflectClass(Some::class)->method('test')->returnType;
+        $reflectedType = $typeReflector->reflectClass(Main::class)->method('test')->returnType;
 
         assertEquals($expectedType, $reflectedType);
     }
 
-    public function testItReflectsNativeMethodSelfReturnType(): void
-    {
-        $code = <<<'PHP'
-            namespace ExtendedTypeSystem\Stub;
-            class Some {
-                public function test(): self {}
-            }
-            PHP;
-        $reflector = new TypeReflector($this->classLocator($code, Some::class));
-
-        $reflectedType = $reflector->reflectClass(Some::class)->method('test')->returnType;
-
-        assertEquals(types::object(Some::class), $reflectedType);
-    }
-
-    public function testItReflectsNativeMethodParentReturnType(): void
-    {
-        $code = <<<'PHP'
-            namespace ExtendedTypeSystem\Stub;
-            class Some extends \ArrayObject {
-                public function test(): parent {}
-            }
-            PHP;
-        $reflector = new TypeReflector($this->classLocator($code, Some::class));
-
-        $reflectedType = $reflector->reflectClass(Some::class)->method('test')->returnType;
-
-        assertEquals(types::object(\ArrayObject::class), $reflectedType);
-    }
-
-    public function testItReflectsNativeMethodInheritedParentReturnType(): void
+    public function testItReflectsInheritedParentNativeTypeAtMethodReturn(): void
     {
         $code = <<<'PHP'
             namespace ExtendedTypeSystem\Stub;
             class Base extends \ArrayObject {
                 public function test(): parent {}
             }
-            class Some extends Base {
+            class Main extends Base {
             }
             PHP;
-        $reflector = new TypeReflector($this->classLocator($code, Base::class, Some::class));
+        $typeReflector = new TypeReflector($this->locateCode($code));
 
-        $reflectedType = $reflector->reflectClass(Some::class)->method('test')->returnType;
+        $reflectedType = $typeReflector->reflectClass(Main::class)->method('test')->returnType;
 
         assertEquals(types::object(\ArrayObject::class), $reflectedType);
     }
 
-    public function testItReflectsNativeMethodStaticReturnType(): void
-    {
-        $code = <<<'PHP'
-            namespace ExtendedTypeSystem\Stub;
-            class Some {
-                public function test(): static {}
-            }
-            PHP;
-        $reflector = new TypeReflector($this->classLocator($code, Some::class));
-
-        $reflectedType = $reflector->reflectClass(Some::class)->method('test')->returnType;
-
-        assertEquals(types::static(Some::class), $reflectedType);
-    }
-
-    public function testItReflectsNativeMethodInheritedStaticReturnType(): void
+    public function testItReflectsInheritedStaticNativeTypeAtMethodReturn(): void
     {
         $code = <<<'PHP'
             namespace ExtendedTypeSystem\Stub;
             class Base {
                 public function test(): static {}
             }
-            class Some extends Base {}
+            class Main extends Base {}
             PHP;
-        $reflector = new TypeReflector($this->classLocator($code, Base::class, Some::class));
+        $typeReflector = new TypeReflector($this->locateCode($code));
 
-        $reflectedType = $reflector->reflectClass(Some::class)->method('test')->returnType;
-
-        assertEquals(types::static(Base::class), $reflectedType);
-    }
-
-    /**
-     * @dataProvider nativeTypes
-     */
-    public function testItReflectsPropertyType(string $type, Type $expectedType): void
-    {
-        $code = <<<PHP
-            namespace ExtendedTypeSystem\\Stub;
-            class Some {
-                /** @var {$type} */
-                public {$type} \$test;
-            }
-            PHP;
-        $reflector = new TypeReflector($this->classLocator($code, Some::class));
-
-        $reflectedType = $reflector->reflectClass(Some::class)->propertyType('test');
-
-        assertEquals($expectedType, $reflectedType);
-    }
-
-    public function testItReflectsPropertySelfType(): void
-    {
-        $code = <<<'PHP'
-            namespace ExtendedTypeSystem\Stub;
-            class Some {
-                /** @var self */
-                public $test;
-            }
-            PHP;
-        $reflector = new TypeReflector($this->classLocator($code, Some::class));
-
-        $reflectedType = $reflector->reflectClass(Some::class)->propertyType('test');
-
-        assertEquals(types::object(Some::class), $reflectedType);
-    }
-
-    public function testItReflectsPropertyParentType(): void
-    {
-        $code = <<<'PHP'
-            namespace ExtendedTypeSystem\Stub;
-            class Some extends \ArrayObject {
-                /** @var parent */
-                public $test;
-            }
-            PHP;
-        $reflector = new TypeReflector($this->classLocator($code, Some::class));
-
-        $reflectedType = $reflector->reflectClass(Some::class)->propertyType('test');
-
-        assertEquals(types::object(\ArrayObject::class), $reflectedType);
-    }
-
-    public function testItReflectsPropertyInheritedParentType(): void
-    {
-        $code = <<<'PHP'
-            namespace ExtendedTypeSystem\Stub;
-            class Base extends \ArrayObject {
-                /** @var parent */
-                public $test;
-            }
-            class Some extends Base {
-            }
-            PHP;
-        $reflector = new TypeReflector($this->classLocator($code, Base::class, Some::class));
-
-        $reflectedType = $reflector->reflectClass(Some::class)->propertyType('test');
-
-        assertEquals(types::object(\ArrayObject::class), $reflectedType);
-    }
-
-    /**
-     * @dataProvider nativeTypes
-     */
-    public function testItReflectsPromotedPropertyType(string $type, Type $expectedType): void
-    {
-        $code = <<<PHP
-            namespace ExtendedTypeSystem\\Stub;
-            class Some {
-                /** @param {$type} \$test */
-                public function __construct(public \$test) {}
-            }
-            PHP;
-        $reflector = new TypeReflector($this->classLocator($code, Some::class));
-
-        $reflectedType = $reflector->reflectClass(Some::class)->propertyType('test');
-
-        assertEquals($expectedType, $reflectedType);
-    }
-
-    public function testItReflectsPromotedPropertySelfType(): void
-    {
-        $code = <<<'PHP'
-            namespace ExtendedTypeSystem\Stub;
-            class Some {
-                /** @param self $test */
-                public function __construct(public $test) {}
-            }
-            PHP;
-        $reflector = new TypeReflector($this->classLocator($code, Some::class));
-
-        $reflectedType = $reflector->reflectClass(Some::class)->propertyType('test');
-
-        assertEquals(types::object(Some::class), $reflectedType);
-    }
-
-    public function testItReflectsPromotedPropertyParentType(): void
-    {
-        $code = <<<'PHP'
-            namespace ExtendedTypeSystem\Stub;
-            class Some extends \ArrayObject {
-                /** @param parent $test */
-                public function __construct(public $test) {}
-            }
-            PHP;
-        $reflector = new TypeReflector($this->classLocator($code, Some::class));
-
-        $reflectedType = $reflector->reflectClass(Some::class)->propertyType('test');
-
-        assertEquals(types::object(\ArrayObject::class), $reflectedType);
-    }
-
-    public function testItReflectsPromotedPropertyInheritedParentType(): void
-    {
-        $code = <<<'PHP'
-            namespace ExtendedTypeSystem\Stub;
-            class Base extends \ArrayObject {
-                /** @param parent $test */
-                public function __construct(public $test) {}
-            }
-            class Some extends Base {
-            }
-            PHP;
-        $reflector = new TypeReflector($this->classLocator($code, Base::class, Some::class));
-
-        $reflectedType = $reflector->reflectClass(Some::class)->propertyType('test');
-
-        assertEquals(types::object(\ArrayObject::class), $reflectedType);
-    }
-
-    /**
-     * @dataProvider nativeTypes
-     * @dataProvider callableType
-     */
-    public function testItReflectsMethodParameterType(string $type, Type $expectedType): void
-    {
-        $code = <<<PHP
-            namespace ExtendedTypeSystem\\Stub;
-            class Some {
-                /** @param {$type} \$test */
-                public function test(\$test) {}
-            }
-            PHP;
-        $reflector = new TypeReflector($this->classLocator($code, Some::class));
-
-        $reflectedType = $reflector->reflectClass(Some::class)->method('test')->parameterType('test');
-
-        assertEquals($expectedType, $reflectedType);
-    }
-
-    public function testItReflectsMethodSelfParameterType(): void
-    {
-        $code = <<<'PHP'
-            namespace ExtendedTypeSystem\Stub;
-            class Some {
-                /** @param self $test */
-                public function test($test) {}
-            }
-            PHP;
-        $reflector = new TypeReflector($this->classLocator($code, Some::class));
-
-        $reflectedType = $reflector->reflectClass(Some::class)->method('test')->parameterType('test');
-
-        assertEquals(types::object(Some::class), $reflectedType);
-    }
-
-    public function testItReflectsMethodParentParameterType(): void
-    {
-        $code = <<<'PHP'
-            namespace ExtendedTypeSystem\Stub;
-            class Some extends \ArrayObject {
-                /** @param parent $test */
-                public function test($test) {}
-            }
-            PHP;
-        $reflector = new TypeReflector($this->classLocator($code, Some::class));
-
-        $reflectedType = $reflector->reflectClass(Some::class)->method('test')->parameterType('test');
-
-        assertEquals(types::object(\ArrayObject::class), $reflectedType);
-    }
-
-    public function testItReflectsMethodInheritedParentParameterType(): void
-    {
-        $code = <<<'PHP'
-            namespace ExtendedTypeSystem\Stub;
-            class Base extends \ArrayObject {
-                /** @param parent $test */
-                public function test($test) {}
-            }
-            class Some extends Base {
-            }
-            PHP;
-        $reflector = new TypeReflector($this->classLocator($code, Base::class, Some::class));
-
-        $reflectedType = $reflector->reflectClass(Some::class)->method('test')->parameterType('test');
-
-        assertEquals(types::object(\ArrayObject::class), $reflectedType);
-    }
-
-    /**
-     * @dataProvider nativeTypes
-     * @dataProvider callableType
-     * @dataProvider voidType
-     * @dataProvider neverType
-     */
-    public function testItReflectsMethodReturnType(string $type, Type $expectedType): void
-    {
-        $code = <<<PHP
-            namespace ExtendedTypeSystem\\Stub;
-            class Some {
-                /** @return {$type} */
-                public function test() {}
-            }
-            PHP;
-        $reflector = new TypeReflector($this->classLocator($code, Some::class));
-
-        $reflectedType = $reflector->reflectClass(Some::class)->method('test')->returnType;
-
-        assertEquals($expectedType, $reflectedType);
-    }
-
-    public function testItReflectsMethodSelfReturnType(): void
-    {
-        $code = <<<'PHP'
-            namespace ExtendedTypeSystem\Stub;
-            class Some {
-                /** @return self */
-                public function test() {}
-            }
-            PHP;
-        $reflector = new TypeReflector($this->classLocator($code, Some::class));
-
-        $reflectedType = $reflector->reflectClass(Some::class)->method('test')->returnType;
-
-        assertEquals(types::object(Some::class), $reflectedType);
-    }
-
-    public function testItReflectsMethodParentReturnType(): void
-    {
-        $code = <<<'PHP'
-            namespace ExtendedTypeSystem\Stub;
-            class Some extends \ArrayObject {
-                /** @return parent */
-                public function test() {}
-            }
-            PHP;
-        $reflector = new TypeReflector($this->classLocator($code, Some::class));
-
-        $reflectedType = $reflector->reflectClass(Some::class)->method('test')->returnType;
-
-        assertEquals(types::object(\ArrayObject::class), $reflectedType);
-    }
-
-    public function testItReflectsMethodInheritedParentReturnType(): void
-    {
-        $code = <<<'PHP'
-            namespace ExtendedTypeSystem\Stub;
-            class Base extends \ArrayObject {
-                /** @return parent */
-                public function test() {}
-            }
-            class Some extends Base {
-            }
-            PHP;
-        $reflector = new TypeReflector($this->classLocator($code, Base::class, Some::class));
-
-        $reflectedType = $reflector->reflectClass(Some::class)->method('test')->returnType;
-
-        assertEquals(types::object(\ArrayObject::class), $reflectedType);
-    }
-
-    public function testItReflectsMethodStaticReturnType(): void
-    {
-        $code = <<<'PHP'
-            namespace ExtendedTypeSystem\Stub;
-            class Some {
-                /** @return static */
-                public function test() {}
-            }
-            PHP;
-        $reflector = new TypeReflector($this->classLocator($code, Some::class));
-
-        $reflectedType = $reflector->reflectClass(Some::class)->method('test')->returnType;
-
-        assertEquals(types::static(Some::class), $reflectedType);
-    }
-
-    public function testItReflectsMethodInheritedStaticReturnType(): void
-    {
-        $code = <<<'PHP'
-            namespace ExtendedTypeSystem\Stub;
-            class Base {
-                /** @return static */
-                public function test() {}
-            }
-            class Some extends Base {}
-            PHP;
-        $reflector = new TypeReflector($this->classLocator($code, Base::class, Some::class));
-
-        $reflectedType = $reflector->reflectClass(Some::class)->method('test')->returnType;
+        $reflectedType = $typeReflector->reflectClass(Main::class)->method('test')->returnType;
 
         assertEquals(types::static(Base::class), $reflectedType);
     }
@@ -642,17 +201,19 @@ final class TypeReflectorTest extends TestCase
         yield 'iterable' => ['iterable', types::iterable()];
         yield 'object' => ['object', types::object];
         yield 'mixed' => ['mixed', types::mixed];
-        yield '\Closure' => ['\Closure', types::object(\Closure::class)];
+        yield 'Closure' => ['\Closure', types::object(\Closure::class)];
         yield 'string|int|null' => ['string|int|null', types::union(types::string, types::int, types::null)];
         yield 'string|false' => ['string|false', types::union(types::string, types::false)];
-        yield '\Countable&\Traversable' => ['\Countable&\Traversable', types::intersection(types::object(\Countable::class), types::object(\Traversable::class))];
+        yield 'Countable&Traversable' => ['\Countable&\Traversable', types::intersection(types::object(\Countable::class), types::object(\Traversable::class))];
         yield '?int' => ['?int', types::nullable(types::int)];
+        yield 'self' => ['self', types::object(Main::class)];
+        yield 'ArrayObject parent' => ['parent', types::object(\ArrayObject::class)];
 
         if (\PHP_VERSION_ID >= 80200) {
             yield 'null' => ['null', types::null];
             yield 'true' => ['true', types::true];
             yield 'false' => ['false', types::false];
-            yield '(\Countable&\Traversable)|string' => ['(\Countable&\Traversable)|string', types::union(
+            yield '(Countable&Traversable)|string' => ['(\Countable&\Traversable)|string', types::union(
                 types::intersection(types::object(\Countable::class), types::object(\Traversable::class)),
                 types::string,
             )];
@@ -684,13 +245,18 @@ final class TypeReflectorTest extends TestCase
     }
 
     /**
-     * @param class-string ...$classes
+     * @return \Generator<string, array{string, Type}>
      */
-    private function classLocator(string $code, string ...$classes): ClassLocator
+    public function staticType(): \Generator
+    {
+        yield 'static' => ['static', types::static(Main::class)];
+    }
+
+    private function locateCode(string $code): ClassLocator
     {
         return new ClassLocatorChain(array_map(
             static fn (string $class): SingleClassLocator => new SingleClassLocator($class, new Source('<?php '.$code)),
-            $classes,
+            [Main::class, Base::class],
         ));
     }
 }

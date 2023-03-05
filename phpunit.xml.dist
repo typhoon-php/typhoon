@@ -11,7 +11,7 @@
     </php>
     <coverage>
         <include>
-            <directory>tests</directory>
+            <directory>src</directory>
         </include>
     </coverage>
     <testsuites>
