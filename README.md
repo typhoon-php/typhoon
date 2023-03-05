@@ -24,7 +24,7 @@ use ExtendedTypeSystem\types;
  *     a: non-empty-list,
  *     b?: int|float,
  *     c: Traversable<numeric-string, false>,
- *     d: callable(PDO::*, T:Generator=, scalar...): void,
+ *     d: callable(PDO::*, TSend:Generator=, scalar...): void,
  *     ...
  * }
  */
