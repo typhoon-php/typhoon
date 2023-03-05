@@ -4,15 +4,17 @@ declare(strict_types=1);
 
 namespace ExtendedTypeSystem;
 
+use ExtendedTypeSystem\TagPrioritizer\PHPStanOverPsalmOverOthersTagPrioritizer;
+
 /**
  * @psalm-api
  */
-interface PHPDocTagPrioritizer
+interface TagPrioritizer
 {
     /**
      * @param string $tagName tag name including @
      * @return int the higher the number, the earlier given tag will be considered
-     * @see PHPStanOverPsalmOverOtherPHPDocTagPrioritizer
+     * @see PHPStanOverPsalmOverOthersTagPrioritizer
      */
     public function priorityFor(string $tagName): int;
 }

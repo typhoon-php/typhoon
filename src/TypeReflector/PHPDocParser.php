@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace ExtendedTypeSystem\TypeReflector;
 
-use ExtendedTypeSystem\PHPDocTagPrioritizer;
-use ExtendedTypeSystem\PHPStanOverPsalmOverOtherPHPDocTagPrioritizer;
+use ExtendedTypeSystem\TagPrioritizer;
+use ExtendedTypeSystem\TagPrioritizer\PHPStanOverPsalmOverOthersTagPrioritizer;
 use PhpParser\Node;
 use PHPStan\PhpDocParser\Ast\PhpDoc\PhpDocTagNode;
 use PHPStan\PhpDocParser\Lexer\Lexer;
@@ -26,7 +26,7 @@ final class PHPDocParser
             new ConstExprParser(),
         ),
         private readonly Lexer $lexer = new Lexer(),
-        private readonly PHPDocTagPrioritizer $prioritizer = new PHPStanOverPsalmOverOtherPHPDocTagPrioritizer(),
+        private readonly TagPrioritizer $tagPrioritizer = new PHPStanOverPsalmOverOthersTagPrioritizer(),
     ) {
     }
 
@@ -45,7 +45,7 @@ final class PHPDocParser
         $tags = $this->parser->parse(new TokenIterator($tokens))->getTags();
         usort(
             $tags,
-            fn (PhpDocTagNode $a, PhpDocTagNode $b): int => $this->prioritizer->priorityFor($b->name) <=> $this->prioritizer->priorityFor($a->name),
+            fn (PhpDocTagNode $a, PhpDocTagNode $b): int => $this->tagPrioritizer->priorityFor($b->name) <=> $this->tagPrioritizer->priorityFor($a->name),
         );
 
         return $tags;

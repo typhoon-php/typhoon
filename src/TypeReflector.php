@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace ExtendedTypeSystem;
 
+use ExtendedTypeSystem\TagPrioritizer\PHPStanOverPsalmOverOthersTagPrioritizer;
 use ExtendedTypeSystem\TypeReflector\ClassVisitor;
 use ExtendedTypeSystem\TypeReflector\PHPDocParser;
 use ExtendedTypeSystem\TypeReflector\TypeResolver;
@@ -30,9 +31,9 @@ final class TypeReflector
         private readonly Parser $phpParser = new Php7(new Emulative(['usedAttributes' => ['comments']])),
         PHPStanPhpDocParser $phpDocParser = new PHPStanPhpDocParser(new TypeParser(new ConstExprParser()), new ConstExprParser()),
         PHPStanPhpDocLexer $phpDocLexer = new PHPStanPhpDocLexer(),
-        PHPDocTagPrioritizer $phpDocPrioritizer = new PHPStanOverPsalmOverOtherPHPDocTagPrioritizer(),
+        TagPrioritizer $tagPrioritizer = new PHPStanOverPsalmOverOthersTagPrioritizer(),
     ) {
-        $this->phpDocParser = new PHPDocParser($phpDocParser, $phpDocLexer, $phpDocPrioritizer);
+        $this->phpDocParser = new PHPDocParser($phpDocParser, $phpDocLexer, $tagPrioritizer);
         $this->typeResolver = new TypeResolver();
     }
 

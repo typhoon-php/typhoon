@@ -2,19 +2,19 @@
 
 declare(strict_types=1);
 
-namespace ExtendedTypeSystem;
+namespace ExtendedTypeSystem\TagPrioritizer;
 
 use PHPUnit\Framework\TestCase;
 
 /**
  * @internal
- * @covers \ExtendedTypeSystem\PHPStanOverPsalmOverOtherPHPDocTagPrioritizer
+ * @covers \ExtendedTypeSystem\TagPrioritizer\PHPStanOverPsalmOverOthersTagPrioritizer
  */
-final class PHPStanOverPsalmOverOtherPHPDocTagPrioritizerTest extends TestCase
+final class PHPStanOverPsalmOverOthersTagPrioritizerTest extends TestCase
 {
     public function testPhpStanTagHasHigherPriorityOverPsalmTag(): void
     {
-        $prioritizer = new PHPStanOverPsalmOverOtherPHPDocTagPrioritizer();
+        $prioritizer = new PHPStanOverPsalmOverOthersTagPrioritizer();
 
         $phpStanPriority = $prioritizer->priorityFor('@phpstan-var');
         $psalmPriority = $prioritizer->priorityFor('@psalm-var');
@@ -24,7 +24,7 @@ final class PHPStanOverPsalmOverOtherPHPDocTagPrioritizerTest extends TestCase
 
     public function testPsalmTagHasHigherPriorityOverStandardTag(): void
     {
-        $prioritizer = new PHPStanOverPsalmOverOtherPHPDocTagPrioritizer();
+        $prioritizer = new PHPStanOverPsalmOverOthersTagPrioritizer();
 
         $psalmPriority = $prioritizer->priorityFor('@psalm-var');
         $standardTagPriority = $prioritizer->priorityFor('@var');

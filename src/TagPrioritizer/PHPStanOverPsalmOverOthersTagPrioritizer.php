@@ -2,14 +2,16 @@
 
 declare(strict_types=1);
 
-namespace ExtendedTypeSystem;
+namespace ExtendedTypeSystem\TagPrioritizer;
+
+use ExtendedTypeSystem\TagPrioritizer;
 
 /**
  * This prioritizer tells to consider {@phpstan-*} tags first, then {@psalm-*} tags, and finally the others.
  *
  * @psalm-api
  */
-final class PHPStanOverPsalmOverOtherPHPDocTagPrioritizer implements PHPDocTagPrioritizer
+final class PHPStanOverPsalmOverOthersTagPrioritizer implements TagPrioritizer
 {
     public function priorityFor(string $tagName): int
     {
