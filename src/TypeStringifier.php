@@ -266,7 +266,7 @@ final class TypeStringifier implements TypeVisitor
             '%s{%s%s}',
             $type->sealed && $list ? 'list' : 'array',
             implode(', ', array_map(
-                fn (int|string $key, ShapeElement $element): string => $this->stringifyArrayShapeElement($list, $key, $element),
+                fn (int|string $key, ShapeElement $element): string => $this->stringifyShapeElement($list, $key, $element),
                 array_keys($type->elements),
                 $type->elements,
             )),
@@ -424,7 +424,7 @@ final class TypeStringifier implements TypeVisitor
         return 'mixed';
     }
 
-    private function stringifyArrayShapeElement(bool $list, int|string $key, ShapeElement $element): string
+    private function stringifyShapeElement(bool $list, int|string $key, ShapeElement $element): string
     {
         if ($list && !$element->optional) {
             return $element->type->accept($this);
