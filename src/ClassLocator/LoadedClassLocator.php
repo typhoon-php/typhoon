@@ -2,9 +2,10 @@
 
 declare(strict_types=1);
 
-namespace ExtendedTypeSystem;
+namespace ExtendedTypeSystem\ClassLocator;
 
-use ExtendedTypeSystem\Source\Source;
+use ExtendedTypeSystem\ClassLocator;
+use ExtendedTypeSystem\Source;
 
 /**
  * @psalm-api
@@ -24,6 +25,6 @@ final class LoadedClassLocator implements ClassLocator
             return null;
         }
 
-        return new Source(file_get_contents($filename), $filename);
+        return new Source($filename, file_get_contents($filename));
     }
 }

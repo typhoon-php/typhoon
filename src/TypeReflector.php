@@ -4,10 +4,11 @@ declare(strict_types=1);
 
 namespace ExtendedTypeSystem;
 
+use ExtendedTypeSystem\ClassLocator\LoadedClassLocator;
 use ExtendedTypeSystem\TagPrioritizer\PHPStanOverPsalmOverOthersTagPrioritizer;
-use ExtendedTypeSystem\TypeReflector\ClassVisitor;
+use ExtendedTypeSystem\TypeReflector\ClassReflectionFactory;
+use ExtendedTypeSystem\TypeReflector\FindClassVisitor;
 use ExtendedTypeSystem\TypeReflector\PHPDocParser;
-use ExtendedTypeSystem\TypeReflector\TypeResolver;
 use PhpParser\Lexer\Emulative;
 use PhpParser\NodeTraverser;
 use PhpParser\NodeVisitor\NameResolver;
@@ -23,8 +24,7 @@ use PHPStan\PhpDocParser\Parser\TypeParser;
  */
 final class TypeReflector
 {
-    private readonly PHPDocParser $phpDocParser;
-    private readonly TypeResolver $typeResolver;
+    private readonly ClassReflectionFactory $classReflectionFactory;
 
     public function __construct(
         private readonly ClassLocator $classLocator = new LoadedClassLocator(),
@@ -33,8 +33,9 @@ final class TypeReflector
         PHPStanPhpDocLexer $phpDocLexer = new PHPStanPhpDocLexer(),
         TagPrioritizer $tagPrioritizer = new PHPStanOverPsalmOverOthersTagPrioritizer(),
     ) {
-        $this->phpDocParser = new PHPDocParser($phpDocParser, $phpDocLexer, $tagPrioritizer);
-        $this->typeResolver = new TypeResolver();
+        $this->classReflectionFactory = new ClassReflectionFactory(
+            phpDocParser: new PHPDocParser($phpDocParser, $phpDocLexer, $tagPrioritizer),
+        );
     }
 
     /**
@@ -47,29 +48,21 @@ final class TypeReflector
         $source = $this->classLocator->locateClass($class);
 
         if ($source === null) {
-            throw new \LogicException('todo');
+            throw new \LogicException(sprintf('Failed to locate class %s.', $class));
         }
 
-        $statements = $this->phpParser->parse($source->code);
-
-        if (!$statements) {
-            throw new \LogicException('todo');
-        }
-
-        $nameResolver = new NameResolver();
-        $classVisitor = new ClassVisitor(
-            typeReflector: $this,
-            nameContext: $nameResolver->getNameContext(),
-            typeResolver: $this->typeResolver,
-            phpDocParser: $this->phpDocParser,
-            class: $class,
-        );
-
+        $statements = $this->phpParser->parse($source->code) ?? [];
         $traverser = new NodeTraverser();
+        $nameResolver = new NameResolver();
+        $findClassVisitor = new FindClassVisitor($class);
         $traverser->addVisitor($nameResolver);
-        $traverser->addVisitor($classVisitor);
+        $traverser->addVisitor($findClassVisitor);
         $traverser->traverse($statements);
 
-        return $classVisitor->reflection ?? throw new \LogicException('todo');
+        if ($findClassVisitor->node === null) {
+            throw new \LogicException(sprintf('Class %s was not found in %s.', $class, $source->description));
+        }
+
+        return $this->classReflectionFactory->build($this, $class, $nameResolver->getNameContext(), $findClassVisitor->node);
     }
 }

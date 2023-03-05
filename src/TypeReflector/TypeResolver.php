@@ -5,10 +5,7 @@ declare(strict_types=1);
 namespace ExtendedTypeSystem\TypeReflector;
 
 use ExtendedTypeSystem\Type;
-use ExtendedTypeSystem\Type\ArrayKeyType;
-use ExtendedTypeSystem\Type\IntType;
 use ExtendedTypeSystem\Type\ShapeType;
-use ExtendedTypeSystem\Type\StringType;
 use ExtendedTypeSystem\types;
 use PhpParser\Node\ComplexType;
 use PhpParser\Node\Identifier;
@@ -16,9 +13,13 @@ use PhpParser\Node\IntersectionType;
 use PhpParser\Node\Name;
 use PhpParser\Node\NullableType;
 use PhpParser\Node\UnionType;
+use PHPStan\PhpDocParser\Ast\ConstExpr\ConstExprFalseNode;
 use PHPStan\PhpDocParser\Ast\ConstExpr\ConstExprFloatNode;
 use PHPStan\PhpDocParser\Ast\ConstExpr\ConstExprIntegerNode;
+use PHPStan\PhpDocParser\Ast\ConstExpr\ConstExprNullNode;
 use PHPStan\PhpDocParser\Ast\ConstExpr\ConstExprStringNode;
+use PHPStan\PhpDocParser\Ast\ConstExpr\ConstExprTrueNode;
+use PHPStan\PhpDocParser\Ast\ConstExpr\ConstFetchNode;
 use PHPStan\PhpDocParser\Ast\Type\ArrayShapeNode;
 use PHPStan\PhpDocParser\Ast\Type\ArrayTypeNode;
 use PHPStan\PhpDocParser\Ast\Type\ConstTypeNode;
@@ -31,47 +32,47 @@ use PHPStan\PhpDocParser\Ast\Type\UnionTypeNode;
 
 /**
  * @internal
- * @psalm-internal ExtendedTypeSystem
+ * @psalm-internal ExtendedTypeSystem\TypeReflector
  */
 final class TypeResolver
 {
-    public function resolveTypeNode(Context $context, null|TypeNode|Identifier|Name|ComplexType $typeNode): ?Type
+    public function resolveTypeNode(Scope $scope, null|TypeNode|Identifier|Name|ComplexType $typeNode): Type
     {
         if ($typeNode === null) {
-            return null;
+            return types::mixed;
         }
 
         if ($typeNode instanceof TypeNode) {
-            return $this->resolvePHPDocTypeNode($context, $typeNode);
+            return $this->resolvePHPDocTypeNode($scope, $typeNode);
         }
 
-        return $this->resolvePHPTypeNode($context, $typeNode);
+        return $this->resolvePHPTypeNode($scope, $typeNode);
     }
 
-    private function resolvePHPTypeNode(Context $context, Identifier|Name|ComplexType $typeNode): Type
+    private function resolvePHPTypeNode(Scope $scope, Identifier|Name|ComplexType $typeNode): Type
     {
         if ($typeNode instanceof Identifier) {
-            return $this->resolveIdentifierType($context, $typeNode->name);
+            return $this->resolveIdentifierType($scope, $typeNode->name);
         }
 
         if ($typeNode instanceof Name) {
-            return $this->resolveName($context, $typeNode);
+            return $this->resolveName($scope, $typeNode);
         }
 
         if ($typeNode instanceof NullableType) {
-            return types::nullable($this->resolvePHPTypeNode($context, $typeNode->type));
+            return types::nullable($this->resolvePHPTypeNode($scope, $typeNode->type));
         }
 
         if ($typeNode instanceof UnionType) {
             return $this->resolveUnionType(array_map(
-                fn (Identifier|Name|ComplexType $childTypeNode): Type => $this->resolvePHPTypeNode($context, $childTypeNode),
+                fn (Identifier|Name|ComplexType $childTypeNode): Type => $this->resolvePHPTypeNode($scope, $childTypeNode),
                 array_values($typeNode->types),
             ));
         }
 
         if ($typeNode instanceof IntersectionType) {
             return $this->resolveIntersectionType(array_map(
-                fn (Identifier|Name|ComplexType $childTypeNode): Type => $this->resolvePHPTypeNode($context, $childTypeNode),
+                fn (Identifier|Name|ComplexType $childTypeNode): Type => $this->resolvePHPTypeNode($scope, $childTypeNode),
                 array_values($typeNode->types),
             ));
         }
@@ -79,76 +80,62 @@ final class TypeResolver
         throw new \LogicException(sprintf('Unknown type node %s.', $typeNode::class));
     }
 
-    private function resolvePHPDocTypeNode(Context $context, TypeNode $typeNode): Type
+    private function resolvePHPDocTypeNode(Scope $scope, TypeNode $typeNode): Type
     {
         if ($typeNode instanceof IdentifierTypeNode) {
-            return $this->resolveIdentifierType($context, $typeNode->name);
+            return $this->resolveIdentifierType($scope, $typeNode->name);
         }
 
         if ($typeNode instanceof NullableTypeNode) {
-            return types::nullable($this->resolvePHPDocTypeNode($context, $typeNode->type));
+            return types::nullable($this->resolvePHPDocTypeNode($scope, $typeNode->type));
         }
 
         if ($typeNode instanceof UnionTypeNode) {
             return $this->resolveUnionType(array_map(
-                fn (TypeNode $childTypeNode): Type => $this->resolvePHPDocTypeNode($context, $childTypeNode),
+                fn (TypeNode $childTypeNode): Type => $this->resolvePHPDocTypeNode($scope, $childTypeNode),
                 array_values($typeNode->types),
             ));
         }
 
         if ($typeNode instanceof IntersectionTypeNode) {
             return $this->resolveIntersectionType(array_map(
-                fn (TypeNode $childTypeNode): Type => $this->resolvePHPDocTypeNode($context, $childTypeNode),
+                fn (TypeNode $childTypeNode): Type => $this->resolvePHPDocTypeNode($scope, $childTypeNode),
                 array_values($typeNode->types),
             ));
         }
 
         if ($typeNode instanceof ArrayTypeNode) {
-            return types::array(valueType: $this->resolvePHPDocTypeNode($context, $typeNode->type));
+            return types::array(valueType: $this->resolvePHPDocTypeNode($scope, $typeNode->type));
         }
 
         if ($typeNode instanceof ArrayShapeNode) {
-            return $this->resolveArrayShapeNodeType($context, $typeNode);
+            return $this->resolveArrayShapeNodeType($scope, $typeNode);
         }
 
         if ($typeNode instanceof ConstTypeNode) {
-            $exprNode = $typeNode->constExpr;
-
-            // todo other const expr
-
-            if ($exprNode instanceof ConstExprIntegerNode) {
-                return types::intLiteral((int) $exprNode->value);
-            }
-
-            if ($exprNode instanceof ConstExprFloatNode) {
-                return types::floatLiteral((float) $exprNode->value);
-            }
-
-            if ($exprNode instanceof ConstExprStringNode) {
-                return types::stringLiteral($exprNode->value);
-            }
+            return $this->resolveConstTypeNodeType($scope, $typeNode);
         }
 
         if ($typeNode instanceof GenericTypeNode) {
             return $this->resolveIdentifierType(
-                $context,
+                $scope,
                 $typeNode->type->name,
                 array_values(array_map(
-                    fn (TypeNode $typeNode): Type => $this->resolvePHPDocTypeNode($context, $typeNode),
+                    fn (TypeNode $typeNode): Type => $this->resolvePHPDocTypeNode($scope, $typeNode),
                     $typeNode->genericTypes,
                 )),
             );
         }
 
-        throw new \LogicException(sprintf('Unknown type node %s.', $typeNode::class));
+        throw new \LogicException(sprintf('Unsupported PHPDoc type node %s.', $typeNode::class));
     }
 
-    private function resolveArrayShapeNodeType(Context $context, ArrayShapeNode $node): ShapeType
+    private function resolveArrayShapeNodeType(Scope $scope, ArrayShapeNode $node): ShapeType
     {
         $elements = [];
 
         foreach ($node->items as $item) {
-            $type = $this->resolvePHPDocTypeNode($context, $item->valueType);
+            $type = $this->resolvePHPDocTypeNode($scope, $item->valueType);
 
             if ($item->optional) {
                 $type = types::optionalKey($type);
@@ -174,10 +161,49 @@ final class TypeResolver
         return types::shape($elements);
     }
 
+    private function resolveConstTypeNodeType(Scope $scope, ConstTypeNode $typeNode): Type
+    {
+        $exprNode = $typeNode->constExpr;
+
+        if ($exprNode instanceof ConstExprIntegerNode) {
+            return types::intLiteral((int) $exprNode->value);
+        }
+
+        if ($exprNode instanceof ConstExprFloatNode) {
+            return types::floatLiteral((float) $exprNode->value);
+        }
+
+        if ($exprNode instanceof ConstExprStringNode) {
+            return types::stringLiteral($exprNode->value);
+        }
+
+        if ($exprNode instanceof ConstExprTrueNode) {
+            return types::true;
+        }
+
+        if ($exprNode instanceof ConstExprFalseNode) {
+            return types::false;
+        }
+
+        if ($exprNode instanceof ConstExprNullNode) {
+            return types::null;
+        }
+
+        if ($exprNode instanceof ConstFetchNode) {
+            /** @var class-string */
+            $class = $scope->resolveClassName(new Name($exprNode->className))->toString();
+            /** @var non-empty-string $exprNode->name */
+
+            return types::classConstant($class, $exprNode->name);
+        }
+
+        throw new \LogicException(sprintf('Unsupported PHPDoc type node %s.', $exprNode::class));
+    }
+
     /**
      * @param list<Type> $templateArguments
      */
-    private function resolveIdentifierType(Context $context, string $name, array $templateArguments = []): Type
+    private function resolveIdentifierType(Scope $scope, string $name, array $templateArguments = []): Type
     {
         $atomicType = match ($name) {
             '' => throw new \LogicException('Name must not be empty.'),
@@ -205,10 +231,6 @@ final class TypeResolver
         };
 
         if ($atomicType !== null) {
-            if ($templateArguments !== []) {
-                throw new \LogicException('todo');
-            }
-
             return $atomicType;
         }
 
@@ -236,14 +258,13 @@ final class TypeResolver
             return types::iterable($templateArguments[0], $templateArguments[1]);
         }
 
-        return $this->resolveName($context, new Name($name), $templateArguments);
+        return $this->resolveName($scope, new Name($name), $templateArguments);
     }
 
     /**
-     * @todo validate class name?
      * @param list<Type> $templateArguments
      */
-    private function resolveName(Context $context, Name $nameNode, array $templateArguments = []): Type
+    private function resolveName(Scope $scope, Name $nameNode, array $templateArguments = []): Type
     {
         /** @var non-empty-string */
         $name = $nameNode->toString();
@@ -261,29 +282,29 @@ final class TypeResolver
         }
 
         if ($name === 'self') {
-            return types::object($context->self(), ...$templateArguments);
+            return types::object($scope->self(), ...$templateArguments);
         }
 
         if ($name === 'parent') {
-            return types::object($context->parent(), ...$templateArguments);
+            return types::object($scope->parent(), ...$templateArguments);
         }
 
         if ($name === 'static') {
-            return types::static($context->self(), ...$templateArguments);
-        }
-
-        $templateType = $context->tryResolveTemplateType($name);
-
-        if ($templateType !== null) {
-            if ($templateArguments !== []) {
-                throw new \LogicException('todo');
+            if ($scope->isSelfFinal()) {
+                return types::object($scope->self(), ...$templateArguments);
             }
 
+            return types::static($scope->self(), ...$templateArguments);
+        }
+
+        $templateType = $scope->tryResolveTemplateType($name);
+
+        if ($templateType !== null) {
             return $templateType;
         }
 
         /** @var class-string */
-        $name = $context->resolveName($nameNode)->toString();
+        $name = $scope->resolveClassName($nameNode)->toString();
 
         return types::object($name, ...$templateArguments);
     }
@@ -330,14 +351,7 @@ final class TypeResolver
             return [types::arrayKey, $templateArguments[0] ?? types::mixed];
         }
 
-        $keyType = $templateArguments[0];
-
-        if (!($keyType instanceof ArrayKeyType || $keyType instanceof IntType || $keyType instanceof StringType)) {
-            // todo add TypeStringifier
-            throw new \LogicException(sprintf('Invalid array key type %s.', $keyType::class));
-        }
-
         /** @var array{Type<array-key>, Type} */
-        return [$keyType, $templateArguments[1]];
+        return [$templateArguments[0], $templateArguments[1]];
     }
 }

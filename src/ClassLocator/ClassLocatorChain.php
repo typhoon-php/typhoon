@@ -2,9 +2,10 @@
 
 declare(strict_types=1);
 
-namespace ExtendedTypeSystem\Source;
+namespace ExtendedTypeSystem\ClassLocator;
 
 use ExtendedTypeSystem\ClassLocator;
+use ExtendedTypeSystem\Source;
 
 /**
  * @psalm-api

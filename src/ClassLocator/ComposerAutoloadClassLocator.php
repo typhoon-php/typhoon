@@ -2,10 +2,11 @@
 
 declare(strict_types=1);
 
-namespace ExtendedTypeSystem\Source;
+namespace ExtendedTypeSystem\ClassLocator;
 
 use Composer\Autoload\ClassLoader;
 use ExtendedTypeSystem\ClassLocator;
+use ExtendedTypeSystem\Source;
 
 /**
  * @psalm-api
@@ -37,6 +38,6 @@ final class ComposerAutoloadClassLocator implements ClassLocator
             return null;
         }
 
-        return new Source(file_get_contents($filename), $filename);
+        return new Source($filename, file_get_contents($filename));
     }
 }

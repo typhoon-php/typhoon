@@ -38,7 +38,10 @@ final class ClassLikeTypeReflection
      */
     public function parentTemplateArguments(): array
     {
-        return $this->parentTemplateArguments ?? throw new \LogicException('todo');
+        return $this->parentTemplateArguments ?? throw new \LogicException(sprintf(
+            'Class %s does not have a parent.',
+            $this->name,
+        ));
     }
 
     /**
@@ -47,7 +50,11 @@ final class ClassLikeTypeReflection
      */
     public function interfaceTemplateArguments(string $name): array
     {
-        return $this->interfacesTemplateArguments[$name] ?? throw new \LogicException('todo');
+        return $this->interfacesTemplateArguments[$name] ?? throw new \LogicException(sprintf(
+            'Class %s does not directly implement %s.',
+            $this->name,
+            $name,
+        ));
     }
 
     /**
@@ -56,7 +63,11 @@ final class ClassLikeTypeReflection
      */
     public function traitTemplateArguments(string $name): array
     {
-        return $this->traitsTemplateArguments[$name] ?? throw new \LogicException('todo');
+        return $this->traitsTemplateArguments[$name] ?? throw new \LogicException(sprintf(
+            'Class %s does not directly use %s.',
+            $this->name,
+            $name,
+        ));
     }
 
     /**
@@ -64,7 +75,11 @@ final class ClassLikeTypeReflection
      */
     public function propertyType(string $name): Type
     {
-        return $this->tryPropertyType($name) ?? throw new \LogicException('todo');
+        return $this->tryPropertyType($name) ?? throw new \LogicException(sprintf(
+            'Class %s does not have property %s.',
+            $this->name,
+            $name,
+        ));
     }
 
     /**
@@ -72,7 +87,11 @@ final class ClassLikeTypeReflection
      */
     public function method(string $name): MethodTypeReflection
     {
-        return $this->tryMethod($name) ?? throw new \LogicException('todo');
+        return $this->tryMethod($name) ?? throw new \LogicException(sprintf(
+            'Class %s does not have method %s.',
+            $this->name,
+            $name,
+        ));
     }
 
     /**

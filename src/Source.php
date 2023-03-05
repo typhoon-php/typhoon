@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace ExtendedTypeSystem\Source;
+namespace ExtendedTypeSystem;
 
 /**
  * @psalm-api
@@ -11,8 +11,8 @@ namespace ExtendedTypeSystem\Source;
 final class Source
 {
     public function __construct(
+        public readonly string $description,
         public readonly string $code,
-        public readonly ?string $filename = null,
     ) {
     }
 }

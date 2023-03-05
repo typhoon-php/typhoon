@@ -4,9 +4,8 @@ declare(strict_types=1);
 
 namespace ExtendedTypeSystem;
 
-use ExtendedTypeSystem\Source\ClassLocatorChain;
-use ExtendedTypeSystem\Source\SingleClassLocator;
-use ExtendedTypeSystem\Source\Source;
+use ExtendedTypeSystem\ClassLocator\ClassLocatorChain;
+use ExtendedTypeSystem\ClassLocator\SingleClassLocator;
 use ExtendedTypeSystem\Stub\Base;
 use ExtendedTypeSystem\Stub\Main;
 use PHPUnit\Framework\TestCase;
@@ -16,8 +15,8 @@ use function PHPUnit\Framework\assertEquals;
  * @internal
  * @covers \ExtendedTypeSystem\TypeReflector
  * @covers \ExtendedTypeSystem\TypeReflector\ClassLikeContext
- * @covers \ExtendedTypeSystem\TypeReflector\ClassVisitor
  * @covers \ExtendedTypeSystem\TypeReflector\Context
+ * @covers \ExtendedTypeSystem\TypeReflector\FindClassVisitor
  * @covers \ExtendedTypeSystem\TypeReflector\MethodContext
  * @covers \ExtendedTypeSystem\TypeReflector\PHPDocParser
  * @covers \ExtendedTypeSystem\TypeReflector\PropertyContext
@@ -255,7 +254,7 @@ final class TypeReflectorTest extends TestCase
     private function locateCode(string $code): ClassLocator
     {
         return new ClassLocatorChain(array_map(
-            static fn (string $class): SingleClassLocator => new SingleClassLocator($class, new Source('<?php '.$code)),
+            static fn (string $class): SingleClassLocator => new SingleClassLocator($class, new Source('test', '<?php '.$code)),
             [Main::class, Base::class],
         ));
     }
