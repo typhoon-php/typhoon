@@ -260,7 +260,7 @@ final class types
      */
     public static function param(Type $type = self::mixed, bool $hasDefault = false, bool $variadic = false): Type\Parameter
     {
-        return new Type\Parameter($type, hasDefault: $hasDefault, variadic: $variadic);
+        return new Type\Parameter($type, $hasDefault, $variadic);
     }
 
     /**
@@ -271,7 +271,7 @@ final class types
      */
     public static function defaultParam(Type $type = self::mixed): Type\Parameter
     {
-        return new Type\Parameter($type, hasDefault: true);
+        return new Type\Parameter($type, true);
     }
 
     /**
@@ -296,7 +296,9 @@ final class types
     {
         return new Type\ClosureType(
             array_map(
-                static fn (Type|Type\Parameter $parameter): Type\Parameter => $parameter instanceof Type ? new Type\Parameter($parameter) : $parameter,
+                static fn (Type|Type\Parameter $parameter): Type\Parameter => $parameter instanceof Type
+                    ? new Type\Parameter($parameter)
+                    : $parameter,
                 $parameters,
             ),
             $returnType,
@@ -314,7 +316,9 @@ final class types
     {
         return new Type\CallableType(
             array_map(
-                static fn (Type|Type\Parameter $parameter): Type\Parameter => $parameter instanceof Type ? new Type\Parameter($parameter) : $parameter,
+                static fn (Type|Type\Parameter $parameter): Type\Parameter => $parameter instanceof Type
+                    ? new Type\Parameter($parameter)
+                    : $parameter,
                 $parameters,
             ),
             $returnType,
