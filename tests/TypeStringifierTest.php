@@ -56,6 +56,7 @@ final class TypeStringifierTest extends TestCase
         yield [types::stringLiteral('abcd'), "'abcd'"];
         yield [types::stringLiteral("a'bcd"), "'a\\'bcd'"];
         yield [types::stringLiteral("a\\\\'bcd"), "'a\\\\\\\\\\'bcd'"];
+        yield [types::stringLiteral("\n"), "'\\n'"];
         yield [types::scalar, 'scalar'];
         yield [types::resource, 'resource'];
         yield [types::nonEmptyList(), 'non-empty-list'];
@@ -73,6 +74,9 @@ final class TypeStringifierTest extends TestCase
         yield [types::shape([types::int]), 'list{int}'];
         yield [types::shape([types::int, 'a' => types::string]), 'array{0: int, a: string}'];
         yield [types::shape([types::int, 'a' => types::string], sealed: false), 'array{0: int, a: string, ...}'];
+        yield [types::shape(['' => types::string]), "array{'': string}"];
+        yield [types::shape(['\'' => types::string]), "array{'\\'': string}"];
+        yield [types::shape(["\n" => types::string]), "array{'\\n': string}"];
         yield [types::unsealedShape([types::int, 'a' => types::string]), 'array{0: int, a: string, ...}'];
         yield [types::shape([types::optional(types::int)]), 'list{0?: int}'];
         yield [types::unsealedShape([types::optional(types::int)]), 'array{0?: int, ...}'];

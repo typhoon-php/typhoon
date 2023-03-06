@@ -168,7 +168,7 @@ final class TypeStringifier implements TypeVisitor
 
     public function visitStringLiteral(StringLiteralType $type): mixed
     {
-        return var_export($type->value, return: true);
+        return $this->escapeStringLiteral($type->value);
     }
 
     public function visitLiteralString(LiteralStringType $type): mixed
@@ -430,6 +430,10 @@ final class TypeStringifier implements TypeVisitor
             return $element->type->accept($this);
         }
 
+        if (\is_string($key) && ($key === '' || preg_match('/\W/', $key))) {
+            $key = $this->escapeStringLiteral($key);
+        }
+
         return sprintf('%s%s: %s', $key, $element->optional ? '?' : '', $element->type->accept($this));
     }
 
@@ -466,5 +470,10 @@ final class TypeStringifier implements TypeVisitor
             )),
             $returnType === null ? '' : ': '.$returnType->accept($this),
         );
+    }
+
+    private function escapeStringLiteral(string $literal): string
+    {
+        return str_replace("\n", '\n', var_export($literal, return: true));
     }
 }
