@@ -14,12 +14,14 @@ use function PHPUnit\Framework\assertEquals;
 /**
  * @internal
  * @covers \ExtendedTypeSystem\TypeReflector
- * @covers \ExtendedTypeSystem\TypeReflector\ClassLikeContext
- * @covers \ExtendedTypeSystem\TypeReflector\Context
+ * @covers \ExtendedTypeSystem\TypeReflector\ClassLikeScope
+ * @covers \ExtendedTypeSystem\TypeReflector\ClassReflectionFactory
  * @covers \ExtendedTypeSystem\TypeReflector\FindClassVisitor
- * @covers \ExtendedTypeSystem\TypeReflector\MethodContext
+ * @covers \ExtendedTypeSystem\TypeReflector\MethodScope
+ * @covers \ExtendedTypeSystem\TypeReflector\PHPDoc
  * @covers \ExtendedTypeSystem\TypeReflector\PHPDocParser
- * @covers \ExtendedTypeSystem\TypeReflector\PropertyContext
+ * @covers \ExtendedTypeSystem\TypeReflector\PropertyScope
+ * @covers \ExtendedTypeSystem\TypeReflector\Scope
  * @covers \ExtendedTypeSystem\TypeReflector\TypeResolver
  */
 final class TypeReflectorTest extends TestCase
