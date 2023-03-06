@@ -170,6 +170,21 @@ final class TypeReflectorTest extends TestCase
         assertEquals(types::object(\ArrayObject::class), $reflectedType);
     }
 
+    public function testItReflectsStaticNativeTypeAsNamedObjectAtMethodReturnOfFinalClass(): void
+    {
+        $code = <<<'PHP'
+            namespace ExtendedTypeSystem\Stub;
+            final class Main {
+                public function test(): static {}
+            }
+            PHP;
+        $typeReflector = new TypeReflector($this->locateCode($code));
+
+        $reflectedType = $typeReflector->reflectClass(Main::class)->method('test')->returnType;
+
+        assertEquals(types::object(Main::class), $reflectedType);
+    }
+
     public function testItReflectsInheritedStaticNativeTypeAtMethodReturn(): void
     {
         $code = <<<'PHP'
