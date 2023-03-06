@@ -11,6 +11,8 @@ namespace ExtendedTypeSystem;
 final class MethodTypeReflection
 {
     /**
+     * @internal
+     * @psalm-internal ExtendedTypeSystem
      * @param class-string $class
      * @param non-empty-string $name
      * @param array<non-empty-string, TemplateReflection> $templates

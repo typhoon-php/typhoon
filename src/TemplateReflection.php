@@ -11,6 +11,8 @@ namespace ExtendedTypeSystem;
 final class TemplateReflection
 {
     /**
+     * @internal
+     * @psalm-internal ExtendedTypeSystem
      * @param int<0, max> $index
      * @param non-empty-string $name
      */

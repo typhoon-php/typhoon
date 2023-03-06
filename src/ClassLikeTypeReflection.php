@@ -11,6 +11,8 @@ namespace ExtendedTypeSystem;
 final class ClassLikeTypeReflection
 {
     /**
+     * @internal
+     * @psalm-internal ExtendedTypeSystem
      * @param class-string<T> $name
      * @param ?class-string $parentClass
      * @param array<non-empty-string, TemplateReflection> $templates
