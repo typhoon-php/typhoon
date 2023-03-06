@@ -138,7 +138,7 @@ final class TypeResolver
             $type = $this->resolvePHPDocTypeNode($scope, $item->valueType);
 
             if ($item->optional) {
-                $type = types::optionalKey($type);
+                $type = types::optional($type);
             }
 
             if ($item->keyName === null) {
