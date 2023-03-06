@@ -94,5 +94,7 @@ final class TypeProvider
         yield from self::voidType();
         yield from self::neverType();
         yield from self::staticType();
+
+        yield 'array-key' => ['array-key', types::arrayKey];
     }
 }

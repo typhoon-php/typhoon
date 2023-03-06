@@ -221,6 +221,7 @@ final class TypeResolver
             'string' => types::string,
             'non-empty-string' => types::nonEmptyString,
             'numeric-string' => types::numericString,
+            'array-key' => types::arrayKey,
             'scalar' => types::scalar,
             'object' => types::object,
             'callable' => types::callable(),
