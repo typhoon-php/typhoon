@@ -57,6 +57,26 @@ final class types
 
     /**
      * @psalm-pure
+     * @psalm-suppress NoValue, InvalidTemplateParam, TypeDoesNotContainType
+     * @template TValue of int|float|string
+     * @param TValue $value
+     * @return ($value is int ? Type\IntLiteralType<TValue> : ($value is float ? Type\FloatLiteralType<TValue> : Type\StringLiteralType<TValue>))
+     */
+    public static function literal(int|float|string $value): Type\IntLiteralType|Type\FloatLiteralType|Type\StringLiteralType
+    {
+        if (\is_int($value)) {
+            return new Type\IntLiteralType($value);
+        }
+
+        if (\is_float($value)) {
+            return new Type\FloatLiteralType($value);
+        }
+
+        return new Type\StringLiteralType($value);
+    }
+
+    /**
+     * @psalm-pure
      * @template TValue of int
      * @param TValue $value
      * @return Type\IntLiteralType<TValue>
