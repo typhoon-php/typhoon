@@ -21,7 +21,7 @@ use ExtendedTypeSystem\types;
 
 /**
  * array{
- *     a: non-empty-list,
+ *     non-empty-list,
  *     b?: int|float,
  *     c: Traversable<numeric-string, false>,
  *     d: callable(PDO::*, TSend:Generator=, scalar...): void,
@@ -29,16 +29,16 @@ use ExtendedTypeSystem\types;
  * }
  */
 $type = types::unsealedShape([
-    'a' => types::nonEmptyString,
-    'b' => types::optional(types::union(types::int, types::float)),
-    'c' => types::object(Traversable::class, types::numericString, types::false),
-    'd' => types::callable(
+    types::nonEmptyString,
+    types::optionalKey('b', types::union(types::int, types::float)),
+    types::key('c', types::object(Traversable::class, types::numericString, types::false)),
+    types::key('d', types::callable(
         parameters: [
             types::classConstant(PDO::class, '*'),
             types::defaultParam(types::classTemplate('TSend', Generator::class)),
             types::variadicParam(types::scalar),
         ],
         returnType: types::void,
-    ),
+    )),
 ]);
 ```
