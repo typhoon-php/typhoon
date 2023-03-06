@@ -21,20 +21,20 @@ use function PHPUnit\Framework\assertEquals;
  * @covers \ExtendedTypeSystem\TypeReflector\PHPDoc
  * @covers \ExtendedTypeSystem\TypeReflector\PHPDocParser
  * @covers \ExtendedTypeSystem\TypeReflector\PropertyScope
- * @covers \ExtendedTypeSystem\TypeReflector\Scope
  * @covers \ExtendedTypeSystem\TypeReflector\TypeResolver
  */
-final class TypeReflectorTest extends TestCase
+final class PHPDocTypeReflectorTest extends TestCase
 {
     /**
-     * @dataProvider nativeTypes
+     * @dataProvider types
      */
     public function testItReflectsNativeTypesAtProperty(string $type, Type $expectedType): void
     {
         $code = <<<PHP
             namespace ExtendedTypeSystem\\Stub;
             class Main extends \\ArrayObject {
-                public {$type} \$test;
+                /** @var {$type} */
+                public \$test;
             }
             PHP;
         $typeReflector = new TypeReflector($this->locateCode($code));
@@ -45,14 +45,15 @@ final class TypeReflectorTest extends TestCase
     }
 
     /**
-     * @dataProvider nativeTypes
+     * @dataProvider types
      */
     public function testItReflectsNativeTypesAtPromotedProperty(string $type, Type $expectedType): void
     {
         $code = <<<PHP
             namespace ExtendedTypeSystem\\Stub;
             class Main extends \\ArrayObject {
-                public function __construct(public {$type} \$test) {}
+                /** @param {$type} \$test */
+                public function __construct(public \$test) {}
             }
             PHP;
         $typeReflector = new TypeReflector($this->locateCode($code));
@@ -67,7 +68,8 @@ final class TypeReflectorTest extends TestCase
         $code = <<<'PHP'
             namespace ExtendedTypeSystem\Stub;
             class Base extends \ArrayObject {
-                public parent $test;
+                /** @var parent */
+                public $test;
             }
             class Main extends Base {
             }
@@ -84,7 +86,8 @@ final class TypeReflectorTest extends TestCase
         $code = <<<'PHP'
             namespace ExtendedTypeSystem\Stub;
             class Base extends \ArrayObject {
-                public function __construct(public parent $test) {}
+                /** @param parent $test */
+                public function __construct(public $test) {}
             }
             class Main extends Base {
             }
@@ -97,15 +100,15 @@ final class TypeReflectorTest extends TestCase
     }
 
     /**
-     * @dataProvider nativeTypes
-     * @dataProvider callableType
+     * @dataProvider types
      */
     public function testItReflectsNativeTypesAtMethodParameter(string $type, Type $expectedType): void
     {
         $code = <<<PHP
             namespace ExtendedTypeSystem\\Stub;
             class Main extends \\ArrayObject {
-                public function test({$type} \$test) {}
+                /** @param {$type} \$test */
+                public function test(mixed \$test) {}
             }
             PHP;
         $typeReflector = new TypeReflector($this->locateCode($code));
@@ -120,7 +123,8 @@ final class TypeReflectorTest extends TestCase
         $code = <<<'PHP'
             namespace ExtendedTypeSystem\Stub;
             class Base extends \ArrayObject {
-                public function test(parent $test) {}
+                /** @param parent $test */
+                public function test(mixed $test) {}
             }
             class Main extends Base {
             }
@@ -133,19 +137,15 @@ final class TypeReflectorTest extends TestCase
     }
 
     /**
-     * @dataProvider nativeTypes
-     * @dataProvider staticType
-     * @dataProvider callableType
-     * @dataProvider voidType
-     * @dataProvider neverType
+     * @dataProvider types
      */
     public function testItReflectsNativeTypesAtMethodReturn(string $type, Type $expectedType): void
     {
-        $typeDeclaration = $type === '' ? '' : ': '.$type;
         $code = <<<PHP
             namespace ExtendedTypeSystem\\Stub;
             class Main extends \\ArrayObject {
-                public function test(){$typeDeclaration} {}
+                /** @return {$type} */
+                public function test() {}
             }
             PHP;
         $typeReflector = new TypeReflector($this->locateCode($code));
@@ -160,7 +160,8 @@ final class TypeReflectorTest extends TestCase
         $code = <<<'PHP'
             namespace ExtendedTypeSystem\Stub;
             class Base extends \ArrayObject {
-                public function test(): parent {}
+                /** @return parent */
+                public function test() {}
             }
             class Main extends Base {
             }
@@ -177,7 +178,8 @@ final class TypeReflectorTest extends TestCase
         $code = <<<'PHP'
             namespace ExtendedTypeSystem\Stub;
             final class Main {
-                public function test(): static {}
+                /** @return static */
+                public function test() {}
             }
             PHP;
         $typeReflector = new TypeReflector($this->locateCode($code));
@@ -192,7 +194,8 @@ final class TypeReflectorTest extends TestCase
         $code = <<<'PHP'
             namespace ExtendedTypeSystem\Stub;
             class Base {
-                public function test(): static {}
+                /** @return static */
+                public function test() {}
             }
             class Main extends Base {}
             PHP;
@@ -206,66 +209,9 @@ final class TypeReflectorTest extends TestCase
     /**
      * @return \Generator<string, array{string, Type}>
      */
-    public function nativeTypes(): \Generator
+    public function types(): \Generator
     {
-        yield 'no type' => ['', types::mixed];
-        yield 'bool' => ['bool', types::bool];
-        yield 'int' => ['int', types::int];
-        yield 'float' => ['float', types::float];
-        yield 'string' => ['string', types::string];
-        yield 'array' => ['array', types::array()];
-        yield 'iterable' => ['iterable', types::iterable()];
-        yield 'object' => ['object', types::object];
-        yield 'mixed' => ['mixed', types::mixed];
-        yield 'Closure' => ['\Closure', types::object(\Closure::class)];
-        yield 'string|int|null' => ['string|int|null', types::union(types::string, types::int, types::null)];
-        yield 'string|false' => ['string|false', types::union(types::string, types::false)];
-        yield 'Countable&Traversable' => ['\Countable&\Traversable', types::intersection(types::object(\Countable::class), types::object(\Traversable::class))];
-        yield '?int' => ['?int', types::nullable(types::int)];
-        yield 'self' => ['self', types::object(Main::class)];
-        yield 'ArrayObject parent' => ['parent', types::object(\ArrayObject::class)];
-
-        if (\PHP_VERSION_ID >= 80200) {
-            yield 'null' => ['null', types::null];
-            yield 'true' => ['true', types::true];
-            yield 'false' => ['false', types::false];
-            yield '(Countable&Traversable)|string' => ['(\Countable&\Traversable)|string', types::union(
-                types::intersection(types::object(\Countable::class), types::object(\Traversable::class)),
-                types::string,
-            )];
-        }
-    }
-
-    /**
-     * @return \Generator<string, array{string, Type}>
-     */
-    public function callableType(): \Generator
-    {
-        yield 'callable' => ['callable', types::callable()];
-    }
-
-    /**
-     * @return \Generator<string, array{string, Type}>
-     */
-    public function voidType(): \Generator
-    {
-        yield 'void' => ['void', types::void];
-    }
-
-    /**
-     * @return \Generator<string, array{string, Type}>
-     */
-    public function neverType(): \Generator
-    {
-        yield 'never' => ['never', types::never];
-    }
-
-    /**
-     * @return \Generator<string, array{string, Type}>
-     */
-    public function staticType(): \Generator
-    {
-        yield 'static' => ['static', types::static(Main::class)];
+        yield from TypeProvider::all();
     }
 
     private function locateCode(string $code): ClassLocator

@@ -4,6 +4,7 @@
         xsi:noNamespaceSchemaLocation="vendor/phpunit/phpunit/phpunit.xsd"
         cacheResultFile="var/.phpunit.cache"
         colors="true"
+        forceCoversAnnotation="true"
 >
     <php>
         <ini name="display_errors" value="1"/>
