@@ -42,9 +42,9 @@ final class TypeStringifierTest extends TestCase
         yield [types::nonPositiveInt, 'non-positive-int'];
         yield [types::intLiteral(123), '123'];
         yield [types::intLiteral(-123), '-123'];
-        yield [types::intRange(min: 23), 'int<23, max>'];
-        yield [types::intRange(max: 23), 'int<min, 23>'];
-        yield [types::intRange(min: -100, max: 234), 'int<-100, 234>'];
+        yield [types::int(min: 23), 'int<23, max>'];
+        yield [types::int(max: 23), 'int<min, 23>'];
+        yield [types::int(min: -100, max: 234), 'int<-100, 234>'];
         yield [types::float, 'float'];
         yield [types::floatLiteral(0.234), '0.234'];
         yield [types::floatLiteral(-0.234), '-0.234'];
@@ -74,9 +74,9 @@ final class TypeStringifierTest extends TestCase
         yield [types::shape([types::int, 'a' => types::string]), 'array{0: int, a: string}'];
         yield [types::shape([types::int, 'a' => types::string], sealed: false), 'array{0: int, a: string, ...}'];
         yield [types::unsealedShape([types::int, 'a' => types::string]), 'array{0: int, a: string, ...}'];
-        yield [types::shape([types::optionalKey(types::int)]), 'list{0?: int}'];
-        yield [types::unsealedShape([types::optionalKey(types::int)]), 'array{0?: int, ...}'];
-        yield [types::shape(['a' => types::optionalKey(types::int)]), 'array{a?: int}'];
+        yield [types::shape([types::optional(types::int)]), 'list{0?: int}'];
+        yield [types::unsealedShape([types::optional(types::int)]), 'array{0?: int, ...}'];
+        yield [types::shape(['a' => types::optional(types::int)]), 'array{a?: int}'];
         yield [types::object, 'object'];
         yield [types::object(\ArrayObject::class), 'ArrayObject'];
         yield [types::object(\ArrayObject::class, types::arrayKey, types::string), 'ArrayObject<array-key, string>'];
@@ -106,8 +106,8 @@ final class TypeStringifierTest extends TestCase
         yield [types::methodTemplate('T', \ArrayObject::class, 'method'), 'T:ArrayObject::method()'];
         yield [types::literalString, 'literal-string'];
         yield [types::literalInt, 'literal-int'];
-        yield [types::intRange(), 'int'];
-        yield [types::namedClassString(types::object), 'class-string<object>'];
+        yield [types::int(), 'int'];
+        yield [types::classString(types::object), 'class-string<object>'];
         yield [types::classString, 'class-string'];
         yield [types::callableString, 'callable-string'];
         yield [types::interfaceString, 'interface-string'];
