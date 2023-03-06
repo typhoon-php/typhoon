@@ -49,6 +49,14 @@ final class types
 
     /**
      * @psalm-pure
+     */
+    public static function int(?int $min = null, ?int $max = null): Type\IntRangeType
+    {
+        return new Type\IntRangeType($min, $max);
+    }
+
+    /**
+     * @psalm-pure
      * @template TValue of int
      * @param TValue $value
      * @return Type\IntLiteralType<TValue>
@@ -56,14 +64,6 @@ final class types
     public static function intLiteral(int $value): Type\IntLiteralType
     {
         return new Type\IntLiteralType($value);
-    }
-
-    /**
-     * @psalm-pure
-     */
-    public static function intRange(?int $min = null, ?int $max = null): Type\IntRangeType
-    {
-        return new Type\IntRangeType($min, $max);
     }
 
     /**
@@ -94,7 +94,7 @@ final class types
      * @param Type<TObject> $type
      * @return Type\NamedClassStringType<TObject>
      */
-    public static function namedClassString(Type $type): Type\NamedClassStringType
+    public static function classString(Type $type): Type\NamedClassStringType
     {
         return new Type\NamedClassStringType($type);
     }
@@ -151,7 +151,7 @@ final class types
      * @param Type<TType> $type
      * @return Type\ShapeElement<TType>
      */
-    public static function optionalKey(Type $type): Type\ShapeElement
+    public static function optional(Type $type): Type\ShapeElement
     {
         return new Type\ShapeElement($type, optional: true);
     }
