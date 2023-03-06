@@ -23,8 +23,8 @@ final class NonEmptyArrayType implements Type
      * @param Type<TValue> $valueType
      */
     public function __construct(
-        public readonly Type $keyType = ArrayKeyType::self,
-        public readonly Type $valueType = MixedType::self,
+        public readonly Type $keyType = ArrayKeyType::type,
+        public readonly Type $valueType = MixedType::type,
     ) {
     }
 

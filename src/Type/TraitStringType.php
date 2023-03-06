@@ -18,7 +18,7 @@ enum TraitStringType implements Type
      * @internal
      * @psalm-internal ExtendedTypeSystem
      */
-    case self;
+    case type;
 
     public function accept(TypeVisitor $visitor): mixed
     {

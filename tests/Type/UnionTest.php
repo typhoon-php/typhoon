@@ -11,4 +11,4 @@ function testUnionIsCovariant(UnionType $_type): void
 {
 }
 
-testUnionIsCovariant(new UnionType([IntType::self, StringType::self]));
+testUnionIsCovariant(new UnionType([IntType::type, StringType::type]));

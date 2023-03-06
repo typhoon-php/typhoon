@@ -5,4 +5,4 @@ declare(strict_types=1);
 namespace ExtendedTypeSystem\Type;
 
 /** @psalm-check-type-exact $_literalString = literal-string */
-$_literalString = extractType(LiteralStringType::self);
+$_literalString = extractType(LiteralStringType::type);

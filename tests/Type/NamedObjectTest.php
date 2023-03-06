@@ -8,7 +8,7 @@ namespace ExtendedTypeSystem\Type;
 $_stdClass = extractType(new NamedObjectType(\stdClass::class));
 
 /** @var NamedObjectType<\ArrayObject<int, string>> */
-$arrayObjectType = new NamedObjectType(\ArrayObject::class, [IntType::self, StringType::self]);
+$arrayObjectType = new NamedObjectType(\ArrayObject::class, [IntType::type, StringType::type]);
 /** @psalm-check-type-exact $_arrayObject = \ArrayObject<int, string> */
 $_arrayObject = extractType($arrayObjectType);
 

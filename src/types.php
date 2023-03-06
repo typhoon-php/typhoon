@@ -9,36 +9,36 @@ namespace ExtendedTypeSystem;
  */
 final class types
 {
-    public const never = Type\NeverType::self;
-    public const void = Type\VoidType::self;
-    public const null = Type\NullType::self;
-    public const false = Type\FalseType::self;
-    public const true = Type\TrueType::self;
-    public const bool = Type\BoolType::self;
-    public const literalInt = Type\LiteralIntType::self;
-    public const negativeInt = Type\NegativeIntType::self;
-    public const nonPositiveInt = Type\NonPositiveIntType::self;
-    public const nonNegativeInt = Type\NonNegativeIntType::self;
-    public const positiveInt = Type\PositiveIntType::self;
-    public const int = Type\IntType::self;
-    public const float = Type\FloatType::self;
-    public const literalString = Type\LiteralStringType::self;
-    public const numericString = Type\NumericStringType::self;
-    public const classString = Type\ClassStringType::self;
-    public const callableString = Type\CallableStringType::self;
-    public const interfaceString = Type\InterfaceStringType::self;
-    public const enumString = Type\EnumStringType::self;
-    public const traitString = Type\TraitStringType::self;
-    public const nonEmptyString = Type\NonEmptyStringType::self;
-    public const string = Type\StringType::self;
-    public const numeric = Type\NumericType::self;
-    public const scalar = Type\ScalarType::self;
-    public const callableArray = Type\CallableArrayType::self;
-    public const object = Type\ObjectType::self;
-    public const resource = Type\ResourceType::self;
-    public const closedResource = Type\ClosedResourceType::self;
-    public const arrayKey = Type\ArrayKeyType::self;
-    public const mixed = Type\MixedType::self;
+    public const never = Type\NeverType::type;
+    public const void = Type\VoidType::type;
+    public const null = Type\NullType::type;
+    public const false = Type\FalseType::type;
+    public const true = Type\TrueType::type;
+    public const bool = Type\BoolType::type;
+    public const literalInt = Type\LiteralIntType::type;
+    public const negativeInt = Type\NegativeIntType::type;
+    public const nonPositiveInt = Type\NonPositiveIntType::type;
+    public const nonNegativeInt = Type\NonNegativeIntType::type;
+    public const positiveInt = Type\PositiveIntType::type;
+    public const int = Type\IntType::type;
+    public const float = Type\FloatType::type;
+    public const literalString = Type\LiteralStringType::type;
+    public const numericString = Type\NumericStringType::type;
+    public const classString = Type\ClassStringType::type;
+    public const callableString = Type\CallableStringType::type;
+    public const interfaceString = Type\InterfaceStringType::type;
+    public const enumString = Type\EnumStringType::type;
+    public const traitString = Type\TraitStringType::type;
+    public const nonEmptyString = Type\NonEmptyStringType::type;
+    public const string = Type\StringType::type;
+    public const numeric = Type\NumericType::type;
+    public const scalar = Type\ScalarType::type;
+    public const callableArray = Type\CallableArrayType::type;
+    public const object = Type\ObjectType::type;
+    public const resource = Type\ResourceType::type;
+    public const closedResource = Type\ClosedResourceType::type;
+    public const arrayKey = Type\ArrayKeyType::type;
+    public const mixed = Type\MixedType::type;
 
     /**
      * @psalm-suppress UnusedConstructor

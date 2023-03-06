@@ -19,7 +19,7 @@ final class Parameter
      * @param Type<TType> $type
      */
     public function __construct(
-        public readonly Type $type = MixedType::self,
+        public readonly Type $type = MixedType::type,
         public readonly bool $hasDefault = false,
         public readonly bool $variadic = false,
     ) {

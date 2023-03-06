@@ -21,7 +21,7 @@ final class ListType implements Type
      * @param Type<TValue> $valueType
      */
     public function __construct(
-        public readonly Type $valueType = MixedType::self,
+        public readonly Type $valueType = MixedType::type,
     ) {
     }
 

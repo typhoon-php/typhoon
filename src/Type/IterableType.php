@@ -23,8 +23,8 @@ final class IterableType implements Type
      * @param Type<TValue> $valueType
      */
     public function __construct(
-        public readonly Type $keyType = MixedType::self,
-        public readonly Type $valueType = MixedType::self,
+        public readonly Type $keyType = MixedType::type,
+        public readonly Type $valueType = MixedType::type,
     ) {
     }
 
