@@ -36,18 +36,6 @@ interface TypeVisitor
     public function visitLiteralInt(Type\LiteralIntType $type): mixed;
 
     /** @return TReturn */
-    public function visitNegativeInt(Type\NegativeIntType $type): mixed;
-
-    /** @return TReturn */
-    public function visitNonPositiveInt(Type\NonPositiveIntType $type): mixed;
-
-    /** @return TReturn */
-    public function visitNonNegativeInt(Type\NonNegativeIntType $type): mixed;
-
-    /** @return TReturn */
-    public function visitPositiveInt(Type\PositiveIntType $type): mixed;
-
-    /** @return TReturn */
     public function visitIntRange(Type\IntRangeType $type): mixed;
 
     /** @return TReturn */

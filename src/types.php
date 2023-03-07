@@ -16,10 +16,6 @@ final class types
     public const true = Type\TrueType::type;
     public const bool = Type\BoolType::type;
     public const literalInt = Type\LiteralIntType::type;
-    public const negativeInt = Type\NegativeIntType::type;
-    public const nonPositiveInt = Type\NonPositiveIntType::type;
-    public const nonNegativeInt = Type\NonNegativeIntType::type;
-    public const positiveInt = Type\PositiveIntType::type;
     public const int = Type\IntType::type;
     public const float = Type\FloatType::type;
     public const literalString = Type\LiteralStringType::type;
@@ -45,6 +41,46 @@ final class types
      */
     private function __construct()
     {
+    }
+
+    /**
+     * @psalm-pure
+     * @return Type\IntRangeType<negative-int>
+     */
+    public static function negativeInt(): Type\IntRangeType
+    {
+        /** @var Type\IntRangeType<negative-int> */
+        return new Type\IntRangeType(max: -1);
+    }
+
+    /**
+     * @psalm-pure
+     * @return Type\IntRangeType<non-positive-int>
+     */
+    public static function nonPositiveInt(): Type\IntRangeType
+    {
+        /** @var Type\IntRangeType<non-positive-int> */
+        return new Type\IntRangeType(max: 0);
+    }
+
+    /**
+     * @psalm-pure
+     * @return Type\IntRangeType<non-negative-int>
+     */
+    public static function nonNegativeInt(): Type\IntRangeType
+    {
+        /** @var Type\IntRangeType<non-negative-int> */
+        return new Type\IntRangeType(0);
+    }
+
+    /**
+     * @psalm-pure
+     * @return Type\IntRangeType<positive-int>
+     */
+    public static function positiveInt(): Type\IntRangeType
+    {
+        /** @var Type\IntRangeType<positive-int> */
+        return new Type\IntRangeType(1);
     }
 
     /**
