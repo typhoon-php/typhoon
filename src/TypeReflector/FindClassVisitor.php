@@ -31,12 +31,16 @@ final class FindClassVisitor extends NodeVisitorAbstract
 
     public function enterNode(Node $node)
     {
-        if ($node instanceof ClassLikeNode && $node->namespacedName?->toString() === $this->name) {
+        if (!$node instanceof ClassLikeNode) {
+            return null;
+        }
+
+        if ($node->namespacedName?->toString() === $this->name) {
             $this->node = $node;
 
             return NodeTraverser::STOP_TRAVERSAL;
         }
 
-        return null;
+        return NodeTraverser::DONT_TRAVERSE_CHILDREN;
     }
 }
