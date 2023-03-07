@@ -396,11 +396,11 @@ final class types
      * @no-named-arguments
      * @template TType
      * @param Type<TType> $type
-     * @return Type\NullableType<TType>
+     * @return Type\UnionType<?TType>
      */
-    public static function nullable(Type $type): Type\NullableType
+    public static function nullable(Type $type): Type\UnionType
     {
-        return new Type\NullableType($type);
+        return new Type\UnionType([self::null, $type]);
     }
 
     /**

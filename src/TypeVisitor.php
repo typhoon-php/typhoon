@@ -168,9 +168,6 @@ interface TypeVisitor
     public function visitIntersection(Type\IntersectionType $type): mixed;
 
     /** @return TReturn */
-    public function visitNullable(Type\NullableType $type): mixed;
-
-    /** @return TReturn */
     public function visitUnion(Type\UnionType $type): mixed;
 
     /** @return TReturn */
