@@ -117,14 +117,7 @@ final class TypeResolver
         }
 
         if ($typeNode instanceof GenericTypeNode) {
-            return $this->resolveIdentifierType(
-                $scope,
-                $typeNode->type->name,
-                array_values(array_map(
-                    fn (TypeNode $typeNode): Type => $this->resolvePHPDocTypeNode($scope, $typeNode),
-                    $typeNode->genericTypes,
-                )),
-            );
+            return $this->resolveIdentifierType($scope, $typeNode->type->name, array_values($typeNode->genericTypes));
         }
 
         throw new \LogicException(sprintf('Unsupported PHPDoc type node %s.', $typeNode::class));
@@ -201,9 +194,9 @@ final class TypeResolver
     }
 
     /**
-     * @param list<Type> $templateArguments
+     * @param list<TypeNode> $genericTypes
      */
-    private function resolveIdentifierType(Scope $scope, string $name, array $templateArguments = []): Type
+    private function resolveIdentifierType(Scope $scope, string $name, array $genericTypes = []): Type
     {
         $atomicType = match ($name) {
             '' => throw new \LogicException('Name must not be empty.'),
@@ -212,21 +205,30 @@ final class TypeResolver
             'false' => types::false,
             'bool' => types::bool,
             'float' => types::float,
-            'int' => types::int,
-            'positive-int' => types::positiveInt,
-            'negative-int' => types::negativeInt,
-            'non-negative-int' => types::nonNegativeInt,
-            'non-positive-int' => types::nonPositiveInt,
+            'positive-int' => types::positiveInt(),
+            'negative-int' => types::negativeInt(),
+            'non-negative-int' => types::nonNegativeInt(),
+            'non-positive-int' => types::nonPositiveInt(),
             'numeric' => types::numeric,
             'string' => types::string,
             'non-empty-string' => types::nonEmptyString,
             'numeric-string' => types::numericString,
             'array-key' => types::arrayKey,
-            'scalar' => types::scalar,
+            'literal-int' => types::literalInt,
+            'literal-string' => types::literalString,
+            'class-string' => types::classString,
+            'callable-string' => types::callableString,
+            'interface-string' => types::interfaceString,
+            'enum-string' => types::enumString,
+            'trait-string' => types::traitString,
+            'callable-array' => types::callableArray,
+            'resource' => types::resource,
+            'closed-resource' => types::closedResource,
             'object' => types::object,
             'callable' => types::callable(),
             'mixed' => types::mixed,
             'void' => types::void,
+            'scalar' => types::scalar,
             'never' => types::never,
             default => null
         };
@@ -234,6 +236,22 @@ final class TypeResolver
         if ($atomicType !== null) {
             return $atomicType;
         }
+
+        if ($name === 'int') {
+            if ($genericTypes === []) {
+                return types::int;
+            }
+
+            return types::int(
+                $this->resolveIntRangeLimit($genericTypes[0] ?? null, 'min'),
+                $this->resolveIntRangeLimit($genericTypes[1] ?? null, 'max'),
+            );
+        }
+
+        $templateArguments = array_map(
+            fn (TypeNode $typeNode): Type => $this->resolvePHPDocTypeNode($scope, $typeNode),
+            $genericTypes,
+        );
 
         if ($name === 'list') {
             return types::list($templateArguments[0] ?? types::mixed);
@@ -354,5 +372,18 @@ final class TypeResolver
 
         /** @var array{Type<array-key>, Type} */
         return [$templateArguments[0], $templateArguments[1]];
+    }
+
+    private function resolveIntRangeLimit(?TypeNode $typeNode, string $expectedIdentifier): ?int
+    {
+        if ($typeNode instanceof ConstTypeNode && $typeNode->constExpr instanceof ConstExprIntegerNode) {
+            return (int) $typeNode->constExpr->value;
+        }
+
+        if ($typeNode instanceof IdentifierTypeNode && $typeNode->name === $expectedIdentifier) {
+            return null;
+        }
+
+        throw new \LogicException(sprintf('Unexpected type %s for int range limit.', (string) $typeNode));
     }
 }

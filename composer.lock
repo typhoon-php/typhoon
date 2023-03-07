@@ -12,12 +12,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/php-extended-type-system/type.git",
-                "reference": "b2fc3ceebb7e6b0de3a89d7802ee6f155d88ff96"
+                "reference": "5bd102108122bb18b1e1b06e02c4d235b48643a1"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/php-extended-type-system/type/zipball/b2fc3ceebb7e6b0de3a89d7802ee6f155d88ff96",
-                "reference": "b2fc3ceebb7e6b0de3a89d7802ee6f155d88ff96",
+                "url": "https://api.github.com/repos/php-extended-type-system/type/zipball/5bd102108122bb18b1e1b06e02c4d235b48643a1",
+                "reference": "5bd102108122bb18b1e1b06e02c4d235b48643a1",
                 "shasum": ""
             },
             "require": {
@@ -51,7 +51,7 @@
                 "issues": "https://github.com/php-extended-type-system/type/issues",
                 "source": "https://github.com/php-extended-type-system/type/tree/0.2.x"
             },
-            "time": "2023-03-06T07:29:48+00:00"
+            "time": "2023-03-07T01:34:05+00:00"
         },
         {
             "name": "nikic/php-parser",
@@ -2033,16 +2033,16 @@
         },
         {
             "name": "phpunit/php-code-coverage",
-            "version": "9.2.25",
+            "version": "9.2.26",
             "source": {
                 "type": "git",
                 "url": "https://github.com/sebastianbergmann/php-code-coverage.git",
-                "reference": "0e2b40518197a8c0d4b08bc34dfff1c99c508954"
+                "reference": "443bc6912c9bd5b409254a40f4b0f4ced7c80ea1"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/sebastianbergmann/php-code-coverage/zipball/0e2b40518197a8c0d4b08bc34dfff1c99c508954",
-                "reference": "0e2b40518197a8c0d4b08bc34dfff1c99c508954",
+                "url": "https://api.github.com/repos/sebastianbergmann/php-code-coverage/zipball/443bc6912c9bd5b409254a40f4b0f4ced7c80ea1",
+                "reference": "443bc6912c9bd5b409254a40f4b0f4ced7c80ea1",
                 "shasum": ""
             },
             "require": {
@@ -2064,8 +2064,8 @@
                 "phpunit/phpunit": "^9.3"
             },
             "suggest": {
-                "ext-pcov": "*",
-                "ext-xdebug": "*"
+                "ext-pcov": "PHP extension that provides line coverage",
+                "ext-xdebug": "PHP extension that provides line coverage as well as branch and path coverage"
             },
             "type": "library",
             "extra": {
@@ -2098,7 +2098,7 @@
             ],
             "support": {
                 "issues": "https://github.com/sebastianbergmann/php-code-coverage/issues",
-                "source": "https://github.com/sebastianbergmann/php-code-coverage/tree/9.2.25"
+                "source": "https://github.com/sebastianbergmann/php-code-coverage/tree/9.2.26"
             },
             "funding": [
                 {
@@ -2106,7 +2106,7 @@
                     "type": "github"
                 }
             ],
-            "time": "2023-02-25T05:32:00+00:00"
+            "time": "2023-03-06T12:58:08+00:00"
         },
         {
             "name": "phpunit/php-file-iterator",

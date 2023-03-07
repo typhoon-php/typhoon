@@ -95,6 +95,32 @@ final class TypeProvider
         yield from self::neverType();
         yield from self::staticType();
 
+        yield 'literal-int' => ['literal-int', types::literalInt];
+        yield 'literal-string' => ['literal-string', types::literalString];
+        yield 'numeric-string' => ['numeric-string', types::numericString];
+        yield 'class-string' => ['class-string', types::classString];
+        yield 'callable-string' => ['callable-string', types::callableString];
+        yield 'interface-string' => ['interface-string', types::interfaceString];
+        yield 'enum-string' => ['enum-string', types::enumString];
+        yield 'trait-string' => ['trait-string', types::traitString];
+        yield 'non-empty-string' => ['non-empty-string', types::nonEmptyString];
+        yield 'numeric' => ['numeric', types::numeric];
+        yield 'scalar' => ['scalar', types::scalar];
+        yield 'callable-array' => ['callable-array', types::callableArray];
+        yield 'resource' => ['resource', types::resource];
+        yield 'closed-resource' => ['closed-resource', types::closedResource];
         yield 'array-key' => ['array-key', types::arrayKey];
+        yield 'negative-int' => ['negative-int', types::negativeInt()];
+        yield 'non-positive-int' => ['non-positive-int', types::nonPositiveInt()];
+        yield 'non-negative-int' => ['non-negative-int', types::nonNegativeInt()];
+        yield 'positive-int' => ['positive-int', types::positiveInt()];
+        yield 'int<10, max>' => ['int<10, max>', types::int(10)];
+        yield 'int<-10, max>' => ['int<-10, max>', types::int(-10)];
+        yield 'int<min, 10>' => ['int<min, 10>', types::int(max: 10)];
+        yield 'int<min, -10>' => ['int<min, -10>', types::int(max: -10)];
+        yield 'int<min, max>' => ['int<min, max>', types::int()];
+        yield '123' => ['123', types::intLiteral(123)];
+        yield "''" => ["''", types::stringLiteral('')];
+        yield "'abc'" => ["'abc'", types::stringLiteral('abc')];
     }
 }
