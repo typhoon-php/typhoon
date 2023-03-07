@@ -36,6 +36,21 @@ use PHPStan\PhpDocParser\Ast\Type\UnionTypeNode;
  */
 final class TypeResolver
 {
+    /**
+     * @return ($name is null ? null : class-string)
+     */
+    public static function nameToClassString(?Name $name): ?string
+    {
+        if ($name === null) {
+            return null;
+        }
+
+        \assert($name->isFullyQualified());
+
+        /** @var class-string */
+        return $name->toString();
+    }
+
     public function resolveTypeNode(Scope $scope, null|TypeNode|Identifier|Name|ComplexType $typeNode): Type
     {
         if ($typeNode === null) {
@@ -145,7 +160,7 @@ final class TypeResolver
             $key = match ($keyName::class) {
                 ConstExprIntegerNode::class => $keyName->value,
                 ConstExprStringNode::class => $keyName->value,
-                default => throw new \LogicException(sprintf('%s is not supported by %s.', $keyName::class, self::class)),
+                default => throw new \LogicException(sprintf('%s is not supported.', $keyName::class)),
             };
 
             $elements[$key] = $type;
@@ -183,8 +198,7 @@ final class TypeResolver
         }
 
         if ($exprNode instanceof ConstFetchNode) {
-            /** @var class-string */
-            $class = $scope->resolveClassName(new Name($exprNode->className))->toString();
+            $class = self::nameToClassString($scope->resolveClassName(new Name($exprNode->className)));
             /** @var non-empty-string $exprNode->name */
 
             return types::classConstant($class, $exprNode->name);
@@ -322,8 +336,7 @@ final class TypeResolver
             return $templateType;
         }
 
-        /** @var class-string */
-        $name = $scope->resolveClassName($nameNode)->toString();
+        $name = self::nameToClassString($scope->resolveClassName($nameNode));
 
         return types::object($name, ...$templateArguments);
     }

@@ -25,13 +25,13 @@ final class ClassLikeTypeReflection
     public function __construct(
         private readonly TypeReflector $typeReflector,
         public readonly string $name,
-        private readonly ?string $parentClass,
-        public readonly array $templates,
-        private readonly ?array $parentTemplateArguments,
-        private readonly array $interfacesTemplateArguments,
-        private readonly array $traitsTemplateArguments,
-        private readonly array $propertyTypes,
-        private readonly array $methods,
+        private readonly ?string $parentClass = null,
+        public readonly array $templates = [],
+        private readonly ?array $parentTemplateArguments = null,
+        private readonly array $interfacesTemplateArguments = [],
+        private readonly array $traitsTemplateArguments = [],
+        private readonly array $propertyTypes = [],
+        private readonly array $methods = [],
     ) {
     }
 

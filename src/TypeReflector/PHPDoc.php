@@ -4,11 +4,14 @@ declare(strict_types=1);
 
 namespace ExtendedTypeSystem\TypeReflector;
 
+use PHPStan\PhpDocParser\Ast\PhpDoc\ExtendsTagValueNode;
+use PHPStan\PhpDocParser\Ast\PhpDoc\ImplementsTagValueNode;
 use PHPStan\PhpDocParser\Ast\PhpDoc\ParamTagValueNode;
 use PHPStan\PhpDocParser\Ast\PhpDoc\PhpDocTagNode;
 use PHPStan\PhpDocParser\Ast\PhpDoc\ReturnTagValueNode;
 use PHPStan\PhpDocParser\Ast\PhpDoc\TemplateTagValueNode;
 use PHPStan\PhpDocParser\Ast\PhpDoc\VarTagValueNode;
+use PHPStan\PhpDocParser\Ast\Type\GenericTypeNode;
 use PHPStan\PhpDocParser\Ast\Type\TypeNode;
 
 /**
@@ -83,6 +86,30 @@ final class PHPDoc
         foreach ($this->tags as $tag) {
             if ($tag->value instanceof TemplateTagValueNode) {
                 yield $tag->name => $tag->value;
+            }
+        }
+    }
+
+    /**
+     * @return \Generator<int, GenericTypeNode>
+     */
+    public function extendsTypes(): \Generator
+    {
+        foreach ($this->tags as $tag) {
+            if ($tag->value instanceof ExtendsTagValueNode) {
+                yield $tag->value->type;
+            }
+        }
+    }
+
+    /**
+     * @return \Generator<int, GenericTypeNode>
+     */
+    public function implementsTypes(): \Generator
+    {
+        foreach ($this->tags as $tag) {
+            if ($tag->value instanceof ImplementsTagValueNode) {
+                yield $tag->value->type;
             }
         }
     }

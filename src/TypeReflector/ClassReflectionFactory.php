@@ -12,11 +12,15 @@ use ExtendedTypeSystem\TypeReflector;
 use ExtendedTypeSystem\Variance;
 use PhpParser\NameContext;
 use PhpParser\Node\Expr\Variable as VariableNode;
+use PhpParser\Node\Name;
 use PhpParser\Node\Param as ParameterNode;
 use PhpParser\Node\Stmt\Class_ as ClassNode;
 use PhpParser\Node\Stmt\ClassLike as ClassLikeNode;
 use PhpParser\Node\Stmt\ClassMethod as MethodNode;
+use PhpParser\Node\Stmt\Enum_ as EnumNode;
+use PhpParser\Node\Stmt\Interface_ as InterfaceNode;
 use PhpParser\Node\Stmt\Property as PropertyNode;
+use PhpParser\Node\Stmt\Trait_ as TraitNode;
 
 /**
  * @internal
@@ -37,8 +41,7 @@ final class ClassReflectionFactory
      */
     public function build(TypeReflector $typeReflector, string $class, NameContext $nameContext, ClassLikeNode $node): ClassLikeTypeReflection
     {
-        /** @var ?class-string */
-        $parent = $node instanceof ClassNode ? $node->extends?->toString() : null;
+        $parent = $node instanceof ClassNode ? TypeResolver::nameToClassString($node->extends) : null;
         $phpDoc = $this->phpDocParser->parseNode($node);
         $classScope = new ClassLikeScope(
             nameContext: clone $nameContext,
@@ -47,32 +50,59 @@ final class ClassReflectionFactory
             final: $node instanceof ClassNode && $node->isFinal(),
             templateNames: $phpDoc->templateNames(),
         );
-        $properties = $this->buildPropertyTypes($classScope, $node->getProperties());
         $methods = $this->buildMethods($classScope, $node->getMethods());
-        $constructorNode = $node->getMethod('__construct');
 
-        if ($constructorNode !== null && isset($methods['__construct'])) {
-            $properties = [...$properties, ...$this->buildPromotedPropertyTypes($constructorNode, $methods['__construct'])];
+        if ($node instanceof ClassNode) {
+            return new ClassLikeTypeReflection(
+                typeReflector: $typeReflector,
+                name: $class,
+                parentClass: $parent,
+                templates: $this->buildTemplates($phpDoc, $classScope),
+                parentTemplateArguments: $node->extends === null ? null : $this->buildExtendsTemplateArguments($phpDoc, $classScope, [$node->extends])[$parent] ?? [],
+                interfacesTemplateArguments: $this->buildImplementsTemplateArguments($phpDoc, $classScope, $node->implements),
+                propertyTypes: $this->buildPropertyTypes($classScope, $node->getProperties(), $node->getMethod('__construct'), $methods['__construct'] ?? null),
+                methods: $methods,
+            );
         }
 
-        return new ClassLikeTypeReflection(
-            typeReflector: $typeReflector,
-            name: $class,
-            parentClass: $parent,
-            templates: $this->buildTemplates($phpDoc, $classScope),
-            parentTemplateArguments: [],
-            interfacesTemplateArguments: [],
-            traitsTemplateArguments: [],
-            propertyTypes: $properties,
-            methods: $methods,
-        );
+        if ($node instanceof InterfaceNode) {
+            return new ClassLikeTypeReflection(
+                typeReflector: $typeReflector,
+                name: $class,
+                templates: $this->buildTemplates($phpDoc, $classScope),
+                interfacesTemplateArguments: $this->buildExtendsTemplateArguments($phpDoc, $classScope, $node->extends),
+                methods: $methods,
+            );
+        }
+
+        if ($node instanceof EnumNode) {
+            return new ClassLikeTypeReflection(
+                typeReflector: $typeReflector,
+                name: $class,
+                templates: $this->buildTemplates($phpDoc, $classScope),
+                interfacesTemplateArguments: $this->buildExtendsTemplateArguments($phpDoc, $classScope, $node->implements),
+                methods: $methods,
+            );
+        }
+
+        if ($node instanceof TraitNode) {
+            return new ClassLikeTypeReflection(
+                typeReflector: $typeReflector,
+                name: $class,
+                templates: $this->buildTemplates($phpDoc, $classScope),
+                propertyTypes: $this->buildPropertyTypes($classScope, $node->getProperties(), $node->getMethod('__construct'), $methods['__construct'] ?? null),
+                methods: $methods,
+            );
+        }
+
+        throw new \LogicException(sprintf('%s is not supported.', $node::class));
     }
 
     /**
      * @param array<PropertyNode> $nodes
      * @return array<non-empty-string, Type>
      */
-    private function buildPropertyTypes(ClassLikeScope $classScope, array $nodes): array
+    private function buildPropertyTypes(ClassLikeScope $classScope, array $nodes, ?MethodNode $constructorNode, ?MethodTypeReflection $constructorReflection): array
     {
         $staticScope = null;
         $instanceScope = null;
@@ -91,6 +121,20 @@ final class ClassReflectionFactory
             foreach ($node->props as $property) {
                 /** @var non-empty-string $property->name->name */
                 $types[$property->name->name] = $type;
+            }
+        }
+
+        if ($constructorNode === null || $constructorReflection === null) {
+            return $types;
+        }
+
+        foreach ($constructorNode->params as $node) {
+            if ($node->flags & ClassNode::MODIFIER_PUBLIC || $node->flags & ClassNode::MODIFIER_PROTECTED || $node->flags & ClassNode::MODIFIER_PRIVATE) {
+                /**
+                 * @var VariableNode $node->var
+                 * @var non-empty-string $node->var->name
+                 */
+                $types[$node->var->name] = $constructorReflection->parameterType($node->var->name);
             }
         }
 
@@ -124,26 +168,6 @@ final class ClassReflectionFactory
     }
 
     /**
-     * @return array<non-empty-string, Type>
-     */
-    private function buildPromotedPropertyTypes(MethodNode $constructorNode, MethodTypeReflection $constructorReflection): array
-    {
-        $types = [];
-
-        foreach ($constructorNode->params as $node) {
-            if ($node->flags & ClassNode::MODIFIER_PUBLIC || $node->flags & ClassNode::MODIFIER_PROTECTED || $node->flags & ClassNode::MODIFIER_PRIVATE) {
-                /**
-                 * @var VariableNode $node->var
-                 * @var non-empty-string $node->var->name
-                 */
-                $types[$node->var->name] = $constructorReflection->parameterType($node->var->name);
-            }
-        }
-
-        return $types;
-    }
-
-    /**
      * @param array<ParameterNode> $nodes
      * @return array<non-empty-string, Type>
      */
@@ -158,6 +182,54 @@ final class ClassReflectionFactory
         }
 
         return $types;
+    }
+
+    /**
+     * @param array<Name> $classes
+     * @return array<class-string, list<Type>>
+     */
+    private function buildExtendsTemplateArguments(PHPDoc $phpDoc, Scope $scope, array $classes): array
+    {
+        if ($classes === []) {
+            return [];
+        }
+
+        $extendsTemplateArguments = array_fill_keys(array_map(TypeResolver::nameToClassString(...), $classes), []);
+
+        foreach ($phpDoc->extendsTypes() as $typeNode) {
+            $type = $this->typeResolver->resolveTypeNode($scope, $typeNode);
+            \assert($type instanceof Type\NamedObjectType);
+
+            if (isset($extendsTemplateArguments[$type->class])) {
+                $extendsTemplateArguments[$type->class] = $type->templateArguments;
+            }
+        }
+
+        return $extendsTemplateArguments;
+    }
+
+    /**
+     * @param array<Name> $classes
+     * @return array<class-string, list<Type>>
+     */
+    private function buildImplementsTemplateArguments(PHPDoc $phpDoc, Scope $scope, array $classes): array
+    {
+        if ($classes === []) {
+            return [];
+        }
+
+        $implementsTemplateArguments = array_fill_keys(array_map(TypeResolver::nameToClassString(...), $classes), []);
+
+        foreach ($phpDoc->implementsTypes() as $typeNode) {
+            $type = $this->typeResolver->resolveTypeNode($scope, $typeNode);
+            \assert($type instanceof Type\NamedObjectType);
+
+            if (isset($implementsTemplateArguments[$type->class])) {
+                $implementsTemplateArguments[$type->class] = $type->templateArguments;
+            }
+        }
+
+        return $implementsTemplateArguments;
     }
 
     /**
