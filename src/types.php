@@ -220,7 +220,7 @@ final class types
      * @param Type<TType> $type
      * @return Type\ShapeElement<TType>
      */
-    public static function optionalKey(int|string $key, Type $type): Type\ShapeElement
+    public static function optionalKey(null|int|string $key, Type $type): Type\ShapeElement
     {
         return new Type\ShapeElement($key, true, $type);
     }
