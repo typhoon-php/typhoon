@@ -189,14 +189,14 @@ final class types
 
     /**
      * @psalm-pure
-     * @param list<Type|Type\ShapeElement> $elements
+     * @param array<Type|Type\ShapeElement> $elements
      */
     public static function shape(array $elements = [], bool $sealed = true): Type\ShapeType
     {
         return new Type\ShapeType(
             array_map(
                 static fn (Type|Type\ShapeElement $element): Type\ShapeElement => $element instanceof Type
-                    ? new Type\ShapeElement(null, false, $element)
+                    ? new Type\ShapeElement($element)
                     : $element,
                 $elements,
             ),
@@ -206,7 +206,7 @@ final class types
 
     /**
      * @psalm-pure
-     * @param list<Type|Type\ShapeElement> $elements
+     * @param array<Type|Type\ShapeElement> $elements
      */
     public static function unsealedShape(array $elements = []): Type\ShapeType
     {
@@ -219,20 +219,9 @@ final class types
      * @param Type<TType> $type
      * @return Type\ShapeElement<TType>
      */
-    public static function key(null|int|string $key, Type $type, bool $optional = false): Type\ShapeElement
+    public static function optional(Type $type): Type\ShapeElement
     {
-        return new Type\ShapeElement($key, $optional, $type);
-    }
-
-    /**
-     * @psalm-pure
-     * @template TType
-     * @param Type<TType> $type
-     * @return Type\ShapeElement<TType>
-     */
-    public static function optionalKey(null|int|string $key, Type $type): Type\ShapeElement
-    {
-        return new Type\ShapeElement($key, true, $type);
+        return new Type\ShapeElement($type, optional: true);
     }
 
     /**

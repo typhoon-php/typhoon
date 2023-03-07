@@ -9,8 +9,8 @@ $_emptyShape = extractType(new ShapeType());
 
 /** @var ShapeType<array{a?: string, 10: int}> */
 $_shapeType = new ShapeType([
-    new ShapeElement(null, true, StringType::type),
-    new ShapeElement(10, false, IntType::type),
+    'a' => new ShapeElement(StringType::type, optional: true),
+    10 => new ShapeElement(IntType::type),
 ]);
 /** @psalm-check-type-exact $_shape = array{a?: string, 10: int} */
 $_shape = extractType($_shapeType);

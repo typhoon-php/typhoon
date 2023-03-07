@@ -19,9 +19,8 @@ final class ShapeElement
      * @param Type<TType> $type
      */
     public function __construct(
-        public readonly null|int|string $key,
-        public readonly bool $optional,
         public readonly Type $type,
+        public readonly bool $optional = false,
     ) {
     }
 }

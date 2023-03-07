@@ -23,22 +23,22 @@ use ExtendedTypeSystem\types;
  * array{
  *     non-empty-list,
  *     b?: int|float,
- *     c: Traversable<numeric-string, false>,
+ *     Traversable<numeric-string, false>,
  *     d: callable(PDO::*, TSend:Generator=, scalar...): void,
  *     ...
  * }
  */
 $type = types::unsealedShape([
     types::nonEmptyString,
-    types::optionalKey('b', types::union(types::int, types::float)),
-    types::key('c', types::object(Traversable::class, types::numericString, types::false)),
-    types::key('d', types::callable(
+    'a' => types::optional(types::union(types::int, types::float)),
+    'b' => types::object(Traversable::class, types::numericString, types::false),
+    'c' => types::callable(
         parameters: [
             types::classConstant(PDO::class, '*'),
             types::defaultParam(types::classTemplate('TSend', Generator::class)),
             types::variadicParam(types::scalar),
         ],
         returnType: types::void,
-    )),
+    ),
 ]);
 ```

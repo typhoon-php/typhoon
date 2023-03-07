@@ -18,7 +18,7 @@ final class ShapeType implements Type
     /**
      * @internal
      * @psalm-internal ExtendedTypeSystem
-     * @param list<ShapeElement> $elements
+     * @param array<ShapeElement> $elements
      */
     public function __construct(
         public readonly array $elements = [],
