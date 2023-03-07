@@ -31,15 +31,10 @@ final class TypeStringifierTest extends TestCase
         yield [types::void, 'void'];
         yield [types::mixed, 'mixed'];
         yield [types::null, 'null'];
-        yield [types::nullable(types::string), '?string'];
         yield [types::true, 'true'];
         yield [types::false, 'false'];
         yield [types::bool, 'bool'];
         yield [types::int, 'int'];
-        yield [types::positiveInt, 'positive-int'];
-        yield [types::negativeInt, 'negative-int'];
-        yield [types::nonNegativeInt, 'non-negative-int'];
-        yield [types::nonPositiveInt, 'non-positive-int'];
         yield [types::intLiteral(123), '123'];
         yield [types::intLiteral(-123), '-123'];
         yield [types::int(min: 23), 'int<23, max>'];

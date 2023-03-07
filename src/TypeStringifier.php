@@ -35,20 +35,15 @@ use ExtendedTypeSystem\Type\MethodTemplateType;
 use ExtendedTypeSystem\Type\MixedType;
 use ExtendedTypeSystem\Type\NamedClassStringType;
 use ExtendedTypeSystem\Type\NamedObjectType;
-use ExtendedTypeSystem\Type\NegativeIntType;
 use ExtendedTypeSystem\Type\NeverType;
 use ExtendedTypeSystem\Type\NonEmptyArrayType;
 use ExtendedTypeSystem\Type\NonEmptyListType;
 use ExtendedTypeSystem\Type\NonEmptyStringType;
-use ExtendedTypeSystem\Type\NonNegativeIntType;
-use ExtendedTypeSystem\Type\NonPositiveIntType;
-use ExtendedTypeSystem\Type\NullableType;
 use ExtendedTypeSystem\Type\NullType;
 use ExtendedTypeSystem\Type\NumericStringType;
 use ExtendedTypeSystem\Type\NumericType;
 use ExtendedTypeSystem\Type\ObjectType;
 use ExtendedTypeSystem\Type\Parameter;
-use ExtendedTypeSystem\Type\PositiveIntType;
 use ExtendedTypeSystem\Type\ResourceType;
 use ExtendedTypeSystem\Type\ScalarType;
 use ExtendedTypeSystem\Type\ShapeElement;
@@ -120,26 +115,6 @@ final class TypeStringifier implements TypeVisitor
     public function visitLiteralInt(LiteralIntType $type): mixed
     {
         return 'literal-int';
-    }
-
-    public function visitNegativeInt(NegativeIntType $type): mixed
-    {
-        return 'negative-int';
-    }
-
-    public function visitNonPositiveInt(NonPositiveIntType $type): mixed
-    {
-        return 'non-positive-int';
-    }
-
-    public function visitNonNegativeInt(NonNegativeIntType $type): mixed
-    {
-        return 'non-negative-int';
-    }
-
-    public function visitPositiveInt(PositiveIntType $type): mixed
-    {
-        return 'positive-int';
     }
 
     public function visitIntRange(IntRangeType $type): mixed
@@ -403,11 +378,6 @@ final class TypeStringifier implements TypeVisitor
             fn (Type $inner): string => $inner instanceof UnionType ? sprintf('(%s)', $inner->accept($this)) : $inner->accept($this),
             $type->types,
         ));
-    }
-
-    public function visitNullable(NullableType $type): mixed
-    {
-        return '?'.$type->type->accept($this);
     }
 
     public function visitUnion(UnionType $type): mixed
