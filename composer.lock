@@ -12,12 +12,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/php-extended-type-system/type.git",
-                "reference": "5bd102108122bb18b1e1b06e02c4d235b48643a1"
+                "reference": "b724ad5fb73f711a9f62273c67547c616b74b327"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/php-extended-type-system/type/zipball/5bd102108122bb18b1e1b06e02c4d235b48643a1",
-                "reference": "5bd102108122bb18b1e1b06e02c4d235b48643a1",
+                "url": "https://api.github.com/repos/php-extended-type-system/type/zipball/b724ad5fb73f711a9f62273c67547c616b74b327",
+                "reference": "b724ad5fb73f711a9f62273c67547c616b74b327",
                 "shasum": ""
             },
             "require": {
@@ -51,7 +51,7 @@
                 "issues": "https://github.com/php-extended-type-system/type/issues",
                 "source": "https://github.com/php-extended-type-system/type/tree/0.2.x"
             },
-            "time": "2023-03-07T01:34:05+00:00"
+            "time": "2023-03-07T04:27:59+00:00"
         },
         {
             "name": "nikic/php-parser",

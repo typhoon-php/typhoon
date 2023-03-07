@@ -143,11 +143,10 @@ final class TypeResolver
         $elements = [];
 
         foreach ($node->items as $item) {
-            $type = $this->resolvePHPDocTypeNode($scope, $item->valueType);
-
-            if ($item->optional) {
-                $type = types::optional($type);
-            }
+            $type = types::element(
+                $this->resolvePHPDocTypeNode($scope, $item->valueType),
+                $item->optional,
+            );
 
             if ($item->keyName === null) {
                 $elements[] = $type;
