@@ -219,9 +219,20 @@ final class types
      * @param Type<TType> $type
      * @return Type\ShapeElement<TType>
      */
+    public static function element(Type $type, bool $optional): Type\ShapeElement
+    {
+        return new Type\ShapeElement($type, $optional);
+    }
+
+    /**
+     * @psalm-pure
+     * @template TType
+     * @param Type<TType> $type
+     * @return Type\ShapeElement<TType>
+     */
     public static function optional(Type $type): Type\ShapeElement
     {
-        return new Type\ShapeElement($type, optional: true);
+        return new Type\ShapeElement($type, true);
     }
 
     /**
