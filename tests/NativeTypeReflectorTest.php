@@ -7,6 +7,7 @@ namespace ExtendedTypeSystem;
 use ExtendedTypeSystem\ClassLocator\ClassLocatorChain;
 use ExtendedTypeSystem\ClassLocator\SingleClassLocator;
 use ExtendedTypeSystem\Stub\Base;
+use ExtendedTypeSystem\Stub\Iface;
 use ExtendedTypeSystem\Stub\Main;
 use PHPUnit\Framework\TestCase;
 use function PHPUnit\Framework\assertEquals;
@@ -246,7 +247,7 @@ final class NativeTypeReflectorTest extends TestCase
     {
         return new ClassLocatorChain(array_map(
             static fn (string $class): SingleClassLocator => new SingleClassLocator($class, new Source('test', '<?php '.$code)),
-            [Main::class, Base::class],
+            [Main::class, Base::class, Iface::class],
         ));
     }
 }
