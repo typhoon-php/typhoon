@@ -163,6 +163,11 @@ final class types
      */
     public static function nonEmptyList(Type $valueType = self::mixed): Type\NonEmptyListType
     {
+        /** @psalm-suppress DocblockTypeContradiction */
+        if ($valueType === self::mixed) {
+            return __nonEmptyList;
+        }
+
         return new Type\NonEmptyListType($valueType);
     }
 
@@ -174,6 +179,11 @@ final class types
      */
     public static function list(Type $valueType = self::mixed): Type\ListType
     {
+        /** @psalm-suppress DocblockTypeContradiction */
+        if ($valueType === self::mixed) {
+            return __list;
+        }
+
         return new Type\ListType($valueType);
     }
 
@@ -235,6 +245,11 @@ final class types
      */
     public static function nonEmptyArray(Type $keyType = self::arrayKey, Type $valueType = self::mixed): Type\NonEmptyArrayType
     {
+        /** @psalm-suppress DocblockTypeContradiction */
+        if ($keyType === self::arrayKey && $valueType === self::mixed) {
+            return __nonEmptyArray;
+        }
+
         return new Type\NonEmptyArrayType($keyType, $valueType);
     }
 
@@ -248,6 +263,11 @@ final class types
      */
     public static function array(Type $keyType = self::arrayKey, Type $valueType = self::mixed): Type\ArrayType
     {
+        /** @psalm-suppress DocblockTypeContradiction */
+        if ($keyType === self::arrayKey && $valueType === self::mixed) {
+            return __array;
+        }
+
         return new Type\ArrayType($keyType, $valueType);
     }
 
@@ -261,6 +281,11 @@ final class types
      */
     public static function iterable(Type $keyType = self::mixed, Type $valueType = self::mixed): Type\IterableType
     {
+        /** @psalm-suppress DocblockTypeContradiction */
+        if ($keyType === self::mixed && $valueType === self::mixed) {
+            return __iterable;
+        }
+
         return new Type\IterableType($keyType, $valueType);
     }
 
@@ -330,6 +355,10 @@ final class types
      */
     public static function closure(array $parameters = [], ?Type $returnType = null): Type\ClosureType
     {
+        if ($parameters === [] && $returnType === null) {
+            return __closure;
+        }
+
         return new Type\ClosureType(
             array_map(
                 static fn (Type|Type\Parameter $parameter): Type\Parameter => $parameter instanceof Type
@@ -350,6 +379,10 @@ final class types
      */
     public static function callable(array $parameters = [], ?Type $returnType = null): Type\CallableType
     {
+        if ($parameters === [] && $returnType === null) {
+            return __callable;
+        }
+
         return new Type\CallableType(
             array_map(
                 static fn (Type|Type\Parameter $parameter): Type\Parameter => $parameter instanceof Type
@@ -462,3 +495,45 @@ final class types
         return new Type\UnionType([$type1, $type2, ...$moreTypes]);
     }
 }
+
+/**
+ * @internal
+ * @psalm-internal ExtendedTypeSystem
+ */
+const __nonEmptyList = new Type\NonEmptyListType();
+
+/**
+ * @internal
+ * @psalm-internal ExtendedTypeSystem
+ */
+const __list = new Type\ListType();
+
+/**
+ * @internal
+ * @psalm-internal ExtendedTypeSystem
+ */
+const __nonEmptyArray = new Type\NonEmptyArrayType();
+
+/**
+ * @internal
+ * @psalm-internal ExtendedTypeSystem
+ */
+const __array = new Type\ArrayType();
+
+/**
+ * @internal
+ * @psalm-internal ExtendedTypeSystem
+ */
+const __iterable = new Type\IterableType();
+
+/**
+ * @internal
+ * @psalm-internal ExtendedTypeSystem
+ */
+const __closure = new Type\ClosureType();
+
+/**
+ * @internal
+ * @psalm-internal ExtendedTypeSystem
+ */
+const __callable = new Type\CallableType();
