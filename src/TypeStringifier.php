@@ -231,17 +231,33 @@ final class TypeStringifier implements TypeVisitor
 
     public function visitShape(ShapeType $type): mixed
     {
-        if (!$type->sealed && $type->elements === []) {
-            return 'array';
+        if ($type->elements === []) {
+            return $type->sealed ? 'list{}' : 'array';
         }
 
-        $list = array_is_list($type->elements);
+        if (array_is_list($type->elements)) {
+            return sprintf(
+                '%s{%s%s}',
+                $type->sealed ? 'list' : 'array',
+                implode(', ', array_map(
+                    fn (int $key, ShapeElement $element) => ($element->optional ? $key.'?: ' : '').$element->type->accept($this),
+                    array_keys($type->elements),
+                    $type->elements,
+                )),
+                $type->sealed ? '' : ', ...',
+            );
+        }
 
         return sprintf(
-            '%s{%s%s}',
-            $type->sealed && $list ? 'list' : 'array',
+            'array{%s%s}',
             implode(', ', array_map(
-                fn (int|string $key, ShapeElement $element): string => $this->stringifyShapeElement($list, $key, $element),
+                function (int|string $key, ShapeElement $element): string {
+                    if (\is_string($key) && ($key === '' || preg_match('/\W/', $key))) {
+                        $key = $this->escapeStringLiteral($key);
+                    }
+
+                    return sprintf('%s%s: %s', $key, $element->optional ? '?' : '', $element->type->accept($this));
+                },
                 array_keys($type->elements),
                 $type->elements,
             )),
@@ -392,19 +408,6 @@ final class TypeStringifier implements TypeVisitor
     public function visitMixed(MixedType $type): mixed
     {
         return 'mixed';
-    }
-
-    private function stringifyShapeElement(bool $list, int|string $key, ShapeElement $element): string
-    {
-        if ($list && !$element->optional) {
-            return $element->type->accept($this);
-        }
-
-        if (\is_string($key) && ($key === '' || preg_match('/\W/', $key))) {
-            $key = $this->escapeStringLiteral($key);
-        }
-
-        return sprintf('%s%s: %s', $key, $element->optional ? '?' : '', $element->type->accept($this));
     }
 
     /**
