@@ -12,6 +12,9 @@ use ExtendedTypeSystem\Stub\Main;
  */
 final class TypeProvider
 {
+    /**
+     * @psalm-suppress UnusedConstructor
+     */
     private function __construct()
     {
     }
