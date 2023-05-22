@@ -218,7 +218,7 @@ final class PHPDocTypeReflectorTest extends TestCase
     private function locateCode(string $code): ClassLocator
     {
         return new ClassLocatorChain(array_map(
-            static fn (string $class): SingleClassLocator => new SingleClassLocator($class, new Source('test', '<?php '.$code)),
+            static fn (string $class): SingleClassLocator => new SingleClassLocator($class, new Source('test', '<?php ' . $code)),
             [Main::class, Base::class, Iface::class],
         ));
     }

@@ -17,9 +17,9 @@
     },
     "require-dev": {
         "ergebnis/composer-normalize": "^2.30",
-        "friendsofphp/php-cs-fixer": "^3.14.4",
+        "friendsofphp/php-cs-fixer": "^3.17.0",
         "phpunit/phpunit": "^9.6.3",
-        "phpyh/coding-standard": "^2.0.0",
+        "phpyh/coding-standard": "^2.1.0",
         "psalm/plugin-phpunit": "^0.18.4",
         "symfony/var-dumper": "^6.2",
         "vimeo/psalm": "^5.12.0"

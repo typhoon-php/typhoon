@@ -16,7 +16,7 @@ final class ComposerAutoloadClassLocator implements ClassLocator
     private readonly ClassLoader $classLoader;
 
     public function __construct(
-        string|ClassLoader $classLoaderOrAutoloadFilename = __DIR__.'/../../../autoload.php',
+        string|ClassLoader $classLoaderOrAutoloadFilename = __DIR__ . '/../../../autoload.php',
     ) {
         if (\is_string($classLoaderOrAutoloadFilename)) {
             /** @psalm-suppress MixedAssignment, UnresolvableInclude */

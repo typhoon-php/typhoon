@@ -141,7 +141,7 @@ final class NativeTypeReflectorTest extends TestCase
      */
     public function testItReflectsNativeTypesAtMethodReturn(string $type, Type $expectedType): void
     {
-        $typeDeclaration = $type === '' ? '' : ': '.$type;
+        $typeDeclaration = $type === '' ? '' : ': ' . $type;
         $code = <<<PHP
             namespace ExtendedTypeSystem\\Stub;
             class Main extends \\ArrayObject {
@@ -246,7 +246,7 @@ final class NativeTypeReflectorTest extends TestCase
     private function locateCode(string $code): ClassLocator
     {
         return new ClassLocatorChain(array_map(
-            static fn (string $class): SingleClassLocator => new SingleClassLocator($class, new Source('test', '<?php '.$code)),
+            static fn (string $class): SingleClassLocator => new SingleClassLocator($class, new Source('test', '<?php ' . $code)),
             [Main::class, Base::class, Iface::class],
         ));
     }

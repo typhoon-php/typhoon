@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "9956f0c1ab21da94b901cb437c2d85f9",
+    "content-hash": "72be6c80e26d39019ebb4b8e91863839",
     "packages": [
         {
             "name": "extended-type-system/type",
@@ -1427,16 +1427,16 @@
         },
         {
             "name": "friendsofphp/php-cs-fixer",
-            "version": "v3.14.4",
+            "version": "v3.17.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/PHP-CS-Fixer/PHP-CS-Fixer.git",
-                "reference": "1b3d9dba63d93b8a202c31e824748218781eae6b"
+                "reference": "3f0ed862f22386c55a767461ef5083bddceeed79"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/PHP-CS-Fixer/PHP-CS-Fixer/zipball/1b3d9dba63d93b8a202c31e824748218781eae6b",
-                "reference": "1b3d9dba63d93b8a202c31e824748218781eae6b",
+                "url": "https://api.github.com/repos/PHP-CS-Fixer/PHP-CS-Fixer/zipball/3f0ed862f22386c55a767461ef5083bddceeed79",
+                "reference": "3f0ed862f22386c55a767461ef5083bddceeed79",
                 "shasum": ""
             },
             "require": {
@@ -1503,9 +1503,15 @@
                 }
             ],
             "description": "A tool to automatically fix PHP code style",
+            "keywords": [
+                "Static code analysis",
+                "fixer",
+                "standards",
+                "static analysis"
+            ],
             "support": {
                 "issues": "https://github.com/PHP-CS-Fixer/PHP-CS-Fixer/issues",
-                "source": "https://github.com/PHP-CS-Fixer/PHP-CS-Fixer/tree/v3.14.4"
+                "source": "https://github.com/PHP-CS-Fixer/PHP-CS-Fixer/tree/v3.17.0"
             },
             "funding": [
                 {
@@ -1513,7 +1519,7 @@
                     "type": "github"
                 }
             ],
-            "time": "2023-02-09T21:49:13+00:00"
+            "time": "2023-05-22T19:59:32+00:00"
         },
         {
             "name": "justinrainbow/json-schema",
@@ -2453,16 +2459,16 @@
         },
         {
             "name": "phpyh/coding-standard",
-            "version": "2.0.0",
+            "version": "2.1.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/phpyh/coding-standard.git",
-                "reference": "243b86ddb6357e944cdcdacbcb9efd2b7894c036"
+                "reference": "da93e93a6bd08778fb5323352c5ae93885bad6ff"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/phpyh/coding-standard/zipball/243b86ddb6357e944cdcdacbcb9efd2b7894c036",
-                "reference": "243b86ddb6357e944cdcdacbcb9efd2b7894c036",
+                "url": "https://api.github.com/repos/phpyh/coding-standard/zipball/da93e93a6bd08778fb5323352c5ae93885bad6ff",
+                "reference": "da93e93a6bd08778fb5323352c5ae93885bad6ff",
                 "shasum": ""
             },
             "require": {
@@ -2491,9 +2497,9 @@
             "description": "PHPyh Coding Standard For PHP CS Fixer",
             "support": {
                 "issues": "https://github.com/phpyh/coding-standard/issues",
-                "source": "https://github.com/phpyh/coding-standard/tree/2.0.0"
+                "source": "https://github.com/phpyh/coding-standard/tree/2.1.0"
             },
-            "time": "2023-02-25T04:52:27+00:00"
+            "time": "2023-04-25T13:04:49+00:00"
         },
         {
             "name": "psalm/plugin-phpunit",

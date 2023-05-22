@@ -41,7 +41,7 @@ final class PHPDoc
 
     public function paramType(string $name): ?TypeNode
     {
-        $dollarName = '$'.$name;
+        $dollarName = '$' . $name;
 
         foreach ($this->tags as $tag) {
             if ($tag->value instanceof ParamTagValueNode && $tag->value->parameterName === $dollarName) {
