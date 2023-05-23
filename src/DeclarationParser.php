@@ -124,23 +124,23 @@ final class DeclarationParser
             final: $node->isFinal(),
             templateNames: $phpDoc->templateNames(),
         );
-        $methodsByName = $this->parseMethodsByName($scope, $node->getMethods());
+        $methods = $this->parseMethods($scope, $node->getMethods());
 
         return new ClassDeclaration(
             name: $class,
-            templatesByName: $this->parseTemplatesByName($phpDoc, $scope),
-            parentClass: $parent,
-            parentClassTemplateArguments: $this->parseParentClassTemplateArguments($phpDoc, $scope, $parent),
-            implementedInterfacesByName: $this->parseImplementedInterfacesByName($phpDoc, $scope, $node->implements),
-            usedTraitsByName: [],
-            constantTypesByName: [],
-            propertyTypesByName: $this->parsePropertyTypesByName(
+            templates: $this->parseTemplates($phpDoc, $scope),
+            parent: $parent,
+            parentTemplateArguments: $this->parseParentTemplateArguments($phpDoc, $scope, $parent),
+            interfacesTemplateArguments: $this->parseImplementsTemplateArguments($phpDoc, $scope, $node->implements),
+            traitsTemplateArguments: [],
+            constantTypes: [],
+            propertyTypes: $this->parsePropertyTypes(
                 classScope: $scope,
                 nodes: $node->getProperties(),
                 constructorNode: $node->getMethod('__construct'),
-                constructorDeclaration: $methodsByName['__construct'] ?? null,
+                constructorDeclaration: $methods['__construct'] ?? null,
             ),
-            methodsByName: $methodsByName,
+            methods: $methods,
         );
     }
 
@@ -163,10 +163,10 @@ final class DeclarationParser
 
         return new InterfaceDeclaration(
             name: $class,
-            templatesByName: $this->parseTemplatesByName($phpDoc, $scope),
-            extendedInterfacesByName: $this->parseExtendedInterfacesByName($phpDoc, $scope, $node->extends),
-            constantTypesByName: [],
-            methodsByName: $this->parseMethodsByName($scope, $node->getMethods()),
+            templates: $this->parseTemplates($phpDoc, $scope),
+            interfacesTemplateArguments: $this->parseExtendsTemplateArguments($phpDoc, $scope, $node->extends),
+            constantTypes: [],
+            methods: $this->parseMethods($scope, $node->getMethods()),
         );
     }
 
@@ -195,11 +195,11 @@ final class DeclarationParser
 
         return new EnumDeclaration(
             name: $class,
-            implementedInterfacesByName: $this->parseImplementedInterfacesByName($phpDoc, $scope, $node->implements),
-            usedTraitsByName: [],
-            constantTypesByName: [],
-            propertyTypesByName: $properties,
-            methodsByName: $this->parseMethodsByName($scope, $node->getMethods()),
+            interfacesTemplateArguments: $this->parseImplementsTemplateArguments($phpDoc, $scope, $node->implements),
+            traitsTemplateArguments: [],
+            constantTypes: [],
+            propertyTypes: $properties,
+            methods: $this->parseMethods($scope, $node->getMethods()),
         );
     }
 
@@ -219,26 +219,26 @@ final class DeclarationParser
             final: false,
             templateNames: $phpDoc->templateNames(),
         );
-        $methodsByName = $this->parseMethodsByName($scope, $node->getMethods());
+        $methods = $this->parseMethods($scope, $node->getMethods());
 
         return new TraitDeclaration(
             name: $class,
-            templatesByName: $this->parseTemplatesByName($phpDoc, $scope),
-            usedTraitsByName: [],
-            propertyTypesByName: $this->parsePropertyTypesByName(
+            templates: $this->parseTemplates($phpDoc, $scope),
+            traitsTemplateArguments: [],
+            propertyTypes: $this->parsePropertyTypes(
                 classScope: $scope,
                 nodes: $node->getProperties(),
                 constructorNode: $node->getMethod('__construct'),
-                constructorDeclaration: $methodsByName['__construct'] ?? null,
+                constructorDeclaration: $methods['__construct'] ?? null,
             ),
-            methodsByName: $methodsByName,
+            methods: $methods,
         );
     }
 
     /**
      * @return array<non-empty-string, TemplateDeclaration>
      */
-    private function parseTemplatesByName(PHPDoc $phpDoc, TypeScope $scope): array
+    private function parseTemplates(PHPDoc $phpDoc, TypeScope $scope): array
     {
         $templates = [];
         $index = 0;
@@ -248,7 +248,7 @@ final class DeclarationParser
             $templates[$tagValue->name] = new TemplateDeclaration(
                 index: $index++,
                 name: $tagValue->name,
-                constraint: $this->typeParser->parsePHPDocTypeNode($scope, $tagValue->bound),
+                constraint: $this->typeParser->parsePHPDocTypeNode($scope, $tagValue->bound) ?? types::mixed,
                 variance: match (true) {
                     str_ends_with($tagName, 'covariant') => Variance::COVARIANT,
                     str_ends_with($tagName, 'contravariant') => Variance::CONTRAVARIANT,
@@ -264,7 +264,7 @@ final class DeclarationParser
      * @param ?class-string $parent
      * @return list<Type>
      */
-    private function parseParentClassTemplateArguments(PHPDoc $phpDoc, TypeScope $scope, ?string $parent): array
+    private function parseParentTemplateArguments(PHPDoc $phpDoc, TypeScope $scope, ?string $parent): array
     {
         if ($parent === null) {
             return [];
@@ -286,7 +286,7 @@ final class DeclarationParser
      * @param array<Name> $classes
      * @return array<class-string, list<Type>>
      */
-    private function parseExtendedInterfacesByName(PHPDoc $phpDoc, TypeScope $scope, array $classes): array
+    private function parseExtendsTemplateArguments(PHPDoc $phpDoc, TypeScope $scope, array $classes): array
     {
         if ($classes === []) {
             return [];
@@ -310,7 +310,7 @@ final class DeclarationParser
      * @param array<Name> $classes
      * @return array<class-string, list<Type>>
      */
-    private function parseImplementedInterfacesByName(PHPDoc $phpDoc, TypeScope $scope, array $classes): array
+    private function parseImplementsTemplateArguments(PHPDoc $phpDoc, TypeScope $scope, array $classes): array
     {
         if ($classes === []) {
             return [];
@@ -334,7 +334,7 @@ final class DeclarationParser
      * @param array<PropertyNode> $nodes
      * @return array<non-empty-string, TypeDeclaration>
      */
-    private function parsePropertyTypesByName(ClassLikeTypeScope $classScope, array $nodes, ?MethodNode $constructorNode, ?MethodDeclaration $constructorDeclaration): array
+    private function parsePropertyTypes(ClassLikeTypeScope $classScope, array $nodes, ?MethodNode $constructorNode, ?MethodDeclaration $constructorDeclaration): array
     {
         $staticScope = null;
         $instanceScope = null;
@@ -366,7 +366,7 @@ final class DeclarationParser
                  * @var VariableNode $node->var
                  * @var non-empty-string $node->var->name
                  */
-                $types[$node->var->name] = $constructorDeclaration->parameterTypesByName[$node->var->name];
+                $types[$node->var->name] = $constructorDeclaration->parameterTypes[$node->var->name];
             }
         }
 
@@ -377,7 +377,7 @@ final class DeclarationParser
      * @param array<MethodNode> $nodes
      * @return array<non-empty-string, MethodDeclaration>
      */
-    private function parseMethodsByName(ClassLikeTypeScope $classScope, array $nodes): array
+    private function parseMethods(ClassLikeTypeScope $classScope, array $nodes): array
     {
         $methods = [];
 
@@ -389,8 +389,8 @@ final class DeclarationParser
 
             $methods[$name] = new MethodDeclaration(
                 name: $name,
-                templatesByName: $this->parseTemplatesByName($phpDoc, $scope),
-                parameterTypesByName: $this->parseParameterTypesByName($phpDoc, $scope, $node->params),
+                templates: $this->parseTemplates($phpDoc, $scope),
+                parameterTypes: $this->parseParameterTypes($phpDoc, $scope, $node->params),
                 returnType: $this->parseTypeDeclaration($scope, $node->returnType, $phpDoc->returnType()),
             );
         }
@@ -402,7 +402,7 @@ final class DeclarationParser
      * @param array<ParameterNode> $nodes
      * @return array<non-empty-string, TypeDeclaration>
      */
-    private function parseParameterTypesByName(PHPDoc $phpDoc, TypeScope $scope, array $nodes): array
+    private function parseParameterTypes(PHPDoc $phpDoc, TypeScope $scope, array $nodes): array
     {
         $types = [];
 

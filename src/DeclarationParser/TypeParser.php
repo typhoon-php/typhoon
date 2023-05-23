@@ -51,10 +51,13 @@ final class TypeParser
         return $name->toString();
     }
 
-    public function parseNativeTypeNode(TypeScope $scope, null|Identifier|Name|ComplexType $typeNode): Type
+    /**
+     * @return ($typeNode is null ? null : Type)
+     */
+    public function parseNativeTypeNode(TypeScope $scope, null|Identifier|Name|ComplexType $typeNode): ?Type
     {
         if ($typeNode === null) {
-            return types::mixed;
+            return null;
         }
 
         if ($typeNode instanceof Identifier) {
@@ -83,13 +86,16 @@ final class TypeParser
             ));
         }
 
-        throw new \LogicException(sprintf('Unknown type node %s.', $typeNode::class));
+        throw new \LogicException(sprintf('Node %s is not supported.', get_debug_type($typeNode)));
     }
 
-    public function parsePHPDocTypeNode(TypeScope $scope, ?TypeNode $typeNode): Type
+    /**
+     * @return ($typeNode is null ? null : Type)
+     */
+    public function parsePHPDocTypeNode(TypeScope $scope, ?TypeNode $typeNode): ?Type
     {
         if ($typeNode === null) {
-            return types::mixed;
+            return null;
         }
 
         if ($typeNode instanceof IdentifierTypeNode) {

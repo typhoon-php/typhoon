@@ -13,19 +13,19 @@ final class EnumDeclaration
 {
     /**
      * @param class-string<T> $name
-     * @param array<interface-string, list<Type>> $implementedInterfacesByName
-     * @param array<trait-string, list<Type>> $usedTraitsByName
-     * @param array<non-empty-string, TypeDeclaration> $constantTypesByName
-     * @param array<non-empty-string, TypeDeclaration> $propertyTypesByName
-     * @param array<non-empty-string, MethodDeclaration> $methodsByName
+     * @param array<interface-string, list<Type>> $interfacesTemplateArguments
+     * @param array<trait-string, list<Type>> $traitsTemplateArguments
+     * @param array<non-empty-string, TypeDeclaration> $constantTypes
+     * @param array<non-empty-string, TypeDeclaration> $propertyTypes
+     * @param array<non-empty-string, MethodDeclaration> $methods
      */
     public function __construct(
         public readonly string $name,
-        public readonly array $implementedInterfacesByName,
-        public readonly array $usedTraitsByName,
-        public readonly array $constantTypesByName,
-        public readonly array $propertyTypesByName,
-        public readonly array $methodsByName,
+        public readonly array $interfacesTemplateArguments,
+        public readonly array $traitsTemplateArguments,
+        public readonly array $constantTypes,
+        public readonly array $propertyTypes,
+        public readonly array $methods,
     ) {
     }
 }
