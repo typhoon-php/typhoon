@@ -54,14 +54,14 @@ final class TypeParser
     /**
      * @return ($typeNode is null ? null : Type)
      */
-    public function parseNativeTypeNode(TypeScope $scope, null|Identifier|Name|ComplexType $typeNode): ?Type
+    public function parseNativeType(TypeScope $scope, null|Identifier|Name|ComplexType $typeNode): ?Type
     {
         if ($typeNode === null) {
             return null;
         }
 
         if ($typeNode instanceof Identifier) {
-            return $this->parseIdentifierType($scope, $typeNode->name);
+            return $this->parseIdentifier($scope, $typeNode->name);
         }
 
         if ($typeNode instanceof Name) {
@@ -69,19 +69,19 @@ final class TypeParser
         }
 
         if ($typeNode instanceof NullableType) {
-            return types::nullable($this->parseNativeTypeNode($scope, $typeNode->type));
+            return types::nullable($this->parseNativeType($scope, $typeNode->type));
         }
 
         if ($typeNode instanceof UnionType) {
-            return $this->parseUnionType(array_map(
-                fn (Identifier|Name|ComplexType $childTypeNode): Type => $this->parseNativeTypeNode($scope, $childTypeNode),
+            return $this->parseUnion(array_map(
+                fn (Identifier|Name|ComplexType $childTypeNode): Type => $this->parseNativeType($scope, $childTypeNode),
                 array_values($typeNode->types),
             ));
         }
 
         if ($typeNode instanceof IntersectionType) {
-            return $this->parseIntersectionType(array_map(
-                fn (Identifier|Name|ComplexType $childTypeNode): Type => $this->parseNativeTypeNode($scope, $childTypeNode),
+            return $this->parseIntersection(array_map(
+                fn (Identifier|Name|ComplexType $childTypeNode): Type => $this->parseNativeType($scope, $childTypeNode),
                 array_values($typeNode->types),
             ));
         }
@@ -92,60 +92,60 @@ final class TypeParser
     /**
      * @return ($typeNode is null ? null : Type)
      */
-    public function parsePHPDocTypeNode(TypeScope $scope, ?TypeNode $typeNode): ?Type
+    public function parsePHPDocType(TypeScope $scope, ?TypeNode $typeNode): ?Type
     {
         if ($typeNode === null) {
             return null;
         }
 
         if ($typeNode instanceof IdentifierTypeNode) {
-            return $this->parseIdentifierType($scope, $typeNode->name);
+            return $this->parseIdentifier($scope, $typeNode->name);
         }
 
         if ($typeNode instanceof NullableTypeNode) {
-            return types::nullable($this->parsePHPDocTypeNode($scope, $typeNode->type));
+            return types::nullable($this->parsePHPDocType($scope, $typeNode->type));
         }
 
         if ($typeNode instanceof UnionTypeNode) {
-            return $this->parseUnionType(array_map(
-                fn (TypeNode $childTypeNode): Type => $this->parsePHPDocTypeNode($scope, $childTypeNode),
+            return $this->parseUnion(array_map(
+                fn (TypeNode $childTypeNode): Type => $this->parsePHPDocType($scope, $childTypeNode),
                 array_values($typeNode->types),
             ));
         }
 
         if ($typeNode instanceof IntersectionTypeNode) {
-            return $this->parseIntersectionType(array_map(
-                fn (TypeNode $childTypeNode): Type => $this->parsePHPDocTypeNode($scope, $childTypeNode),
+            return $this->parseIntersection(array_map(
+                fn (TypeNode $childTypeNode): Type => $this->parsePHPDocType($scope, $childTypeNode),
                 array_values($typeNode->types),
             ));
         }
 
         if ($typeNode instanceof ArrayTypeNode) {
-            return types::array(valueType: $this->parsePHPDocTypeNode($scope, $typeNode->type));
+            return types::array(valueType: $this->parsePHPDocType($scope, $typeNode->type));
         }
 
         if ($typeNode instanceof ArrayShapeNode) {
-            return $this->parseArrayShapeNodeType($scope, $typeNode);
+            return $this->parseArrayShape($scope, $typeNode);
         }
 
         if ($typeNode instanceof ConstTypeNode) {
-            return $this->parseConstTypeNodeType($scope, $typeNode);
+            return $this->parseConstExpr($scope, $typeNode);
         }
 
         if ($typeNode instanceof GenericTypeNode) {
-            return $this->parseIdentifierType($scope, $typeNode->type->name, array_values($typeNode->genericTypes));
+            return $this->parseIdentifier($scope, $typeNode->type->name, array_values($typeNode->genericTypes));
         }
 
         throw new \LogicException(sprintf('Unsupported PHPDoc type node %s.', $typeNode::class));
     }
 
-    private function parseArrayShapeNodeType(TypeScope $scope, ArrayShapeNode $node): ShapeType
+    private function parseArrayShape(TypeScope $scope, ArrayShapeNode $node): ShapeType
     {
         $elements = [];
 
         foreach ($node->items as $item) {
             $type = types::element(
-                $this->parsePHPDocTypeNode($scope, $item->valueType),
+                $this->parsePHPDocType($scope, $item->valueType),
                 $item->optional,
             );
 
@@ -169,7 +169,7 @@ final class TypeParser
         return types::shape($elements);
     }
 
-    private function parseConstTypeNodeType(TypeScope $scope, ConstTypeNode $typeNode): Type
+    private function parseConstExpr(TypeScope $scope, ConstTypeNode $typeNode): Type
     {
         $exprNode = $typeNode->constExpr;
 
@@ -210,7 +210,7 @@ final class TypeParser
     /**
      * @param list<TypeNode> $genericTypes
      */
-    private function parseIdentifierType(TypeScope $scope, string $name, array $genericTypes = []): Type
+    private function parseIdentifier(TypeScope $scope, string $name, array $genericTypes = []): Type
     {
         $atomicType = match ($name) {
             '' => throw new \LogicException('Name must not be empty.'),
@@ -263,7 +263,7 @@ final class TypeParser
         }
 
         $templateArguments = array_map(
-            fn (TypeNode $typeNode): Type => $this->parsePHPDocTypeNode($scope, $typeNode),
+            fn (TypeNode $typeNode): Type => $this->parsePHPDocType($scope, $typeNode),
             $genericTypes,
         );
 
@@ -344,7 +344,7 @@ final class TypeParser
     /**
      * @param list<Type> $types
      */
-    private function parseUnionType(array $types): Type
+    private function parseUnion(array $types): Type
     {
         if ($types === []) {
             return types::mixed;
@@ -360,7 +360,7 @@ final class TypeParser
     /**
      * @param list<Type> $types
      */
-    private function parseIntersectionType(array $types): Type
+    private function parseIntersection(array $types): Type
     {
         if ($types === []) {
             return types::mixed;

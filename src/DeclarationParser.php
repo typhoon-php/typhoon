@@ -89,19 +89,19 @@ final class DeclarationParser
         $nameContext = $nameResolver->getNameContext();
 
         if ($node instanceof ClassNode) {
-            return $this->parseClassNode($class, $node, $nameContext);
+            return $this->parseClass($class, $node, $nameContext);
         }
 
         if ($node instanceof InterfaceNode) {
-            return $this->parseInterfaceNode($class, $node, $nameContext);
+            return $this->parseInterface($class, $node, $nameContext);
         }
 
         if ($node instanceof EnumNode) {
-            return $this->parseEnumNode($class, $node, $nameContext);
+            return $this->parseEnum($class, $node, $nameContext);
         }
 
         if ($node instanceof TraitNode) {
-            return $this->parseTraitNode($class, $node, $nameContext);
+            return $this->parseTrait($class, $node, $nameContext);
         }
 
         throw new \LogicException(sprintf('Node %s is not supported.', $node::class));
@@ -112,9 +112,9 @@ final class DeclarationParser
      * @param class-string<T> $class
      * @return ClassDeclaration<T>
      */
-    private function parseClassNode(string $class, ClassNode $node, NameContext $nameContext): ClassDeclaration
+    private function parseClass(string $class, ClassNode $node, NameContext $nameContext): ClassDeclaration
     {
-        $phpDoc = $this->phpDocParser->parseNode($node);
+        $phpDoc = $this->phpDocParser->parse($node);
 
         $parent = TypeParser::nameToClassString($node->extends);
         $scope = new ClassLikeTypeScope(
@@ -149,9 +149,9 @@ final class DeclarationParser
      * @param class-string<T> $class
      * @return InterfaceDeclaration<T>
      */
-    private function parseInterfaceNode(string $class, InterfaceNode $node, NameContext $nameContext): InterfaceDeclaration
+    private function parseInterface(string $class, InterfaceNode $node, NameContext $nameContext): InterfaceDeclaration
     {
-        $phpDoc = $this->phpDocParser->parseNode($node);
+        $phpDoc = $this->phpDocParser->parse($node);
 
         $scope = new ClassLikeTypeScope(
             nameContext: $nameContext,
@@ -175,9 +175,9 @@ final class DeclarationParser
      * @param class-string<T> $class
      * @return EnumDeclaration<T>
      */
-    private function parseEnumNode(string $class, EnumNode $node, NameContext $nameContext): EnumDeclaration
+    private function parseEnum(string $class, EnumNode $node, NameContext $nameContext): EnumDeclaration
     {
-        $phpDoc = $this->phpDocParser->parseNode($node);
+        $phpDoc = $this->phpDocParser->parse($node);
 
         $scope = new ClassLikeTypeScope(
             nameContext: $nameContext,
@@ -190,7 +190,7 @@ final class DeclarationParser
         $properties = ['name' => new TypeDeclaration(types::nonEmptyString)];
 
         if ($node->scalarType !== null) {
-            $properties['value'] = new TypeDeclaration($this->typeParser->parseNativeTypeNode($scope, $node->scalarType));
+            $properties['value'] = new TypeDeclaration($this->typeParser->parseNativeType($scope, $node->scalarType));
         }
 
         return new EnumDeclaration(
@@ -208,9 +208,9 @@ final class DeclarationParser
      * @param class-string<T> $class
      * @return TraitDeclaration<T>
      */
-    private function parseTraitNode(string $class, TraitNode $node, NameContext $nameContext): TraitDeclaration
+    private function parseTrait(string $class, TraitNode $node, NameContext $nameContext): TraitDeclaration
     {
-        $phpDoc = $this->phpDocParser->parseNode($node);
+        $phpDoc = $this->phpDocParser->parse($node);
 
         $scope = new ClassLikeTypeScope(
             nameContext: $nameContext,
@@ -248,7 +248,7 @@ final class DeclarationParser
             $templates[$tagValue->name] = new TemplateDeclaration(
                 index: $index++,
                 name: $tagValue->name,
-                constraint: $this->typeParser->parsePHPDocTypeNode($scope, $tagValue->bound) ?? types::mixed,
+                constraint: $this->typeParser->parsePHPDocType($scope, $tagValue->bound) ?? types::mixed,
                 variance: match (true) {
                     str_ends_with($tagName, 'covariant') => Variance::COVARIANT,
                     str_ends_with($tagName, 'contravariant') => Variance::CONTRAVARIANT,
@@ -271,7 +271,7 @@ final class DeclarationParser
         }
 
         foreach ($phpDoc->extendsTypes() as $typeNode) {
-            $type = $this->typeParser->parsePHPDocTypeNode($scope, $typeNode);
+            $type = $this->typeParser->parsePHPDocType($scope, $typeNode);
             \assert($type instanceof Type\NamedObjectType);
 
             if ($type->class === $parent) {
@@ -295,7 +295,7 @@ final class DeclarationParser
         $extendsTemplateArguments = array_fill_keys(array_map(TypeParser::nameToClassString(...), $classes), []);
 
         foreach ($phpDoc->extendsTypes() as $typeNode) {
-            $type = $this->typeParser->parsePHPDocTypeNode($scope, $typeNode);
+            $type = $this->typeParser->parsePHPDocType($scope, $typeNode);
             \assert($type instanceof Type\NamedObjectType);
 
             if (isset($extendsTemplateArguments[$type->class])) {
@@ -319,7 +319,7 @@ final class DeclarationParser
         $implementsTemplateArguments = array_fill_keys(array_map(TypeParser::nameToClassString(...), $classes), []);
 
         foreach ($phpDoc->implementsTypes() as $typeNode) {
-            $type = $this->typeParser->parsePHPDocTypeNode($scope, $typeNode);
+            $type = $this->typeParser->parsePHPDocType($scope, $typeNode);
             \assert($type instanceof Type\NamedObjectType);
 
             if (isset($implementsTemplateArguments[$type->class])) {
@@ -347,7 +347,7 @@ final class DeclarationParser
                 $scope = $instanceScope ??= new PropertyTypeScope($classScope, false);
             }
 
-            $phpDoc = $this->phpDocParser->parseNode($node);
+            $phpDoc = $this->phpDocParser->parse($node);
             $type = $this->parseTypeDeclaration($scope, $node->type, $phpDoc->varType());
 
             foreach ($node->props as $property) {
@@ -384,7 +384,7 @@ final class DeclarationParser
         foreach ($nodes as $node) {
             /** @var non-empty-string */
             $name = $node->name->toString();
-            $phpDoc = $this->phpDocParser->parseNode($node);
+            $phpDoc = $this->phpDocParser->parse($node);
             $scope = new MethodTypeScope($classScope, $name, $node->isStatic(), $phpDoc->templateNames());
 
             $methods[$name] = new MethodDeclaration(
@@ -418,8 +418,8 @@ final class DeclarationParser
     private function parseTypeDeclaration(TypeScope $scope, null|Identifier|Name|ComplexType $nativeTypeNode, ?TypeNode $phpDocTypeNode): TypeDeclaration
     {
         return new TypeDeclaration(
-            nativeType: $this->typeParser->parseNativeTypeNode($scope, $nativeTypeNode),
-            phpDocType: $this->typeParser->parsePHPDocTypeNode($scope, $phpDocTypeNode),
+            nativeType: $this->typeParser->parseNativeType($scope, $nativeTypeNode),
+            phpDocType: $this->typeParser->parsePHPDocType($scope, $phpDocTypeNode),
         );
     }
 

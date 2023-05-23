@@ -28,7 +28,7 @@ final class PHPDocParser
     ) {
     }
 
-    public function parseNode(Node $node): PHPDoc
+    public function parse(Node $node): PHPDoc
     {
         $phpDoc = $node->getDocComment()?->getText() ?? '';
 
