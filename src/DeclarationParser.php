@@ -236,6 +236,31 @@ final class DeclarationParser
     }
 
     /**
+     * @return array<non-empty-string, TemplateDeclaration>
+     */
+    private function parseTemplatesByName(PHPDoc $phpDoc, TypeScope $scope): array
+    {
+        $templates = [];
+        $index = 0;
+
+        foreach ($phpDoc->templates() as $tagName => $tagValue) {
+            /** @var non-empty-string $tagValue->name */
+            $templates[$tagValue->name] = new TemplateDeclaration(
+                index: $index++,
+                name: $tagValue->name,
+                constraint: $this->typeParser->parsePHPDocTypeNode($scope, $tagValue->bound),
+                variance: match (true) {
+                    str_ends_with($tagName, 'covariant') => Variance::COVARIANT,
+                    str_ends_with($tagName, 'contravariant') => Variance::CONTRAVARIANT,
+                    default => Variance::INVARIANT,
+                },
+            );
+        }
+
+        return $templates;
+    }
+
+    /**
      * @param ?class-string $parent
      * @return list<Type>
      */
@@ -388,31 +413,6 @@ final class DeclarationParser
         }
 
         return $types;
-    }
-
-    /**
-     * @return array<non-empty-string, TemplateDeclaration>
-     */
-    private function parseTemplatesByName(PHPDoc $phpDoc, TypeScope $scope): array
-    {
-        $templates = [];
-        $index = 0;
-
-        foreach ($phpDoc->templates() as $tagName => $tagValue) {
-            /** @var non-empty-string $tagValue->name */
-            $templates[$tagValue->name] = new TemplateDeclaration(
-                index: $index++,
-                name: $tagValue->name,
-                constraint: $this->typeParser->parsePHPDocTypeNode($scope, $tagValue->bound),
-                variance: match (true) {
-                    str_ends_with($tagName, 'covariant') => Variance::COVARIANT,
-                    str_ends_with($tagName, 'contravariant') => Variance::CONTRAVARIANT,
-                    default => Variance::INVARIANT,
-                },
-            );
-        }
-
-        return $templates;
     }
 
     private function parseTypeDeclaration(TypeScope $scope, null|Identifier|Name|ComplexType $nativeTypeNode, ?TypeNode $phpDocTypeNode): TypeDeclaration
