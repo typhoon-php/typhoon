@@ -9,7 +9,7 @@ use ExtendedTypeSystem\TagPrioritizer;
 /**
  * This prioritizer tells to consider {@phpstan-*} tags first, then {@psalm-*} tags, and finally the others.
  *
- * @psalm-api
+ * @api
  */
 final class PHPStanOverPsalmOverOthersTagPrioritizer implements TagPrioritizer
 {

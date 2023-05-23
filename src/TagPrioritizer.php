@@ -7,7 +7,7 @@ namespace ExtendedTypeSystem;
 use ExtendedTypeSystem\TagPrioritizer\PHPStanOverPsalmOverOthersTagPrioritizer;
 
 /**
- * @psalm-api
+ * @api
  */
 interface TagPrioritizer
 {

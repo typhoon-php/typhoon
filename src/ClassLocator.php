@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace ExtendedTypeSystem;
 
 /**
- * @psalm-api
+ * @api
  */
 interface ClassLocator
 {

@@ -9,7 +9,7 @@ use ExtendedTypeSystem\ClassLocator;
 use ExtendedTypeSystem\Source;
 
 /**
- * @psalm-api
+ * @api
  */
 final class ComposerAutoloadClassLocator implements ClassLocator
 {

@@ -38,7 +38,7 @@ use PHPStan\PhpDocParser\Parser\PhpDocParser as PHPStanPhpDocParser;
 use PHPStan\PhpDocParser\Parser\TypeParser as PHPStanTypeParser;
 
 /**
- * @psalm-api
+ * @api
  */
 final class DeclarationParser
 {

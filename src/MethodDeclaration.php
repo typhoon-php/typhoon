@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace ExtendedTypeSystem;
 
 /**
- * @psalm-api
+ * @api
  * @psalm-immutable
  */
 final class MethodDeclaration
