@@ -8,7 +8,7 @@ namespace ExtendedTypeSystem;
  * @psalm-api
  * @psalm-immutable
  */
-final class TemplateReflection
+final class TemplateDeclaration
 {
     /**
      * @internal

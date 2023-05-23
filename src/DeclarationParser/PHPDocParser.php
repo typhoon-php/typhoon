@@ -2,14 +2,18 @@
 
 declare(strict_types=1);
 
-namespace ExtendedTypeSystem\TypeReflector;
+namespace ExtendedTypeSystem\DeclarationParser;
 
 use ExtendedTypeSystem\TagPrioritizer;
+use ExtendedTypeSystem\TagPrioritizer\PHPStanOverPsalmOverOthersTagPrioritizer;
 use PhpParser\Node;
 use PHPStan\PhpDocParser\Ast\PhpDoc\PhpDocTagNode;
 use PHPStan\PhpDocParser\Lexer\Lexer;
+use PHPStan\PhpDocParser\Lexer\Lexer as PHPStanPhpDocLexer;
+use PHPStan\PhpDocParser\Parser\ConstExprParser;
 use PHPStan\PhpDocParser\Parser\PhpDocParser as PHPStanPhpDocParser;
 use PHPStan\PhpDocParser\Parser\TokenIterator;
+use PHPStan\PhpDocParser\Parser\TypeParser;
 
 /**
  * @internal
@@ -18,9 +22,9 @@ use PHPStan\PhpDocParser\Parser\TokenIterator;
 final class PHPDocParser
 {
     public function __construct(
-        private readonly PHPStanPhpDocParser $parser,
-        private readonly Lexer $lexer,
-        private readonly TagPrioritizer $tagPrioritizer,
+        private readonly PHPStanPhpDocParser $parser = new PHPStanPhpDocParser(new TypeParser(new ConstExprParser()), new ConstExprParser()),
+        private readonly Lexer $lexer = new PHPStanPhpDocLexer(),
+        private readonly TagPrioritizer $tagPrioritizer = new PHPStanOverPsalmOverOthersTagPrioritizer(),
     ) {
     }
 

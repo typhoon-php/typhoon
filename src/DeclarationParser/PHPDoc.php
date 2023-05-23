@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace ExtendedTypeSystem\TypeReflector;
+namespace ExtendedTypeSystem\DeclarationParser;
 
 use PHPStan\PhpDocParser\Ast\PhpDoc\ExtendsTagValueNode;
 use PHPStan\PhpDocParser\Ast\PhpDoc\ImplementsTagValueNode;
@@ -16,7 +16,7 @@ use PHPStan\PhpDocParser\Ast\Type\TypeNode;
 
 /**
  * @internal
- * @psalm-internal ExtendedTypeSystem\TypeReflector
+ * @psalm-internal ExtendedTypeSystem\DeclarationParser
  */
 final class PHPDoc
 {

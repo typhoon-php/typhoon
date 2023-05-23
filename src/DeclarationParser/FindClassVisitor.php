@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace ExtendedTypeSystem\TypeReflector;
+namespace ExtendedTypeSystem\DeclarationParser;
 
 use PhpParser\Node;
 use PhpParser\Node\Stmt\ClassLike as ClassLikeNode;

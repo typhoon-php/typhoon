@@ -2,16 +2,16 @@
 
 declare(strict_types=1);
 
-namespace ExtendedTypeSystem\TypeReflector;
+namespace ExtendedTypeSystem\DeclarationParser;
 
 use ExtendedTypeSystem\Type;
 use PhpParser\Node\Name;
 
 /**
  * @internal
- * @psalm-internal ExtendedTypeSystem\TypeReflector
+ * @psalm-internal ExtendedTypeSystem\DeclarationParser
  */
-interface Scope
+interface TypeScope
 {
     /**
      * @return class-string
