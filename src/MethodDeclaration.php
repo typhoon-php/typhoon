@@ -19,7 +19,7 @@ final class MethodDeclaration
         public readonly string $name,
         public readonly array $templates,
         public readonly array $parameterTypes,
-        public readonly ?TypeDeclaration $returnType,
+        public readonly TypeDeclaration $returnType,
     ) {
     }
 }
