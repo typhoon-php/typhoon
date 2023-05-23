@@ -132,8 +132,6 @@ final class DeclarationParser
             parent: $parent,
             parentTemplateArguments: $this->parseParentTemplateArguments($phpDoc, $scope, $parent),
             interfacesTemplateArguments: $this->parseImplementsTemplateArguments($phpDoc, $scope, $node->implements),
-            traitsTemplateArguments: [],
-            constantTypes: [],
             propertyTypes: $this->parsePropertyTypes(
                 classScope: $scope,
                 nodes: $node->getProperties(),
@@ -165,7 +163,6 @@ final class DeclarationParser
             name: $class,
             templates: $this->parseTemplates($phpDoc, $scope),
             interfacesTemplateArguments: $this->parseExtendsTemplateArguments($phpDoc, $scope, $node->extends),
-            constantTypes: [],
             methods: $this->parseMethods($scope, $node->getMethods()),
         );
     }
@@ -196,8 +193,6 @@ final class DeclarationParser
         return new EnumDeclaration(
             name: $class,
             interfacesTemplateArguments: $this->parseImplementsTemplateArguments($phpDoc, $scope, $node->implements),
-            traitsTemplateArguments: [],
-            constantTypes: [],
             propertyTypes: $properties,
             methods: $this->parseMethods($scope, $node->getMethods()),
         );
@@ -224,7 +219,6 @@ final class DeclarationParser
         return new TraitDeclaration(
             name: $class,
             templates: $this->parseTemplates($phpDoc, $scope),
-            traitsTemplateArguments: [],
             propertyTypes: $this->parsePropertyTypes(
                 classScope: $scope,
                 nodes: $node->getProperties(),
