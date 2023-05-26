@@ -184,16 +184,24 @@ final class DeclarationParser
             templateNames: $phpDoc->templateNames(),
         );
 
-        $properties = ['name' => new TypeDeclaration(types::nonEmptyString)];
+        $properties = ['name' => new PropertyDeclaration(
+            name: 'name',
+            private: false,
+            type: new TypeDeclaration(types::nonEmptyString),
+        )];
 
         if ($node->scalarType !== null) {
-            $properties['value'] = new TypeDeclaration($this->typeParser->parseNativeType($scope, $node->scalarType));
+            $properties['value'] = new PropertyDeclaration(
+                name: 'name',
+                private: false,
+                type: new TypeDeclaration($this->typeParser->parseNativeType($scope, $node->scalarType)),
+            );
         }
 
         return new EnumDeclaration(
             name: $class,
             interfacesTemplateArguments: $this->parseImplementsTemplateArguments($phpDoc, $scope, $node->implements),
-            propertyTypes: $properties,
+            properties: $properties,
             methods: $this->parseMethods($scope, $node->getMethods()),
         );
     }
