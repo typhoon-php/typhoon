@@ -132,7 +132,7 @@ final class DeclarationParser
             parent: $parent,
             parentTemplateArguments: $this->parseParentTemplateArguments($phpDoc, $scope, $parent),
             interfacesTemplateArguments: $this->parseImplementsTemplateArguments($phpDoc, $scope, $node->implements),
-            propertyTypes: $this->parsePropertyTypes(
+            properties: $this->parseProperties(
                 classScope: $scope,
                 nodes: $node->getProperties(),
                 constructorNode: $node->getMethod('__construct'),
@@ -219,7 +219,7 @@ final class DeclarationParser
         return new TraitDeclaration(
             name: $class,
             templates: $this->parseTemplates($phpDoc, $scope),
-            propertyTypes: $this->parsePropertyTypes(
+            properties: $this->parseProperties(
                 classScope: $scope,
                 nodes: $node->getProperties(),
                 constructorNode: $node->getMethod('__construct'),
@@ -326,13 +326,13 @@ final class DeclarationParser
 
     /**
      * @param array<PropertyNode> $nodes
-     * @return array<non-empty-string, TypeDeclaration>
+     * @return array<non-empty-string, PropertyDeclaration>
      */
-    private function parsePropertyTypes(ClassLikeTypeScope $classScope, array $nodes, ?MethodNode $constructorNode, ?MethodDeclaration $constructorDeclaration): array
+    private function parseProperties(ClassLikeTypeScope $classScope, array $nodes, ?MethodNode $constructorNode, ?MethodDeclaration $constructorDeclaration): array
     {
         $staticScope = null;
         $instanceScope = null;
-        $types = [];
+        $properties = [];
 
         foreach ($nodes as $node) {
             if ($node->isStatic()) {
@@ -346,12 +346,16 @@ final class DeclarationParser
 
             foreach ($node->props as $property) {
                 /** @var non-empty-string $property->name->name */
-                $types[$property->name->name] = $type;
+                $properties[$property->name->name] = new PropertyDeclaration(
+                    name: $property->name->name,
+                    private: $node->isPrivate(),
+                    type: $type,
+                );
             }
         }
 
         if ($constructorNode === null || $constructorDeclaration === null) {
-            return $types;
+            return $properties;
         }
 
         foreach ($constructorNode->params as $node) {
@@ -360,11 +364,15 @@ final class DeclarationParser
                  * @var VariableNode $node->var
                  * @var non-empty-string $node->var->name
                  */
-                $types[$node->var->name] = $constructorDeclaration->parameterTypes[$node->var->name];
+                $properties[$node->var->name] = new PropertyDeclaration(
+                    name: $node->var->name,
+                    private: (bool) ($node->flags & ClassNode::MODIFIER_PRIVATE),
+                    type: $constructorDeclaration->parameterTypes[$node->var->name],
+                );
             }
         }
 
-        return $types;
+        return $properties;
     }
 
     /**
@@ -383,6 +391,7 @@ final class DeclarationParser
 
             $methods[$name] = new MethodDeclaration(
                 name: $name,
+                private: $node->isPrivate(),
                 templates: $this->parseTemplates($phpDoc, $scope),
                 parameterTypes: $this->parseParameterTypes($phpDoc, $scope, $node->params),
                 returnType: $this->parseTypeDeclaration($scope, $node->returnType, $phpDoc->returnType()),

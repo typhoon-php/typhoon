@@ -17,6 +17,7 @@ final class MethodDeclaration
      */
     public function __construct(
         public readonly string $name,
+        public readonly bool $private,
         public readonly array $templates,
         public readonly array $parameterTypes,
         public readonly TypeDeclaration $returnType,
