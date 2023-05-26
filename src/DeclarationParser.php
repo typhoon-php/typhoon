@@ -430,6 +430,8 @@ final class DeclarationParser
 
     private function isParamNodePromoted(ParameterNode $node): bool
     {
-        return $node->flags & ClassNode::MODIFIER_PUBLIC || $node->flags & ClassNode::MODIFIER_PROTECTED || $node->flags & ClassNode::MODIFIER_PRIVATE;
+        return $node->flags & ClassNode::MODIFIER_PUBLIC
+            || $node->flags & ClassNode::MODIFIER_PROTECTED
+            || $node->flags & ClassNode::MODIFIER_PRIVATE;
     }
 }
