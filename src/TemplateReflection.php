@@ -8,7 +8,7 @@ namespace ExtendedTypeSystem;
  * @api
  * @psalm-immutable
  */
-final class TemplateDeclaration
+final class TemplateReflection
 {
     /**
      * @internal
@@ -19,8 +19,8 @@ final class TemplateDeclaration
     public function __construct(
         public readonly int $index,
         public readonly string $name,
-        public readonly Type $constraint = types::mixed,
-        public readonly Variance $variance = Variance::INVARIANT,
+        public readonly Type $constraint,
+        public readonly Variance $variance,
     ) {
     }
 }

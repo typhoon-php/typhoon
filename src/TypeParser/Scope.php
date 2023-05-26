@@ -2,16 +2,16 @@
 
 declare(strict_types=1);
 
-namespace ExtendedTypeSystem\DeclarationParser;
+namespace ExtendedTypeSystem\TypeParser;
 
 use ExtendedTypeSystem\Type;
 use PhpParser\Node\Name;
 
 /**
  * @internal
- * @psalm-internal ExtendedTypeSystem\DeclarationParser
+ * @psalm-internal ExtendedTypeSystem
  */
-interface TypeScope
+interface Scope
 {
     /**
      * @return class-string
@@ -19,13 +19,16 @@ interface TypeScope
     public function self(): string;
 
     /**
-     * @return class-string
+     * @return ?class-string
      */
-    public function parent(): string;
+    public function parent(): ?string;
 
     public function isSelfFinal(): bool;
 
-    public function resolveClassName(Name $name): Name;
+    /**
+     * @return class-string
+     */
+    public function resolveClassName(Name $name): string;
 
     /**
      * @param non-empty-string $name

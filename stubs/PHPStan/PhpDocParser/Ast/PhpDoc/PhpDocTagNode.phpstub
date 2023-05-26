@@ -1,0 +1,13 @@
+<?php
+
+declare(strict_types = 1);
+
+namespace PHPStan\PhpDocParser\Ast\PhpDoc;
+
+class PhpDocTagNode implements PhpDocChildNode
+{
+	/**
+	 * @var non-empty-string
+	 */
+	public $name;
+}

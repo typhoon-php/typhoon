@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace ExtendedTypeSystem\DeclarationParser;
+namespace ExtendedTypeSystem\TypeParser;
 
 use ExtendedTypeSystem\Type;
 use ExtendedTypeSystem\Type\ShapeType;
@@ -32,19 +32,15 @@ use PHPStan\PhpDocParser\Ast\Type\UnionTypeNode;
 
 /**
  * @internal
- * @psalm-internal ExtendedTypeSystem\DeclarationParser
+ * @psalm-internal ExtendedTypeSystem
  */
 final class TypeParser
 {
     /**
-     * @return ($name is null ? null : class-string)
+     * @return class-string
      */
-    public static function nameToClass(?Name $name): ?string
+    public static function nameToClass(Name $name): string
     {
-        if ($name === null) {
-            return null;
-        }
-
         \assert($name->isFullyQualified());
 
         /** @var class-string */
@@ -54,7 +50,7 @@ final class TypeParser
     /**
      * @return ($typeNode is null ? null : Type)
      */
-    public function parseNativeType(TypeScope $scope, null|Identifier|Name|ComplexType $typeNode): ?Type
+    public function parseNativeType(Scope $scope, null|Identifier|Name|ComplexType $typeNode): ?Type
     {
         if ($typeNode === null) {
             return null;
@@ -92,7 +88,7 @@ final class TypeParser
     /**
      * @return ($typeNode is null ? null : Type)
      */
-    public function parsePHPDocType(TypeScope $scope, ?TypeNode $typeNode): ?Type
+    public function parsePHPDocType(Scope $scope, ?TypeNode $typeNode): ?Type
     {
         if ($typeNode === null) {
             return null;
@@ -139,7 +135,7 @@ final class TypeParser
         throw new \LogicException(sprintf('Unsupported PHPDoc type node %s.', $typeNode::class));
     }
 
-    private function parseArrayShape(TypeScope $scope, ArrayShapeNode $node): ShapeType
+    private function parseArrayShape(Scope $scope, ArrayShapeNode $node): ShapeType
     {
         $elements = [];
 
@@ -169,7 +165,7 @@ final class TypeParser
         return types::shape($elements);
     }
 
-    private function parseConstExpr(TypeScope $scope, ConstTypeNode $typeNode): Type
+    private function parseConstExpr(Scope $scope, ConstTypeNode $typeNode): Type
     {
         $exprNode = $typeNode->constExpr;
 
@@ -199,7 +195,7 @@ final class TypeParser
 
         if ($exprNode instanceof ConstFetchNode) {
             return types::classConstant(
-                self::nameToClass($scope->resolveClassName(new Name($exprNode->className))),
+                $scope->resolveClassName(new Name($exprNode->className)),
                 $exprNode->name,
             );
         }
@@ -210,7 +206,7 @@ final class TypeParser
     /**
      * @param list<TypeNode> $genericTypes
      */
-    private function parseIdentifier(TypeScope $scope, string $name, array $genericTypes = []): Type
+    private function parseIdentifier(Scope $scope, string $name, array $genericTypes = []): Type
     {
         $atomicType = match ($name) {
             '' => throw new \LogicException('Name must not be empty.'),
@@ -297,7 +293,7 @@ final class TypeParser
     /**
      * @param list<Type> $templateArguments
      */
-    private function parseName(TypeScope $scope, Name $nameNode, array $templateArguments = []): Type
+    private function parseName(Scope $scope, Name $nameNode, array $templateArguments = []): Type
     {
         if ($nameNode->isFullyQualified()) {
             return types::object(self::nameToClass($nameNode), ...$templateArguments);
@@ -310,7 +306,12 @@ final class TypeParser
         }
 
         if ($name === 'parent') {
-            return types::object($scope->parent(), ...$templateArguments);
+            $parent = $scope->parent() ?? throw new \LogicException(sprintf(
+                'Failed to resolve parent type: scope class %s does not have a parent.',
+                $scope->self(),
+            ));
+
+            return types::object($parent, ...$templateArguments);
         }
 
         if ($name === 'static') {
@@ -327,9 +328,7 @@ final class TypeParser
             return $templateType;
         }
 
-        $class = self::nameToClass($scope->resolveClassName($nameNode));
-
-        return types::object($class, ...$templateArguments);
+        return types::object($scope->resolveClassName($nameNode), ...$templateArguments);
     }
 
     /**

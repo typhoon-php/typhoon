@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace ExtendedTypeSystem\DeclarationParser;
+namespace ExtendedTypeSystem\PHPDocParser;
 
 use PHPStan\PhpDocParser\Ast\PhpDoc\ExtendsTagValueNode;
 use PHPStan\PhpDocParser\Ast\PhpDoc\ImplementsTagValueNode;
@@ -16,7 +16,7 @@ use PHPStan\PhpDocParser\Ast\Type\TypeNode;
 
 /**
  * @internal
- * @psalm-internal ExtendedTypeSystem\DeclarationParser
+ * @psalm-internal ExtendedTypeSystem
  */
 final class PHPDoc
 {
@@ -68,14 +68,11 @@ final class PHPDoc
      */
     public function templateNames(): array
     {
-        return array_column(
-            iterator_to_array($this->templates(), preserve_keys: false),
-            'name',
-        );
+        return array_column(iterator_to_array($this->templates(), preserve_keys: false), 'name');
     }
 
     /**
-     * @return \Generator<string, TemplateTagValueNode>
+     * @return \Generator<non-empty-string, TemplateTagValueNode>
      */
     public function templates(): \Generator
     {
@@ -89,22 +86,10 @@ final class PHPDoc
     /**
      * @return \Generator<int, GenericTypeNode>
      */
-    public function extendsTypes(): \Generator
+    public function inheritedTypes(): \Generator
     {
         foreach ($this->tags as $tag) {
-            if ($tag->value instanceof ExtendsTagValueNode) {
-                yield $tag->value->type;
-            }
-        }
-    }
-
-    /**
-     * @return \Generator<int, GenericTypeNode>
-     */
-    public function implementsTypes(): \Generator
-    {
-        foreach ($this->tags as $tag) {
-            if ($tag->value instanceof ImplementsTagValueNode) {
+            if ($tag->value instanceof ExtendsTagValueNode || $tag->value instanceof ImplementsTagValueNode) {
                 yield $tag->value->type;
             }
         }

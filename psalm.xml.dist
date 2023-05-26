@@ -48,6 +48,7 @@
         <file name="stubs/PhpParser/Node/Identifier.phpstub"/>
         <file name="stubs/PhpParser/Node/Name.phpstub"/>
         <file name="stubs/PHPStan/PhpDocParser/Ast/ConstExpr/ConstFetchNode.phpstub"/>
+        <file name="stubs/PHPStan/PhpDocParser/Ast/PhpDoc/PhpDocTagNode.phpstub"/>
         <file name="stubs/PHPStan/PhpDocParser/Ast/PhpDoc/TemplateTagValueNode.phpstub"/>
     </stubs>
 </psalm>

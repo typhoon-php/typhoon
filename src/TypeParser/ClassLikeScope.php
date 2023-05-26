@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace ExtendedTypeSystem\DeclarationParser;
+namespace ExtendedTypeSystem\TypeParser;
 
 use ExtendedTypeSystem\Type;
 use ExtendedTypeSystem\types;
@@ -11,9 +11,9 @@ use PhpParser\Node\Name;
 
 /**
  * @internal
- * @psalm-internal ExtendedTypeSystem\DeclarationParser
+ * @psalm-internal ExtendedTypeSystem
  */
-final class ClassLikeTypeScope implements TypeScope
+final class ClassLikeScope implements Scope
 {
     /**
      * @var array<non-empty-string, true>
@@ -40,12 +40,9 @@ final class ClassLikeTypeScope implements TypeScope
         return $this->name;
     }
 
-    public function parent(): string
+    public function parent(): ?string
     {
-        return $this->parent ?? throw new \LogicException(sprintf(
-            'Failed to resolve parent type: scope class %s does not have a parent.',
-            $this->name,
-        ));
+        return $this->parent;
     }
 
     public function isSelfFinal(): bool
@@ -53,9 +50,9 @@ final class ClassLikeTypeScope implements TypeScope
         return $this->final;
     }
 
-    public function resolveClassName(Name $name): Name
+    public function resolveClassName(Name $name): string
     {
-        return $this->nameContext->getResolvedClassName($name);
+        return TypeParser::nameToClass($this->nameContext->getResolvedClassName($name));
     }
 
     public function tryResolveTemplateType(string $name): ?Type

@@ -8,22 +8,17 @@ use ExtendedTypeSystem\Type\Parameter;
 use ExtendedTypeSystem\Type\ShapeElement;
 
 /**
+ * @api
  * @psalm-immutable
  * @implements TypeVisitor<Type>
  */
-final class TypeResolver implements TypeVisitor
+final class StaticResolver implements TypeVisitor
 {
     /**
-     * @param array<class-string, array<non-empty-string, Type>> $classTemplateTypes
-     * @param array<class-string, array<non-empty-string, array<non-empty-string, Type>>> $methodTemplateTypes
-     * @param array<callable-string, array<non-empty-string, Type>> $functionTemplateTypes
-     * @param ?class-string $static
+     * @param class-string $class
      */
     public function __construct(
-        private readonly array $classTemplateTypes = [],
-        private readonly array $methodTemplateTypes = [],
-        private readonly array $functionTemplateTypes = [],
-        private readonly ?string $static = null,
+        private readonly string $class,
     ) {
     }
 
@@ -222,11 +217,7 @@ final class TypeResolver implements TypeVisitor
             $type->templateArguments,
         );
 
-        if ($this->static === null) {
-            return types::static($type->declaringClass, ...$templateArguments);
-        }
-
-        return types::object($this->static, ...$templateArguments);
+        return types::object($this->class, ...$templateArguments);
     }
 
     public function visitObject(Type\ObjectType $type): mixed
@@ -298,17 +289,17 @@ final class TypeResolver implements TypeVisitor
 
     public function visitFunctionTemplate(Type\FunctionTemplateType $type): mixed
     {
-        return $this->functionTemplateTypes[$type->function][$type->name] ?? $type;
+        return $type;
     }
 
     public function visitClassTemplate(Type\ClassTemplateType $type): mixed
     {
-        return $this->classTemplateTypes[$type->class][$type->name] ?? $type;
+        return $type;
     }
 
     public function visitMethodTemplate(Type\MethodTemplateType $type): mixed
     {
-        return $this->methodTemplateTypes[$type->class][$type->method][$type->name] ?? $type;
+        return $type;
     }
 
     public function visitIntersection(Type\IntersectionType $type): mixed

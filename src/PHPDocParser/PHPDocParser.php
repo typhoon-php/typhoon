@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace ExtendedTypeSystem\DeclarationParser;
+namespace ExtendedTypeSystem\PHPDocParser;
 
 use ExtendedTypeSystem\TagPrioritizer;
 use ExtendedTypeSystem\TagPrioritizer\PHPStanOverPsalmOverOthersTagPrioritizer;

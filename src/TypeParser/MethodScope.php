@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace ExtendedTypeSystem\DeclarationParser;
+namespace ExtendedTypeSystem\TypeParser;
 
 use ExtendedTypeSystem\Type;
 use ExtendedTypeSystem\types;
@@ -10,9 +10,9 @@ use PhpParser\Node\Name;
 
 /**
  * @internal
- * @psalm-internal ExtendedTypeSystem\DeclarationParser
+ * @psalm-internal ExtendedTypeSystem
  */
-final class MethodTypeScope implements TypeScope
+final class MethodScope implements Scope
 {
     /**
      * @var array<non-empty-string, true>
@@ -24,7 +24,7 @@ final class MethodTypeScope implements TypeScope
      * @param list<non-empty-string> $templateNames
      */
     public function __construct(
-        private readonly TypeScope $parentScope,
+        private readonly ClassLikeScope $classScope,
         private readonly string $name,
         private readonly bool $static,
         array $templateNames,
@@ -34,22 +34,22 @@ final class MethodTypeScope implements TypeScope
 
     public function self(): string
     {
-        return $this->parentScope->self();
+        return $this->classScope->self();
     }
 
-    public function parent(): string
+    public function parent(): ?string
     {
-        return $this->parentScope->parent();
+        return $this->classScope->parent();
     }
 
     public function isSelfFinal(): bool
     {
-        return $this->parentScope->isSelfFinal();
+        return $this->classScope->isSelfFinal();
     }
 
-    public function resolveClassName(Name $name): Name
+    public function resolveClassName(Name $name): string
     {
-        return $this->parentScope->resolveClassName($name);
+        return $this->classScope->resolveClassName($name);
     }
 
     public function tryResolveTemplateType(string $name): ?Type
@@ -62,6 +62,6 @@ final class MethodTypeScope implements TypeScope
             return null;
         }
 
-        return $this->parentScope->tryResolveTemplateType($name);
+        return $this->classScope->tryResolveTemplateType($name);
     }
 }
