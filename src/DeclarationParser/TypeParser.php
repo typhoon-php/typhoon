@@ -39,7 +39,7 @@ final class TypeParser
     /**
      * @return ($name is null ? null : class-string)
      */
-    public static function nameToClassString(?Name $name): ?string
+    public static function nameToClass(?Name $name): ?string
     {
         if ($name === null) {
             return null;
@@ -48,7 +48,7 @@ final class TypeParser
         \assert($name->isFullyQualified());
 
         /** @var class-string */
-        return $name->toString();
+        return ltrim($name->toString(), '\\');
     }
 
     /**
@@ -198,10 +198,10 @@ final class TypeParser
         }
 
         if ($exprNode instanceof ConstFetchNode) {
-            $class = self::nameToClassString($scope->resolveClassName(new Name($exprNode->className)));
-            /** @var non-empty-string $exprNode->name */
-
-            return types::classConstant($class, $exprNode->name);
+            return types::classConstant(
+                self::nameToClass($scope->resolveClassName(new Name($exprNode->className))),
+                $exprNode->name,
+            );
         }
 
         throw new \LogicException(sprintf('Unsupported PHPDoc type node %s.', $exprNode::class));
@@ -299,20 +299,11 @@ final class TypeParser
      */
     private function parseName(TypeScope $scope, Name $nameNode, array $templateArguments = []): Type
     {
-        /** @var non-empty-string */
+        if ($nameNode->isFullyQualified()) {
+            return types::object(self::nameToClass($nameNode), ...$templateArguments);
+        }
+
         $name = $nameNode->toString();
-
-        if ($nameNode instanceof Name\FullyQualified) {
-            /** @var class-string $name */
-            return types::object($name, ...$templateArguments);
-        }
-
-        if ($name[0] === '\\') {
-            /** @var class-string */
-            $name = ltrim($name, '\\');
-
-            return types::object($name, ...$templateArguments);
-        }
 
         if ($name === 'self') {
             return types::object($scope->self(), ...$templateArguments);
@@ -336,9 +327,9 @@ final class TypeParser
             return $templateType;
         }
 
-        $name = self::nameToClassString($scope->resolveClassName($nameNode));
+        $class = self::nameToClass($scope->resolveClassName($nameNode));
 
-        return types::object($name, ...$templateArguments);
+        return types::object($class, ...$templateArguments);
     }
 
     /**

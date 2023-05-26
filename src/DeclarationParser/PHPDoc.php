@@ -68,14 +68,10 @@ final class PHPDoc
      */
     public function templateNames(): array
     {
-        $templateNames = [];
-
-        foreach ($this->templates() as $tagValue) {
-            /** @var non-empty-string */
-            $templateNames[] = $tagValue->name;
-        }
-
-        return $templateNames;
+        return array_column(
+            iterator_to_array($this->templates(), preserve_keys: false),
+            'name',
+        );
     }
 
     /**

@@ -116,7 +116,7 @@ final class DeclarationParser
     {
         $phpDoc = $this->phpDocParser->parse($node);
 
-        $parent = TypeParser::nameToClassString($node->extends);
+        $parent = TypeParser::nameToClass($node->extends);
         $scope = new ClassLikeTypeScope(
             nameContext: $nameContext,
             name: $class,
@@ -238,7 +238,6 @@ final class DeclarationParser
         $index = 0;
 
         foreach ($phpDoc->templates() as $tagName => $tagValue) {
-            /** @var non-empty-string $tagValue->name */
             $templates[$tagValue->name] = new TemplateDeclaration(
                 index: $index++,
                 name: $tagValue->name,
@@ -286,7 +285,7 @@ final class DeclarationParser
             return [];
         }
 
-        $extendsTemplateArguments = array_fill_keys(array_map(TypeParser::nameToClassString(...), $classes), []);
+        $extendsTemplateArguments = array_fill_keys(array_map(TypeParser::nameToClass(...), $classes), []);
 
         foreach ($phpDoc->extendsTypes() as $typeNode) {
             $type = $this->typeParser->parsePHPDocType($scope, $typeNode);
@@ -310,7 +309,7 @@ final class DeclarationParser
             return [];
         }
 
-        $implementsTemplateArguments = array_fill_keys(array_map(TypeParser::nameToClassString(...), $classes), []);
+        $implementsTemplateArguments = array_fill_keys(array_map(TypeParser::nameToClass(...), $classes), []);
 
         foreach ($phpDoc->implementsTypes() as $typeNode) {
             $type = $this->typeParser->parsePHPDocType($scope, $typeNode);
@@ -345,7 +344,6 @@ final class DeclarationParser
             $type = $this->parseTypeDeclaration($scope, $node->type, $phpDoc->varType());
 
             foreach ($node->props as $property) {
-                /** @var non-empty-string $property->name->name */
                 $properties[$property->name->name] = new PropertyDeclaration(
                     name: $property->name->name,
                     private: $node->isPrivate(),
@@ -360,10 +358,8 @@ final class DeclarationParser
 
         foreach ($constructorNode->params as $node) {
             if ($this->isParamNodePromoted($node)) {
-                /**
-                 * @var VariableNode $node->var
-                 * @var non-empty-string $node->var->name
-                 */
+                \assert($node->var instanceof VariableNode && \is_string($node->var->name));
+
                 $properties[$node->var->name] = new PropertyDeclaration(
                     name: $node->var->name,
                     private: (bool) ($node->flags & ClassNode::MODIFIER_PRIVATE),
@@ -384,13 +380,11 @@ final class DeclarationParser
         $methods = [];
 
         foreach ($nodes as $node) {
-            /** @var non-empty-string */
-            $name = $node->name->toString();
             $phpDoc = $this->phpDocParser->parse($node);
-            $scope = new MethodTypeScope($classScope, $name, $node->isStatic(), $phpDoc->templateNames());
+            $scope = new MethodTypeScope($classScope, $node->name->name, $node->isStatic(), $phpDoc->templateNames());
 
-            $methods[$name] = new MethodDeclaration(
-                name: $name,
+            $methods[$node->name->name] = new MethodDeclaration(
+                name: $node->name->name,
                 private: $node->isPrivate(),
                 templates: $this->parseTemplates($phpDoc, $scope),
                 parameterTypes: $this->parseParameterTypes($phpDoc, $scope, $node->params),
@@ -411,7 +405,7 @@ final class DeclarationParser
 
         foreach ($nodes as $node) {
             \assert($node->var instanceof VariableNode && \is_string($node->var->name));
-            /** @var non-empty-string $node->var->name */
+
             $types[$node->var->name] = $this->parseTypeDeclaration($scope, $node->type, $phpDoc->paramType($node->var->name));
         }
 

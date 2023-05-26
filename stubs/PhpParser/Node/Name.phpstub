@@ -1,0 +1,24 @@
+<?php
+
+declare(strict_types=1);
+
+namespace PhpParser\Node;
+
+use PhpParser\NodeAbstract;
+
+class Name extends NodeAbstract
+{
+    /**
+     * @return non-empty-string
+     */
+    public function toString(): string
+    {
+    }
+
+    /**
+     * @psalm-assert-if-true class-string $this->toString()
+     */
+    public function isFullyQualified(): bool
+    {
+    }
+}
