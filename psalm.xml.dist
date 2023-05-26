@@ -39,6 +39,10 @@
         <classAndDescendants name="RuntimeException"/>
     </ignoreExceptions>
 
+    <issueHandlers>
+        <UnusedClass errorLevel="info"/>
+    </issueHandlers>
+
     <stubs>
         <file name="stubs/PhpParser/Node/Expr/Variable.phpstub"/>
         <file name="stubs/PhpParser/Node/Identifier.phpstub"/>

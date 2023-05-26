@@ -43,7 +43,7 @@
     "scripts": {
         "cleanup": "find var ! -path var ! -path var/.gitignore -exec rm -rf {} +",
         "fixcs": "PHP_CS_FIXER_IGNORE_ENV=1 vendor/bin/php-cs-fixer fix -v",
-        "psalm": "psalm --show-info --no-diff",
+        "psalm": "psalm --show-info=true --no-diff",
         "test": "phpunit"
     }
 }
