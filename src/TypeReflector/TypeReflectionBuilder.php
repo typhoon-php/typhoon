@@ -10,7 +10,7 @@ use ExtendedTypeSystem\types;
 
 /**
  * @internal
- * @psalm-internal ExtendedTypeSystem\Reflection
+ * @psalm-internal ExtendedTypeSystem\Reflection\TypeReflector
  */
 final class TypeReflectionBuilder
 {
@@ -49,7 +49,8 @@ final class TypeReflectionBuilder
     public function build(): TypeReflection
     {
         if (!$this->declared) {
-            return $this->prototypes[0] ?? throw new \LogicException();
+            return $this->prototypes[0]
+                ?? throw new \LogicException('Type must be either declared or have at least 1 prototype.');
         }
 
         return new TypeReflection(

@@ -16,12 +16,15 @@ final class MethodReflection
     /**
      * @internal
      * @psalm-internal ExtendedTypeSystem\Reflection
+     * @param class-string $reflectedClass
      * @param non-empty-string $name
      * @param array<non-empty-string, TemplateReflection> $templates
      * @param array<non-empty-string, TypeReflection> $parameterTypes
      */
     public function __construct(
+        public readonly string $reflectedClass,
         public readonly string $name,
+        private readonly bool $private,
         private readonly array $templates,
         private readonly array $parameterTypes,
         private readonly TypeReflection $returnType,
@@ -36,24 +39,30 @@ final class MethodReflection
         return $this->templates;
     }
 
-    public function template(int|string $name): TemplateReflection
+    /**
+     * @throws TypeReflectionException
+     */
+    public function template(string $name): TemplateReflection
     {
-        if (\is_string($name)) {
-            return $this->templates[$name] ?? throw new \RuntimeException();
-        }
-
-        foreach ($this->templates as $template) {
-            if ($template->index === $name) {
-                return $template;
-            }
-        }
-
-        throw new \RuntimeException();
+        return $this->templates[$name] ?? throw new TypeReflectionException(sprintf(
+            'Template %s is either resolved or not declared in method %s::%s().',
+            $name,
+            $this->reflectedClass,
+            $this->name,
+        ));
     }
 
-    public function returnType(): TypeReflection
+    /**
+     * @throws TypeReflectionException
+     */
+    public function templateByIndex(int $index): TemplateReflection
     {
-        return $this->returnType;
+        return array_values($this->templates)[$index] ?? throw new TypeReflectionException(sprintf(
+            'Template with index %d is either resolved or not declared in method %s::%s().',
+            $index,
+            $this->reflectedClass,
+            $this->name,
+        ));
     }
 
     /**
@@ -64,9 +73,35 @@ final class MethodReflection
         return $this->parameterTypes;
     }
 
+    /**
+     * @throws TypeReflectionException
+     */
     public function parameterType(string $name): TypeReflection
     {
-        return $this->parameterTypes[$name] ?? throw new \RuntimeException();
+        return $this->parameterTypes[$name] ?? throw new TypeReflectionException(sprintf(
+            'Method %s::%s() does not have parameter %s.',
+            $this->reflectedClass,
+            $this->name,
+            $name,
+        ));
+    }
+
+    /**
+     * @throws TypeReflectionException
+     */
+    public function parameterTypeByIndex(int $index): TypeReflection
+    {
+        return array_values($this->parameterTypes)[$index] ?? throw new TypeReflectionException(sprintf(
+            'Method %s::%s() does not have parameter with index %d.',
+            $this->reflectedClass,
+            $this->name,
+            $index,
+        ));
+    }
+
+    public function returnType(): TypeReflection
+    {
+        return $this->returnType;
     }
 
     /**
@@ -75,13 +110,15 @@ final class MethodReflection
     public function resolveTypes(TypeVisitor $typeResolver): self
     {
         return new self(
+            reflectedClass: $this->reflectedClass,
             name: $this->name,
+            private: $this->private,
             templates: $this->templates,
             parameterTypes: array_map(
-                static fn (TypeReflection $type): TypeReflection => $type->resolve($typeResolver),
+                static fn (TypeReflection $type): TypeReflection => $type->resolveTypes($typeResolver),
                 $this->parameterTypes,
             ),
-            returnType: $this->returnType->resolve($typeResolver),
+            returnType: $this->returnType->resolveTypes($typeResolver),
         );
     }
 }

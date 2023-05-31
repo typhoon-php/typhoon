@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace ExtendedTypeSystem\Reflection;
 
 use ExtendedTypeSystem\Type;
+use ExtendedTypeSystem\types;
 
 /**
  * @api
@@ -21,8 +22,8 @@ final class TemplateReflection
     public function __construct(
         public readonly int $index,
         public readonly string $name,
-        public readonly Type $constraint,
-        public readonly Variance $variance,
+        public readonly Type $constraint = types::mixed,
+        public readonly Variance $variance = Variance::INVARIANT,
     ) {
     }
 }

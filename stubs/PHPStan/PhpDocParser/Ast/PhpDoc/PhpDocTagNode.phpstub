@@ -4,10 +4,18 @@ declare(strict_types = 1);
 
 namespace PHPStan\PhpDocParser\Ast\PhpDoc;
 
+/**
+ * @template TValue of PhpDocTagValueNode
+ */
 class PhpDocTagNode implements PhpDocChildNode
 {
 	/**
 	 * @var non-empty-string
 	 */
 	public $name;
+
+	/**
+	 * @var TValue
+	 */
+	public $value;
 }

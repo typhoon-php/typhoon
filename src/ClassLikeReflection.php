@@ -19,18 +19,14 @@ final class ClassLikeReflection
      * @psalm-internal ExtendedTypeSystem\Reflection
      * @param class-string<T> $name
      * @param array<non-empty-string, TemplateReflection> $templates
-     * @param array<non-empty-string, TypeReflection> $nonInheritablePropertyTypes
-     * @param array<non-empty-string, TypeReflection> $inheritablePropertyTypes
-     * @param array<non-empty-string, MethodReflection> $nonInheritableMethods
-     * @param array<non-empty-string, MethodReflection> $inheritableMethods
+     * @param array<non-empty-string, PropertyReflection> $properties
+     * @param array<non-empty-string, MethodReflection> $methods
      */
     public function __construct(
         public readonly string $name,
         private readonly array $templates,
-        private readonly array $nonInheritablePropertyTypes,
-        private readonly array $inheritablePropertyTypes,
-        private readonly array $nonInheritableMethods,
-        private readonly array $inheritableMethods,
+        private readonly array $properties,
+        private readonly array $methods,
     ) {
     }
 
@@ -42,19 +38,28 @@ final class ClassLikeReflection
         return $this->templates;
     }
 
-    public function template(int|string $name): TemplateReflection
+    /**
+     * @throws TypeReflectionException
+     */
+    public function template(string $name): TemplateReflection
     {
-        if (\is_string($name)) {
-            return $this->templates[$name] ?? throw new \RuntimeException();
-        }
+        return $this->templates[$name] ?? throw new TypeReflectionException(sprintf(
+            'Template %s is either resolved or not declared in class %s.',
+            $name,
+            $this->name,
+        ));
+    }
 
-        foreach ($this->templates as $template) {
-            if ($template->index === $name) {
-                return $template;
-            }
-        }
-
-        throw new \RuntimeException();
+    /**
+     * @throws TypeReflectionException
+     */
+    public function templateByIndex(int $index): TemplateReflection
+    {
+        return array_values($this->templates)[$index] ?? throw new TypeReflectionException(sprintf(
+            'Template with index %d is either resolved or not declared in class %s.',
+            $index,
+            $this->name,
+        ));
     }
 
     /**
@@ -62,22 +67,21 @@ final class ClassLikeReflection
      */
     public function propertyTypes(): array
     {
-        return [...$this->nonInheritablePropertyTypes, ...$this->inheritablePropertyTypes];
+        return array_map(
+            static fn (PropertyReflection $property): TypeReflection => $property->type,
+            $this->properties,
+        );
     }
 
     /**
-     * @return array<non-empty-string, TypeReflection>
+     * @throws TypeReflectionException
      */
-    public function inheritablePropertyTypes(): array
-    {
-        return $this->inheritablePropertyTypes;
-    }
-
     public function propertyType(string $name): TypeReflection
     {
-        return $this->nonInheritablePropertyTypes[$name]
-            ?? $this->inheritablePropertyTypes[$name]
-            ?? throw new \RuntimeException();
+        $property = $this->properties[$name]
+            ?? throw new TypeReflectionException(sprintf('Property %s::$%s does not exist.', $this->name, $name));
+
+        return $property->type;
     }
 
     /**
@@ -85,22 +89,13 @@ final class ClassLikeReflection
      */
     public function methods(): array
     {
-        return [...$this->nonInheritableMethods, ...$this->inheritableMethods];
-    }
-
-    /**
-     * @return array<non-empty-string, MethodReflection>
-     */
-    public function inheritableMethods(): array
-    {
-        return $this->inheritableMethods;
+        return $this->methods;
     }
 
     public function method(string $name): MethodReflection
     {
-        return $this->nonInheritableMethods[$name]
-            ?? $this->inheritableMethods[$name]
-            ?? throw new \RuntimeException();
+        return $this->methods[$name]
+            ?? throw new TypeReflectionException(sprintf('Method %s::%s() does not exist.', $this->name, $name));
     }
 
     /**
@@ -143,21 +138,13 @@ final class ClassLikeReflection
         return new self(
             name: $this->name,
             templates: $this->templates,
-            nonInheritablePropertyTypes: array_map(
-                static fn (TypeReflection $type): TypeReflection => $type->resolve($typeResolver),
-                $this->nonInheritablePropertyTypes,
+            properties: array_map(
+                static fn (PropertyReflection $property): PropertyReflection => $property->resolveTypes($typeResolver),
+                $this->properties,
             ),
-            inheritablePropertyTypes: array_map(
-                static fn (TypeReflection $type): TypeReflection => $type->resolve($typeResolver),
-                $this->inheritablePropertyTypes,
-            ),
-            nonInheritableMethods: array_map(
+            methods: array_map(
                 static fn (MethodReflection $method): MethodReflection => $method->resolveTypes($typeResolver),
-                $this->nonInheritableMethods,
-            ),
-            inheritableMethods: array_map(
-                static fn (MethodReflection $method): MethodReflection => $method->resolveTypes($typeResolver),
-                $this->inheritableMethods,
+                $this->methods,
             ),
         );
     }

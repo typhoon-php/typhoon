@@ -10,12 +10,13 @@ use ExtendedTypeSystem\Reflection\TypeReflection;
 
 /**
  * @internal
- * @psalm-internal ExtendedTypeSystem\Reflection
+ * @psalm-internal ExtendedTypeSystem\Reflection\TypeReflector
  */
 final class MethodReflectionBuilder
 {
     public readonly TypeReflectionBuilder $returnType;
-    public bool $inheritable = true;
+
+    private bool $private = false;
 
     /**
      * @var array<non-empty-string, TemplateReflection>
@@ -28,17 +29,19 @@ final class MethodReflectionBuilder
     private array $parameterTypes = [];
 
     /**
+     * @param class-string $reflectedClass
      * @param non-empty-string $name
      */
     public function __construct(
+        private readonly string $reflectedClass,
         private readonly string $name,
     ) {
         $this->returnType = new TypeReflectionBuilder();
     }
 
-    public function inheritable(bool $inheritable): self
+    public function private(bool $private): self
     {
-        $this->inheritable = $inheritable;
+        $this->private = $private;
 
         return $this;
     }
@@ -75,7 +78,9 @@ final class MethodReflectionBuilder
     public function build(): MethodReflection
     {
         return new MethodReflection(
+            reflectedClass: $this->reflectedClass,
             name: $this->name,
+            private: $this->private,
             templates: $this->templates,
             parameterTypes: array_map(
                 static fn (TypeReflectionBuilder $builder): TypeReflection => $builder->build(),

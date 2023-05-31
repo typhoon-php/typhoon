@@ -25,9 +25,25 @@ final class TypeReflection
     }
 
     /**
+     * @psalm-pure
+     */
+    public static function fromNative(Type $nativeType): self
+    {
+        return new self($nativeType, $nativeType, null);
+    }
+
+    /**
+     * @psalm-pure
+     */
+    public static function fromPHPDoc(Type $phpDocType): self
+    {
+        return new self($phpDocType, null, $phpDocType);
+    }
+
+    /**
      * @param TypeVisitor<Type> $typeResolver
      */
-    public function resolve(TypeVisitor $typeResolver): self
+    public function resolveTypes(TypeVisitor $typeResolver): self
     {
         $resolved = $this->resolved->accept($typeResolver);
 

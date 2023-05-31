@@ -25,6 +25,6 @@ final class LoadedClassLocator implements ClassLocator
             return null;
         }
 
-        return Source::fromFile($file);
+        return Source::fromFile($file, 'loaded class reflection');
     }
 }
