@@ -47,6 +47,23 @@ final class TypeParser
         return ltrim($name->toString(), '\\');
     }
 
+    public static function nameFromString(string $name): Name
+    {
+        if (!$name) {
+            throw new \LogicException('Name cannot be empty.');
+        }
+
+        if ($name[0] === '\\') {
+            return new Name\FullyQualified(substr($name, 1));
+        }
+
+        if (str_starts_with($name, 'namespace\\')) {
+            return new Name\Relative(substr($name, 10));
+        }
+
+        return new Name($name);
+    }
+
     /**
      * @return ($typeNode is null ? null : Type)
      */
@@ -287,7 +304,7 @@ final class TypeParser
             return types::iterable($templateArguments[0], $templateArguments[1]);
         }
 
-        return $this->parseName($scope, new Name($name), $templateArguments);
+        return $this->parseName($scope, self::nameFromString($name), $templateArguments);
     }
 
     /**
