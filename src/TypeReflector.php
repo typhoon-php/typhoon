@@ -189,8 +189,7 @@ final class TypeReflector
                     ->inheritable(!$propertyNode->isPrivate())
                     ->type
                     ->nativeType($nativeType)
-                    ->phpDocType($phpDocType)
-                ;
+                    ->phpDocType($phpDocType);
             }
         }
     }
@@ -213,12 +212,10 @@ final class TypeReflector
 
             $methodBuilder = $classBuilder->method($methodName)
                 ->inheritable(!$methodNode->isPrivate())
-                ->templates($this->parseTemplates($methodScope, $methodPHPDoc))
-            ;
+                ->templates($this->parseTemplates($methodScope, $methodPHPDoc));
             $methodBuilder->returnType
                 ->nativeType($this->typeParser->parseNativeType($methodScope, $methodNode->returnType))
-                ->phpDocType($this->typeParser->parsePHPDocType($methodScope, $methodPHPDoc->returnType()))
-            ;
+                ->phpDocType($this->typeParser->parsePHPDocType($methodScope, $methodPHPDoc->returnType()));
 
             foreach ($methodNode->params as $parameterNode) {
                 \assert($parameterNode->var instanceof VariableNode && \is_string($parameterNode->var->name));
@@ -229,16 +226,14 @@ final class TypeReflector
 
                 $methodBuilder->parameterType($parameterName)
                     ->nativeType($nativeParameterType)
-                    ->phpDocType($phpDocParameterType)
-                ;
+                    ->phpDocType($phpDocParameterType);
 
                 if ($isConstructor && $this->isParameterNodePromoted($parameterNode)) {
                     $classBuilder->property($parameterName)
                         ->inheritable(!($parameterNode->flags & ClassNode::MODIFIER_PRIVATE))
                         ->type
                         ->nativeType($nativeParameterType)
-                        ->phpDocType($phpDocParameterType)
-                    ;
+                        ->phpDocType($phpDocParameterType);
                 }
             }
         }
