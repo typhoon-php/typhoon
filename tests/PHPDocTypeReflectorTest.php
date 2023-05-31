@@ -11,18 +11,18 @@ use ExtendedTypeSystem\Reflection\Stub\Iface;
 use ExtendedTypeSystem\Reflection\Stub\Main;
 use ExtendedTypeSystem\Type;
 use ExtendedTypeSystem\types;
+use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProviderExternal;
 use PHPUnit\Framework\TestCase;
 use function PHPUnit\Framework\assertEquals;
 
 /**
  * @internal
- * @covers \ExtendedTypeSystem\Reflection\TypeReflector
  */
+#[CoversClass(TypeReflector::class)]
 final class PHPDocTypeReflectorTest extends TestCase
 {
-    /**
-     * @dataProvider types
-     */
+    #[DataProviderExternal(TypeProvider::class, 'all')]
     public function testItReflectsNativeTypesAtProperty(string $type, Type $expectedType): void
     {
         $code = <<<PHP
@@ -39,9 +39,7 @@ final class PHPDocTypeReflectorTest extends TestCase
         assertEquals($expectedType, $reflectedType);
     }
 
-    /**
-     * @dataProvider types
-     */
+    #[DataProviderExternal(TypeProvider::class, 'all')]
     public function testItReflectsNativeTypesAtPromotedProperty(string $type, Type $expectedType): void
     {
         $code = <<<PHP
@@ -94,9 +92,7 @@ final class PHPDocTypeReflectorTest extends TestCase
         assertEquals(types::object(\ArrayObject::class), $reflectedType);
     }
 
-    /**
-     * @dataProvider types
-     */
+    #[DataProviderExternal(TypeProvider::class, 'all')]
     public function testItReflectsNativeTypesAtMethodParameter(string $type, Type $expectedType): void
     {
         $code = <<<PHP
@@ -131,9 +127,7 @@ final class PHPDocTypeReflectorTest extends TestCase
         assertEquals(types::object(\ArrayObject::class), $reflectedType);
     }
 
-    /**
-     * @dataProvider types
-     */
+    #[DataProviderExternal(TypeProvider::class, 'all')]
     public function testItReflectsNativeTypesAtMethodReturn(string $type, Type $expectedType): void
     {
         $code = <<<PHP
@@ -199,14 +193,6 @@ final class PHPDocTypeReflectorTest extends TestCase
         $reflectedType = $typeReflector->reflectClassLike(Main::class)->method('test')->returnType()->resolved;
 
         assertEquals(types::static(Base::class), $reflectedType);
-    }
-
-    /**
-     * @return \Generator<string, array{string, Type}>
-     */
-    public function types(): \Generator
-    {
-        yield from TypeProvider::all();
     }
 
     private function locateCode(string $code): ClassLocator

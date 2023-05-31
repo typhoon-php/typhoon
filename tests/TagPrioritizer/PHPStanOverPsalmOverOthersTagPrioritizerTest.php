@@ -4,12 +4,13 @@ declare(strict_types=1);
 
 namespace ExtendedTypeSystem\Reflection\TagPrioritizer;
 
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 
 /**
  * @internal
- * @covers \ExtendedTypeSystem\Reflection\TagPrioritizer\PHPStanOverPsalmOverOthersTagPrioritizer
  */
+#[CoversClass(PHPStanOverPsalmOverOthersTagPrioritizer::class)]
 final class PHPStanOverPsalmOverOthersTagPrioritizerTest extends TestCase
 {
     public function testPhpStanTagHasHigherPriorityOverPsalmTag(): void

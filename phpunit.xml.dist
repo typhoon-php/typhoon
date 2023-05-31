@@ -1,23 +1,27 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<phpunit
-        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-        xsi:noNamespaceSchemaLocation="vendor/phpunit/phpunit/phpunit.xsd"
-        cacheResultFile="var/.phpunit.cache"
-        colors="true"
-        forceCoversAnnotation="true"
+<phpunit xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:noNamespaceSchemaLocation="vendor/phpunit/phpunit/phpunit.xsd"
+         cacheDirectory="var/phpunit"
+         executionOrder="depends,defects"
+         requireCoverageMetadata="true"
+         beStrictAboutOutputDuringTests="true"
+         failOnRisky="true"
+         failOnWarning="true"
 >
     <php>
         <ini name="display_errors" value="1"/>
         <ini name="error_reporting" value="-1"/>
     </php>
-    <coverage>
-        <include>
-            <directory>src</directory>
-        </include>
-    </coverage>
+
     <testsuites>
-        <testsuite name="Test Suite">
+        <testsuite name="default">
             <directory>tests</directory>
         </testsuite>
     </testsuites>
+
+    <source restrictDeprecations="true" restrictNotices="true" restrictWarnings="true">
+        <include>
+            <directory>src</directory>
+        </include>
+    </source>
 </phpunit>

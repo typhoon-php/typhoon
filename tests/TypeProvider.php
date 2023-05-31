@@ -87,6 +87,7 @@ final class TypeProvider
     }
 
     /**
+     * @psalm-suppress PossiblyUnusedMethod
      * @return \Generator<string, array{string, Type}>
      */
     public static function all(): \Generator
