@@ -19,12 +19,12 @@ final class LoadedClassLocator implements ClassLocator
         }
 
         $reflectionClass = new \ReflectionClass($class);
-        $filename = $reflectionClass->getFileName();
+        $file = $reflectionClass->getFileName();
 
-        if ($filename === false) {
+        if ($file === false) {
             return null;
         }
 
-        return new Source($filename, file_get_contents($filename));
+        return Source::fromFile($file);
     }
 }

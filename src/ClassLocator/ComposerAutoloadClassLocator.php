@@ -32,12 +32,12 @@ final class ComposerAutoloadClassLocator implements ClassLocator
 
     public function locateClass(string $class): ?Source
     {
-        $filename = $this->classLoader->findFile($class);
+        $file = $this->classLoader->findFile($class);
 
-        if ($filename === false) {
+        if ($file === false) {
             return null;
         }
 
-        return new Source($filename, file_get_contents($filename));
+        return Source::fromFile($file);
     }
 }

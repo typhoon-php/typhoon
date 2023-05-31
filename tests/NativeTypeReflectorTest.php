@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace ExtendedTypeSystem\Reflection;
 
 use ExtendedTypeSystem\Reflection\ClassLocator\ClassLocatorChain;
-use ExtendedTypeSystem\Reflection\ClassLocator\SingleClassLocator;
+use ExtendedTypeSystem\Reflection\ClassLocator\DeterministicClassLocator;
 use ExtendedTypeSystem\Reflection\Stub\Base;
 use ExtendedTypeSystem\Reflection\Stub\Iface;
 use ExtendedTypeSystem\Reflection\Stub\Main;
@@ -240,11 +240,8 @@ final class NativeTypeReflectorTest extends TestCase
     private function locateCode(string $code): ClassLocator
     {
         return new ClassLocatorChain([
-            ...array_map(
-                static fn (string $class): SingleClassLocator => new SingleClassLocator($class, new Source('test', '<?php ' . $code)),
-                [Base::class, Main::class, Iface::class],
-            ),
-            new SingleClassLocator(\ArrayObject::class, new Source('ArrayObject', '<?php class ArrayObject {}')),
+            new DeterministicClassLocator(new Source('<?php ' . $code), Base::class, Main::class, Iface::class),
+            new DeterministicClassLocator(new Source('<?php class ArrayObject {}'), \ArrayObject::class),
         ]);
     }
 }

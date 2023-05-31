@@ -10,20 +10,26 @@ use ExtendedTypeSystem\Reflection\Source;
 /**
  * @api
  */
-final class SingleClassLocator implements ClassLocator
+final class DeterministicClassLocator implements ClassLocator
 {
     /**
-     * @param class-string $class
+     * @var array<class-string, true>
+     */
+    private readonly array $classes;
+
+    /**
+     * @param class-string ...$classes
      */
     public function __construct(
-        private readonly string $class,
         private readonly Source $source,
+        string ...$classes,
     ) {
+        $this->classes = array_fill_keys($classes, true);
     }
 
     public function locateClass(string $class): ?Source
     {
-        if ($class === $this->class) {
+        if (isset($this->classes[$class])) {
             return $this->source;
         }
 
