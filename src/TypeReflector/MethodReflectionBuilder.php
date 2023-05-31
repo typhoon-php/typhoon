@@ -2,15 +2,15 @@
 
 declare(strict_types=1);
 
-namespace ExtendedTypeSystem\TypeReflector;
+namespace ExtendedTypeSystem\Reflection\TypeReflector;
 
-use ExtendedTypeSystem\MethodReflection;
-use ExtendedTypeSystem\TemplateReflection;
-use ExtendedTypeSystem\TypeReflection;
+use ExtendedTypeSystem\Reflection\MethodReflection;
+use ExtendedTypeSystem\Reflection\TemplateReflection;
+use ExtendedTypeSystem\Reflection\TypeReflection;
 
 /**
  * @internal
- * @psalm-internal ExtendedTypeSystem
+ * @psalm-internal ExtendedTypeSystem\Reflection
  */
 final class MethodReflectionBuilder
 {

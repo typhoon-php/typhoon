@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace ExtendedTypeSystem\TypeReflector;
+namespace ExtendedTypeSystem\Reflection\TypeReflector;
 
 use PhpParser\Node;
 use PhpParser\Node\Stmt\ClassLike as ClassLikeNode;
@@ -11,7 +11,7 @@ use PhpParser\NodeVisitorAbstract;
 
 /**
  * @internal
- * @psalm-internal ExtendedTypeSystem
+ * @psalm-internal ExtendedTypeSystem\Reflection
  * @template T of object
  */
 final class FindClassVisitor extends NodeVisitorAbstract

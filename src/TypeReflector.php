@@ -2,19 +2,21 @@
 
 declare(strict_types=1);
 
-namespace ExtendedTypeSystem;
+namespace ExtendedTypeSystem\Reflection;
 
-use ExtendedTypeSystem\ClassLocator\LoadedClassLocator;
-use ExtendedTypeSystem\PHPDocParser\PHPDoc;
-use ExtendedTypeSystem\PHPDocParser\PHPDocParser;
-use ExtendedTypeSystem\TagPrioritizer\PHPStanOverPsalmOverOthersTagPrioritizer;
-use ExtendedTypeSystem\TypeParser\ClassLikeScope;
-use ExtendedTypeSystem\TypeParser\MethodScope;
-use ExtendedTypeSystem\TypeParser\PropertyScope;
-use ExtendedTypeSystem\TypeParser\Scope;
-use ExtendedTypeSystem\TypeParser\TypeParser;
-use ExtendedTypeSystem\TypeReflector\ClassLikeReflectionBuilder;
-use ExtendedTypeSystem\TypeReflector\FindClassVisitor;
+use ExtendedTypeSystem\Reflection\ClassLocator\LoadedClassLocator;
+use ExtendedTypeSystem\Reflection\PHPDocParser\PHPDoc;
+use ExtendedTypeSystem\Reflection\PHPDocParser\PHPDocParser;
+use ExtendedTypeSystem\Reflection\TagPrioritizer\PHPStanOverPsalmOverOthersTagPrioritizer;
+use ExtendedTypeSystem\Reflection\TypeParser\ClassLikeScope;
+use ExtendedTypeSystem\Reflection\TypeParser\MethodScope;
+use ExtendedTypeSystem\Reflection\TypeParser\PropertyScope;
+use ExtendedTypeSystem\Reflection\TypeParser\Scope;
+use ExtendedTypeSystem\Reflection\TypeParser\TypeParser;
+use ExtendedTypeSystem\Reflection\TypeReflector\ClassLikeReflectionBuilder;
+use ExtendedTypeSystem\Reflection\TypeReflector\FindClassVisitor;
+use ExtendedTypeSystem\Type\NamedObjectType;
+use ExtendedTypeSystem\types;
 use PhpParser\Lexer\Emulative;
 use PhpParser\NameContext;
 use PhpParser\Node\Expr\Variable as VariableNode;
@@ -147,7 +149,7 @@ final class TypeReflector
 
         foreach ($phpDoc->inheritedTypes() as $phpDocInheritedType) {
             $type = $this->typeParser->parsePHPDocType($classScope, $phpDocInheritedType);
-            \assert($type instanceof Type\NamedObjectType);
+            \assert($type instanceof NamedObjectType);
             $templateArguments[$type->class] = $type->templateArguments;
         }
 

@@ -2,9 +2,9 @@
 
 declare(strict_types=1);
 
-namespace ExtendedTypeSystem;
+namespace ExtendedTypeSystem\Reflection;
 
-use ExtendedTypeSystem\TagPrioritizer\PHPStanOverPsalmOverOthersTagPrioritizer;
+use ExtendedTypeSystem\Reflection\TagPrioritizer\PHPStanOverPsalmOverOthersTagPrioritizer;
 
 /**
  * @api

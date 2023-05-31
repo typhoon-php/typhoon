@@ -2,7 +2,10 @@
 
 declare(strict_types=1);
 
-namespace ExtendedTypeSystem;
+namespace ExtendedTypeSystem\Reflection;
+
+use ExtendedTypeSystem\Type;
+use ExtendedTypeSystem\TypeVisitor;
 
 /**
  * @api
@@ -12,7 +15,7 @@ final class MethodReflection
 {
     /**
      * @internal
-     * @psalm-internal ExtendedTypeSystem
+     * @psalm-internal ExtendedTypeSystem\Reflection
      * @param non-empty-string $name
      * @param array<non-empty-string, TemplateReflection> $templates
      * @param array<non-empty-string, TypeReflection> $parameterTypes

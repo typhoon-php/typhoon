@@ -2,9 +2,11 @@
 
 declare(strict_types=1);
 
-namespace ExtendedTypeSystem;
+namespace ExtendedTypeSystem\Reflection;
 
-use ExtendedTypeSystem\Stub\Main;
+use ExtendedTypeSystem\Reflection\Stub\Main;
+use ExtendedTypeSystem\Type;
+use ExtendedTypeSystem\types;
 
 /**
  * @internal

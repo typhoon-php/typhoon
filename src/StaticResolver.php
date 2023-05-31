@@ -2,10 +2,11 @@
 
 declare(strict_types=1);
 
-namespace ExtendedTypeSystem;
+namespace ExtendedTypeSystem\Reflection;
 
-use ExtendedTypeSystem\Type\Parameter;
-use ExtendedTypeSystem\Type\ShapeElement;
+use ExtendedTypeSystem\Type;
+use ExtendedTypeSystem\types;
+use ExtendedTypeSystem\TypeVisitor;
 
 /**
  * @api
@@ -168,7 +169,7 @@ final class StaticResolver implements TypeVisitor
         /** @psalm-suppress ImpureFunctionCall */
         return types::shape(
             array_map(
-                fn (ShapeElement $element): ShapeElement => types::element(
+                fn (Type\ShapeElement $element): Type\ShapeElement => types::element(
                     $element->type->accept($this),
                     $element->optional,
                 ),
@@ -240,7 +241,7 @@ final class StaticResolver implements TypeVisitor
         /** @psalm-suppress ImpureFunctionCall */
         return types::closure(
             array_map(
-                fn (Parameter $parameter): Parameter => types::param(
+                fn (Type\Parameter $parameter): Type\Parameter => types::param(
                     $parameter->type->accept($this),
                     $parameter->hasDefault,
                     $parameter->variadic,
@@ -256,7 +257,7 @@ final class StaticResolver implements TypeVisitor
         /** @psalm-suppress ImpureFunctionCall */
         return types::callable(
             array_map(
-                fn (Parameter $parameter): Parameter => types::param(
+                fn (Type\Parameter $parameter): Type\Parameter => types::param(
                     $parameter->type->accept($this),
                     $parameter->hasDefault,
                     $parameter->variadic,

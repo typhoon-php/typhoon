@@ -2,11 +2,11 @@
 
 declare(strict_types=1);
 
-namespace ExtendedTypeSystem\TypeReflector;
+namespace ExtendedTypeSystem\Reflection\TypeReflector;
 
 /**
  * @internal
- * @psalm-internal ExtendedTypeSystem
+ * @psalm-internal ExtendedTypeSystem\Reflection
  */
 final class PropertyReflectionBuilder
 {

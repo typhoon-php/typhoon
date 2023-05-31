@@ -2,7 +2,10 @@
 
 declare(strict_types=1);
 
-namespace ExtendedTypeSystem;
+namespace ExtendedTypeSystem\Reflection;
+
+use ExtendedTypeSystem\Type;
+use ExtendedTypeSystem\TypeVisitor;
 
 /**
  * @api
@@ -12,7 +15,7 @@ final class TypeReflection
 {
     /**
      * @internal
-     * @psalm-internal ExtendedTypeSystem
+     * @psalm-internal ExtendedTypeSystem\Reflection
      */
     public function __construct(
         public readonly Type $resolved,

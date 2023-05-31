@@ -2,7 +2,9 @@
 
 declare(strict_types=1);
 
-namespace ExtendedTypeSystem;
+namespace ExtendedTypeSystem\Reflection;
+
+use ExtendedTypeSystem\Type;
 
 /**
  * @api
@@ -12,7 +14,7 @@ final class TemplateReflection
 {
     /**
      * @internal
-     * @psalm-internal ExtendedTypeSystem
+     * @psalm-internal ExtendedTypeSystem\Reflection
      * @param int<0, max> $index
      * @param non-empty-string $name
      */

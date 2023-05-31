@@ -2,27 +2,21 @@
 
 declare(strict_types=1);
 
-namespace ExtendedTypeSystem;
+namespace ExtendedTypeSystem\Reflection;
 
-use ExtendedTypeSystem\ClassLocator\ClassLocatorChain;
-use ExtendedTypeSystem\ClassLocator\SingleClassLocator;
-use ExtendedTypeSystem\Stub\Base;
-use ExtendedTypeSystem\Stub\Iface;
-use ExtendedTypeSystem\Stub\Main;
+use ExtendedTypeSystem\Reflection\ClassLocator\ClassLocatorChain;
+use ExtendedTypeSystem\Reflection\ClassLocator\SingleClassLocator;
+use ExtendedTypeSystem\Reflection\Stub\Base;
+use ExtendedTypeSystem\Reflection\Stub\Iface;
+use ExtendedTypeSystem\Reflection\Stub\Main;
+use ExtendedTypeSystem\Type;
+use ExtendedTypeSystem\types;
 use PHPUnit\Framework\TestCase;
 use function PHPUnit\Framework\assertEquals;
 
 /**
  * @internal
- * @covers \ExtendedTypeSystem\TypeReflector
- * @covers \ExtendedTypeSystem\TypeReflector\ClassLikeScope
- * @covers \ExtendedTypeSystem\TypeReflector\ClassReflectionFactory
- * @covers \ExtendedTypeSystem\TypeReflector\FindClassVisitor
- * @covers \ExtendedTypeSystem\TypeReflector\MethodScope
- * @covers \ExtendedTypeSystem\TypeReflector\PHPDoc
- * @covers \ExtendedTypeSystem\TypeReflector\PHPDocParser
- * @covers \ExtendedTypeSystem\TypeReflector\PropertyScope
- * @covers \ExtendedTypeSystem\TypeReflector\TypeResolver
+ * @covers \ExtendedTypeSystem\Reflection\TypeReflector
  */
 final class PHPDocTypeReflectorTest extends TestCase
 {
@@ -32,7 +26,7 @@ final class PHPDocTypeReflectorTest extends TestCase
     public function testItReflectsNativeTypesAtProperty(string $type, Type $expectedType): void
     {
         $code = <<<PHP
-            namespace ExtendedTypeSystem\\Stub;
+            namespace ExtendedTypeSystem\\Reflection\\Stub;
             class Main extends \\ArrayObject {
                 /** @var {$type} */
                 public \$test;
@@ -51,7 +45,7 @@ final class PHPDocTypeReflectorTest extends TestCase
     public function testItReflectsNativeTypesAtPromotedProperty(string $type, Type $expectedType): void
     {
         $code = <<<PHP
-            namespace ExtendedTypeSystem\\Stub;
+            namespace ExtendedTypeSystem\\Reflection\\Stub;
             class Main extends \\ArrayObject {
                 /** @param {$type} \$test */
                 public function __construct(public \$test) {}
@@ -67,7 +61,7 @@ final class PHPDocTypeReflectorTest extends TestCase
     public function testItReflectsInheritedParentNativeTypeAtProperty(): void
     {
         $code = <<<'PHP'
-            namespace ExtendedTypeSystem\Stub;
+            namespace ExtendedTypeSystem\Reflection\Stub;
             class Base extends \ArrayObject {
                 /** @var parent */
                 public $test;
@@ -85,7 +79,7 @@ final class PHPDocTypeReflectorTest extends TestCase
     public function testItReflectsInheritedParentNativeTypeAtPromotedProperty(): void
     {
         $code = <<<'PHP'
-            namespace ExtendedTypeSystem\Stub;
+            namespace ExtendedTypeSystem\Reflection\Stub;
             class Base extends \ArrayObject {
                 /** @param parent $test */
                 public function __construct(public $test) {}
@@ -106,7 +100,7 @@ final class PHPDocTypeReflectorTest extends TestCase
     public function testItReflectsNativeTypesAtMethodParameter(string $type, Type $expectedType): void
     {
         $code = <<<PHP
-            namespace ExtendedTypeSystem\\Stub;
+            namespace ExtendedTypeSystem\\Reflection\\Stub;
             class Main extends \\ArrayObject {
                 /** @param {$type} \$test */
                 public function test(mixed \$test) {}
@@ -122,7 +116,7 @@ final class PHPDocTypeReflectorTest extends TestCase
     public function testItReflectsInheritedParentNativeTypeAtMethodParameter(): void
     {
         $code = <<<'PHP'
-            namespace ExtendedTypeSystem\Stub;
+            namespace ExtendedTypeSystem\Reflection\Stub;
             class Base extends \ArrayObject {
                 /** @param parent $test */
                 public function test(mixed $test) {}
@@ -143,7 +137,7 @@ final class PHPDocTypeReflectorTest extends TestCase
     public function testItReflectsNativeTypesAtMethodReturn(string $type, Type $expectedType): void
     {
         $code = <<<PHP
-            namespace ExtendedTypeSystem\\Stub;
+            namespace ExtendedTypeSystem\\Reflection\\Stub;
             class Main extends \\ArrayObject {
                 /** @return {$type} */
                 public function test() {}
@@ -159,7 +153,7 @@ final class PHPDocTypeReflectorTest extends TestCase
     public function testItReflectsInheritedParentNativeTypeAtMethodReturn(): void
     {
         $code = <<<'PHP'
-            namespace ExtendedTypeSystem\Stub;
+            namespace ExtendedTypeSystem\Reflection\Stub;
             class Base extends \ArrayObject {
                 /** @return parent */
                 public function test() {}
@@ -177,7 +171,7 @@ final class PHPDocTypeReflectorTest extends TestCase
     public function testItReflectsStaticNativeTypeAsNamedObjectAtMethodReturnOfFinalClass(): void
     {
         $code = <<<'PHP'
-            namespace ExtendedTypeSystem\Stub;
+            namespace ExtendedTypeSystem\Reflection\Stub;
             final class Main {
                 /** @return static */
                 public function test() {}
@@ -193,7 +187,7 @@ final class PHPDocTypeReflectorTest extends TestCase
     public function testItReflectsInheritedStaticNativeTypeAtMethodReturn(): void
     {
         $code = <<<'PHP'
-            namespace ExtendedTypeSystem\Stub;
+            namespace ExtendedTypeSystem\Reflection\Stub;
             class Base {
                 /** @return static */
                 public function test() {}

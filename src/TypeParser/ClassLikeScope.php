@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace ExtendedTypeSystem\TypeParser;
+namespace ExtendedTypeSystem\Reflection\TypeParser;
 
 use ExtendedTypeSystem\Type;
 use ExtendedTypeSystem\types;
@@ -11,7 +11,7 @@ use PhpParser\Node\Name;
 
 /**
  * @internal
- * @psalm-internal ExtendedTypeSystem
+ * @psalm-internal ExtendedTypeSystem\Reflection
  */
 final class ClassLikeScope implements Scope
 {

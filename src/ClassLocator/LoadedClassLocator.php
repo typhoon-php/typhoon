@@ -2,10 +2,10 @@
 
 declare(strict_types=1);
 
-namespace ExtendedTypeSystem\ClassLocator;
+namespace ExtendedTypeSystem\Reflection\ClassLocator;
 
-use ExtendedTypeSystem\ClassLocator;
-use ExtendedTypeSystem\Source;
+use ExtendedTypeSystem\Reflection\ClassLocator;
+use ExtendedTypeSystem\Reflection\Source;
 
 /**
  * @api

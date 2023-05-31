@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace ExtendedTypeSystem\TypeParser;
+namespace ExtendedTypeSystem\Reflection\TypeParser;
 
 use ExtendedTypeSystem\Type;
 use ExtendedTypeSystem\Type\ShapeType;
@@ -32,7 +32,7 @@ use PHPStan\PhpDocParser\Ast\Type\UnionTypeNode;
 
 /**
  * @internal
- * @psalm-internal ExtendedTypeSystem
+ * @psalm-internal ExtendedTypeSystem\Reflection
  */
 final class TypeParser
 {

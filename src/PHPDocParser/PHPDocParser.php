@@ -2,10 +2,10 @@
 
 declare(strict_types=1);
 
-namespace ExtendedTypeSystem\PHPDocParser;
+namespace ExtendedTypeSystem\Reflection\PHPDocParser;
 
-use ExtendedTypeSystem\TagPrioritizer;
-use ExtendedTypeSystem\TagPrioritizer\PHPStanOverPsalmOverOthersTagPrioritizer;
+use ExtendedTypeSystem\Reflection\TagPrioritizer;
+use ExtendedTypeSystem\Reflection\TagPrioritizer\PHPStanOverPsalmOverOthersTagPrioritizer;
 use PhpParser\Node;
 use PHPStan\PhpDocParser\Ast\PhpDoc\PhpDocTagNode;
 use PHPStan\PhpDocParser\Lexer\Lexer;
@@ -17,7 +17,7 @@ use PHPStan\PhpDocParser\Parser\TypeParser;
 
 /**
  * @internal
- * @psalm-internal ExtendedTypeSystem
+ * @psalm-internal ExtendedTypeSystem\Reflection
  */
 final class PHPDocParser
 {

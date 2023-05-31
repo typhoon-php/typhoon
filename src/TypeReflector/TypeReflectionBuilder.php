@@ -2,15 +2,15 @@
 
 declare(strict_types=1);
 
-namespace ExtendedTypeSystem\TypeReflector;
+namespace ExtendedTypeSystem\Reflection\TypeReflector;
 
+use ExtendedTypeSystem\Reflection\TypeReflection;
 use ExtendedTypeSystem\Type;
-use ExtendedTypeSystem\TypeReflection;
 use ExtendedTypeSystem\types;
 
 /**
  * @internal
- * @psalm-internal ExtendedTypeSystem
+ * @psalm-internal ExtendedTypeSystem\Reflection
  */
 final class TypeReflectionBuilder
 {

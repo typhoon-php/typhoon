@@ -2,9 +2,9 @@
 
 declare(strict_types=1);
 
-namespace ExtendedTypeSystem\TagPrioritizer;
+namespace ExtendedTypeSystem\Reflection\TagPrioritizer;
 
-use ExtendedTypeSystem\TagPrioritizer;
+use ExtendedTypeSystem\Reflection\TagPrioritizer;
 
 /**
  * This prioritizer tells to consider {@phpstan-*} tags first, then {@psalm-*} tags, and finally the others.

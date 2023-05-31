@@ -2,13 +2,13 @@
 
 declare(strict_types=1);
 
-namespace ExtendedTypeSystem\TagPrioritizer;
+namespace ExtendedTypeSystem\Reflection\TagPrioritizer;
 
 use PHPUnit\Framework\TestCase;
 
 /**
  * @internal
- * @covers \ExtendedTypeSystem\TagPrioritizer\PHPStanOverPsalmOverOthersTagPrioritizer
+ * @covers \ExtendedTypeSystem\Reflection\TagPrioritizer\PHPStanOverPsalmOverOthersTagPrioritizer
  */
 final class PHPStanOverPsalmOverOthersTagPrioritizerTest extends TestCase
 {
