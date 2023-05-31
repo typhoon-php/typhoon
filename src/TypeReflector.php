@@ -16,6 +16,7 @@ use ExtendedTypeSystem\TypeParser\TypeParser;
 use ExtendedTypeSystem\TypeReflector\ClassLikeReflectionBuilder;
 use ExtendedTypeSystem\TypeReflector\FindClassVisitor;
 use PhpParser\Lexer\Emulative;
+use PhpParser\NameContext;
 use PhpParser\Node\Expr\Variable as VariableNode;
 use PhpParser\Node\Name as NameNode;
 use PhpParser\Node\Param as ParameterNode;
@@ -60,10 +61,29 @@ final class TypeReflector
      */
     public function reflectClassLike(string $class): ClassLikeReflection
     {
+        [$node, $nameContext] = $this->parseClass($class);
+        $phpDoc = $this->phpDocParser->parse($node);
+        $scope = $this->createClassLikeScope($class, $node, $nameContext, $phpDoc);
+
+        $builder = new ClassLikeReflectionBuilder($class);
+        $builder->templates($this->parseTemplates($scope, $phpDoc));
+        $this->addInheritedClassLikes($builder, $scope, $node, $phpDoc);
+        $this->addProperties($builder, $scope, $node->getProperties());
+        $this->addMethods($builder, $scope, $node->getMethods());
+
+        return $builder->build();
+    }
+
+    /**
+     * @param class-string $class
+     * @return array{ClassLikeNode, NameContext}
+     */
+    private function parseClass(string $class): array
+    {
         $source = $this->classLocator->locateClass($class);
 
         if ($source === null) {
-            throw new \LogicException(sprintf('Failed to locate class %s.', $class));
+            throw new \RuntimeException(sprintf('Failed to locate class %s.', $class));
         }
 
         $statements = $this->phpParser->parse($source->code) ?? [];
@@ -80,22 +100,21 @@ final class TypeReflector
             throw new \RuntimeException();
         }
 
-        $phpDoc = $this->phpDocParser->parse($node);
-        $scope = new ClassLikeScope(
-            nameContext: $nameResolver->getNameContext(),
+        return [$node, $nameResolver->getNameContext()];
+    }
+
+    /**
+     * @param class-string $class
+     */
+    private function createClassLikeScope(string $class, ClassLikeNode $node, NameContext $nameContext, PHPDoc $phpDoc): ClassLikeScope
+    {
+        return new ClassLikeScope(
+            nameContext: $nameContext,
             name: $class,
             parent: $node instanceof ClassNode && $node->extends !== null ? TypeParser::nameToClass($node->extends) : null,
             final: $node instanceof ClassNode && $node->isFinal(),
             templateNames: $phpDoc->templateNames(),
         );
-
-        $builder = new ClassLikeReflectionBuilder($class);
-        $builder->templates($this->parseTemplates($scope, $phpDoc));
-        $this->addInheritedClassLikes($builder, $scope, $node, $phpDoc);
-        $this->addProperties($builder, $scope, $node->getProperties());
-        $this->addMethods($builder, $scope, $node->getMethods());
-
-        return $builder->build();
     }
 
     /**
@@ -132,7 +151,7 @@ final class TypeReflector
             $templateArguments[$type->class] = $type->templateArguments;
         }
 
-        foreach ($this->classNodeInheritedNames($node) as $inheritedName) {
+        foreach ($this->collectClassLikeInheritedNames($node) as $inheritedName) {
             $class = TypeParser::nameToClass($inheritedName);
             $classLike = $this->reflectClassLike($class)->resolveTemplates($templateArguments[$class] ?? []);
             $classBuilder->addInheritedClassLike($classLike);
@@ -142,7 +161,7 @@ final class TypeReflector
     /**
      * @return \Generator<NameNode>
      */
-    private function classNodeInheritedNames(ClassLikeNode $node): \Generator
+    private function collectClassLikeInheritedNames(ClassLikeNode $node): \Generator
     {
         if ($node instanceof ClassNode) {
             if ($node->extends !== null) {

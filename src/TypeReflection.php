@@ -7,15 +7,12 @@ namespace ExtendedTypeSystem;
 /**
  * @api
  * @psalm-immutable
- * @template-covariant TType
- * @implements Type<TType>
  */
-final class TypeReflection implements Type
+final class TypeReflection
 {
     /**
      * @internal
      * @psalm-internal ExtendedTypeSystem
-     * @param Type<TType> $resolved
      */
     public function __construct(
         public readonly Type $resolved,
@@ -40,10 +37,5 @@ final class TypeReflection implements Type
             native: $this->native,
             phpDoc: $this->phpDoc,
         );
-    }
-
-    public function accept(TypeVisitor $visitor): mixed
-    {
-        return $this->resolved->accept($visitor);
     }
 }
