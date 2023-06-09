@@ -149,13 +149,18 @@ final class TypeParser
         }
 
         if ($reflectionType instanceof \ReflectionNamedType) {
-            $type = self::parseIdentifier($scope, $reflectionType->getName());
+            $name = $reflectionType->getName();
 
-            if ($reflectionType->allowsNull()) {
-                return types::nullable($type);
+            /** @psalm-suppress RedundantCondition */
+            $type = $reflectionType->isBuiltin()
+                ? self::parseIdentifier($scope, $name)
+                : self::parseName($scope, new Name\FullyQualified($name));
+
+            if ($name === 'null' || $name === 'mixed' || !$reflectionType->allowsNull()) {
+                return $type;
             }
 
-            return $type;
+            return types::nullable($type);
         }
 
         if ($reflectionType instanceof \ReflectionUnionType) {
@@ -172,7 +177,7 @@ final class TypeParser
             ));
         }
 
-        throw new \LogicException(sprintf('Unsupported reflection type %s.', $reflectionType::class));
+        throw new \LogicException(sprintf('%s is not supported.', $reflectionType::class));
     }
 
     private static function parseArrayShape(Scope $scope, ArrayShapeNode $node): ShapeType

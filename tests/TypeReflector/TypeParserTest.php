@@ -24,6 +24,7 @@ use PHPStan\PhpDocParser\Ast\Type\TypeNode;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
+use Symfony\Component\Filesystem\Filesystem;
 
 /**
  * @internal
@@ -31,6 +32,18 @@ use PHPUnit\Framework\TestCase;
 #[CoversClass(TypeParser::class)]
 final class TypeParserTest extends TestCase
 {
+    private const TMP_DIR = __DIR__ . '/../../var/TypeParserTest';
+
+    public static function setUpBeforeClass(): void
+    {
+        (new Filesystem())->mkdir(self::TMP_DIR);
+    }
+
+    public static function tearDownAfterClass(): void
+    {
+        (new Filesystem())->remove(self::TMP_DIR);
+    }
+
     /**
      * @psalm-suppress PossiblyUnusedMethod
      * @return \Generator<int, array{string, Type}>
@@ -158,7 +171,7 @@ final class TypeParserTest extends TestCase
         self::assertEquals($expectedType, $parsedType);
     }
 
-    public function testItReturnsNullNativeTypeForNullNode(): void
+    public function testItReturnsNullTypeForNullNativeNode(): void
     {
         $type = TypeParser::parseNativeType($this->createScope(), null);
 
@@ -186,7 +199,7 @@ final class TypeParserTest extends TestCase
         self::assertEquals($expectedType, $parsedType);
     }
 
-    public function testItReturnsNullPHPDocTypeForNullNode(): void
+    public function testItReturnsNullTypeForNullPHPDocNode(): void
     {
         $type = TypeParser::parsePHPDocType($this->createScope(), null);
 
@@ -212,6 +225,33 @@ final class TypeParserTest extends TestCase
         TypeParser::parsePHPDocType($this->createScope(), $typeNode);
     }
 
+    #[DataProvider('nativeTypes')]
+    public function testItParsesReflectionTypes(string $type, Type $expectedType): void
+    {
+        /** @var \Closure */
+        $function = $this->requireCode("<?php namespace N; return function (): {$type} {};");
+        $reflectionType = (new \ReflectionFunction($function))->getReturnType();
+
+        $type = TypeParser::parseReflectionType($this->createScope(), $reflectionType);
+
+        self::assertEquals($expectedType, $type);
+    }
+
+    public function testItReturnsNullTypeForNullReflectionType(): void
+    {
+        $type = TypeParser::parseReflectionType($this->createScope(), null);
+
+        self::assertNull($type);
+    }
+
+    public function testItThrowsIfUnknownReflectionTypePassed(): void
+    {
+        $this->expectException(\LogicException::class);
+        $this->expectExceptionMessageMatches('/[\w\\\]+ is not supported\./');
+
+        TypeParser::parseReflectionType($this->createScope(), $this->createMock(\ReflectionType::class));
+    }
+
     private function createScope(): Scope
     {
         $nameContext = new NameContext(new Throwing());
@@ -223,5 +263,14 @@ final class TypeParserTest extends TestCase
             templateNames: ['T1'],
             parentScope: new Scope\NameContextScope($nameContext),
         );
+    }
+
+    private function requireCode(string $code): mixed
+    {
+        $file = tempnam(self::TMP_DIR, 'test');
+        file_put_contents($file, $code);
+
+        /** @psalm-suppress UnresolvableInclude */
+        return require_once $file;
     }
 }

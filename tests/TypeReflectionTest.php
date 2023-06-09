@@ -26,6 +26,7 @@ final class TypeReflectionTest extends TestCase
             $reflection,
         );
     }
+
     public function testItCorrectlyCreatesFromPHPDoc(): void
     {
         $reflection = TypeReflection::fromPHPDoc(types::string);
