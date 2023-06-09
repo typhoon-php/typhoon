@@ -19,7 +19,7 @@
         "ergebnis/composer-normalize": "^2.31",
         "friendsofphp/php-cs-fixer": "^3.17.0",
         "infection/infection": "^0.27.0",
-        "phpunit/phpunit": "^10.1.3",
+        "phpunit/phpunit": "^10.2.1",
         "phpyh/coding-standard": "^2.3.0",
         "psalm/plugin-phpunit": "^0.18.4",
         "symfony/filesystem": "^6.3",
