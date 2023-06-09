@@ -8,9 +8,6 @@ use ExtendedTypeSystem\Reflection\Source;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 
-/**
- * @internal
- */
 #[CoversClass(ClassLocatorChain::class)]
 final class ClassLocatorChainTest extends TestCase
 {

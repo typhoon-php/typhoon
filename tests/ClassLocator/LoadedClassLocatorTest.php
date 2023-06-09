@@ -12,9 +12,6 @@ use PHPUnit\Framework\TestCase;
 use function PHPUnit\Framework\assertEquals;
 use function PHPUnit\Framework\assertNull;
 
-/**
- * @internal
- */
 #[CoversClass(LoadedClassLocator::class)]
 final class LoadedClassLocatorTest extends TestCase
 {

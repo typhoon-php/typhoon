@@ -12,9 +12,6 @@ use PhpParser\Node\Name;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 
-/**
- * @internal
- */
 #[CoversClass(ClassLikeScope::class)]
 final class ClassLikeScopeTest extends TestCase
 {

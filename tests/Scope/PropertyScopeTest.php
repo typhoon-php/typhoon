@@ -10,9 +10,6 @@ use PhpParser\Node\Name;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 
-/**
- * @internal
- */
 #[CoversClass(PropertyScope::class)]
 final class PropertyScopeTest extends TestCase
 {

@@ -9,9 +9,6 @@ use PhpParser\Node\Name;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 
-/**
- * @internal
- */
 #[CoversClass(GlobalScope::class)]
 final class GlobalScopeTest extends TestCase
 {

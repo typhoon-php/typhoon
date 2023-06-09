@@ -7,9 +7,6 @@ namespace ExtendedTypeSystem\Reflection;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 
-/**
- * @internal
- */
 #[CoversClass(Source::class)]
 final class SourceTest extends TestCase
 {

@@ -7,9 +7,6 @@ namespace ExtendedTypeSystem\Reflection\TagPrioritizer;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 
-/**
- * @internal
- */
 #[CoversClass(PHPStanOverPsalmOverOthersTagPrioritizer::class)]
 final class PHPStanOverPsalmOverOthersTagPrioritizerTest extends TestCase
 {

@@ -11,9 +11,6 @@ use PhpParser\Node\Stmt\Use_;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 
-/**
- * @internal
- */
 #[CoversClass(NameContextScope::class)]
 final class NameContextScopeTest extends TestCase
 {

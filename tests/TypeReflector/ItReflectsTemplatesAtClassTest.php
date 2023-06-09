@@ -11,9 +11,6 @@ use ExtendedTypeSystem\types;
 use N;
 use PHPUnit\Framework\Attributes\CoversNothing;
 
-/**
- * @internal
- */
 #[CoversNothing]
 final class ItReflectsTemplatesAtClassTest extends TypeReflectorTestCase
 {

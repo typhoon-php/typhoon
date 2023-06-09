@@ -8,9 +8,6 @@ use ExtendedTypeSystem\Reflection\Source;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 
-/**
- * @internal
- */
 #[CoversClass(DeterministicClassLocator::class)]
 final class DeterministicClassLocatorTest extends TestCase
 {

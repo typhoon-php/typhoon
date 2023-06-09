@@ -20,9 +20,6 @@ use PHPUnit\Framework\TestCase;
 use function PHPUnit\Framework\anything;
 use function PHPUnit\Framework\never;
 
-/**
- * @internal
- */
 #[CoversClass(PHPDocParser::class)]
 #[CoversClass(PHPDocBuilder::class)]
 #[CoversClass(PHPDoc::class)]

@@ -8,9 +8,6 @@ use ExtendedTypeSystem\Reflection\Source;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 
-/**
- * @internal
- */
 #[CoversClass(ComposerClassLocator::class)]
 final class ComposerClassLocatorTest extends TestCase
 {

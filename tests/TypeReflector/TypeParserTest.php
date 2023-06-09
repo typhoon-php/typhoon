@@ -26,9 +26,6 @@ use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Symfony\Component\Filesystem\Filesystem;
 
-/**
- * @internal
- */
 #[CoversClass(TypeParser::class)]
 final class TypeParserTest extends TestCase
 {

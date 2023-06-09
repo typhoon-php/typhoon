@@ -9,9 +9,6 @@ use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use function PHPUnit\Framework\assertEquals;
 
-/**
- * @internal
- */
 abstract class TypeReflectorTestCase extends TestCase
 {
     /**
