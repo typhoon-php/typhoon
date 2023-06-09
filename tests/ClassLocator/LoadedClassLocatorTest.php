@@ -20,15 +20,15 @@ final class LoadedClassLocatorTest extends TestCase
 {
     /**
      * @psalm-suppress PossiblyUnusedMethod
-     * @return array<array{class-string}>
+     * @return array<array{class-string, string}>
      */
     public static function stubs(): array
     {
         return [
-            [ClassStub::class],
-            [InterfaceStub::class],
-            [EnumStub::class],
-            [TraitStub::class],
+            [ClassStub::class, __DIR__ . '/ClassStub.php'],
+            [InterfaceStub::class, __DIR__ . '/InterfaceStub.php'],
+            [EnumStub::class, __DIR__ . '/EnumStub.php'],
+            [TraitStub::class, __DIR__ . '/TraitStub.php'],
         ];
     }
 
@@ -50,11 +50,10 @@ final class LoadedClassLocatorTest extends TestCase
      */
     #[DataProvider('stubs')]
     #[Depends('testItDoesNotLocateNonLoadedClass')]
-    public function testItLocatesLoadedClass(string $class): void
+    public function testItLocatesLoadedClass(string $class, string $expectedFile): void
     {
-        require_once __DIR__ . '/stubs.php';
         $locator = new LoadedClassLocator();
-        $expectedSource = Source::fromFile(__DIR__ . '/stubs.php', 'loaded class reflection');
+        $expectedSource = Source::fromFile($expectedFile, 'loaded class reflection');
         class_exists($class);
 
         $locatedSource = $locator->locateClass($class);
