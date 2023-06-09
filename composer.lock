@@ -12,12 +12,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/php-extended-type-system/type.git",
-                "reference": "cb152e0862eebcc1f1b53d1c205ba3f9a2c9c70c"
+                "reference": "673670cda79b437b39ba8ddb10016bcbe10e4522"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/php-extended-type-system/type/zipball/cb152e0862eebcc1f1b53d1c205ba3f9a2c9c70c",
-                "reference": "cb152e0862eebcc1f1b53d1c205ba3f9a2c9c70c",
+                "url": "https://api.github.com/repos/php-extended-type-system/type/zipball/673670cda79b437b39ba8ddb10016bcbe10e4522",
+                "reference": "673670cda79b437b39ba8ddb10016bcbe10e4522",
                 "shasum": ""
             },
             "require": {
@@ -26,7 +26,7 @@
             "require-dev": {
                 "ergebnis/composer-normalize": "^2.31.0",
                 "friendsofphp/php-cs-fixer": "^3.17.0",
-                "phpyh/coding-standard": "^2.3.0",
+                "phpyh/coding-standard": "^2.4.0",
                 "vimeo/psalm": "^5.12.0"
             },
             "default-branch": true,
@@ -51,7 +51,7 @@
                 "issues": "https://github.com/php-extended-type-system/type/issues",
                 "source": "https://github.com/php-extended-type-system/type/tree/0.2.x"
             },
-            "time": "2023-06-09T10:30:58+00:00"
+            "time": "2023-06-09T12:21:58+00:00"
         },
         {
             "name": "nikic/php-parser",
