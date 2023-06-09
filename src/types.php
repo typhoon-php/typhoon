@@ -163,7 +163,6 @@ final class types
      */
     public static function nonEmptyList(Type $valueType = self::mixed): Type\NonEmptyListType
     {
-        /** @psalm-suppress DocblockTypeContradiction */
         if ($valueType === self::mixed) {
             return __nonEmptyList;
         }
@@ -179,7 +178,6 @@ final class types
      */
     public static function list(Type $valueType = self::mixed): Type\ListType
     {
-        /** @psalm-suppress DocblockTypeContradiction */
         if ($valueType === self::mixed) {
             return __list;
         }
@@ -245,7 +243,6 @@ final class types
      */
     public static function nonEmptyArray(Type $keyType = self::arrayKey, Type $valueType = self::mixed): Type\NonEmptyArrayType
     {
-        /** @psalm-suppress DocblockTypeContradiction */
         if ($keyType === self::arrayKey && $valueType === self::mixed) {
             return __nonEmptyArray;
         }
@@ -263,7 +260,6 @@ final class types
      */
     public static function array(Type $keyType = self::arrayKey, Type $valueType = self::mixed): Type\ArrayType
     {
-        /** @psalm-suppress DocblockTypeContradiction */
         if ($keyType === self::arrayKey && $valueType === self::mixed) {
             return __array;
         }
@@ -281,7 +277,6 @@ final class types
      */
     public static function iterable(Type $keyType = self::mixed, Type $valueType = self::mixed): Type\IterableType
     {
-        /** @psalm-suppress DocblockTypeContradiction */
         if ($keyType === self::mixed && $valueType === self::mixed) {
             return __iterable;
         }
