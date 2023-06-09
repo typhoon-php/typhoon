@@ -8,7 +8,7 @@ use ExtendedTypeSystem\Type;
 use ExtendedTypeSystem\TypeVisitor;
 
 /**
- * @psalm-api
+ * @api
  * @psalm-immutable
  * @template-covariant TInt of int
  * @implements Type<TInt>

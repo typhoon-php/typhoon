@@ -8,7 +8,7 @@ use ExtendedTypeSystem\Type;
 use ExtendedTypeSystem\TypeVisitor;
 
 /**
- * @psalm-api
+ * @api
  * @psalm-immutable
  * @implements Type<numeric>
  */

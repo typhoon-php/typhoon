@@ -7,7 +7,7 @@ namespace ExtendedTypeSystem\Type;
 use ExtendedTypeSystem\Type;
 
 /**
- * @psalm-api
+ * @api
  * @psalm-immutable
  * @template-covariant TType
  */

@@ -8,7 +8,7 @@ use ExtendedTypeSystem\Type;
 use ExtendedTypeSystem\TypeVisitor;
 
 /**
- * @psalm-api
+ * @api
  * @psalm-immutable
  * @template-covariant TKey of array-key
  * @template-covariant TValue
