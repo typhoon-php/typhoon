@@ -15,7 +15,9 @@ use ExtendedTypeSystem\types;
 final class TypeReflectionBuilder
 {
     private bool $declared = false;
+
     private ?Type $nativeType = null;
+
     private ?Type $phpDocType = null;
 
     /**

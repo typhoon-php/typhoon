@@ -13,6 +13,7 @@ use ExtendedTypeSystem\Reflection\PropertyReflection;
 final class PropertyReflectionBuilder
 {
     public readonly TypeReflectionBuilder $type;
+
     private bool $private = false;
 
     public function __construct()

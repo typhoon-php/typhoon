@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "d68cc8d1474ca0cff1e9d4813ff48887",
+    "content-hash": "cc4af03c704cfad0da2f575a633233bb",
     "packages": [
         {
             "name": "extended-type-system/type",
@@ -2922,16 +2922,16 @@
         },
         {
             "name": "phpyh/coding-standard",
-            "version": "2.3.0",
+            "version": "2.4.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/phpyh/coding-standard.git",
-                "reference": "8919045ef66addaf75efec5e0cba6970ea9a71af"
+                "reference": "3a285d195f1936aca07d163b41834b041b56383e"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/phpyh/coding-standard/zipball/8919045ef66addaf75efec5e0cba6970ea9a71af",
-                "reference": "8919045ef66addaf75efec5e0cba6970ea9a71af",
+                "url": "https://api.github.com/repos/phpyh/coding-standard/zipball/3a285d195f1936aca07d163b41834b041b56383e",
+                "reference": "3a285d195f1936aca07d163b41834b041b56383e",
                 "shasum": ""
             },
             "require": {
@@ -2960,9 +2960,9 @@
             "description": "PHPyh Coding Standard For PHP CS Fixer",
             "support": {
                 "issues": "https://github.com/phpyh/coding-standard/issues",
-                "source": "https://github.com/phpyh/coding-standard/tree/2.3.0"
+                "source": "https://github.com/phpyh/coding-standard/tree/2.4.0"
             },
-            "time": "2023-06-09T09:23:01+00:00"
+            "time": "2023-06-09T12:19:23+00:00"
         },
         {
             "name": "psalm/plugin-phpunit",
