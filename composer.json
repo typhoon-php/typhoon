@@ -13,8 +13,8 @@
         "php": "^8.1"
     },
     "require-dev": {
-        "ergebnis/composer-normalize": "^2.30.2",
-        "friendsofphp/php-cs-fixer": "^3.14.4",
+        "ergebnis/composer-normalize": "^2.31.0",
+        "friendsofphp/php-cs-fixer": "^3.17.0",
         "phpyh/coding-standard": "^2.3.0",
         "vimeo/psalm": "^5.12.0"
     },
