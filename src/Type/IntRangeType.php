@@ -16,6 +16,7 @@ use ExtendedTypeSystem\TypeVisitor;
 final class IntRangeType implements Type
 {
     public readonly ?int $min;
+
     public readonly ?int $max;
 
     /**

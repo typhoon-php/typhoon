@@ -17,7 +17,9 @@ final class Parameter
      * @var Type<TType>
      */
     public readonly Type $type;
+
     public readonly bool $hasDefault;
+
     public readonly bool $variadic;
 
     /**

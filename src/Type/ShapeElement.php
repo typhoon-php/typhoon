@@ -17,6 +17,7 @@ final class ShapeElement
      * @var Type<TType>
      */
     public readonly Type $type;
+
     public readonly bool $optional;
 
     /**

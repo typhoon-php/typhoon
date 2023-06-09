@@ -15,7 +15,7 @@
     "require-dev": {
         "ergebnis/composer-normalize": "^2.31.0",
         "friendsofphp/php-cs-fixer": "^3.17.0",
-        "phpyh/coding-standard": "^2.3.0",
+        "phpyh/coding-standard": "^2.4.0",
         "vimeo/psalm": "^5.12.0"
     },
     "autoload": {

@@ -19,6 +19,7 @@ final class ShapeType implements Type
      * @var array<ShapeElement>
      */
     public readonly array $elements;
+
     public readonly bool $sealed;
 
     /**
