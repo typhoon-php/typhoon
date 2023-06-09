@@ -18,14 +18,14 @@ final class MethodTemplateType implements Type
     /**
      * @internal
      * @psalm-internal ExtendedTypeSystem
-     * @param non-empty-string $name
      * @param class-string $class
      * @param non-empty-string $method
+     * @param non-empty-string $name
      */
     public function __construct(
-        public readonly string $name,
         public readonly string $class,
         public readonly string $method,
+        public readonly string $name,
     ) {
     }
 

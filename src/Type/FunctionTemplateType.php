@@ -18,12 +18,12 @@ final class FunctionTemplateType implements Type
     /**
      * @internal
      * @psalm-internal ExtendedTypeSystem
-     * @param non-empty-string $name
      * @param callable-string $function
+     * @param non-empty-string $name
      */
     public function __construct(
-        public readonly string $name,
         public readonly string $function,
+        public readonly string $name,
     ) {
     }
 
