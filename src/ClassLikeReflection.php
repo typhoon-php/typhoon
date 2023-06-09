@@ -53,11 +53,11 @@ final class ClassLikeReflection
     /**
      * @throws TypeReflectionException
      */
-    public function templateByIndex(int $index): TemplateReflection
+    public function templateByPosition(int $position): TemplateReflection
     {
-        return array_values($this->templates)[$index] ?? throw new TypeReflectionException(sprintf(
-            'Template with index %d is either resolved or not declared in class %s.',
-            $index,
+        return array_values($this->templates)[$position] ?? throw new TypeReflectionException(sprintf(
+            'Template at position %d is either resolved or not declared in class %s.',
+            $position,
             $this->name,
         ));
     }
@@ -120,7 +120,7 @@ final class ClassLikeReflection
 
         foreach ($this->templates as $template) {
             $resolvedTemplateArguments[$template->name] = $templateArguments[$template->name]
-                ?? $templateArguments[$template->index]
+                ?? $templateArguments[$template->position]
                 ?? $template->constraint;
         }
 

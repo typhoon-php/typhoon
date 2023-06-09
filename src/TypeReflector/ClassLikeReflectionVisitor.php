@@ -290,10 +290,10 @@ final class ClassLikeReflectionVisitor extends NodeVisitorAbstract
     {
         $templates = [];
 
-        foreach (array_values($phpDoc->templates) as $index => $template) {
+        foreach (array_values($phpDoc->templates) as $position => $template) {
             $variance = $template->getAttribute('variance');
             $templates[$template->name] = new TemplateReflection(
-                index: $index,
+                position: $position,
                 name: $template->name,
                 constraint: TypeParser::parsePHPDocType($scope, $template->bound) ?? types::mixed,
                 variance: $variance instanceof Variance ? $variance : Variance::INVARIANT,

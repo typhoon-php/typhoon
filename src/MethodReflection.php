@@ -55,11 +55,11 @@ final class MethodReflection
     /**
      * @throws TypeReflectionException
      */
-    public function templateByIndex(int $index): TemplateReflection
+    public function templateByPosition(int $position): TemplateReflection
     {
-        return array_values($this->templates)[$index] ?? throw new TypeReflectionException(sprintf(
-            'Template with index %d is either resolved or not declared in method %s::%s().',
-            $index,
+        return array_values($this->templates)[$position] ?? throw new TypeReflectionException(sprintf(
+            'Template at position %d is either resolved or not declared in method %s::%s().',
+            $position,
             $this->reflectedClass,
             $this->name,
         ));
@@ -89,13 +89,13 @@ final class MethodReflection
     /**
      * @throws TypeReflectionException
      */
-    public function parameterTypeByIndex(int $index): TypeReflection
+    public function parameterTypeByPosition(int $position): TypeReflection
     {
-        return array_values($this->parameterTypes)[$index] ?? throw new TypeReflectionException(sprintf(
-            'Method %s::%s() does not have parameter with index %d.',
+        return array_values($this->parameterTypes)[$position] ?? throw new TypeReflectionException(sprintf(
+            'Method %s::%s() does not have parameter at position %d.',
             $this->reflectedClass,
             $this->name,
-            $index,
+            $position,
         ));
     }
 

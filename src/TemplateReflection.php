@@ -14,13 +14,13 @@ use ExtendedTypeSystem\types;
 final class TemplateReflection
 {
     /**
-     * @internal
-     * @psalm-internal ExtendedTypeSystem\Reflection
-     * @param int<0, max> $index
+     * @param int<0, max> $position
      * @param non-empty-string $name
+     *@internal
+     * @psalm-internal ExtendedTypeSystem\Reflection
      */
     public function __construct(
-        public readonly int $index,
+        public readonly int $position,
         public readonly string $name,
         public readonly Type $constraint = types::mixed,
         public readonly Variance $variance = Variance::INVARIANT,
