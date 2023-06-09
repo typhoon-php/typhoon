@@ -16,8 +16,6 @@ final class TemplateReflection
     /**
      * @param int<0, max> $position
      * @param non-empty-string $name
-     *@internal
-     * @psalm-internal ExtendedTypeSystem\Reflection
      */
     public function __construct(
         public readonly int $position,

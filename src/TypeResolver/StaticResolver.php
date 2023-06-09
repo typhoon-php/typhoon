@@ -2,14 +2,15 @@
 
 declare(strict_types=1);
 
-namespace ExtendedTypeSystem\Reflection;
+namespace ExtendedTypeSystem\Reflection\TypeResolver;
 
 use ExtendedTypeSystem\Type;
 use ExtendedTypeSystem\TypeResolver;
 use ExtendedTypeSystem\types;
 
 /**
- * @api
+ * @internal
+ * @psalm-internal ExtendedTypeSystem\Reflection
  * @psalm-immutable
  */
 final class StaticResolver extends TypeResolver

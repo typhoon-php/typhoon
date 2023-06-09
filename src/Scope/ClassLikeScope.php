@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace ExtendedTypeSystem\Reflection\Scope;
 
 use ExtendedTypeSystem\Reflection\Scope;
+use ExtendedTypeSystem\Reflection\TypeReflectionException;
 use ExtendedTypeSystem\Type\ClassTemplateType;
 use ExtendedTypeSystem\Type\FunctionTemplateType;
 use ExtendedTypeSystem\Type\MethodTemplateType;
@@ -38,7 +39,7 @@ final class ClassLikeScope implements Scope
         }
 
         if ($nameAsString === self::PARENT) {
-            return $this->parent ?? throw new \LogicException(sprintf(
+            return $this->parent ?? throw new TypeReflectionException(sprintf(
                 'Failed to resolve name "parent": class %s does not have a parent.',
                 $this->name,
             ));

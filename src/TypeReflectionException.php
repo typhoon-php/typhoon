@@ -7,6 +7,6 @@ namespace ExtendedTypeSystem\Reflection;
 /**
  * @api
  */
-final class TypeReflectionException extends \ReflectionException
+final class TypeReflectionException extends \LogicException
 {
 }

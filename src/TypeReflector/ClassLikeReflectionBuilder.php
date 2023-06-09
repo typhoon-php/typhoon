@@ -6,8 +6,8 @@ namespace ExtendedTypeSystem\Reflection\TypeReflector;
 
 use ExtendedTypeSystem\Reflection\ClassLikeReflection;
 use ExtendedTypeSystem\Reflection\MethodReflection;
-use ExtendedTypeSystem\Reflection\PropertyReflection;
 use ExtendedTypeSystem\Reflection\TemplateReflection;
+use ExtendedTypeSystem\Reflection\TypeReflection;
 
 /**
  * @internal
@@ -65,43 +65,48 @@ final class ClassLikeReflectionBuilder
         return $this->methods[$name] ??= new MethodReflectionBuilder($this->name, $name);
     }
 
-    public function addInheritedClassLike(ClassLikeReflection $classLike): self
+    public function addInheritedClassLike(ClassLikeMetadata $metadata): self
     {
-        /** @psalm-suppress PossiblyNullFunctionCall, InaccessibleProperty */
-        \Closure::bind(function () use ($classLike): void {
-            foreach ($classLike->properties as $name => $property) {
-                if (!$property->private) {
-                    $this->property($name)->addPrototype($property);
-                }
-            }
+        foreach ($metadata->inheritablePropertyTypes() as $name => $propertyType) {
+            $this->property($name)->type->addPrototype($propertyType);
+        }
 
-            \Closure::bind(function () use ($classLike): void {
-                foreach ($classLike->methods() as $name => $method) {
-                    if (!$method->private) {
-                        $this->method($name)->addPrototype($method);
-                    }
-                }
-            }, $this, MethodReflection::class)();
-        }, $this, $classLike)();
+        foreach ($metadata->inheritableMethods() as $method) {
+            $this->method($method->name)->addPrototype($method);
+        }
 
         return $this;
     }
 
     /**
-     * @return ClassLikeReflection<T>
+     * @return ClassLikeMetadata<T>
      */
-    public function build(): ClassLikeReflection
+    public function build(): ClassLikeMetadata
     {
-        return new ClassLikeReflection(
-            name: $this->name,
-            templates: $this->templates,
-            properties: array_map(
-                static fn (PropertyReflectionBuilder $builder): PropertyReflection => $builder->build(),
-                $this->properties,
+        return new ClassLikeMetadata(
+            reflection: ClassLikeReflection::create(
+                name: $this->name,
+                templates: $this->templates,
+                propertyTypes: array_map(
+                    static fn (PropertyReflectionBuilder $builder): TypeReflection => $builder->type->build(),
+                    $this->properties,
+                ),
+                methods: array_map(
+                    static fn (MethodReflectionBuilder $builder): MethodReflection => $builder->build(),
+                    $this->methods,
+                ),
             ),
-            methods: array_map(
-                static fn (MethodReflectionBuilder $builder): MethodReflection => $builder->build(),
-                $this->methods,
+            inheritablePropertyNames: array_keys(
+                array_filter(
+                    $this->properties,
+                    static fn (PropertyReflectionBuilder $property): bool => $property->inheritable,
+                ),
+            ),
+            inheritableMethodNames: array_keys(
+                array_filter(
+                    $this->methods,
+                    static fn (MethodReflectionBuilder $method): bool => $method->inheritable,
+                ),
             ),
         );
     }

@@ -21,7 +21,7 @@ final class Source
         $code = @file_get_contents($file);
 
         if ($code === false) {
-            throw new \RuntimeException(sprintf('Failed to open file %s.', $file));
+            throw new TypeReflectionException(sprintf('Failed to open file %s.', $file));
         }
 
         $realpath = realpath($file);

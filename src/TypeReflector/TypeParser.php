@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace ExtendedTypeSystem\Reflection\TypeReflector;
 
 use ExtendedTypeSystem\Reflection\Scope;
+use ExtendedTypeSystem\Reflection\TypeReflectionException;
 use ExtendedTypeSystem\Type;
 use ExtendedTypeSystem\Type\ShapeType;
 use ExtendedTypeSystem\types;
@@ -82,7 +83,7 @@ final class TypeParser
             ));
         }
 
-        throw new \LogicException(sprintf('%s is not supported.', $node::class));
+        throw new TypeReflectionException(sprintf('%s is not supported.', $node::class));
     }
 
     /**
@@ -136,7 +137,7 @@ final class TypeParser
             return self::parseCallable($scope, $node);
         }
 
-        throw new \LogicException(sprintf('%s is not supported.', $node::class));
+        throw new TypeReflectionException(sprintf('%s is not supported.', $node::class));
     }
 
     /**
@@ -177,7 +178,7 @@ final class TypeParser
             ));
         }
 
-        throw new \LogicException(sprintf('%s is not supported.', $reflectionType::class));
+        throw new TypeReflectionException(sprintf('%s is not supported.', $reflectionType::class));
     }
 
     private static function parseArrayShape(Scope $scope, ArrayShapeNode $node): ShapeType
@@ -202,7 +203,7 @@ final class TypeParser
                 ConstExprIntegerNode::class => $keyName->value,
                 ConstExprStringNode::class => $keyName->value,
                 IdentifierTypeNode::class => $keyName->name,
-                default => throw new \LogicException(sprintf('%s is not supported.', $keyName::class)),
+                default => throw new TypeReflectionException(sprintf('%s is not supported.', $keyName::class)),
             };
 
             $elements[$key] = $type;
@@ -250,7 +251,7 @@ final class TypeParser
             );
         }
 
-        throw new \LogicException(sprintf('Unsupported PHPDoc type node %s.', $exprNode::class));
+        throw new TypeReflectionException(sprintf('Unsupported PHPDoc type node %s.', $exprNode::class));
     }
 
     /**
@@ -384,7 +385,7 @@ final class TypeParser
             return null;
         }
 
-        throw new \LogicException(sprintf('"%s" cannot be used as int range limit.', (string) $typeNode));
+        throw new TypeReflectionException(sprintf('"%s" cannot be used as int range limit.', (string) $typeNode));
     }
 
     private static function parseCallable(Scope $scope, CallableTypeNode $node): Type
@@ -409,7 +410,7 @@ final class TypeParser
             return types::closure($parameters, $returnType);
         }
 
-        throw new \LogicException(sprintf('"%s" cannot be used as callable type.', $node->identifier->name));
+        throw new TypeReflectionException(sprintf('"%s" cannot be used as callable type.', $node->identifier->name));
     }
 
     /**

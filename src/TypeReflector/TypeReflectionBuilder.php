@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace ExtendedTypeSystem\Reflection\TypeReflector;
 
 use ExtendedTypeSystem\Reflection\TypeReflection;
+use ExtendedTypeSystem\Reflection\TypeReflectionException;
 use ExtendedTypeSystem\Type;
 use ExtendedTypeSystem\types;
 
@@ -52,7 +53,7 @@ final class TypeReflectionBuilder
     {
         if (!$this->declared) {
             return $this->prototypes[0]
-                ?? throw new \LogicException('Type must be either declared or have at least 1 prototype.');
+                ?? throw new TypeReflectionException('Type must be either declared or have at least 1 prototype.');
         }
 
         return new TypeReflection(

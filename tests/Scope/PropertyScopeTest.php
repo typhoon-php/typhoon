@@ -24,21 +24,21 @@ final class PropertyScopeTest extends TestCase
 
     public function testItResolvesClassTemplateIfNonStatic(): void
     {
-        $scope = new PropertyScope(new ClassLikeScope(self::class, templateNames: ['T1']));
+        $scope = new PropertyScope(new ClassLikeScope(self::class, templateNames: ['T']));
 
-        $template = $scope->tryResolveTemplate('T1');
+        $template = $scope->tryResolveTemplate('T');
 
-        self::assertEquals(types::classTemplate(self::class, 'T1'), $template);
+        self::assertEquals(types::classTemplate(self::class, 'T'), $template);
     }
 
     public function testItDoesNotResolveClassTemplateIfNonStatic(): void
     {
         $scope = new PropertyScope(
-            new ClassLikeScope(self::class, templateNames: ['T1']),
+            new ClassLikeScope(self::class, templateNames: ['T']),
             static: true,
         );
 
-        $template = $scope->tryResolveTemplate('T1');
+        $template = $scope->tryResolveTemplate('T');
 
         self::assertNull($template);
     }

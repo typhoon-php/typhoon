@@ -21,4 +21,13 @@ class Name extends NodeAbstract
     public function isFullyQualified(): bool
     {
     }
+
+    /**
+     * @param string|string[]|self|null $name1
+     * @param string|string[]|self|null $name2
+     * @return ($name1 is null ? ($name2 is null ? null : static) : static)
+     */
+    public static function concat($name1, $name2, array $attributes = [])
+    {
+    }
 }

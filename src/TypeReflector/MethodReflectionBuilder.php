@@ -16,7 +16,7 @@ final class MethodReflectionBuilder
 {
     public readonly TypeReflectionBuilder $returnType;
 
-    private bool $private = false;
+    public bool $inheritable = true;
 
     /**
      * @var array<non-empty-string, TemplateReflection>
@@ -39,9 +39,9 @@ final class MethodReflectionBuilder
         $this->returnType = new TypeReflectionBuilder();
     }
 
-    public function private(bool $private): self
+    public function inheritable(bool $inheritable): self
     {
-        $this->private = $private;
+        $this->inheritable = $inheritable;
 
         return $this;
     }
@@ -66,9 +66,9 @@ final class MethodReflectionBuilder
 
     public function addPrototype(MethodReflection $method): self
     {
-        $this->returnType->addPrototype($method->returnType());
+        $this->returnType->addPrototype($method->returnType);
 
-        foreach ($method->parameterTypes() as $parameterName => $parameterType) {
+        foreach ($method->parameterTypes as $parameterName => $parameterType) {
             ($this->parameterTypes[$parameterName] ??= new TypeReflectionBuilder())->addPrototype($parameterType);
         }
 
@@ -77,10 +77,9 @@ final class MethodReflectionBuilder
 
     public function build(): MethodReflection
     {
-        return new MethodReflection(
+        return MethodReflection::create(
             reflectedClass: $this->reflectedClass,
             name: $this->name,
-            private: $this->private,
             templates: $this->templates,
             parameterTypes: array_map(
                 static fn (TypeReflectionBuilder $builder): TypeReflection => $builder->build(),

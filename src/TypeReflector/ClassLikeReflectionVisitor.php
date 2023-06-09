@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace ExtendedTypeSystem\Reflection\TypeReflector;
 
-use ExtendedTypeSystem\Reflection\ClassLikeReflection;
 use ExtendedTypeSystem\Reflection\PHPDocParser\PHPDoc;
 use ExtendedTypeSystem\Reflection\PHPDocParser\PHPDocParser;
 use ExtendedTypeSystem\Reflection\Scope;
@@ -13,7 +12,7 @@ use ExtendedTypeSystem\Reflection\Scope\MethodScope;
 use ExtendedTypeSystem\Reflection\Scope\NameContextScope;
 use ExtendedTypeSystem\Reflection\Scope\PropertyScope;
 use ExtendedTypeSystem\Reflection\TemplateReflection;
-use ExtendedTypeSystem\Reflection\TypeReflector;
+use ExtendedTypeSystem\Reflection\TypeReflectionException;
 use ExtendedTypeSystem\Reflection\Variance;
 use ExtendedTypeSystem\Type\NamedObjectType;
 use ExtendedTypeSystem\types;
@@ -36,9 +35,9 @@ final class ClassLikeReflectionVisitor extends NodeVisitorAbstract
 {
     /**
      * @psalm-readonly-allow-private-mutation
-     * @var ?ClassLikeReflection<T>
+     * @var ?ClassLikeMetadata<T>
      */
-    public ?ClassLikeReflection $reflection = null;
+    public ?ClassLikeMetadata $metadata = null;
 
     private NameContext $nameContext;
 
@@ -50,11 +49,12 @@ final class ClassLikeReflectionVisitor extends NodeVisitorAbstract
     private ClassLikeReflectionBuilder $builder;
 
     /**
+     * @param \Closure(class-string): ClassLikeMetadata $reflector
      * @param class-string<T> $class
      */
     public function __construct(
         private readonly string $class,
-        private readonly TypeReflector $reflector,
+        private readonly \Closure $reflector,
         private readonly PHPDocParser $phpDocParser,
     ) {
         $this->nameContext = new NameContext(new Throwing());
@@ -125,7 +125,7 @@ final class ClassLikeReflectionVisitor extends NodeVisitorAbstract
     {
         if ($node instanceof Stmt\ClassLike && $this->classScope !== null) {
             $this->classScope = null;
-            $this->reflection = $this->builder->build();
+            $this->metadata = $this->builder->build();
 
             return NodeTraverser::STOP_TRAVERSAL;
         }
@@ -151,7 +151,7 @@ final class ClassLikeReflectionVisitor extends NodeVisitorAbstract
     {
         foreach ($node->uses as $use) {
             $this->nameContext->addAlias(
-                name: Name::concat($node->prefix, $use->name) ?? throw new \RuntimeException('TODO psalm stub?'),
+                name: Name::concat($node->prefix, $use->name),
                 aliasName: (string) $use->getAlias(),
                 type: $node->type | $use->type,
                 errorAttrs: $use->getAttributes(),
@@ -187,9 +187,7 @@ final class ClassLikeReflectionVisitor extends NodeVisitorAbstract
 
         foreach ($this->collectClassLikeInheritedNames($node) as $inheritedName) {
             $inheritedClass = $this->classScope->resolveClass($inheritedName);
-            $classLike = $this->reflector
-                ->reflectClassLike($inheritedClass)
-                ->resolveTemplates($templateArguments[$inheritedClass] ?? []);
+            $classLike = ($this->reflector)($inheritedClass)->withResolvedTemplates($templateArguments[$inheritedClass] ?? []);
             $this->builder->addInheritedClassLike($classLike);
         }
     }
@@ -209,7 +207,7 @@ final class ClassLikeReflectionVisitor extends NodeVisitorAbstract
             $this
                 ->builder
                 ->property($name)
-                ->private($node->isPrivate())
+                ->inheritable(!$node->isPrivate())
                 ->type
                 ->nativeType($nativeType)
                 ->phpDocType($phpDocType);
@@ -228,7 +226,7 @@ final class ClassLikeReflectionVisitor extends NodeVisitorAbstract
         $methodBuilder = $this
             ->builder
             ->method($name)
-            ->private($node->isPrivate())
+            ->inheritable(!$node->isPrivate())
             ->templates($this->parseTemplates($methodScope, $phpDoc));
         $methodBuilder->returnType
             ->nativeType(TypeParser::parseNativeType($methodScope, $node->returnType))
@@ -249,7 +247,7 @@ final class ClassLikeReflectionVisitor extends NodeVisitorAbstract
                 $this
                     ->builder
                     ->property($parameterName)
-                    ->private((bool) ($parameterNode->flags & Stmt\Class_::MODIFIER_PRIVATE))
+                    ->inheritable(!($parameterNode->flags & Stmt\Class_::MODIFIER_PRIVATE))
                     ->type
                     ->nativeType($nativeParameterType)
                     ->phpDocType($phpDocParameterType);
@@ -312,8 +310,8 @@ final class ClassLikeReflectionVisitor extends NodeVisitorAbstract
 
     private function checkNotClosed(): void
     {
-        if ($this->reflection !== null) {
-            throw new \LogicException(sprintf('%s must not be used more than once.', self::class));
+        if ($this->metadata !== null) {
+            throw new TypeReflectionException(sprintf('%s must not be used more than once.', self::class));
         }
     }
 }

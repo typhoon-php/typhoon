@@ -14,26 +14,6 @@ use PHPUnit\Framework\TestCase;
 #[CoversClass(TypeReflection::class)]
 final class TypeReflectionTest extends TestCase
 {
-    public function testItCorrectlyCreatesFromNative(): void
-    {
-        $reflection = TypeReflection::fromNative(types::string);
-
-        self::assertEquals(
-            new TypeReflection(resolved: types::string, native: types::string, phpDoc: null),
-            $reflection,
-        );
-    }
-
-    public function testItCorrectlyCreatesFromPHPDoc(): void
-    {
-        $reflection = TypeReflection::fromPHPDoc(types::string);
-
-        self::assertEquals(
-            new TypeReflection(resolved: types::string, native: null, phpDoc: types::string),
-            $reflection,
-        );
-    }
-
     public function testItResolvesOnlyResolvedType(): void
     {
         $reflection = new TypeReflection(resolved: types::float, native: types::int, phpDoc: types::string);
@@ -42,7 +22,7 @@ final class TypeReflectionTest extends TestCase
         $typeResolver->method(self::anything())
             ->willReturn(types::null);
 
-        $resolved = $reflection->resolveTypes($typeResolver);
+        $resolved = $reflection->withResolvedTypes($typeResolver);
 
         self::assertEquals(
             new TypeReflection(resolved: types::null, native: types::int, phpDoc: types::string),
@@ -52,13 +32,12 @@ final class TypeReflectionTest extends TestCase
 
     public function testItKeepsInstanceIfResolvesToSameType(): void
     {
-        $reflection = new TypeReflection(resolved: types::float, native: null, phpDoc: null);
+        $reflection = new TypeReflection(resolved: types::float);
         /** @var MockObject&TypeVisitor<Type> */
         $typeResolver = $this->createMock(TypeVisitor::class);
-        $typeResolver->method(self::anything())
-            ->willReturn(types::float);
+        $typeResolver->method(self::anything())->willReturn(types::float);
 
-        $resolved = $reflection->resolveTypes($typeResolver);
+        $resolved = $reflection->withResolvedTypes($typeResolver);
 
         self::assertSame($reflection, $resolved);
     }

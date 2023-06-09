@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace ExtendedTypeSystem\Reflection\Scope;
 
 use ExtendedTypeSystem\Reflection\Scope;
+use ExtendedTypeSystem\Reflection\TypeReflectionException;
 use ExtendedTypeSystem\types;
 use PhpParser\ErrorHandler\Throwing;
 use PhpParser\NameContext;
@@ -37,7 +38,7 @@ final class ClassLikeScopeTest extends TestCase
     {
         $scope = new ClassLikeScope(\stdClass::class);
 
-        $this->expectExceptionObject(new \LogicException('Failed to resolve name "parent": class stdClass does not have a parent.'));
+        $this->expectExceptionObject(new TypeReflectionException('Failed to resolve name "parent": class stdClass does not have a parent.'));
 
         $scope->resolveClass(new Name(Scope::PARENT));
     }
@@ -64,16 +65,16 @@ final class ClassLikeScopeTest extends TestCase
 
     public function testItResolvesTemplate(): void
     {
-        $scope = new ClassLikeScope(self::class, templateNames: ['T1']);
+        $scope = new ClassLikeScope(self::class, templateNames: ['T']);
 
-        $type = $scope->tryResolveTemplate('T1');
+        $type = $scope->tryResolveTemplate('T');
 
-        self::assertEquals(types::classTemplate(self::class, 'T1'), $type);
+        self::assertEquals(types::classTemplate(self::class, 'T'), $type);
     }
 
     public function testItResolvesTemplateAsNullIfTemplateDoesNotExist(): void
     {
-        $scope = new ClassLikeScope(self::class, templateNames: ['T1']);
+        $scope = new ClassLikeScope(self::class, templateNames: ['T']);
 
         $type = $scope->tryResolveTemplate('T2');
 

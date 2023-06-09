@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace ExtendedTypeSystem\Reflection;
 
+use ExtendedTypeSystem\Reflection\TypeResolver\ClassTemplateResolver;
+use ExtendedTypeSystem\Reflection\TypeResolver\StaticResolver;
 use ExtendedTypeSystem\Type;
 use ExtendedTypeSystem\TypeVisitor;
 
@@ -15,81 +17,54 @@ use ExtendedTypeSystem\TypeVisitor;
 final class ClassLikeReflection
 {
     /**
-     * @internal
-     * @psalm-internal ExtendedTypeSystem\Reflection
      * @param class-string<T> $name
      * @param array<non-empty-string, TemplateReflection> $templates
-     * @param array<non-empty-string, PropertyReflection> $properties
+     * @param array<non-empty-string, TypeReflection> $propertyTypes
      * @param array<non-empty-string, MethodReflection> $methods
      */
-    public function __construct(
+    private function __construct(
         public readonly string $name,
-        private readonly array $templates,
-        private readonly array $properties,
-        private readonly array $methods,
+        public readonly array $templates,
+        public readonly array $propertyTypes,
+        public readonly array $methods,
     ) {
     }
 
     /**
-     * @return array<non-empty-string, TemplateReflection>
+     * @template TObject
+     * @param class-string<TObject> $name
+     * @param array<TemplateReflection> $templates
+     * @param array<non-empty-string, TypeReflection> $propertyTypes
+     * @param array<MethodReflection> $methods
+     * @return self<TObject>
      */
-    public function templates(): array
-    {
-        return $this->templates;
-    }
-
-    /**
-     * @throws TypeReflectionException
-     */
-    public function template(string $name): TemplateReflection
-    {
-        return $this->templates[$name] ?? throw new TypeReflectionException(sprintf(
-            'Template %s is either resolved or not declared in class %s.',
-            $name,
-            $this->name,
-        ));
-    }
-
-    /**
-     * @throws TypeReflectionException
-     */
-    public function templateByPosition(int $position): TemplateReflection
-    {
-        return array_values($this->templates)[$position] ?? throw new TypeReflectionException(sprintf(
-            'Template at position %d is either resolved or not declared in class %s.',
-            $position,
-            $this->name,
-        ));
-    }
-
-    /**
-     * @return array<non-empty-string, TypeReflection>
-     */
-    public function propertyTypes(): array
-    {
-        return array_map(
-            static fn (PropertyReflection $property): TypeReflection => $property->type,
-            $this->properties,
+    public static function create(
+        string $name,
+        array $templates = [],
+        array $propertyTypes = [],
+        array $methods = [],
+    ): self {
+        return new self(
+            name: $name,
+            templates: array_column($templates, null, 'name'),
+            propertyTypes: $propertyTypes,
+            methods: array_column($methods, null, 'name'),
         );
     }
 
-    /**
-     * @throws TypeReflectionException
-     */
-    public function propertyType(string $name): TypeReflection
+    public function template(string $name): TemplateReflection
     {
-        $property = $this->properties[$name]
-            ?? throw new TypeReflectionException(sprintf('Property %s::$%s does not exist.', $this->name, $name));
-
-        return $property->type;
+        return $this->templates[$name] ?? throw new TypeReflectionException(sprintf(
+            'Class %s does not have template %s.',
+            $this->name,
+            $name,
+        ));
     }
 
-    /**
-     * @return array<non-empty-string, MethodReflection>
-     */
-    public function methods(): array
+    public function propertyType(string $name): TypeReflection
     {
-        return $this->methods;
+        return $this->propertyTypes[$name]
+            ?? throw new TypeReflectionException(sprintf('Property %s::$%s does not exist.', $this->name, $name));
     }
 
     public function method(string $name): MethodReflection
@@ -101,16 +76,16 @@ final class ClassLikeReflection
     /**
      * @return self<T>
      */
-    public function resolveStatic(): self
+    public function withResolvedStatic(): self
     {
-        return $this->resolveTypes(new StaticResolver($this->name));
+        return $this->withResolvedTypes(new StaticResolver($this->name));
     }
 
     /**
      * @param array<Type> $templateArguments
      * @return self<T>
      */
-    public function resolveTemplates(array $templateArguments = []): self
+    public function withResolvedTemplates(array $templateArguments = []): self
     {
         if ($this->templates === []) {
             return $this;
@@ -126,24 +101,24 @@ final class ClassLikeReflection
 
         $typeResolver = new ClassTemplateResolver($this->name, $resolvedTemplateArguments);
 
-        return $this->resolveTypes($typeResolver);
+        return $this->withResolvedTypes($typeResolver);
     }
 
     /**
      * @param TypeVisitor<Type> $typeResolver
      * @return self<T>
      */
-    public function resolveTypes(TypeVisitor $typeResolver): self
+    public function withResolvedTypes(TypeVisitor $typeResolver): self
     {
         return new self(
             name: $this->name,
             templates: $this->templates,
-            properties: array_map(
-                static fn (PropertyReflection $property): PropertyReflection => $property->resolveTypes($typeResolver),
-                $this->properties,
+            propertyTypes: array_map(
+                static fn (TypeReflection $type): TypeReflection => $type->withResolvedTypes($typeResolver),
+                $this->propertyTypes,
             ),
             methods: array_map(
-                static fn (MethodReflection $method): MethodReflection => $method->resolveTypes($typeResolver),
+                static fn (MethodReflection $method): MethodReflection => $method->withResolvedTypes($typeResolver),
                 $this->methods,
             ),
         );

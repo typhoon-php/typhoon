@@ -49,9 +49,6 @@ final class PHPDocParser
             ->build();
     }
 
-    /**
-     * @throws TypeReflectionException
-     */
     public function parseTypeFromString(string $type): TypeNode
     {
         $tags = $this->parsePHPDoc("/** @var {$type} */");

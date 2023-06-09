@@ -7,6 +7,7 @@ namespace ExtendedTypeSystem\Reflection\TypeReflector;
 use ExtendedTypeSystem\Reflection\PHPDocParser\PHPDocParser;
 use ExtendedTypeSystem\Reflection\Scope;
 use ExtendedTypeSystem\Reflection\Scope\ClassLikeScope;
+use ExtendedTypeSystem\Reflection\TypeReflectionException;
 use ExtendedTypeSystem\Type;
 use ExtendedTypeSystem\types;
 use N\A;
@@ -135,7 +136,7 @@ final class TypeParserTest extends TestCase
         yield ['\\Iterator<int, string>', types::object(\Iterator::class, types::int, types::string)];
         yield ['static<int, string>', types::static(X::class, types::int, types::string)];
         yield ['X::C', types::classConstant(X::class, 'C')];
-        yield ['T1', types::classTemplate(X::class, 'T1')];
+        yield ['T', types::classTemplate(X::class, 'T')];
         yield ['callable(bool, int=, string...): void', types::callable([types::bool, types::defaultParam(types::int), types::variadicParam(types::string)], types::void)];
         yield ['\\Closure(bool, int=, string...): void', types::closure([types::bool, types::defaultParam(types::int), types::variadicParam(types::string)], types::void)];
     }
@@ -146,8 +147,8 @@ final class TypeParserTest extends TestCase
      */
     public static function invalidPHPDocTypes(): \Generator
     {
-        yield ["int<'a', 1>", new \LogicException('"a" cannot be used as int range limit.')];
-        yield ['array(): void', new \LogicException('"array" cannot be used as callable type.')];
+        yield ["int<'a', 1>", new TypeReflectionException('"a" cannot be used as int range limit.')];
+        yield ['array(): void', new TypeReflectionException('"array" cannot be used as callable type.')];
     }
 
     #[DataProvider('nativeTypes')]
@@ -177,7 +178,7 @@ final class TypeParserTest extends TestCase
 
     public function testItThrowsIfUnknownNativeTypePassed(): void
     {
-        $this->expectException(\LogicException::class);
+        $this->expectException(TypeReflectionException::class);
         $this->expectExceptionMessageMatches('/[\w\\\]+ is not supported\./');
 
         TypeParser::parseNativeType($this->createScope(), $this->createMock(Node::class));
@@ -205,7 +206,7 @@ final class TypeParserTest extends TestCase
 
     public function testItThrowsIfUnknownPHPDocTypePassed(): void
     {
-        $this->expectException(\LogicException::class);
+        $this->expectException(TypeReflectionException::class);
         $this->expectExceptionMessageMatches('/[\w\\\]+ is not supported\./');
 
         TypeParser::parsePHPDocType($this->createScope(), $this->createMock(TypeNode::class));
@@ -243,7 +244,7 @@ final class TypeParserTest extends TestCase
 
     public function testItThrowsIfUnknownReflectionTypePassed(): void
     {
-        $this->expectException(\LogicException::class);
+        $this->expectException(TypeReflectionException::class);
         $this->expectExceptionMessageMatches('/[\w\\\]+ is not supported\./');
 
         TypeParser::parseReflectionType($this->createScope(), $this->createMock(\ReflectionType::class));
@@ -257,7 +258,7 @@ final class TypeParserTest extends TestCase
         return new ClassLikeScope(
             name: X::class,
             parent: B::class,
-            templateNames: ['T1'],
+            templateNames: ['T'],
             parentScope: new Scope\NameContextScope($nameContext),
         );
     }

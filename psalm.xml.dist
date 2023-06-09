@@ -47,7 +47,26 @@
         </MissingThrowsDocblock>
         <MixedAssignment errorLevel="suppress"/>
         <UnusedClass errorLevel="info"/>
+        <UnusedMethodCall>
+            <errorLevel type="suppress">
+                <directory name="tests"/>
+            </errorLevel>
+        </UnusedMethodCall>
     </issueHandlers>
+
+    <forbiddenFunctions>
+        <function name="dd"/>
+        <function name="die"/>
+        <function name="dump"/>
+        <function name="echo"/>
+        <function name="empty"/>
+        <function name="eval"/>
+        <function name="exit"/>
+        <function name="print"/>
+        <function name="sleep"/>
+        <function name="usleep"/>
+        <function name="var_export"/>
+    </forbiddenFunctions>
 
     <stubs>
         <file name="stubs/PhpParser/Node/Expr/Variable.phpstub"/>

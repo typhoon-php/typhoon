@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace ExtendedTypeSystem\Reflection;
 
 use ExtendedTypeSystem\Type;
+use ExtendedTypeSystem\types;
 use ExtendedTypeSystem\TypeVisitor;
 
 /**
@@ -13,37 +14,17 @@ use ExtendedTypeSystem\TypeVisitor;
  */
 final class TypeReflection
 {
-    /**
-     * @internal
-     * @psalm-internal ExtendedTypeSystem\Reflection
-     */
     public function __construct(
-        public readonly Type $resolved,
-        public readonly ?Type $native,
-        public readonly ?Type $phpDoc,
+        public readonly Type $resolved = types::mixed,
+        public readonly ?Type $native = null,
+        public readonly ?Type $phpDoc = null,
     ) {
-    }
-
-    /**
-     * @psalm-pure
-     */
-    public static function fromNative(Type $nativeType): self
-    {
-        return new self($nativeType, $nativeType, null);
-    }
-
-    /**
-     * @psalm-pure
-     */
-    public static function fromPHPDoc(Type $phpDocType): self
-    {
-        return new self($phpDocType, null, $phpDocType);
     }
 
     /**
      * @param TypeVisitor<Type> $typeResolver
      */
-    public function resolveTypes(TypeVisitor $typeResolver): self
+    public function withResolvedTypes(TypeVisitor $typeResolver): self
     {
         $resolved = $this->resolved->accept($typeResolver);
 

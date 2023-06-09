@@ -12,7 +12,7 @@ final class SourceTest extends TestCase
 {
     public function testItThrowsIfFileDoesNotExist(): void
     {
-        $this->expectExceptionObject(new \RuntimeException('Failed to open file a.txt.'));
+        $this->expectExceptionObject(new TypeReflectionException('Failed to open file a.txt.'));
 
         Source::fromFile('a.txt');
     }

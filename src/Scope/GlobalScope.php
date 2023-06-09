@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace ExtendedTypeSystem\Reflection\Scope;
 
 use ExtendedTypeSystem\Reflection\Scope;
+use ExtendedTypeSystem\Reflection\TypeReflectionException;
 use ExtendedTypeSystem\Type\ClassTemplateType;
 use ExtendedTypeSystem\Type\FunctionTemplateType;
 use ExtendedTypeSystem\Type\MethodTemplateType;
@@ -20,11 +21,11 @@ final class GlobalScope implements Scope
         $nameAsString = $name->toString();
 
         if ($nameAsString === self::SELF) {
-            throw new \LogicException('Cannot resolve self in global scope.');
+            throw new TypeReflectionException('Cannot resolve self in global scope.');
         }
 
         if ($nameAsString === self::PARENT) {
-            throw new \LogicException('Cannot resolve parent in global scope.');
+            throw new TypeReflectionException('Cannot resolve parent in global scope.');
         }
 
         /** @var class-string */

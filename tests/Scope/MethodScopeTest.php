@@ -28,37 +28,37 @@ final class MethodScopeTest extends TestCase
     public function testItResolvesMethodTemplateFirst(): void
     {
         $scope = new MethodScope(
-            classScope: new ClassLikeScope(self::class, templateNames: ['T1']),
+            classScope: new ClassLikeScope(self::class, templateNames: ['T']),
             name: 'method',
-            templateNames: ['T1'],
+            templateNames: ['T'],
         );
 
-        $template = $scope->tryResolveTemplate('T1');
+        $template = $scope->tryResolveTemplate('T');
 
-        self::assertEquals(types::methodTemplate(self::class, 'method', 'T1'), $template);
+        self::assertEquals(types::methodTemplate(self::class, 'method', 'T'), $template);
     }
 
     public function testItResolvesClassTemplateIfNonStatic(): void
     {
         $scope = new MethodScope(
-            classScope: new ClassLikeScope(self::class, templateNames: ['T1']),
+            classScope: new ClassLikeScope(self::class, templateNames: ['T']),
             name: 'method',
         );
 
-        $template = $scope->tryResolveTemplate('T1');
+        $template = $scope->tryResolveTemplate('T');
 
-        self::assertEquals(types::classTemplate(self::class, 'T1'), $template);
+        self::assertEquals(types::classTemplate(self::class, 'T'), $template);
     }
 
     public function testItDoesNotResolveClassTemplateIfNonStatic(): void
     {
         $scope = new MethodScope(
-            classScope: new ClassLikeScope(self::class, templateNames: ['T1']),
+            classScope: new ClassLikeScope(self::class, templateNames: ['T']),
             name: 'method',
             static: true,
         );
 
-        $template = $scope->tryResolveTemplate('T1');
+        $template = $scope->tryResolveTemplate('T');
 
         self::assertNull($template);
     }
