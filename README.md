@@ -35,7 +35,7 @@ $type = types::unsealedShape([
     'c' => types::callable(
         parameters: [
             types::classConstant(PDO::class, '*'),
-            types::defaultParam(types::classTemplate('TSend', Generator::class)),
+            types::defaultParam(types::classTemplate(Generator::class, 'TSend')),
             types::variadicParam(types::scalar),
         ],
         returnType: types::void,
