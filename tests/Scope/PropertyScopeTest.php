@@ -28,7 +28,7 @@ final class PropertyScopeTest extends TestCase
 
         $template = $scope->tryResolveTemplate('T1');
 
-        self::assertEquals(types::classTemplate('T1', self::class), $template);
+        self::assertEquals(types::classTemplate(self::class, 'T1'), $template);
     }
 
     public function testItDoesNotResolveClassTemplateIfNonStatic(): void

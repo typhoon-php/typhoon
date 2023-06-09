@@ -36,7 +36,11 @@ final class MethodScope implements Scope
     public function tryResolveTemplate(string $name): null|FunctionTemplateType|ClassTemplateType|MethodTemplateType
     {
         if (\in_array($name, $this->templateNames, true)) {
-            return types::methodTemplate($name, $this->classScope->resolveClass(new Name(self::SELF)), $this->name);
+            return types::methodTemplate(
+                class: $this->classScope->resolveClass(new Name(self::SELF)),
+                method: $this->name,
+                name: $name,
+            );
         }
 
         if ($this->static) {

@@ -50,7 +50,7 @@ final class ClassLikeScope implements Scope
     public function tryResolveTemplate(string $name): null|FunctionTemplateType|ClassTemplateType|MethodTemplateType
     {
         if (\in_array($name, $this->templateNames, true)) {
-            return types::classTemplate($name, $this->name);
+            return types::classTemplate($this->name, $name);
         }
 
         return null;

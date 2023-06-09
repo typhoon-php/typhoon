@@ -68,7 +68,7 @@ final class ClassLikeScopeTest extends TestCase
 
         $type = $scope->tryResolveTemplate('T1');
 
-        self::assertEquals(types::classTemplate('T1', self::class), $type);
+        self::assertEquals(types::classTemplate(self::class, 'T1'), $type);
     }
 
     public function testItResolvesTemplateAsNullIfTemplateDoesNotExist(): void

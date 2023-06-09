@@ -35,7 +35,7 @@ final class MethodScopeTest extends TestCase
 
         $template = $scope->tryResolveTemplate('T1');
 
-        self::assertEquals(types::methodTemplate('T1', self::class, 'method'), $template);
+        self::assertEquals(types::methodTemplate(self::class, 'method', 'T1'), $template);
     }
 
     public function testItResolvesClassTemplateIfNonStatic(): void
@@ -47,7 +47,7 @@ final class MethodScopeTest extends TestCase
 
         $template = $scope->tryResolveTemplate('T1');
 
-        self::assertEquals(types::classTemplate('T1', self::class), $template);
+        self::assertEquals(types::classTemplate(self::class, 'T1'), $template);
     }
 
     public function testItDoesNotResolveClassTemplateIfNonStatic(): void

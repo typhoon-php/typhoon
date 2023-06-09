@@ -135,7 +135,7 @@ final class TypeParserTest extends TestCase
         yield ['\\Iterator<int, string>', types::object(\Iterator::class, types::int, types::string)];
         yield ['static<int, string>', types::static(X::class, types::int, types::string)];
         yield ['X::C', types::classConstant(X::class, 'C')];
-        yield ['T1', types::classTemplate('T1', X::class)];
+        yield ['T1', types::classTemplate(X::class, 'T1')];
         yield ['callable(bool, int=, string...): void', types::callable([types::bool, types::defaultParam(types::int), types::variadicParam(types::string)], types::void)];
         yield ['\\Closure(bool, int=, string...): void', types::closure([types::bool, types::defaultParam(types::int), types::variadicParam(types::string)], types::void)];
     }
