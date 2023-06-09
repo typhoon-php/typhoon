@@ -16,6 +16,16 @@ use ExtendedTypeSystem\TypeVisitor;
 final class StaticType implements Type
 {
     /**
+     * @var class-string<TObject>
+     */
+    public readonly string $declaringClass;
+
+    /**
+     * @var list<Type>
+     */
+    public readonly array $templateArguments;
+
+    /**
      * @internal
      * @psalm-internal ExtendedTypeSystem
      * @no-named-arguments
@@ -23,9 +33,11 @@ final class StaticType implements Type
      * @param list<Type> $templateArguments
      */
     public function __construct(
-        public readonly string $declaringClass,
-        public readonly array $templateArguments = [],
+        string $declaringClass,
+        array $templateArguments = [],
     ) {
+        $this->templateArguments = $templateArguments;
+        $this->declaringClass = $declaringClass;
     }
 
     public function accept(TypeVisitor $visitor): mixed

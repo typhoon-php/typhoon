@@ -15,14 +15,19 @@ use ExtendedTypeSystem\TypeVisitor;
  */
 final class IntRangeType implements Type
 {
+    public readonly ?int $min;
+    public readonly ?int $max;
+
     /**
      * @internal
      * @psalm-internal ExtendedTypeSystem
      */
     public function __construct(
-        public readonly ?int $min = null,
-        public readonly ?int $max = null,
+        ?int $min = null,
+        ?int $max = null,
     ) {
+        $this->max = $max;
+        $this->min = $min;
     }
 
     public function accept(TypeVisitor $visitor): mixed

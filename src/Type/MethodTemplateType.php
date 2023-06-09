@@ -16,6 +16,21 @@ use ExtendedTypeSystem\TypeVisitor;
 final class MethodTemplateType implements Type
 {
     /**
+     * @var class-string
+     */
+    public readonly string $class;
+
+    /**
+     * @var non-empty-string
+     */
+    public readonly string $method;
+
+    /**
+     * @var non-empty-string
+     */
+    public readonly string $name;
+
+    /**
      * @internal
      * @psalm-internal ExtendedTypeSystem
      * @param class-string $class
@@ -23,10 +38,13 @@ final class MethodTemplateType implements Type
      * @param non-empty-string $name
      */
     public function __construct(
-        public readonly string $class,
-        public readonly string $method,
-        public readonly string $name,
+        string $class,
+        string $method,
+        string $name,
     ) {
+        $this->name = $name;
+        $this->method = $method;
+        $this->class = $class;
     }
 
     public function accept(TypeVisitor $visitor): mixed

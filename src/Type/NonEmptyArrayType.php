@@ -17,15 +17,27 @@ use ExtendedTypeSystem\TypeVisitor;
 final class NonEmptyArrayType implements Type
 {
     /**
+     * @var Type<TKey>
+     */
+    public readonly Type $keyType;
+
+    /**
+     * @var Type<TValue>
+     */
+    public readonly Type $valueType;
+
+    /**
      * @internal
      * @psalm-internal ExtendedTypeSystem
-     * @param Type<TKey>   $keyType
+     * @param Type<TKey> $keyType
      * @param Type<TValue> $valueType
      */
     public function __construct(
-        public readonly Type $keyType = ArrayKeyType::type,
-        public readonly Type $valueType = MixedType::type,
+        Type $keyType = ArrayKeyType::type,
+        Type $valueType = MixedType::type,
     ) {
+        $this->valueType = $valueType;
+        $this->keyType = $keyType;
     }
 
     public function accept(TypeVisitor $visitor): mixed

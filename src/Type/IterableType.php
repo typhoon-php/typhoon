@@ -17,15 +17,27 @@ use ExtendedTypeSystem\TypeVisitor;
 final class IterableType implements Type
 {
     /**
+     * @var Type<TKey>
+     */
+    public readonly Type $keyType;
+
+    /**
+     * @var Type<TValue>
+     */
+    public readonly Type $valueType;
+
+    /**
      * @internal
      * @psalm-internal ExtendedTypeSystem
-     * @param Type<TKey>   $keyType
+     * @param Type<TKey> $keyType
      * @param Type<TValue> $valueType
      */
     public function __construct(
-        public readonly Type $keyType = MixedType::type,
-        public readonly Type $valueType = MixedType::type,
+        Type $keyType = MixedType::type,
+        Type $valueType = MixedType::type,
     ) {
+        $this->valueType = $valueType;
+        $this->keyType = $keyType;
     }
 
     public function accept(TypeVisitor $visitor): mixed

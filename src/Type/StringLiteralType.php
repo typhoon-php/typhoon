@@ -16,13 +16,19 @@ use ExtendedTypeSystem\TypeVisitor;
 final class StringLiteralType implements Type
 {
     /**
+     * @var TValue
+     */
+    public readonly string $value;
+
+    /**
      * @internal
      * @psalm-internal ExtendedTypeSystem
      * @param TValue $value
      */
     public function __construct(
-        public readonly string $value,
+        string $value,
     ) {
+        $this->value = $value;
     }
 
     public function accept(TypeVisitor $visitor): mixed

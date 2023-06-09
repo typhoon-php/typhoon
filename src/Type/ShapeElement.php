@@ -14,13 +14,21 @@ use ExtendedTypeSystem\Type;
 final class ShapeElement
 {
     /**
+     * @var Type<TType>
+     */
+    public readonly Type $type;
+    public readonly bool $optional;
+
+    /**
      * @internal
      * @psalm-internal ExtendedTypeSystem
      * @param Type<TType> $type
      */
     public function __construct(
-        public readonly Type $type,
-        public readonly bool $optional = false,
+        Type $type,
+        bool $optional = false,
     ) {
+        $this->optional = $optional;
+        $this->type = $type;
     }
 }

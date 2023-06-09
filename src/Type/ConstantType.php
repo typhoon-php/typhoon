@@ -16,13 +16,19 @@ use ExtendedTypeSystem\TypeVisitor;
 final class ConstantType implements Type
 {
     /**
+     * @var non-empty-string
+     */
+    public readonly string $constant;
+
+    /**
      * @internal
      * @psalm-internal ExtendedTypeSystem
      * @param non-empty-string $constant
      */
     public function __construct(
-        public readonly string $constant,
+        string $constant,
     ) {
+        $this->constant = $constant;
     }
 
     public function accept(TypeVisitor $visitor): mixed

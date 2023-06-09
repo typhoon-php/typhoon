@@ -15,13 +15,16 @@ use ExtendedTypeSystem\TypeVisitor;
  */
 final class KeyOfType implements Type
 {
+    public readonly Type $type;
+
     /**
      * @internal
      * @psalm-internal ExtendedTypeSystem
      */
     public function __construct(
-        public readonly Type $type,
+        Type $type,
     ) {
+        $this->type = $type;
     }
 
     public function accept(TypeVisitor $visitor): mixed

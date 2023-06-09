@@ -16,13 +16,19 @@ use ExtendedTypeSystem\TypeVisitor;
 final class NamedClassStringType implements Type
 {
     /**
+     * @var Type<TObject>
+     */
+    public readonly Type $type;
+
+    /**
      * @internal
      * @psalm-internal ExtendedTypeSystem
      * @param Type<TObject> $type
      */
     public function __construct(
-        public readonly Type $type,
+        Type $type,
     ) {
+        $this->type = $type;
     }
 
     public function accept(TypeVisitor $visitor): mixed

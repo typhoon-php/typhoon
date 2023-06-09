@@ -16,13 +16,19 @@ use ExtendedTypeSystem\TypeVisitor;
 final class IntLiteralType implements Type
 {
     /**
+     * @var TValue
+     */
+    public readonly int $value;
+
+    /**
      * @internal
      * @psalm-internal ExtendedTypeSystem
      * @param TValue $value
      */
     public function __construct(
-        public readonly int $value,
+        int $value,
     ) {
+        $this->value = $value;
     }
 
     public function accept(TypeVisitor $visitor): mixed

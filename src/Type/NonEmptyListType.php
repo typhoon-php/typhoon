@@ -16,13 +16,19 @@ use ExtendedTypeSystem\TypeVisitor;
 final class NonEmptyListType implements Type
 {
     /**
+     * @var Type<TValue>
+     */
+    public readonly Type $valueType;
+
+    /**
      * @internal
      * @psalm-internal ExtendedTypeSystem
      * @param Type<TValue> $valueType
      */
     public function __construct(
-        public readonly Type $valueType = MixedType::type,
+        Type $valueType = MixedType::type,
     ) {
+        $this->valueType = $valueType;
     }
 
     public function accept(TypeVisitor $visitor): mixed

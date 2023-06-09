@@ -16,15 +16,27 @@ use ExtendedTypeSystem\TypeVisitor;
 final class ClosureType implements Type
 {
     /**
+     * @var list<Parameter>
+     */
+    public readonly array $parameters;
+
+    /**
+     * @var ?Type<TReturn>
+     */
+    public readonly ?Type $returnType;
+
+    /**
      * @internal
      * @psalm-internal ExtendedTypeSystem
      * @param list<Parameter> $parameters
      * @param ?Type<TReturn> $returnType
      */
     public function __construct(
-        public readonly array $parameters = [],
-        public readonly ?Type $returnType = null,
+        array $parameters = [],
+        ?Type $returnType = null,
     ) {
+        $this->returnType = $returnType;
+        $this->parameters = $parameters;
     }
 
     public function accept(TypeVisitor $visitor): mixed

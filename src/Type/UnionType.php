@@ -16,15 +16,22 @@ use ExtendedTypeSystem\TypeVisitor;
 final class UnionType implements Type
 {
     /**
+     * @var non-empty-list<Type<TType>>
+     */
+    public readonly array $types;
+
+    /**
      * @internal
      * @psalm-internal ExtendedTypeSystem
      * @no-named-arguments
      * @param non-empty-list<Type<TType>> $types
      */
     public function __construct(
-        public readonly array $types,
+        array $types,
     ) {
         \assert(\count($types) >= 2, 'Union type must contain at least 2 types.');
+
+        $this->types = $types;
     }
 
     public function accept(TypeVisitor $visitor): mixed

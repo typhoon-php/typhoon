@@ -16,6 +16,16 @@ use ExtendedTypeSystem\TypeVisitor;
 final class NamedObjectType implements Type
 {
     /**
+     * @var class-string<TObject>
+     */
+    public readonly string $class;
+
+    /**
+     * @var list<Type>
+     */
+    public readonly array $templateArguments;
+
+    /**
      * @internal
      * @psalm-internal ExtendedTypeSystem
      * @no-named-arguments
@@ -23,9 +33,11 @@ final class NamedObjectType implements Type
      * @param list<Type> $templateArguments
      */
     public function __construct(
-        public readonly string $class,
-        public readonly array $templateArguments = [],
+        string $class,
+        array $templateArguments = [],
     ) {
+        $this->templateArguments = $templateArguments;
+        $this->class = $class;
     }
 
     public function accept(TypeVisitor $visitor): mixed

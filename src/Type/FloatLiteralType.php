@@ -16,13 +16,19 @@ use ExtendedTypeSystem\TypeVisitor;
 final class FloatLiteralType implements Type
 {
     /**
+     * @var TValue
+     */
+    public readonly float $value;
+
+    /**
      * @internal
      * @psalm-internal ExtendedTypeSystem
      * @param TValue $value
      */
     public function __construct(
-        public readonly float $value,
+        float $value,
     ) {
+        $this->value = $value;
     }
 
     public function accept(TypeVisitor $visitor): mixed

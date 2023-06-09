@@ -16,14 +16,22 @@ use ExtendedTypeSystem\TypeVisitor;
 final class ShapeType implements Type
 {
     /**
+     * @var array<ShapeElement>
+     */
+    public readonly array $elements;
+    public readonly bool $sealed;
+
+    /**
      * @internal
      * @psalm-internal ExtendedTypeSystem
      * @param array<ShapeElement> $elements
      */
     public function __construct(
-        public readonly array $elements = [],
-        public readonly bool $sealed = true,
+        array $elements = [],
+        bool $sealed = true,
     ) {
+        $this->sealed = $sealed;
+        $this->elements = $elements;
     }
 
     public function accept(TypeVisitor $visitor): mixed
