@@ -1,0 +1,373 @@
+<?php
+
+declare(strict_types=1);
+
+namespace ExtendedTypeSystem\Reflection\Reflector;
+
+use ExtendedTypeSystem\Reflection\NameContext;
+use ExtendedTypeSystem\Reflection\Reflector;
+use ExtendedTypeSystem\Reflection\TypeReflectionException;
+use ExtendedTypeSystem\Type;
+use ExtendedTypeSystem\Type\ShapeType;
+use ExtendedTypeSystem\types;
+use PHPStan\PhpDocParser\Ast\ConstExpr\ConstExprFalseNode;
+use PHPStan\PhpDocParser\Ast\ConstExpr\ConstExprFloatNode;
+use PHPStan\PhpDocParser\Ast\ConstExpr\ConstExprIntegerNode;
+use PHPStan\PhpDocParser\Ast\ConstExpr\ConstExprNullNode;
+use PHPStan\PhpDocParser\Ast\ConstExpr\ConstExprStringNode;
+use PHPStan\PhpDocParser\Ast\ConstExpr\ConstExprTrueNode;
+use PHPStan\PhpDocParser\Ast\ConstExpr\ConstFetchNode;
+use PHPStan\PhpDocParser\Ast\Type\ArrayShapeNode;
+use PHPStan\PhpDocParser\Ast\Type\ArrayTypeNode;
+use PHPStan\PhpDocParser\Ast\Type\CallableTypeNode;
+use PHPStan\PhpDocParser\Ast\Type\CallableTypeParameterNode;
+use PHPStan\PhpDocParser\Ast\Type\ConstTypeNode;
+use PHPStan\PhpDocParser\Ast\Type\GenericTypeNode;
+use PHPStan\PhpDocParser\Ast\Type\IdentifierTypeNode;
+use PHPStan\PhpDocParser\Ast\Type\IntersectionTypeNode;
+use PHPStan\PhpDocParser\Ast\Type\NullableTypeNode;
+use PHPStan\PhpDocParser\Ast\Type\TypeNode;
+use PHPStan\PhpDocParser\Ast\Type\UnionTypeNode;
+
+final class ContextualPhpDocTypeReflector
+{
+    public function __construct(
+        private readonly NameContext $nameContext,
+        private readonly Reflector $reflector,
+    ) {
+    }
+
+    /**
+     * @return ($node is null ? null : Type)
+     */
+    public function reflectType(?TypeNode $node): ?Type
+    {
+        if ($node === null) {
+            return null;
+        }
+
+        if ($node instanceof NullableTypeNode) {
+            return types::nullable($this->reflectType($node->type));
+        }
+
+        if ($node instanceof UnionTypeNode) {
+            return types::union(...array_map($this->reflectType(...), $node->types));
+        }
+
+        if ($node instanceof IntersectionTypeNode) {
+            return types::intersection(...array_map($this->reflectType(...), $node->types));
+        }
+
+        if ($node instanceof ArrayTypeNode) {
+            return types::array(valueType: $this->reflectType($node->type));
+        }
+
+        if ($node instanceof ArrayShapeNode) {
+            return $this->reflectArrayShape($node);
+        }
+
+        if ($node instanceof ConstTypeNode) {
+            return $this->reflectConstExpr($node);
+        }
+
+        if ($node instanceof CallableTypeNode) {
+            return $this->reflectCallable($node);
+        }
+
+        if ($node instanceof IdentifierTypeNode) {
+            return $this->reflectIdentifier($node->name);
+        }
+
+        if ($node instanceof GenericTypeNode) {
+            return $this->reflectIdentifier($node->type->name, $node->genericTypes);
+        }
+
+        throw new \LogicException();
+    }
+
+    /**
+     * @param list<TypeNode> $genericTypes
+     */
+    private function reflectIdentifier(string $name, array $genericTypes = []): Type
+    {
+        if ($name === 'int') {
+            return $this->reflectInt($genericTypes);
+        }
+
+        if ($name === 'list') {
+            return $this->reflectList($genericTypes);
+        }
+
+        if ($name === 'non-empty-list') {
+            return $this->reflectNonEmptyList($genericTypes);
+        }
+
+        if ($name === 'array') {
+            return $this->reflectArray($genericTypes);
+        }
+
+        if ($name === 'non-empty-array') {
+            return $this->reflectNonEmptyArray($genericTypes);
+        }
+
+        if ($name === 'iterable') {
+            return $this->reflectIterable($genericTypes);
+        }
+
+        return match ($name) {
+            'null' => types::null,
+            'true' => types::true,
+            'false' => types::false,
+            'bool' => types::bool,
+            'float' => types::float,
+            'positive-int' => types::positiveInt(),
+            'negative-int' => types::negativeInt(),
+            'non-negative-int' => types::nonNegativeInt(),
+            'non-positive-int' => types::nonPositiveInt(),
+            'numeric' => types::numeric,
+            'string' => types::string,
+            'non-empty-string' => types::nonEmptyString,
+            'numeric-string' => types::numericString,
+            'array-key' => types::arrayKey,
+            'literal-int' => types::literalInt,
+            'literal-string' => types::literalString,
+            'class-string' => types::classString,
+            'callable-string' => types::callableString,
+            'interface-string' => types::interfaceString,
+            'enum-string' => types::enumString,
+            'trait-string' => types::traitString,
+            'callable-array' => types::callableArray,
+            'resource' => types::resource,
+            'closed-resource' => types::closedResource,
+            'object' => types::object,
+            'callable' => types::callable(),
+            'mixed' => types::mixed,
+            'void' => types::void,
+            'scalar' => types::scalar,
+            'never' => types::never,
+            default => $this->reflectName($name, $genericTypes),
+        };
+    }
+
+    /**
+     * @param list<TypeNode> $genericTypes
+     */
+    private function reflectName(string $name, array $genericTypes): Type
+    {
+        $typeResolver = new TypeNameResolver($this->reflector, array_map($this->reflectType(...), $genericTypes));
+        $type = $this->nameContext->resolveName($name, $typeResolver);
+
+        if ($type instanceof Type\NamedObjectType && $type->class === \Closure::class) {
+            return types::closure();
+        }
+
+        return $type;
+    }
+
+    /**
+     * @param list<TypeNode> $templateArguments
+     */
+    private function reflectInt(array $templateArguments): Type
+    {
+        return match (\count($templateArguments)) {
+            0 => types::int,
+            2 => types::int(
+                min: $this->reflectIntLimit($templateArguments[0], 'min'),
+                max: $this->reflectIntLimit($templateArguments[1], 'max'),
+            ),
+            default => throw new \LogicException(),
+        };
+    }
+
+    private function reflectIntLimit(TypeNode $type, string $unlimitedName): ?int
+    {
+        if ($type instanceof IdentifierTypeNode && $type->name === $unlimitedName) {
+            return null;
+        }
+
+        $type = $this->reflectType($type);
+
+        if ($type instanceof Type\IntLiteralType) {
+            return $type->value;
+        }
+
+        // todo use stringifier
+        throw new TypeReflectionException(sprintf('%s cannot be used as int range limit.', $type::class));
+    }
+
+    /**
+     * @param list<TypeNode> $templateArguments
+     */
+    private function reflectList(array $templateArguments): Type
+    {
+        return match (\count($templateArguments)) {
+            0 => types::list(),
+            1 => types::list($this->reflectType($templateArguments[0])),
+            default => throw new \LogicException(),
+        };
+    }
+
+    /**
+     * @param list<TypeNode> $templateArguments
+     */
+    private function reflectNonEmptyList(array $templateArguments): Type
+    {
+        return match (\count($templateArguments)) {
+            0 => types::nonEmptyList(),
+            1 => types::nonEmptyList($this->reflectType($templateArguments[0])),
+            default => throw new \LogicException(),
+        };
+    }
+
+    /**
+     * @param list<TypeNode> $templateArguments
+     */
+    private function reflectArray(array $templateArguments): Type
+    {
+        /**
+         * @psalm-suppress MixedArgumentTypeCoercion
+         * @todo check array-key
+         */
+        return match (\count($templateArguments)) {
+            0 => types::array(),
+            1 => types::array(valueType: $this->reflectType($templateArguments[0])),
+            2 => types::array(...array_map($this->reflectType(...), $templateArguments)),
+            default => throw new \LogicException(),
+        };
+    }
+
+    /**
+     * @param list<TypeNode> $templateArguments
+     */
+    private function reflectNonEmptyArray(array $templateArguments): Type
+    {
+        /**
+         * @psalm-suppress MixedArgumentTypeCoercion
+         * @todo check array-key
+         */
+        return match (\count($templateArguments)) {
+            0 => types::nonEmptyArray(),
+            1 => types::nonEmptyArray(valueType: $this->reflectType($templateArguments[0])),
+            2 => types::nonEmptyArray(...array_map($this->reflectType(...), $templateArguments)),
+            default => throw new \LogicException(),
+        };
+    }
+
+    /**
+     * @param list<TypeNode> $templateArguments
+     */
+    private function reflectIterable(array $templateArguments): Type
+    {
+        return match (\count($templateArguments)) {
+            0 => types::iterable(),
+            1 => types::iterable(valueType: $this->reflectType($templateArguments[0])),
+            2 => types::iterable(...array_map($this->reflectType(...), $templateArguments)),
+            default => throw new \LogicException(),
+        };
+    }
+
+    private function reflectArrayShape(ArrayShapeNode $node): ShapeType
+    {
+        $elements = [];
+
+        foreach ($node->items as $item) {
+            $type = types::element($this->reflectType($item->valueType), $item->optional);
+
+            if ($item->keyName === null) {
+                $elements[] = $type;
+
+                continue;
+            }
+
+            $keyName = $item->keyName;
+
+            $key = match ($keyName::class) {
+                ConstExprIntegerNode::class => $keyName->value,
+                ConstExprStringNode::class => $keyName->value,
+                IdentifierTypeNode::class => $keyName->name,
+                default => throw new TypeReflectionException(sprintf('%s is not supported.', $keyName::class)),
+            };
+
+            $elements[$key] = $type;
+        }
+
+        return types::shape($elements, $node->sealed);
+    }
+
+    private function reflectConstExpr(ConstTypeNode $typeNode): Type
+    {
+        $exprNode = $typeNode->constExpr;
+
+        if ($exprNode instanceof ConstExprIntegerNode) {
+            return types::intLiteral((int) $exprNode->value);
+        }
+
+        if ($exprNode instanceof ConstExprFloatNode) {
+            return types::floatLiteral((float) $exprNode->value);
+        }
+
+        if ($exprNode instanceof ConstExprStringNode) {
+            return types::stringLiteral($exprNode->value);
+        }
+
+        if ($exprNode instanceof ConstExprTrueNode) {
+            return types::true;
+        }
+
+        if ($exprNode instanceof ConstExprFalseNode) {
+            return types::false;
+        }
+
+        if ($exprNode instanceof ConstExprNullNode) {
+            return types::null;
+        }
+
+        if ($exprNode instanceof ConstFetchNode) {
+            if ($exprNode->className === '') {
+                return types::constant($exprNode->name);
+            }
+
+            /** @var class-string */
+            $class = $this->nameContext->resolveNameAsClass($exprNode->name);
+
+            return types::classConstant($class, $exprNode->name);
+        }
+
+        throw new \LogicException();
+    }
+
+    private function reflectCallable(CallableTypeNode $node): Type
+    {
+        if ($node->identifier->name === 'callable') {
+            return types::callable(
+                parameters: $this->reflectCallableParameters($node->parameters),
+                returnType: $this->reflectType($node->returnType),
+            );
+        }
+
+        if ($this->nameContext->resolveNameAsClass($node->identifier->name) === \Closure::class) {
+            return types::closure(
+                parameters: $this->reflectCallableParameters($node->parameters),
+                returnType: $this->reflectType($node->returnType),
+            );
+        }
+
+        throw new \LogicException();
+    }
+
+    /**
+     * @param list<CallableTypeParameterNode> $nodes
+     * @return list<Type\Parameter>
+     */
+    private function reflectCallableParameters(array $nodes): array
+    {
+        return array_map(
+            fn (CallableTypeParameterNode $parameter): Type\Parameter => types::param(
+                type: $this->reflectType($parameter->type),
+                hasDefault: $parameter->isOptional,
+                variadic: $parameter->isVariadic,
+            ),
+            $nodes,
+        );
+    }
+}

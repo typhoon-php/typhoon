@@ -4,90 +4,52 @@ declare(strict_types=1);
 
 namespace ExtendedTypeSystem\Reflection;
 
-use ExtendedTypeSystem\Type;
 use ExtendedTypeSystem\TypeVisitor;
 
-/**
- * @api
- * @psalm-immutable
- */
-final class MethodReflection
+final class MethodReflection extends Reflection
 {
     /**
-     * @param class-string $reflectedClass
      * @param non-empty-string $name
      * @param array<non-empty-string, TemplateReflection> $templates
-     * @param array<non-empty-string, TypeReflection> $parameterTypes
+     * @param array<non-empty-string, ParameterReflection> $parameters
      */
-    private function __construct(
-        public readonly string $reflectedClass,
+    public function __construct(
         public readonly string $name,
+        public readonly bool $static,
+        public readonly bool $final,
+        public readonly bool $abstract,
+        public readonly Visibility $visibility,
         public readonly array $templates,
-        public readonly array $parameterTypes,
+        public readonly array $parameters,
         public readonly TypeReflection $returnType,
     ) {
     }
 
-    /**
-     * @param class-string $reflectedClass
-     * @param non-empty-string $name
-     * @param array<TemplateReflection> $templates
-     * @param array<non-empty-string, TypeReflection> $parameterTypes
-     */
-    public static function create(
-        string $reflectedClass,
-        string $name,
-        array $templates = [],
-        array $parameterTypes = [],
-        TypeReflection $returnType = new TypeReflection(),
-    ): self {
-        return new self(
-            reflectedClass: $reflectedClass,
-            name: $name,
-            templates: array_column($templates, null, 'name'),
-            parameterTypes: $parameterTypes,
-            returnType: $returnType,
+    protected function withResolvedTypes(TypeVisitor $typeResolver): static
+    {
+        $data = get_object_vars($this);
+        $data['parameters'] = array_map(
+            static fn (ParameterReflection $parameter): ParameterReflection => $parameter->withResolvedTypes($typeResolver),
+            $this->parameters,
         );
+        $data['returnType'] = $this->returnType->withResolvedTypes($typeResolver);
+
+        return new self(...$data);
     }
 
-    public function template(string $name): TemplateReflection
+    protected function toChildOf(Reflection $parent): static
     {
-        return $this->templates[$name] ?? throw new TypeReflectionException(
-            sprintf(
-                'Method %s::%s() does not have template %s.',
-                $this->reflectedClass,
-                $this->name,
-                $name,
-            ),
-        );
-    }
+        $data = get_object_vars($this);
 
-    public function parameterType(string $name): TypeReflection
-    {
-        return $this->parameterTypes[$name] ?? throw new TypeReflectionException(
-            sprintf(
-                'Method %s::%s() does not have parameter $%s.',
-                $this->reflectedClass,
-                $this->name,
-                $name,
-            ),
+        $parentParametersByPosition = array_values($parent->parameters);
+        $data['parameters'] = array_map(
+            static fn (ParameterReflection $parameter): ParameterReflection => isset($parentParametersByPosition[$parameter->position])
+                ? $parameter->toChildOf($parentParametersByPosition[$parameter->position])
+                : $parameter,
+            $this->parameters,
         );
-    }
+        $data['returnType'] = $this->returnType->toChildOf($parent->returnType);
 
-    /**
-     * @param TypeVisitor<Type> $typeResolver
-     */
-    public function withResolvedTypes(TypeVisitor $typeResolver): self
-    {
-        return new self(
-            reflectedClass: $this->reflectedClass,
-            name: $this->name,
-            templates: $this->templates,
-            parameterTypes: array_map(
-                static fn (TypeReflection $type): TypeReflection => $type->withResolvedTypes($typeResolver),
-                $this->parameterTypes,
-            ),
-            returnType: $this->returnType->withResolvedTypes($typeResolver),
-        );
+        return new self(...$data);
     }
 }

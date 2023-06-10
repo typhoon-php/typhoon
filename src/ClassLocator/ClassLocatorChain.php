@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace ExtendedTypeSystem\Reflection\ClassLocator;
 
 use ExtendedTypeSystem\Reflection\ClassLocator;
-use ExtendedTypeSystem\Reflection\Source;
 
 /**
  * @api
@@ -20,13 +19,13 @@ final class ClassLocatorChain implements ClassLocator
     ) {
     }
 
-    public function locateClass(string $class): ?Source
+    public function locateClass(string $name): ?string
     {
-        foreach ($this->classLocators as $classLocator) {
-            $source = $classLocator->locateClass($class);
+        foreach ($this->classLocators as $locator) {
+            $file = $locator->locateClass($name);
 
-            if ($source !== null) {
-                return $source;
+            if ($file !== null) {
+                return $file;
             }
         }
 

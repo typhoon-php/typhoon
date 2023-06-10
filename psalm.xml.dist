@@ -37,6 +37,7 @@
     <ignoreExceptions>
         <classAndDescendants name="LogicException"/>
         <classAndDescendants name="RuntimeException"/>
+        <classAndDescendants name="Psr\SimpleCache\CacheException"/>
     </ignoreExceptions>
 
     <issueHandlers>
@@ -65,7 +66,6 @@
         <function name="print"/>
         <function name="sleep"/>
         <function name="usleep"/>
-        <function name="var_export"/>
     </forbiddenFunctions>
 
     <stubs>

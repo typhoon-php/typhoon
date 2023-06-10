@@ -4,13 +4,11 @@ declare(strict_types=1);
 
 namespace ExtendedTypeSystem\Reflection;
 
-/**
- * @api
- */
 interface ClassLocator
 {
     /**
-     * @param class-string $class
+     * @param non-empty-string $name
+     * @return non-empty-string
      */
-    public function locateClass(string $class): ?Source;
+    public function locateClass(string $name): ?string;
 }

@@ -8,34 +8,44 @@ use ExtendedTypeSystem\Type;
 use ExtendedTypeSystem\types;
 use ExtendedTypeSystem\TypeVisitor;
 
-/**
- * @api
- * @psalm-immutable
- */
-final class TypeReflection
+final class TypeReflection extends Reflection
 {
     public function __construct(
-        public readonly Type $resolved = types::mixed,
-        public readonly ?Type $native = null,
-        public readonly ?Type $phpDoc = null,
+        public readonly ?Type $native,
+        public readonly ?Type $phpDoc,
     ) {
     }
 
-    /**
-     * @param TypeVisitor<Type> $typeResolver
-     */
-    public function withResolvedTypes(TypeVisitor $typeResolver): self
+    public function resolve(): Type
     {
-        $resolved = $this->resolved->accept($typeResolver);
+        return $this->phpDoc ?? $this->native ?? types::mixed;
+    }
 
-        if ($resolved === $this->resolved) {
+    protected function withResolvedTypes(TypeVisitor $typeResolver): static
+    {
+        return new self(
+            native: $this->native?->accept($typeResolver),
+            phpDoc: $this->phpDoc?->accept($typeResolver),
+        );
+    }
+
+    protected function toChildOf(Reflection $parent): static
+    {
+        if ($this->phpDoc !== null) {
+            return $this;
+        }
+
+        if ($parent->phpDoc === null) {
+            return $this;
+        }
+
+        if ($parent->native !== $this->native) {
             return $this;
         }
 
         return new self(
-            resolved: $resolved,
             native: $this->native,
-            phpDoc: $this->phpDoc,
+            phpDoc: $parent->phpDoc,
         );
     }
 }
