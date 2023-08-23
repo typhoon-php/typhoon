@@ -2,143 +2,99 @@
 
 declare(strict_types=1);
 
-namespace ExtendedTypeSystem\Reflection;
+namespace Typhoon\Reflection;
 
-use ExtendedTypeSystem\Reflection\ChangeDetector\FileChangeDetector;
-use ExtendedTypeSystem\Reflection\ChangeDetector\PhpVersionChangeDetector;
-use ExtendedTypeSystem\Reflection\ClassLocator\ClassLocatorChain;
-use ExtendedTypeSystem\Reflection\Reflector\NativeReflector;
-use ExtendedTypeSystem\Reflection\Reflector\PhpParserReflector;
-use ExtendedTypeSystem\Reflection\Reflector\ReflectionCache;
-use ExtendedTypeSystem\Reflection\Reflector\Reflections;
+use Typhoon\Reflection\ClassLocator\ClassLocatorChain;
+use Typhoon\Reflection\ClassLocator\ComposerClassLocator;
+use Typhoon\Reflection\ClassLocator\PhpStormStubsClassLocator;
+use Typhoon\Reflection\PhpDocParser\PhpDocParser;
+use Typhoon\Reflection\Reflector\FileReflectionCache;
+use Typhoon\Reflection\Reflector\NativeReflectionReflector;
+use Typhoon\Reflection\Reflector\NullReflectionCache;
+use Typhoon\Reflection\Reflector\PhpParserReflector;
+use Typhoon\Reflection\Reflector\ReflectionCache;
+use Typhoon\Reflection\Reflector\ReflectionContext;
+use Typhoon\Reflection\TagPrioritizer\PHPStanOverPsalmOverOthersTagPrioritizer;
 
+/**
+ * @api
+ */
 final class Reflector
 {
-    private readonly Reflections $reflections;
+    private function __construct(
+        private readonly ClassLocator $classLocator,
+        private readonly ReflectionCache $cache,
+        private readonly PhpParserReflector $phpParserReflector,
+        private readonly NativeReflectionReflector $nativeReflectionReflector,
+    ) {}
 
-    private readonly \ReflectionMethod $classReflectionLoad;
-
-    public function __construct(
-        private readonly ClassLocator $classLocator = new ClassLocatorChain([
-            new ClassLocator\ComposerClassLocator(),
-            new ClassLocator\PhpStormStubsClassLocator(),
-        ]),
-        private readonly ReflectionCache $cache = new ReflectionCache(),
-        private readonly NativeReflector $nativeReflector = new NativeReflector(),
-        private readonly PhpParserReflector $phpParserReflector = new PhpParserReflector(),
-    ) {
-        $this->reflections = new Reflections();
-        $this->classReflectionLoad = new \ReflectionMethod(ClassReflection::class, 'load');
+    public static function build(
+        bool $cache = true,
+        ?string $cacheDirectory = null,
+        bool $detectChanges = true,
+        ?ClassLocator $classLocator = null,
+        TagPrioritizer $tagPrioritizer = new PHPStanOverPsalmOverOthersTagPrioritizer(),
+    ): self {
+        return new self(
+            classLocator: $classLocator ?? self::defaultClassLocator(),
+            cache: $cache ? new FileReflectionCache($cacheDirectory, $detectChanges) : new NullReflectionCache(),
+            phpParserReflector: new PhpParserReflector(
+                phpDocParser: new PhpDocParser(
+                    tagPrioritizer: $tagPrioritizer,
+                ),
+            ),
+            nativeReflectionReflector: new NativeReflectionReflector(),
+        );
     }
 
-    /**
-     * @param non-empty-string $file
-     */
-    public function parseFile(string $file): void
+    private static function defaultClassLocator(): ClassLocator
     {
-        if ($this->cache->hasFile($file)) {
-            return;
+        $classLocators = [];
+
+        if (ComposerClassLocator::isSupported()) {
+            $classLocators[] = new ComposerClassLocator();
         }
 
-        $code = file_get_contents($file);
-
-        if ($code === false) {
-            throw new \RuntimeException();
+        if (PhpStormStubsClassLocator::isSupported()) {
+            $classLocators[] = new PhpStormStubsClassLocator();
         }
 
-        $changeDetector = FileChangeDetector::fromContents($file, $code);
-        $reflections = $this->phpParserReflector->parseCode($code, $this);
-        $this->reflections->addFrom($reflections);
-        $this->cache->setFileReflections($file, $reflections, $changeDetector);
+        return new ClassLocatorChain($classLocators);
     }
 
-    /**
-     * @param non-empty-string $name
-     * @psalm-assert-if-true class-string $name
-     */
-    public function classExists(string $name): bool
+    public function reflectResource(Resource $resource): void
     {
-        return $this->reflections->has(ClassReflection::class, $name)
-            || $this->cache->hasReflection(ClassReflection::class, $name)
-            || $this->classLocator->locateClass($name) !== null
-            || class_exists($name) || interface_exists($name) || trait_exists($name);
+        $this->createContext()->reflectResource($resource);
     }
 
     /**
      * @template T of object
-     * @param non-empty-string|class-string<T> $name
+     * @param string|class-string<T> $name
      * @psalm-assert class-string $name
      * @return ClassReflection<T>
      */
     public function reflectClass(string $name): ClassReflection
     {
-        /** @var ClassReflection<T> */
-        $reflection = $this->doReflectClass($name);
-        $this->classReflectionLoad->invoke($reflection, $this);
+        if ($name === '') {
+            throw new \InvalidArgumentException('Class name must not be empty.');
+        }
 
-        return $reflection;
+        /** @var ClassReflection<T> */
+        return $this->createContext()->reflectClass($name);
     }
 
-    /**
-     * @template T of object
-     * @param non-empty-string|class-string<T> $name
-     * @psalm-assert class-string $name
-     * @return ClassReflection<T>
-     */
-    private function doReflectClass(string $name): ClassReflection
+    public function clearCache(): void
     {
-        if (str_starts_with($name, 'class@anonymous')) {
-            throw new \LogicException();
-        }
+        $this->cache->clear();
+    }
 
-        /** @var ?ClassReflection<T> */
-        $reflection = $this->reflections->get(ClassReflection::class, $name);
-
-        if ($reflection !== null) {
-            return $reflection;
-        }
-
-        /** @var ?ClassReflection<T> */
-        $cachedReflection = $this->cache->getReflection(ClassReflection::class, $name);
-
-        if ($cachedReflection !== null) {
-            $this->reflections->add($name, $cachedReflection);
-
-            return $cachedReflection;
-        }
-
-        $file = $this->classLocator->locateClass($name);
-
-        if ($file !== null) {
-            $this->parseFile($file);
-
-            /** @var ClassReflection<T> */
-            return $this->reflections->get(ClassReflection::class, $name) ?? throw new \LogicException();
-        }
-
-        try {
-            /** @psalm-suppress ArgumentTypeCoercion */
-            $reflectionClass = new \ReflectionClass($name);
-        } catch (\ReflectionException) {
-            throw new \LogicException();
-        }
-
-        $file = $reflectionClass->getFileName();
-
-        if ($file !== false) {
-            $this->parseFile($file);
-
-            /** @var ClassReflection<T> */
-            return $this->reflections->get(ClassReflection::class, $name) ?? throw new \LogicException();
-        }
-
-        $this->reflections->addLazy(ClassReflection::class, $name, fn (): ClassReflection => $this->nativeReflector->reflectClass($reflectionClass));
-        /** @var ClassReflection<T> */
-        $reflection = $this->reflections->get(ClassReflection::class, $name) ?? throw new \LogicException();
-
-        $changeDetector = new PhpVersionChangeDetector($reflectionClass->getExtensionName() ?: null);
-        $this->cache->setStandaloneReflection($name, $reflection, $changeDetector);
-
-        return $reflection;
+    private function createContext(): ReflectionContext
+    {
+        return new ReflectionContext(
+            classLocator: $this->classLocator,
+            cache: $this->cache,
+            phpParserReflector: $this->phpParserReflector,
+            nativeReflectionReflector: $this->nativeReflectionReflector,
+        );
     }
 }

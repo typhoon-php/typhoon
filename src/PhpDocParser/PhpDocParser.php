@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace ExtendedTypeSystem\Reflection\PhpDocParser;
+namespace Typhoon\Reflection\PhpDocParser;
 
 use PhpParser\Node;
 use PHPStan\PhpDocParser\Lexer\Lexer;
@@ -10,10 +10,12 @@ use PHPStan\PhpDocParser\Parser\ConstExprParser;
 use PHPStan\PhpDocParser\Parser\PhpDocParser as PHPStanPhpDocParser;
 use PHPStan\PhpDocParser\Parser\TokenIterator;
 use PHPStan\PhpDocParser\Parser\TypeParser;
+use Typhoon\Reflection\TagPrioritizer;
+use Typhoon\Reflection\TagPrioritizer\PHPStanOverPsalmOverOthersTagPrioritizer;
 
 /**
  * @internal
- * @psalm-internal ExtendedTypeSystem\Reflection
+ * @psalm-internal Typhoon\Reflection
  */
 final class PhpDocParser
 {
@@ -25,8 +27,7 @@ final class PhpDocParser
             requireWhitespaceBeforeDescription: true,
         ),
         private readonly Lexer $lexer = new Lexer(),
-    ) {
-    }
+    ) {}
 
     public function parsePhpDoc(string $phpDoc): PhpDoc
     {

@@ -2,9 +2,10 @@
 
 declare(strict_types=1);
 
-namespace ExtendedTypeSystem\Reflection\ChangeDetector;
+namespace Typhoon\Reflection\ChangeDetector;
 
-use ExtendedTypeSystem\Reflection\ChangeDetector;
+use Typhoon\Reflection\ChangeDetector;
+use function Typhoon\Reflection\Exceptionally\exceptionally;
 
 /**
  * @api
@@ -22,7 +23,8 @@ final class PhpVersionChangeDetector implements ChangeDetector
     public function __construct(
         private readonly ?string $extension = null,
     ) {
-        $this->version = phpversion($extension) ?: throw new \RuntimeException();
+        /** @var non-empty-string */
+        $this->version = exceptionally(static fn (): string|false => phpversion($extension));
     }
 
     public function changed(): bool

@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace ExtendedTypeSystem\Reflection;
+namespace Typhoon\Reflection;
 
 /**
  * @api

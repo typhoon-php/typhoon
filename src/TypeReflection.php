@@ -2,18 +2,31 @@
 
 declare(strict_types=1);
 
-namespace ExtendedTypeSystem\Reflection;
+namespace Typhoon\Reflection;
 
-use ExtendedTypeSystem\Type;
-use ExtendedTypeSystem\types;
-use ExtendedTypeSystem\TypeVisitor;
+use Typhoon\Type;
+use Typhoon\types;
+use Typhoon\TypeVisitor;
+use Typhoon\Reflection\Reflector\FriendlyReflection;
 
-final class TypeReflection extends Reflection
+/**
+ * @api
+ */
+final class TypeReflection extends FriendlyReflection
 {
     public function __construct(
-        public readonly ?Type $native,
-        public readonly ?Type $phpDoc,
-    ) {
+        private readonly ?Type $native,
+        private readonly ?Type $phpDoc,
+    ) {}
+
+    public function getNative(): ?Type
+    {
+        return $this->native;
+    }
+
+    public function getPhpDoc(): ?Type
+    {
+        return $this->phpDoc;
     }
 
     public function resolve(): Type
@@ -29,7 +42,7 @@ final class TypeReflection extends Reflection
         );
     }
 
-    protected function toChildOf(Reflection $parent): static
+    protected function toChildOf(FriendlyReflection $parent): static
     {
         if ($this->phpDoc !== null) {
             return $this;

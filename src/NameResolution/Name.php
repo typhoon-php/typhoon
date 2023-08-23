@@ -2,10 +2,11 @@
 
 declare(strict_types=1);
 
-namespace ExtendedTypeSystem\Reflection\NameResolution;
+namespace Typhoon\Reflection\NameResolution;
 
 /**
- * @api
+ * @internal
+ * @psalm-internal Typhoon\Reflection
  * @psalm-immutable
  * @psalm-inheritors UnqualifiedName|QualifiedName|RelativeName|FullyQualifiedName
  */

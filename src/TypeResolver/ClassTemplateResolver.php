@@ -2,14 +2,14 @@
 
 declare(strict_types=1);
 
-namespace ExtendedTypeSystem\Reflection\TypeResolver;
+namespace Typhoon\Reflection\TypeResolver;
 
-use ExtendedTypeSystem\Type;
-use ExtendedTypeSystem\TypeResolver;
+use Typhoon\Type;
+use Typhoon\TypeResolver;
 
 /**
  * @internal
- * @psalm-internal ExtendedTypeSystem\Reflection
+ * @psalm-internal Typhoon\Reflection
  * @psalm-immutable
  */
 final class ClassTemplateResolver extends TypeResolver
@@ -21,8 +21,7 @@ final class ClassTemplateResolver extends TypeResolver
     public function __construct(
         private readonly string $class,
         private readonly array $templateArguments,
-    ) {
-    }
+    ) {}
 
     public function visitClassTemplate(Type\ClassTemplateType $type): mixed
     {

@@ -2,13 +2,15 @@
 
 declare(strict_types=1);
 
-namespace ExtendedTypeSystem\Reflection;
+namespace Typhoon\Reflection;
 
+/**
+ * @api
+ */
 interface ClassLocator
 {
     /**
      * @param non-empty-string $name
-     * @return non-empty-string
      */
-    public function locateClass(string $name): ?string;
+    public function locateClass(string $name): ?Resource;
 }

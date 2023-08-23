@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace ExtendedTypeSystem\Reflection\PhpDocParser;
+namespace Typhoon\Reflection\PhpDocParser;
 
 use PHPStan\PhpDocParser\Ast\PhpDoc\TemplateTagValueNode;
 use PHPStan\PhpDocParser\Ast\Type\GenericTypeNode;
@@ -10,7 +10,7 @@ use PHPStan\PhpDocParser\Ast\Type\TypeNode;
 
 /**
  * @internal
- * @psalm-internal ExtendedTypeSystem\Reflection
+ * @psalm-internal Typhoon\Reflection
  * @psalm-immutable
  */
 final class PhpDoc
@@ -28,6 +28,5 @@ final class PhpDoc
         public readonly array $templates = [],
         public readonly array $extendedTypes = [],
         public readonly array $implementedTypes = [],
-    ) {
-    }
+    ) {}
 }

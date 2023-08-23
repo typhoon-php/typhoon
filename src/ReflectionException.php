@@ -7,7 +7,4 @@ namespace Typhoon\Reflection;
 /**
  * @api
  */
-interface ChangeDetector
-{
-    public function changed(): bool;
-}
+final class ReflectionException extends \LogicException {}

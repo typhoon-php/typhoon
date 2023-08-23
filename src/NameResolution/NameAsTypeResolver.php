@@ -1,0 +1,72 @@
+<?php
+
+declare(strict_types=1);
+
+namespace Typhoon\Reflection\NameResolution;
+
+use Typhoon\Type;
+use Typhoon\types;
+use Typhoon\Reflection\ReflectionException;
+
+/**
+ * @internal
+ * @psalm-internal Typhoon\Reflection
+ * @implements NameResolver<Type>
+ */
+final class NameAsTypeResolver implements NameResolver
+{
+    /**
+     * @param callable(non-empty-string): bool $classExists
+     * @param list<Type> $templateArguments
+     */
+    public function __construct(
+        private $classExists,
+        private readonly array $templateArguments = [],
+    ) {}
+
+    public function class(string $name): mixed
+    {
+        return types::object($name, ...$this->templateArguments);
+    }
+
+    public function static(string $self): mixed
+    {
+        return types::static($self, ...$this->templateArguments);
+    }
+
+    public function constant(string $name): mixed
+    {
+        return types::constant($name);
+    }
+
+    public function classTemplate(string $class, string $name): mixed
+    {
+        return types::classTemplate($class, $name);
+    }
+
+    public function methodTemplate(string $class, string $method, string $name): mixed
+    {
+        return types::methodTemplate($class, $method, $name);
+    }
+
+    public function classOrConstants(string $classCandidate, array $constantCandidates): mixed
+    {
+        if (($this->classExists)($classCandidate)) {
+            /** @var class-string $classCandidate */
+            return types::object($classCandidate, ...$this->templateArguments);
+        }
+
+        foreach ($constantCandidates as $constant) {
+            if (\defined($constant)) {
+                return types::constant($constant);
+            }
+        }
+
+        throw new ReflectionException(sprintf(
+            'Neither class "%s", nor constant%s "%s" exist.',
+            $classCandidate,
+            \count($constantCandidates) > 1 ? 's' : '',
+            implode('", "', $constantCandidates),
+        ));
+    }
+}

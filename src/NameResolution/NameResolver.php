@@ -2,26 +2,26 @@
 
 declare(strict_types=1);
 
-namespace ExtendedTypeSystem\Reflection\NameResolution;
+namespace Typhoon\Reflection\NameResolution;
 
 /**
  * @internal
- * @psalm-internal ExtendedTypeSystem\Reflection
+ * @psalm-internal Typhoon\Reflection
  * @template T
  */
 interface NameResolver
 {
     /**
-     * @param non-empty-string $name
+     * @param class-string $name
      * @return T
      */
     public function class(string $name): mixed;
 
     /**
-     * @param non-empty-string $class
+     * @param class-string $self
      * @return T
      */
-    public function static(string $class): mixed;
+    public function static(string $self): mixed;
 
     /**
      * @param non-empty-string $name
@@ -30,14 +30,14 @@ interface NameResolver
     public function constant(string $name): mixed;
 
     /**
-     * @param non-empty-string $class
+     * @param class-string $class
      * @param non-empty-string $name
      * @return T
      */
     public function classTemplate(string $class, string $name): mixed;
 
     /**
-     * @param non-empty-string $class
+     * @param class-string $class
      * @param non-empty-string $method
      * @param non-empty-string $name
      * @return T
@@ -45,9 +45,9 @@ interface NameResolver
     public function methodTemplate(string $class, string $method, string $name): mixed;
 
     /**
-     * @param non-empty-string $class
-     * @param non-empty-list<non-empty-string> $constants
+     * @param non-empty-string $classCandidate
+     * @param non-empty-list<non-empty-string> $constantCandidates
      * @return T
      */
-    public function classOrConstants(string $class, array $constants): mixed;
+    public function classOrConstants(string $classCandidate, array $constantCandidates): mixed;
 }

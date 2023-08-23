@@ -2,14 +2,11 @@
 
 declare(strict_types=1);
 
-namespace ExtendedTypeSystem\Reflection\Reflector;
+namespace Typhoon\Reflection\Reflector;
 
-use ExtendedTypeSystem\Reflection\NameContext;
-use ExtendedTypeSystem\Reflection\Reflector;
-use ExtendedTypeSystem\Reflection\TypeReflectionException;
-use ExtendedTypeSystem\Type;
-use ExtendedTypeSystem\Type\ShapeType;
-use ExtendedTypeSystem\types;
+use Typhoon\Type;
+use Typhoon\Type\ShapeType;
+use Typhoon\types;
 use PHPStan\PhpDocParser\Ast\ConstExpr\ConstExprFalseNode;
 use PHPStan\PhpDocParser\Ast\ConstExpr\ConstExprFloatNode;
 use PHPStan\PhpDocParser\Ast\ConstExpr\ConstExprIntegerNode;
@@ -28,14 +25,20 @@ use PHPStan\PhpDocParser\Ast\Type\IntersectionTypeNode;
 use PHPStan\PhpDocParser\Ast\Type\NullableTypeNode;
 use PHPStan\PhpDocParser\Ast\Type\TypeNode;
 use PHPStan\PhpDocParser\Ast\Type\UnionTypeNode;
+use Typhoon\Reflection\NameResolution\NameAsTypeResolver;
+use Typhoon\Reflection\NameResolution\NameContext;
+use Typhoon\Reflection\ReflectionException;
 
-final class ContextualPhpDocTypeReflector
+/**
+ * @internal
+ * @psalm-internal Typhoon\Reflection
+ */
+final class ContextAwarePhpDocTypeReflector
 {
     public function __construct(
         private readonly NameContext $nameContext,
-        private readonly Reflector $reflector,
-    ) {
-    }
+        private readonly ReflectionContext $reflectionContext,
+    ) {}
 
     /**
      * @return ($node is null ? null : Type)
@@ -82,7 +85,7 @@ final class ContextualPhpDocTypeReflector
             return $this->reflectIdentifier($node->type->name, $node->genericTypes);
         }
 
-        throw new \LogicException();
+        throw new ReflectionException(sprintf('Type node %s is not supported.', $node::class));
     }
 
     /**
@@ -154,7 +157,10 @@ final class ContextualPhpDocTypeReflector
      */
     private function reflectName(string $name, array $genericTypes): Type
     {
-        $typeResolver = new TypeNameResolver($this->reflector, array_map($this->reflectType(...), $genericTypes));
+        $typeResolver = new NameAsTypeResolver(
+            $this->reflectionContext->classExists(...),
+            array_map($this->reflectType(...), $genericTypes),
+        );
         $type = $this->nameContext->resolveName($name, $typeResolver);
 
         if ($type instanceof Type\NamedObjectType && $type->class === \Closure::class) {
@@ -192,7 +198,7 @@ final class ContextualPhpDocTypeReflector
         }
 
         // todo use stringifier
-        throw new TypeReflectionException(sprintf('%s cannot be used as int range limit.', $type::class));
+        throw new ReflectionException(sprintf('%s cannot be used as int range limit.', $type::class));
     }
 
     /**
@@ -285,7 +291,7 @@ final class ContextualPhpDocTypeReflector
                 ConstExprIntegerNode::class => $keyName->value,
                 ConstExprStringNode::class => $keyName->value,
                 IdentifierTypeNode::class => $keyName->name,
-                default => throw new TypeReflectionException(sprintf('%s is not supported.', $keyName::class)),
+                default => throw new ReflectionException(sprintf('%s is not supported.', $keyName::class)),
             };
 
             $elements[$key] = $type;
@@ -294,9 +300,9 @@ final class ContextualPhpDocTypeReflector
         return types::shape($elements, $node->sealed);
     }
 
-    private function reflectConstExpr(ConstTypeNode $typeNode): Type
+    private function reflectConstExpr(ConstTypeNode $node): Type
     {
-        $exprNode = $typeNode->constExpr;
+        $exprNode = $node->constExpr;
 
         if ($exprNode instanceof ConstExprIntegerNode) {
             return types::intLiteral((int) $exprNode->value);
@@ -327,13 +333,12 @@ final class ContextualPhpDocTypeReflector
                 return types::constant($exprNode->name);
             }
 
-            /** @var class-string */
             $class = $this->nameContext->resolveNameAsClass($exprNode->name);
 
             return types::classConstant($class, $exprNode->name);
         }
 
-        throw new \LogicException();
+        throw new ReflectionException(sprintf('PhpDoc node %s is not supported.', $exprNode::class));
     }
 
     private function reflectCallable(CallableTypeNode $node): Type
@@ -352,7 +357,7 @@ final class ContextualPhpDocTypeReflector
             );
         }
 
-        throw new \LogicException();
+        throw new ReflectionException(sprintf('PhpDoc type "%s" is not supported.', (string) $node));
     }
 
     /**

@@ -2,11 +2,15 @@
 
 declare(strict_types=1);
 
-namespace ExtendedTypeSystem\Reflection\ClassLocator;
+namespace Typhoon\Reflection\ClassLocator;
 
-use ExtendedTypeSystem\Reflection\ClassLocator;
 use JetBrains\PHPStormStub\PhpStormStubsMap;
+use Typhoon\Reflection\ClassLocator;
+use Typhoon\Reflection\Resource;
 
+/**
+ * @api
+ */
 final class PhpStormStubsClassLocator implements ClassLocator
 {
     private readonly string $directory;
@@ -17,10 +21,20 @@ final class PhpStormStubsClassLocator implements ClassLocator
         $this->directory = \dirname($file);
     }
 
-    public function locateClass(string $name): ?string
+    public static function isSupported(): bool
+    {
+        return class_exists(PhpStormStubsMap::class);
+    }
+
+    public function locateClass(string $name): ?Resource
     {
         if (isset(PhpStormStubsMap::CLASSES[$name])) {
-            return $this->directory . \DIRECTORY_SEPARATOR . PhpStormStubsMap::CLASSES[$name];
+            $file = PhpStormStubsMap::CLASSES[$name];
+
+            return new Resource(
+                file: $this->directory . '/' . $file,
+                extensionName: substr($file, 0, strpos($file, '/') ?: 0) ?: null,
+            );
         }
 
         return null;

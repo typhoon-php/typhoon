@@ -2,9 +2,8 @@
 
 declare(strict_types=1);
 
-namespace ExtendedTypeSystem\Reflection\PhpDocParser;
+namespace Typhoon\Reflection\PhpDocParser;
 
-use ExtendedTypeSystem\Reflection\Variance;
 use PHPStan\PhpDocParser\Ast\PhpDoc\ExtendsTagValueNode;
 use PHPStan\PhpDocParser\Ast\PhpDoc\ImplementsTagValueNode;
 use PHPStan\PhpDocParser\Ast\PhpDoc\ParamTagValueNode;
@@ -15,10 +14,12 @@ use PHPStan\PhpDocParser\Ast\PhpDoc\TemplateTagValueNode;
 use PHPStan\PhpDocParser\Ast\PhpDoc\VarTagValueNode;
 use PHPStan\PhpDocParser\Ast\Type\GenericTypeNode;
 use PHPStan\PhpDocParser\Ast\Type\TypeNode;
+use Typhoon\Reflection\TagPrioritizer;
+use Typhoon\Reflection\Variance;
 
 /**
  * @internal
- * @psalm-internal ExtendedTypeSystem\Reflection\PhpDocParser
+ * @psalm-internal Typhoon\Reflection\PhpDocParser
  */
 final class PhpDocBuilder
 {
@@ -54,8 +55,7 @@ final class PhpDocBuilder
 
     public function __construct(
         private readonly TagPrioritizer $tagPrioritizer,
-    ) {
-    }
+    ) {}
 
     /**
      * @param array<PhpDocTagNode> $tags

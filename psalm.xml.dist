@@ -29,6 +29,7 @@
         <directory name="src"/>
         <directory name="tests"/>
         <ignoreFiles>
+            <directory name="tests/ReflectorCompatibility"/>
             <directory name="var"/>
             <directory name="vendor"/>
         </ignoreFiles>
@@ -47,12 +48,18 @@
             </errorLevel>
         </MissingThrowsDocblock>
         <MixedAssignment errorLevel="suppress"/>
+        <PossiblyUnusedMethod>
+            <errorLevel type="suppress">
+                <directory name="tests"/>
+            </errorLevel>
+        </PossiblyUnusedMethod>
         <UnusedClass errorLevel="info"/>
         <UnusedMethodCall>
             <errorLevel type="suppress">
                 <directory name="tests"/>
             </errorLevel>
         </UnusedMethodCall>
+        <UnresolvableInclude type="suppress" errorLevel="suppress"/>
     </issueHandlers>
 
     <forbiddenFunctions>

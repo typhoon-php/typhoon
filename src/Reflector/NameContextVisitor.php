@@ -2,21 +2,24 @@
 
 declare(strict_types=1);
 
-namespace ExtendedTypeSystem\Reflection\Reflector;
+namespace Typhoon\Reflection\Reflector;
 
-use ExtendedTypeSystem\Reflection\NameContext;
-use ExtendedTypeSystem\Reflection\PhpDocParser\PhpDocParser;
 use PhpParser\Node;
 use PhpParser\Node\Stmt;
 use PhpParser\NodeVisitorAbstract;
+use Typhoon\Reflection\NameResolution\NameContext;
+use Typhoon\Reflection\PhpDocParser\PhpDocParser;
 
+/**
+ * @internal
+ * @psalm-internal Typhoon\Reflection
+ */
 final class NameContextVisitor extends NodeVisitorAbstract
 {
     public function __construct(
         private readonly PhpDocParser $phpDocParser,
         private readonly NameContext $nameContext,
-    ) {
-    }
+    ) {}
 
     public function enterNode(Node $node): ?int
     {

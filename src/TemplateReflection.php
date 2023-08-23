@@ -2,10 +2,10 @@
 
 declare(strict_types=1);
 
-namespace ExtendedTypeSystem\Reflection;
+namespace Typhoon\Reflection;
 
-use ExtendedTypeSystem\Type;
-use ExtendedTypeSystem\types;
+use Typhoon\Type;
+use Typhoon\types;
 
 /**
  * @api
@@ -22,6 +22,5 @@ final class TemplateReflection
         public readonly string $name,
         public readonly Type $constraint = types::mixed,
         public readonly Variance $variance = Variance::INVARIANT,
-    ) {
-    }
+    ) {}
 }

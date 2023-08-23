@@ -2,20 +2,15 @@
 
 declare(strict_types=1);
 
-namespace ExtendedTypeSystem\Reflection;
+namespace Typhoon\Reflection\NameResolution;
 
-use ExtendedTypeSystem\Reflection\NameResolution\ClassNameResolver;
-use ExtendedTypeSystem\Reflection\NameResolution\FullyQualifiedName;
-use ExtendedTypeSystem\Reflection\NameResolution\Name;
-use ExtendedTypeSystem\Reflection\NameResolution\NameResolver;
-use ExtendedTypeSystem\Reflection\NameResolution\QualifiedName;
-use ExtendedTypeSystem\Reflection\NameResolution\RelativeName;
-use ExtendedTypeSystem\Reflection\NameResolution\UnqualifiedName;
+use Typhoon\Reflection\ReflectionException;
 
 /**
  * Inspired by PhpParser\NameContext.
  *
- * @api
+ * @internal
+ * @psalm-internal Typhoon\Reflection
  */
 final class NameContext
 {
@@ -59,7 +54,7 @@ final class NameContext
         $alias = (new UnqualifiedName($alias))->toString();
 
         if (isset($this->classImportTable[$alias])) {
-            throw new TypeReflectionException(sprintf(
+            throw new ReflectionException(sprintf(
                 'Cannot use %s as %s because the name is already in use.',
                 $name,
                 $alias,
@@ -77,7 +72,7 @@ final class NameContext
         $alias = (new UnqualifiedName($alias))->toString();
 
         if (isset($this->constantImportTable[$alias])) {
-            throw new TypeReflectionException(sprintf(
+            throw new ReflectionException(sprintf(
                 'Cannot use constant %s as %s because the name is already in use.',
                 $name,
                 $alias,
@@ -153,7 +148,7 @@ final class NameContext
 
     /**
      * @internal
-     * @psalm-internal ExtendedTypeSystem\Reflection
+     * @psalm-internal Typhoon\Reflection
      * @template T
      * @param NameResolver<T> $resolver
      * @return T
@@ -203,7 +198,7 @@ final class NameContext
         }
 
         if (!$name instanceof UnqualifiedName) {
-            throw new \LogicException();
+            throw new ReflectionException(sprintf('Name %s is not supported.', $name::class));
         }
 
         $nameAsString = $name->toString();
@@ -215,7 +210,10 @@ final class NameContext
 
             if ($nameAsString === 'parent') {
                 if ($this->parent === null) {
-                    throw new \LogicException();
+                    throw new ReflectionException(sprintf(
+                        'Failed to resolve type "parent": class %s does not have parent.',
+                        $this->resolveNameAsClass($this->self),
+                    ));
                 }
 
                 return $resolver->class($this->resolveNameAsClass($this->parent));
@@ -235,7 +233,10 @@ final class NameContext
         }
 
         if (isset($this->classImportTable[$nameAsString])) {
-            return $resolver->class($this->classImportTable[$nameAsString]->toString());
+            /** @var class-string */
+            $class = $this->classImportTable[$nameAsString]->toString();
+
+            return $resolver->class($class);
         }
 
         if (isset($this->constantImportTable[$nameAsString])) {
@@ -253,11 +254,11 @@ final class NameContext
 
     /**
      * @internal
-     * @psalm-internal ExtendedTypeSystem\Reflection
-     * @return non-empty-string
+     * @psalm-internal Typhoon\Reflection
+     * @return class-string
      */
     public function resolveNameAsClass(string|Name $name): string
     {
-        return $this->resolveName($name, new ClassNameResolver());
+        return $this->resolveName($name, new NameAsClassResolver());
     }
 }

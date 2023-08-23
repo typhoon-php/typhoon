@@ -2,9 +2,10 @@
 
 declare(strict_types=1);
 
-namespace ExtendedTypeSystem\Reflection\ChangeDetector;
+namespace Typhoon\Reflection\ChangeDetector;
 
-use ExtendedTypeSystem\Reflection\ChangeDetector;
+use Typhoon\Reflection\ChangeDetector;
+use function Typhoon\Reflection\Exceptionally\exceptionally;
 
 /**
  * @api
@@ -18,15 +19,14 @@ final class FileChangeDetector implements ChangeDetector
     private function __construct(
         private readonly string $file,
         private readonly string $hash,
-    ) {
-    }
+    ) {}
 
     /**
      * @param non-empty-string $file
      */
     public static function fromFile(string $file): self
     {
-        return new self($file, @md5_file($file) ?: throw new \RuntimeException());
+        return new self($file, exceptionally(static fn (): string|false => md5_file($file)));
     }
 
     /**
@@ -39,10 +39,10 @@ final class FileChangeDetector implements ChangeDetector
 
     public function changed(): bool
     {
-        set_error_handler(static fn (): bool => true);
-        $currentHash = md5_file($this->file);
-        restore_error_handler();
-
-        return $currentHash !== $this->hash;
+        try {
+            return exceptionally(fn (): string|false => md5_file($this->file)) !== $this->hash;
+        } catch (\Throwable) {
+            return true;
+        }
     }
 }

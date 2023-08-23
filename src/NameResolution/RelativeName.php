@@ -2,18 +2,18 @@
 
 declare(strict_types=1);
 
-namespace ExtendedTypeSystem\Reflection\NameResolution;
+namespace Typhoon\Reflection\NameResolution;
 
 /**
- * @api
+ * @internal
+ * @psalm-internal Typhoon\Reflection
  * @psalm-immutable
  */
 final class RelativeName extends Name
 {
     public function __construct(
         private readonly UnqualifiedName|QualifiedName $name,
-    ) {
-    }
+    ) {}
 
     public function lastSegment(): UnqualifiedName
     {

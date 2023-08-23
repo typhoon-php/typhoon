@@ -11,12 +11,17 @@ $finder = PhpCsFixer\Finder::create()
     ])
     ->append([
         __FILE__,
+    ])
+    ->exclude([
+        'ReflectorCompatibility',
     ]);
 
 $config = (new PhpCsFixer\Config())
     ->setFinder($finder)
     ->setCacheFile(__DIR__ . '/var/.php-cs-fixer.cache');
 
-(new PhpCsFixerCodingStandard())->applyTo($config);
+(new PhpCsFixerCodingStandard())->applyTo($config, [
+    'static_lambda' => true,
+]);
 
 return $config;

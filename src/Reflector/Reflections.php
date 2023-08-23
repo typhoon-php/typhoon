@@ -2,40 +2,87 @@
 
 declare(strict_types=1);
 
-namespace ExtendedTypeSystem\Reflection\Reflector;
-
-use ExtendedTypeSystem\Reflection\Reflection;
+namespace Typhoon\Reflection\Reflector;
 
 /**
- * @implements \IteratorAggregate<non-empty-string, Reflection>
+ * @internal
+ * @psalm-internal Typhoon\Reflection
+ * @implements \IteratorAggregate<non-empty-string, RootReflection>
  */
 final class Reflections implements \IteratorAggregate
 {
     /**
-     * @var array<class-string<Reflection>, array<non-empty-string, Reflection|callable(): Reflection>>
+     * @var array<class-string<RootReflection>, array<non-empty-string, bool|RootReflection|\Closure(): RootReflection>>
      */
     private array $reflections = [];
 
     /**
+     * @param class-string<RootReflection> $class
      * @param non-empty-string $name
      */
-    public function add(string $name, Reflection $reflection): void
+    public function exists(string $class, string $name): ?bool
     {
-        $this->reflections[$reflection::class][$name] = $reflection;
+        if (isset($this->reflections[$class][$name])) {
+            return $this->reflections[$class][$name] !== false;
+        }
+
+        return null;
     }
 
     /**
-     * @template TReflection of Reflection
+     * @template TReflection of RootReflection
      * @param class-string<TReflection> $class
      * @param non-empty-string $name
-     * @param callable(): TReflection $reflection
+     * @return ?TReflection
      */
-    public function addLazy(string $class, string $name, callable $reflection): void
+    public function get(string $class, string $name): ?RootReflection
     {
-        $this->reflections[$class][$name] = $reflection;
+        $reflection = $this->reflections[$class][$name] ?? null;
+
+        if ($reflection instanceof RootReflection) {
+            /** @var TReflection */
+            return $reflection;
+        }
+
+        if ($reflection instanceof \Closure) {
+            /** @var TReflection */
+            return $reflection();
+        }
+
+        return null;
     }
 
-    public function addFrom(self $reflections): void
+    /**
+     * @param class-string<RootReflection> $class
+     * @param non-empty-string $name
+     */
+    public function setExists(string $class, string $name, bool $exists): void
+    {
+        $this->reflections[$class][$name] = $exists;
+    }
+
+    public function set(RootReflection $reflection): void
+    {
+        $this->reflections[$reflection::class][$reflection->getName()] = $reflection;
+    }
+
+    /**
+     * @template TReflection of RootReflection
+     * @param class-string<TReflection> $class
+     * @param non-empty-string $name
+     * @param callable(): TReflection $reflectionLoader
+     */
+    public function setLazy(string $class, string $name, callable $reflectionLoader): void
+    {
+        $this->reflections[$class][$name] = static function () use ($reflectionLoader): RootReflection {
+            /** @var ?RootReflection */
+            static $reflection = null;
+
+            return $reflection ??= $reflectionLoader();
+        };
+    }
+
+    public function setFrom(self $reflections): void
     {
         foreach ($reflections->reflections as $class => $reflectionsByName) {
             foreach ($reflectionsByName as $name => $reflection) {
@@ -45,47 +92,17 @@ final class Reflections implements \IteratorAggregate
     }
 
     /**
-     * @param class-string<Reflection> $class
-     * @param non-empty-string $name
-     */
-    public function has(string $class, string $name): bool
-    {
-        return isset($this->reflections[$class][$name]);
-    }
-
-    /**
-     * @template TReflection of Reflection
-     * @param class-string<TReflection> $class
-     * @param non-empty-string $name
-     * @return ?TReflection
-     */
-    public function get(string $class, string $name): ?Reflection
-    {
-        if (!isset($this->reflections[$class][$name])) {
-            return null;
-        }
-
-        if ($this->reflections[$class][$name] instanceof Reflection) {
-            /** @var TReflection */
-            return $this->reflections[$class][$name];
-        }
-
-        /** @var TReflection */
-        return $this->reflections[$class][$name] = $this->reflections[$class][$name]();
-    }
-
-    /**
-     * @return \Generator<non-empty-string, Reflection>
+     * @return \Generator<non-empty-string, RootReflection>
      */
     public function getIterator(): \Generator
     {
-        foreach ($this->reflections as &$reflectionsByName) {
-            foreach ($reflectionsByName as $name => &$reflection) {
-                if (!$reflection instanceof Reflection) {
-                    $reflection = $reflection();
+        foreach ($this->reflections as $reflectionsByName) {
+            foreach ($reflectionsByName as $name => $reflection) {
+                if ($reflection instanceof RootReflection) {
+                    yield $name => $reflection;
+                } elseif ($reflection instanceof \Closure) {
+                    yield $name => $reflection();
                 }
-
-                yield $name => $reflection;
             }
         }
     }

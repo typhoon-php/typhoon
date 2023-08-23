@@ -2,15 +2,15 @@
 
 declare(strict_types=1);
 
-namespace ExtendedTypeSystem\Reflection\TypeResolver;
+namespace Typhoon\Reflection\TypeResolver;
 
-use ExtendedTypeSystem\Type;
-use ExtendedTypeSystem\TypeResolver;
-use ExtendedTypeSystem\types;
+use Typhoon\Type;
+use Typhoon\TypeResolver;
+use Typhoon\types;
 
 /**
  * @internal
- * @psalm-internal ExtendedTypeSystem\Reflection
+ * @psalm-internal Typhoon\Reflection
  * @psalm-immutable
  */
 final class StaticResolver extends TypeResolver
@@ -20,8 +20,7 @@ final class StaticResolver extends TypeResolver
      */
     public function __construct(
         private readonly string $class,
-    ) {
-    }
+    ) {}
 
     public function visitStatic(Type\StaticType $type): mixed
     {

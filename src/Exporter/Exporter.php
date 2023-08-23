@@ -2,8 +2,14 @@
 
 declare(strict_types=1);
 
-namespace ExtendedTypeSystem\Reflection\Exporter;
+namespace Typhoon\Reflection\Exporter;
 
+use function Typhoon\Reflection\Exceptionally\exceptionally;
+
+/**
+ * @internal
+ * @psalm-internal Typhoon\Reflection
+ */
 final class Exporter
 {
     /**
@@ -11,9 +17,10 @@ final class Exporter
      */
     private static array $hydrators = [];
 
-    private function __construct()
-    {
-    }
+    /**
+     * @psalm-suppress UnusedConstructor
+     */
+    private function __construct() {}
 
     /**
      * @param 0|positive-int $indent
@@ -61,6 +68,7 @@ final class Exporter
     }
 
     /**
+     * @psalm-suppress PossiblyUnusedMethod
      * @template T of object
      * @param class-string<T> $class
      * @return T
@@ -128,7 +136,7 @@ final class Exporter
 
         if ($reflectionClass->hasMethod('__unserialize')) {
             /** @var \Closure(array): T */
-            return function (array $data) use ($prototype): object {
+            return static function (array $data) use ($prototype): object {
                 $object = clone $prototype;
                 /** @psalm-suppress MixedMethodCall */
                 $object->__unserialize($data);
@@ -137,7 +145,7 @@ final class Exporter
             };
         }
 
-        $closure = (function (array $data) use ($prototype): object {
+        $closure = static function (array $data) use ($prototype): object {
             $object = clone $prototype;
 
             foreach ($data as $property => $value) {
@@ -145,13 +153,9 @@ final class Exporter
             }
 
             return $object;
-        })->bindTo(null, $class);
-
-        if (!$closure) {
-            throw new \RuntimeException();
-        }
+        };
 
         /** @var \Closure(array): T */
-        return $closure;
+        return exceptionally(static fn (): ?\Closure => $closure->bindTo(null, $class));
     }
 }

@@ -2,23 +2,29 @@
 
 declare(strict_types=1);
 
-namespace ExtendedTypeSystem\Reflection\ClassLocator;
+namespace Typhoon\Reflection\ClassLocator;
 
 use Composer\Autoload\ClassLoader;
-use ExtendedTypeSystem\Reflection\ClassLocator;
+use Typhoon\Reflection\ClassLocator;
+use Typhoon\Reflection\Resource;
 
 /**
  * @api
  */
 final class ComposerClassLocator implements ClassLocator
 {
-    public function locateClass(string $name): ?string
+    public static function isSupported(): bool
+    {
+        return class_exists(ClassLoader::class);
+    }
+
+    public function locateClass(string $name): ?Resource
     {
         foreach (ClassLoader::getRegisteredLoaders() as $classLoader) {
             $file = $classLoader->findFile($name);
 
             if ($file) {
-                return $file;
+                return new Resource($file);
             }
         }
 

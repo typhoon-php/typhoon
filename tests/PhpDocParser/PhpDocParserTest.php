@@ -2,9 +2,8 @@
 
 declare(strict_types=1);
 
-namespace ExtendedTypeSystem\Reflection\PhpDocParser;
+namespace Typhoon\Reflection\PhpDocParser;
 
-use ExtendedTypeSystem\Reflection\Variance;
 use PHPStan\PhpDocParser\Ast\PhpDoc\TemplateTagValueNode;
 use PHPStan\PhpDocParser\Ast\Type\GenericTypeNode;
 use PHPStan\PhpDocParser\Ast\Type\IdentifierTypeNode;
@@ -13,6 +12,8 @@ use PHPStan\PhpDocParser\Lexer\Lexer;
 use PHPStan\PhpDocParser\Parser\PhpDocParser as PHPStanPhpDocParser;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
+use Typhoon\Reflection\TagPrioritizer;
+use Typhoon\Reflection\Variance;
 use function PHPUnit\Framework\anything;
 use function PHPUnit\Framework\never;
 

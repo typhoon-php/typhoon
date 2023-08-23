@@ -2,12 +2,16 @@
 
 declare(strict_types=1);
 
-namespace ExtendedTypeSystem\Reflection;
+namespace Typhoon\Reflection\Reflector;
 
-use ExtendedTypeSystem\Type;
-use ExtendedTypeSystem\TypeVisitor;
+use Typhoon\Type;
+use Typhoon\TypeVisitor;
 
-abstract class Reflection
+/**
+ * @internal
+ * @psalm-internal Typhoon\Reflection
+ */
+abstract class FriendlyReflection
 {
     /**
      * @param TypeVisitor<Type> $typeResolver

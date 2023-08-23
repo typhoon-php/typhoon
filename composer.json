@@ -1,6 +1,6 @@
 {
-    "name": "extended-type-system/type-reflection",
-    "description": "PHP Extended Type System • Type Reflection",
+    "name": "typhoon/reflection",
+    "description": "Typhoon Reflection",
     "license": "MIT",
     "type": "library",
     "authors": [
@@ -11,9 +11,9 @@
     ],
     "require": {
         "php": "^8.1",
-        "extended-type-system/type": "^0.2@dev",
         "nikic/php-parser": "^4.15",
-        "phpstan/phpdoc-parser": "^1.0"
+        "phpstan/phpdoc-parser": "^1.0",
+        "typhoon/type": "^0.2@dev"
     },
     "require-dev": {
         "ergebnis/composer-normalize": "^2.32",
@@ -29,12 +29,15 @@
     },
     "autoload": {
         "psr-4": {
-            "ExtendedTypeSystem\\Reflection\\": "src/"
-        }
+            "Typhoon\\Reflection\\": "src/"
+        },
+        "files": [
+            "src/Exceptionally/exceptionally.php"
+        ]
     },
     "autoload-dev": {
         "psr-4": {
-            "ExtendedTypeSystem\\Reflection\\": "tests/"
+            "Typhoon\\Reflection\\": "tests/"
         }
     },
     "config": {
