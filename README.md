@@ -9,8 +9,8 @@ composer require extended-type-system/type-stringifier
 ## Usage
 
 ```php
-use ExtendedTypeSystem\types;
-use ExtendedTypeSystem\TypeStringifier;
+use Typhoon\types;
+use Typhoon\TypeStringifier;
 
 $type = types::unsealedShape([
     'a' => types::nonEmptyString,

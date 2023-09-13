@@ -4,36 +4,36 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "40af7ddaa8698f3e001bae6b2a1dcf7e",
+    "content-hash": "6aa629fea20ae1e5455d2d351e61d892",
     "packages": [
         {
-            "name": "extended-type-system/type",
+            "name": "typhoon/type",
             "version": "0.2.x-dev",
             "source": {
                 "type": "git",
-                "url": "https://github.com/php-extended-type-system/type.git",
-                "reference": "5bd102108122bb18b1e1b06e02c4d235b48643a1"
+                "url": "https://github.com/typhoon-php/type.git",
+                "reference": "77dc8fc6a374de8ffc1f1983e754a7e44986cde9"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/php-extended-type-system/type/zipball/5bd102108122bb18b1e1b06e02c4d235b48643a1",
-                "reference": "5bd102108122bb18b1e1b06e02c4d235b48643a1",
+                "url": "https://api.github.com/repos/typhoon-php/type/zipball/77dc8fc6a374de8ffc1f1983e754a7e44986cde9",
+                "reference": "77dc8fc6a374de8ffc1f1983e754a7e44986cde9",
                 "shasum": ""
             },
             "require": {
                 "php": "^8.1"
             },
             "require-dev": {
-                "ergebnis/composer-normalize": "^2.30.2",
-                "friendsofphp/php-cs-fixer": "^3.14.4",
-                "phpyh/coding-standard": "^2.0.0",
-                "vimeo/psalm": "^5.7.7"
+                "ergebnis/composer-normalize": "^2.31.0",
+                "friendsofphp/php-cs-fixer": "^3.17.0",
+                "phpyh/coding-standard": "^2.4.0",
+                "vimeo/psalm": "^5.12.0"
             },
             "default-branch": true,
             "type": "library",
             "autoload": {
                 "psr-4": {
-                    "ExtendedTypeSystem\\": "src/"
+                    "Typhoon\\": "src/"
                 }
             },
             "notification-url": "https://packagist.org/downloads/",
@@ -46,12 +46,12 @@
                     "email": "udaltsov.valentin@gmail.com"
                 }
             ],
-            "description": "PHP Extended Type System • Type",
+            "description": "Typhoon Type",
             "support": {
-                "issues": "https://github.com/php-extended-type-system/type/issues",
-                "source": "https://github.com/php-extended-type-system/type/tree/0.2.x"
+                "issues": "https://github.com/typhoon-php/type/issues",
+                "source": "https://github.com/typhoon-php/type/tree/0.2.x"
             },
-            "time": "2023-03-07T01:34:05+00:00"
+            "time": "2023-09-13T11:33:27+00:00"
         }
     ],
     "packages-dev": [
@@ -5261,7 +5261,7 @@
     "aliases": [],
     "minimum-stability": "stable",
     "stability-flags": {
-        "extended-type-system/type": 20
+        "typhoon/type": 20
     },
     "prefer-stable": false,
     "prefer-lowest": false,

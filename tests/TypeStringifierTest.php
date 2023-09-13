@@ -2,13 +2,13 @@
 
 declare(strict_types=1);
 
-namespace ExtendedTypeSystem;
+namespace Typhoon;
 
 use PHPUnit\Framework\TestCase;
 
 /**
  * @internal
- * @covers \ExtendedTypeSystem\TypeStringifier
+ * @covers \Typhoon\TypeStringifier
  */
 final class TypeStringifierTest extends TestCase
 {
@@ -100,9 +100,9 @@ final class TypeStringifierTest extends TestCase
         yield [types::closure([types::defaultParam(types::string)]), 'Closure(string=)'];
         yield [types::closure([types::variadicParam(types::string)]), 'Closure(string...)'];
         yield [types::closure([types::variadicParam(types::string)], types::never), 'Closure(string...): never'];
-        yield [types::classTemplate('T', \ArrayObject::class), 'T:ArrayObject'];
-        yield [types::functionTemplate('T', 'strval'), 'T:strval()'];
-        yield [types::methodTemplate('T', \ArrayObject::class, 'method'), 'T:ArrayObject::method()'];
+        yield [types::classTemplate(\ArrayObject::class, 'T'), 'T:ArrayObject'];
+        yield [types::functionTemplate('strval', 'T'), 'T:strval()'];
+        yield [types::methodTemplate(\ArrayObject::class, 'method', 'T'), 'T:ArrayObject::method()'];
         yield [types::literalString, 'literal-string'];
         yield [types::literalInt, 'literal-int'];
         yield [types::int(), 'int'];
