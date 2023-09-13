@@ -65,9 +65,7 @@ use Typhoon\Type\VoidType;
  */
 final class TypeStringifier implements TypeVisitor
 {
-    private function __construct()
-    {
-    }
+    private function __construct() {}
 
     /**
      * @return non-empty-string
@@ -240,7 +238,7 @@ final class TypeStringifier implements TypeVisitor
                 '%s{%s%s}',
                 $type->sealed ? 'list' : 'array',
                 implode(', ', array_map(
-                    fn (int $key, ShapeElement $element) => ($element->optional ? $key.'?: ' : '').$element->type->accept($this),
+                    fn (int $key, ShapeElement $element) => ($element->optional ? $key . '?: ' : '') . $element->type->accept($this),
                     array_keys($type->elements),
                     $type->elements,
                 )),
@@ -389,7 +387,6 @@ final class TypeStringifier implements TypeVisitor
 
     public function visitIntersection(IntersectionType $type): mixed
     {
-        /** @psalm-suppress MixedArgument */
         return implode('&', array_map(
             fn (Type $inner): string => $inner instanceof UnionType ? sprintf('(%s)', $inner->accept($this)) : $inner->accept($this),
             $type->types,
@@ -398,7 +395,6 @@ final class TypeStringifier implements TypeVisitor
 
     public function visitUnion(UnionType $type): mixed
     {
-        /** @psalm-suppress MixedArgument */
         return implode('|', array_map(
             fn (Type $inner): string => $inner instanceof IntersectionType ? sprintf('(%s)', $inner->accept($this)) : $inner->accept($this),
             $type->types,
@@ -412,6 +408,7 @@ final class TypeStringifier implements TypeVisitor
 
     /**
      * @param non-empty-list<Type> $templateArguments
+     * @return non-empty-string
      */
     private function stringifyGenericType(string $name, array $templateArguments): string
     {
@@ -422,7 +419,9 @@ final class TypeStringifier implements TypeVisitor
     }
 
     /**
+     * @param non-empty-string $name
      * @param list<Parameter> $parameters
+     * @return non-empty-string
      */
     private function stringifyCallable(string $name, array $parameters, ?Type $returnType): string
     {
@@ -434,19 +433,23 @@ final class TypeStringifier implements TypeVisitor
             '%s(%s)%s',
             $name,
             implode(', ', array_map(
-                fn (Parameter $parameter): string => $parameter->type->accept($this).match (true) {
+                fn (Parameter $parameter): string => $parameter->type->accept($this) . match (true) {
                     $parameter->variadic => '...',
                     $parameter->hasDefault => '=',
                     default => '',
                 },
                 $parameters,
             )),
-            $returnType === null ? '' : ': '.$returnType->accept($this),
+            $returnType === null ? '' : ': ' . $returnType->accept($this),
         );
     }
 
+    /**
+     * @return non-empty-string
+     */
     private function escapeStringLiteral(string $literal): string
     {
+        /** @var non-empty-string */
         return str_replace("\n", '\n', var_export($literal, return: true));
     }
 }

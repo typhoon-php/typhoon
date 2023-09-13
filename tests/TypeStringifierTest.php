@@ -4,28 +4,17 @@ declare(strict_types=1);
 
 namespace Typhoon;
 
+use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 
-/**
- * @internal
- * @covers \Typhoon\TypeStringifier
- */
+#[CoversClass(TypeStringifier::class)]
 final class TypeStringifierTest extends TestCase
 {
     /**
-     * @dataProvider typesAndTheirStringRepresentations
-     */
-    public function testItStringifiesTypeCorrectly(Type $type, string $expectedString): void
-    {
-        $asString = TypeStringifier::stringify($type);
-
-        self::assertSame($expectedString, $asString);
-    }
-
-    /**
      * @return \Generator<array-key, array{Type, string}>
      */
-    public function typesAndTheirStringRepresentations(): \Generator
+    public static function typesAndTheirStringRepresentations(): \Generator
     {
         yield [types::never, 'never'];
         yield [types::void, 'void'];
@@ -120,5 +109,13 @@ final class TypeStringifierTest extends TestCase
         yield [types::classConstant(\stdClass::class, 'test'), 'stdClass::test'];
         yield [types::keyOf(types::list()), 'key-of<list>'];
         yield [types::valueOf(types::list()), 'value-of<list>'];
+    }
+
+    #[DataProvider('typesAndTheirStringRepresentations')]
+    public function testItStringifiesTypeCorrectly(Type $type, string $expectedString): void
+    {
+        $asString = TypeStringifier::stringify($type);
+
+        self::assertSame($expectedString, $asString);
     }
 }
