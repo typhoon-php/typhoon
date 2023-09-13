@@ -4,8 +4,10 @@ declare(strict_types=1);
 
 namespace Typhoon\Reflection\Reflector;
 
+use Composer\InstalledVersions;
 use Typhoon\Reflection\ChangeDetector\FileChangeDetector;
 use Typhoon\Reflection\Exporter\Exporter;
+use Typhoon\Reflection\ReflectionException;
 use XdgBaseDir\Xdg;
 use function Typhoon\Reflection\Exceptionally\exceptionally;
 
@@ -15,6 +17,8 @@ use function Typhoon\Reflection\Exceptionally\exceptionally;
  */
 final class FileReflectionCache implements ReflectionCache
 {
+    private static ?string $reference = null;
+
     private readonly string $directory;
 
     public function __construct(
@@ -29,26 +33,37 @@ final class FileReflectionCache implements ReflectionCache
         return (new Xdg())->getHomeCacheDir() . '/php_typhoon_reflection/' . md5(__DIR__);
     }
 
+    private static function reference(): string
+    {
+        return self::$reference ??= InstalledVersions::getReference('typhoon/reflection') ?? throw new ReflectionException();
+    }
+
+    /**
+     * @psalm-suppress UnusedMethod
+     */
+    private static function referenceChanged(string $reference): bool
+    {
+        return $reference !== self::reference();
+    }
+
     public function hasFile(string $file): bool
     {
-        $file = $this->file($file);
+        $fileCacheFile = $this->fileCacheFile($file);
 
         if ($this->detectChanges) {
-            return $this->include($file) === true;
+            return $this->include($fileCacheFile) === true;
         }
 
-        return file_exists($file);
+        return file_exists($fileCacheFile);
     }
 
     public function hasReflection(string $reflectionClass, string $name): bool
     {
-        $file = $this->file($this->reflectionKey($reflectionClass, $name));
-
         if ($this->detectChanges) {
-            return $this->include($file) instanceof $reflectionClass;
+            return $this->getReflection($reflectionClass, $name) !== null;
         }
 
-        return file_exists($file);
+        return file_exists($this->reflectionCacheFile($reflectionClass, $name));
     }
 
     /**
@@ -59,29 +74,38 @@ final class FileReflectionCache implements ReflectionCache
      */
     public function getReflection(string $reflectionClass, string $name): ?RootReflection
     {
-        $reflection = $this->include($this->file($this->reflectionKey($reflectionClass, $name)));
-
-        if ($reflection instanceof $reflectionClass) {
-            /** @var TReflection */
-            return $reflection;
-        }
-
-        return null;
+        /** @var ?TReflection */
+        return $this->include($this->reflectionCacheFile($reflectionClass, $name));
     }
 
     public function setStandaloneReflection(RootReflection $reflection): void
     {
-        $reflectionFile = $this->file($this->reflectionKey($reflection::class, $reflection->getName()));
+        $reflectionCacheFile = $this->reflectionCacheFile($reflection::class, $reflection->getName());
+        $referenceExported = Exporter::export(self::reference(), 1);
         $reflectionExported = Exporter::export($reflection);
-        $unlinkCode = $this->unlinkLine($reflectionFile);
 
-        $this->write($reflectionFile, <<<PHP
+        $this->write($reflectionCacheFile, <<<PHP
             <?php
+
+            {$this->unlinkFunctionCode([$reflectionCacheFile])}
+
+            if (self::referenceChanged({$referenceExported})) {
+                \$unlink();
+
+                return null;
+            }
             
-            \$reflection = {$reflectionExported};
+            try {
+                \$reflection = {$reflectionExported};
+            } catch (\\Throwable) {
+                \$unlink();
+
+                return null;
+            }
             
             if (\$this->detectChanges && \$reflection->getChangeDetector()->changed()) {
-            {$unlinkCode}
+                \$unlink();
+
                 return null;
             }
 
@@ -92,24 +116,30 @@ final class FileReflectionCache implements ReflectionCache
 
     public function setFileReflections(string $file, Reflections $reflections): void
     {
-        $fileFile = $this->file($file);
-        $unlinkCode = $this->unlinkLine($fileFile);
+        $fileCacheFile = $this->fileCacheFile($file);
+        $unlinkFiles = [$fileCacheFile];
         $exportedReflectionsByFile = [];
         $changeDetector = null;
+        $referenceExported = Exporter::export(self::reference());
 
         foreach ($reflections as $name => $reflection) {
-            $reflectionFile = $this->file($this->reflectionKey($reflection::class, $name));
-            $unlinkCode .= $this->unlinkLine($reflectionFile);
-            $exportedReflectionsByFile[$reflectionFile] = Exporter::export($reflection);
+            $reflectionFile = $this->reflectionCacheFile($reflection::class, $name);
+            $unlinkFiles[] = $reflectionFile;
+            $exportedReflectionsByFile[$reflectionFile] = Exporter::export($reflection, 1);
             $changeDetector ??= $reflection->getChangeDetector();
         }
 
-        $exportedChangeDetector = Exporter::export($changeDetector ?? FileChangeDetector::fromFile($file));
-        $this->write($fileFile, <<<PHP
+        $changeDetectorExported = Exporter::export($changeDetector ?? FileChangeDetector::fromFile($file));
+        $unlinkFunctionCode = $this->unlinkFunctionCode($unlinkFiles);
+
+        $this->write($fileCacheFile, <<<PHP
             <?php
             
-            if (\$this->detectChanges && ({$exportedChangeDetector})->changed()) {
-            {$unlinkCode}
+            {$unlinkFunctionCode}
+
+            if (self::referenceChanged({$referenceExported}) || \$this->detectChanges && ({$changeDetectorExported})->changed()) {
+                \$unlink();
+
                 return false;
             }
             
@@ -121,10 +151,25 @@ final class FileReflectionCache implements ReflectionCache
             $this->write($reflectionFile, <<<PHP
                 <?php
 
-                \$reflection = {$exportedReflection};
-                
+                {$unlinkFunctionCode};
+
+                if (self::referenceChanged({$referenceExported})) {
+                    \$unlink();
+
+                    return null;
+                }
+
+                try {
+                    \$reflection = {$exportedReflection};
+                } catch (\\Throwable) {
+                    \$unlink();
+
+                    return null;
+                }
+
                 if (\$this->detectChanges && \$reflection->getChangeDetector()->changed()) {
-                {$unlinkCode}
+                    \$unlink();
+
                     return null;
                 }
 
@@ -152,24 +197,34 @@ final class FileReflectionCache implements ReflectionCache
     }
 
     /**
+     * @param non-empty-string $file
+     * @return non-empty-string
+     */
+    private function fileCacheFile(string $file): string
+    {
+        return $this->cacheFile(md5($file));
+    }
+
+    /**
      * @param class-string<RootReflection> $reflectionClass
      * @param non-empty-string $name
      * @return non-empty-string
      */
-    private function reflectionKey(string $reflectionClass, string $name): string
+    private function reflectionCacheFile(string $reflectionClass, string $name): string
     {
-        return $reflectionClass . '.' . $name;
+        $hash = hash_init('md5');
+        hash_update($hash, $reflectionClass);
+        hash_update($hash, $name);
+
+        return $this->cacheFile(hash_final($hash));
     }
 
     /**
-     * @param non-empty-string $key
      * @return non-empty-string
      */
-    private function file(string $key): string
+    private function cacheFile(string $hash): string
     {
-        $hash = md5($key);
-
-        return sprintf('%s/%s/%s', $this->directory, substr($hash, 0, 2), substr($hash, 2));
+        return sprintf('%s/%s/%s.php', $this->directory, substr($hash, 0, 2), substr($hash, 2));
     }
 
     /**
@@ -187,12 +242,21 @@ final class FileReflectionCache implements ReflectionCache
     }
 
     /**
-     * @param non-empty-string $file
+     * @param non-empty-list<non-empty-string> $files
      * @return non-empty-string
      */
-    private function unlinkLine(string $file): string
+    private function unlinkFunctionCode(array $files): string
     {
-        return sprintf('    @unlink(%s);%s', var_export($file, true), PHP_EOL);
+        $unlinks = implode(PHP_EOL, array_map(
+            static fn (?string $file): string => sprintf('    unlink(%s);', Exporter::export($file)),
+            $files,
+        ));
+
+        return <<<PHP
+            \$unlink = static function (): void {
+            {$unlinks}
+            };
+            PHP;
     }
 
     /**
@@ -200,12 +264,14 @@ final class FileReflectionCache implements ReflectionCache
      */
     private function include(string $file): mixed
     {
-        set_error_handler(static fn (): bool => true);
-
         try {
-            return include $file;
-        } finally {
-            restore_error_handler();
+            return exceptionally(fn (): mixed => include $file);
+        } catch (\Throwable $exception) {
+            if (str_contains($exception->getMessage(), 'No such file or directory')) {
+                return null;
+            }
+
+            throw new ReflectionException(sprintf('Failed to load cache file %s.', $file), previous: $exception);
         }
     }
 }
