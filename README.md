@@ -1,9 +1,9 @@
-# PHP Extended Type System • Type Stringifier
+# Typhoon Type Stringifier
 
 ## Installation
 
 ```
-composer require extended-type-system/type-stringifier
+composer require typhoon/type-stringifier
 ```
 
 ## Usage
