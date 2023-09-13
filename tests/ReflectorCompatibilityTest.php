@@ -38,7 +38,7 @@ final class ReflectorCompatibilityTest extends TestCase
     #[DataProvider('classes')]
     public function testItReflectsClassesCompatibly(string $file, string $class): void
     {
-        include_once $file;
+        require_once $file;
         $reflector = Reflector::build(cache: false);
         /** @psalm-suppress ArgumentTypeCoercion */
         $native = new \ReflectionClass($class);
@@ -52,7 +52,7 @@ final class ReflectorCompatibilityTest extends TestCase
     #[DataProvider('readonlyClasses')]
     public function testItReflectsReadonlyClasses(string $file, string $class): void
     {
-        include_once $file;
+        require_once $file;
         $reflector = Reflector::build(cache: false);
         /** @psalm-suppress ArgumentTypeCoercion */
         $native = new \ReflectionClass($class);

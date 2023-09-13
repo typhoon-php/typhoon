@@ -6,9 +6,11 @@ namespace Typhoon\Reflection\Reflector;
 
 use PhpParser\Node;
 use PhpParser\Node\Expr;
+use PhpParser\Node\Expr\Yield_;
 use PhpParser\Node\Name;
 use PhpParser\Node\Stmt;
 use PhpParser\NodeTraverser;
+use PhpParser\NodeVisitorAbstract;
 use PHPStan\PhpDocParser\Ast\Type\TypeNode;
 use Typhoon\Reflection\ChangeDetector;
 use Typhoon\Reflection\ClassReflection;
@@ -312,7 +314,7 @@ final class PhpParserStatementReflector
                     startLine: $node->getStartLine() > 0 ? $node->getStartLine() : null,
                     endLine: $node->getEndLine() > 0 ? $node->getEndLine() : null,
                     returnsReference: $node->byRef,
-                    generator: $this->reflectIsFunctionGenerator($node),
+                    generator: $this->reflectIsGenerator($node),
                     parameters: $this->reflectParameters([$class, $name], $node->params, $phpDoc),
                     returnType: $this->reflectType($node->returnType, $phpDoc->returnType),
                 );
@@ -332,10 +334,26 @@ final class PhpParserStatementReflector
         return $methods;
     }
 
-    private function reflectIsFunctionGenerator(Node $node): bool
+    private function reflectIsGenerator(Stmt\ClassMethod $node): bool
     {
         $traverser = new NodeTraverser();
-        $visitor = new HasYieldVisitor();
+        $visitor = new class () extends NodeVisitorAbstract {
+            /**
+             * @psalm-readonly-allow-private-mutation
+             */
+            public bool $hasYield = false;
+
+            public function enterNode(Node $node): ?int
+            {
+                if ($node instanceof Yield_) {
+                    $this->hasYield = true;
+
+                    return NodeTraverser::STOP_TRAVERSAL;
+                }
+
+                return null;
+            }
+        };
         $traverser->addVisitor($visitor);
         $traverser->traverse([$node]);
 
