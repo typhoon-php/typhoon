@@ -28,6 +28,7 @@ use Typhoon\Reflection\ReflectionException;
 use Typhoon\Type;
 use Typhoon\Type\ShapeType;
 use Typhoon\types;
+use Typhoon\TypeStringifier;
 
 /**
  * @internal
@@ -197,8 +198,7 @@ final class ContextAwarePhpDocTypeReflector
             return $type->value;
         }
 
-        // todo use stringifier
-        throw new ReflectionException(sprintf('%s cannot be used as int range limit.', $type::class));
+        throw new ReflectionException(sprintf('%s cannot be used as int range limit.', TypeStringifier::stringify($type)));
     }
 
     /**

@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "c75b7e7d53f5a9a6ced6608a9e4e22ad",
+    "content-hash": "d1de4e309bc04156fd64c2a68d825b97",
     "packages": [
         {
             "name": "nikic/php-parser",
@@ -155,6 +155,56 @@
                 "source": "https://github.com/typhoon-php/type/tree/0.2.x"
             },
             "time": "2023-09-13T11:33:27+00:00"
+        },
+        {
+            "name": "typhoon/type-stringifier",
+            "version": "0.2.x-dev",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/typhoon-php/type-stringifier.git",
+                "reference": "a4fbbca553db806996325ae556fb59da3c9cf60f"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/typhoon-php/type-stringifier/zipball/a4fbbca553db806996325ae556fb59da3c9cf60f",
+                "reference": "a4fbbca553db806996325ae556fb59da3c9cf60f",
+                "shasum": ""
+            },
+            "require": {
+                "php": "^8.1",
+                "typhoon/type": "^0.2@dev"
+            },
+            "require-dev": {
+                "ergebnis/composer-normalize": "^2.36.0",
+                "friendsofphp/php-cs-fixer": "^3.26.1",
+                "phpunit/phpunit": "^10.3.4",
+                "phpyh/coding-standard": "^2.5.0",
+                "psalm/plugin-phpunit": "^0.18.4",
+                "vimeo/psalm": "^5.15.0"
+            },
+            "default-branch": true,
+            "type": "library",
+            "autoload": {
+                "psr-4": {
+                    "Typhoon\\": "src/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Valentin Udaltsov",
+                    "email": "udaltsov.valentin@gmail.com"
+                }
+            ],
+            "description": "Typhoon Type Stringifier",
+            "support": {
+                "issues": "https://github.com/typhoon-php/type-stringifier/issues",
+                "source": "https://github.com/typhoon-php/type-stringifier/tree/0.2.x"
+            },
+            "time": "2023-09-13T12:14:17+00:00"
         }
     ],
     "packages-dev": [
@@ -5915,7 +5965,8 @@
     "aliases": [],
     "minimum-stability": "stable",
     "stability-flags": {
-        "typhoon/type": 20
+        "typhoon/type": 20,
+        "typhoon/type-stringifier": 20
     },
     "prefer-stable": false,
     "prefer-lowest": false,

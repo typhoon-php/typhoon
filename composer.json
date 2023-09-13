@@ -13,7 +13,8 @@
         "php": "^8.1",
         "nikic/php-parser": "^4.15",
         "phpstan/phpdoc-parser": "^1.0",
-        "typhoon/type": "^0.2@dev"
+        "typhoon/type": "^0.2@dev",
+        "typhoon/type-stringifier": "^0.2@dev"
     },
     "require-dev": {
         "ergebnis/composer-normalize": "^2.36",
