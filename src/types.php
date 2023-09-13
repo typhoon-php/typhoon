@@ -39,9 +39,7 @@ final class types
     /**
      * @psalm-suppress UnusedConstructor
      */
-    private function __construct()
-    {
-    }
+    private function __construct() {}
 
     /**
      * @psalm-pure

@@ -29,4 +29,17 @@
             <directory name="vendor"/>
         </ignoreFiles>
     </projectFiles>
+
+    <forbiddenFunctions>
+        <function name="dd"/>
+        <function name="die"/>
+        <function name="dump"/>
+        <function name="echo"/>
+        <function name="empty"/>
+        <function name="eval"/>
+        <function name="exit"/>
+        <function name="print"/>
+        <function name="sleep"/>
+        <function name="usleep"/>
+    </forbiddenFunctions>
 </psalm>

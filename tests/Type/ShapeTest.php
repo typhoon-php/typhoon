@@ -15,8 +15,6 @@ $_shapeType = new ShapeType([
 /** @psalm-check-type-exact $_shape = array{a?: string, 10: int} */
 $_shape = extractType($_shapeType);
 
-function testShapeIsCovariant(ShapeType $_type): void
-{
-}
+function testShapeIsCovariant(ShapeType $_type): void {}
 
 testShapeIsCovariant($_shapeType);

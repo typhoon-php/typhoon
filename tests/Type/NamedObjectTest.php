@@ -12,8 +12,6 @@ $arrayObjectType = new NamedObjectType(\ArrayObject::class, [IntType::type, Stri
 /** @psalm-check-type-exact $_arrayObject = \ArrayObject<int, string> */
 $_arrayObject = extractType($arrayObjectType);
 
-function testObjectIsCovariant(NamedObjectType $_type): void
-{
-}
+function testObjectIsCovariant(NamedObjectType $_type): void {}
 
 testObjectIsCovariant(new NamedObjectType(\stdClass::class));

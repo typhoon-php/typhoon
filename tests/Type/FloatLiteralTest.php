@@ -16,8 +16,6 @@ $_genericFloat = extractType(new FloatLiteralType(array_sum([1, 2])));
 /**
  * @param FloatLiteralType<0.5|-1.7> $_type
  */
-function testFloatLiteralIsCovariant(FloatLiteralType $_type): void
-{
-}
+function testFloatLiteralIsCovariant(FloatLiteralType $_type): void {}
 
 testFloatLiteralIsCovariant(new FloatLiteralType(-1.7));

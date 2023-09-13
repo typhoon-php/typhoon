@@ -24,8 +24,6 @@ $_genericLiteralInt = extractType(new IntLiteralType(generateLiteralInt()));
 /**
  * @param IntLiteralType<1|2> $_type
  */
-function testIntLiteralIsCovariant(IntLiteralType $_type): void
-{
-}
+function testIntLiteralIsCovariant(IntLiteralType $_type): void {}
 
 testIntLiteralIsCovariant(new IntLiteralType(1));

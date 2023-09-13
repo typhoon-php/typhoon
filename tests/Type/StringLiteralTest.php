@@ -21,8 +21,6 @@ $_genericLiteralString = extractType(new StringLiteralType(generateLiteralString
 /**
  * @param StringLiteralType<'abc'|'xyz'> $_type
  */
-function testStringLiteralIsCovariant(StringLiteralType $_type): void
-{
-}
+function testStringLiteralIsCovariant(StringLiteralType $_type): void {}
 
 testStringLiteralIsCovariant(new StringLiteralType('abc'));
