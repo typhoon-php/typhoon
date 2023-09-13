@@ -75,7 +75,7 @@ final class ReflectorCompatibilityTest extends TestCase
         self::assertSame($native->getExtensionName() ?: null, $typhoon->getExtensionName(), 'getExtensionName()');
         self::assertSame($native->getFileName(), $typhoon->getFileName(), 'getFileName()');
         self::assertSame($native->getInterfaceNames(), $typhoon->getInterfaceNames(), 'getInterfaceNames()');
-        self::assertSame(array_column($native->getInterfaces(), 'name'), array_column($typhoon->getInterfaces(), 'name'), 'getInterfaces().name');
+        self::assertSameNames($native->getInterfaces(), $typhoon->getInterfaces(), 'getInterfaces().name');
         self::assertSame($native->getModifiers(), $typhoon->getModifiers(), 'getModifiers()');
         self::assertSame($native->getName(), $typhoon->getName(), 'getName()');
         self::assertSame($native->getNamespaceName(), $typhoon->getNamespaceName(), 'getNamespaceName()');
@@ -110,42 +110,25 @@ final class ReflectorCompatibilityTest extends TestCase
             self::assertEquals($native->newInstanceWithoutConstructor(), $typhoon->newInstanceWithoutConstructor());
         }
 
-        self::assertSame(
-            array_column($native->getProperties(), 'name'),
-            array_column($typhoon->getProperties(), 'name'),
-            'getProperties().name',
-        );
-        self::assertSame(
-            array_column($native->getProperties(PropertyReflection::IS_PUBLIC), 'name'),
-            array_column($typhoon->getProperties(PropertyReflection::IS_PUBLIC), 'name'),
-            'getProperties(IS_PUBLIC).name',
-        );
-        self::assertSame(
-            array_column($native->getProperties(PropertyReflection::IS_READONLY), 'name'),
-            array_column($typhoon->getProperties(PropertyReflection::IS_READONLY), 'name'),
-            'getProperties(IS_READONLY).name',
-        );
+        $this->assertSameNames($native->getProperties(), $typhoon->getProperties(), 'getProperties().name');
+        $this->assertSameNames($native->getProperties(\ReflectionProperty::IS_PUBLIC), $typhoon->getProperties(PropertyReflection::IS_PUBLIC), 'getProperties(IS_PUBLIC).name');
+        $this->assertSameNames($native->getProperties(\ReflectionProperty::IS_PROTECTED), $typhoon->getProperties(PropertyReflection::IS_PROTECTED), 'getProperties(IS_PROTECTED).name');
+        $this->assertSameNames($native->getProperties(\ReflectionProperty::IS_PRIVATE), $typhoon->getProperties(PropertyReflection::IS_PRIVATE), 'getProperties(IS_PRIVATE).name');
+        $this->assertSameNames($native->getProperties(\ReflectionProperty::IS_STATIC), $typhoon->getProperties(PropertyReflection::IS_STATIC), 'getProperties(IS_STATIC).name');
+        $this->assertSameNames($native->getProperties(\ReflectionProperty::IS_READONLY), $typhoon->getProperties(PropertyReflection::IS_READONLY), 'getProperties(IS_READONLY).name');
 
         foreach ($native->getProperties() as $nativeProperty) {
             self::assertTrue($typhoon->hasProperty($nativeProperty->name), "hasProperty({$nativeProperty->name}).");
             $this->assertPropertyEquals($nativeProperty, $typhoon->getProperty($nativeProperty->name), "getProperty({$nativeProperty->name}).");
         }
 
-        self::assertSame(
-            array_column($native->getMethods(), 'name'),
-            array_column($typhoon->getMethods(), 'name'),
-            'getMethods().name',
-        );
-        self::assertSame(
-            array_column($native->getMethods(MethodReflection::IS_PUBLIC), 'name'),
-            array_column($typhoon->getMethods(MethodReflection::IS_PUBLIC), 'name'),
-            'getMethods(IS_PUBLIC).name',
-        );
-        self::assertSame(
-            array_column($native->getMethods(MethodReflection::IS_ABSTRACT), 'name'),
-            array_column($typhoon->getMethods(MethodReflection::IS_ABSTRACT), 'name'),
-            'getMethods(IS_ABSTRACT).name',
-        );
+        $this->assertSameNames($native->getMethods(), $typhoon->getMethods(), 'getMethods().name');
+        $this->assertSameNames($native->getMethods(\ReflectionMethod::IS_FINAL), $typhoon->getMethods(MethodReflection::IS_FINAL), 'getMethods(IS_FINAL).name');
+        $this->assertSameNames($native->getMethods(\ReflectionMethod::IS_ABSTRACT), $typhoon->getMethods(MethodReflection::IS_ABSTRACT), 'getMethods(IS_ABSTRACT).name');
+        $this->assertSameNames($native->getMethods(\ReflectionMethod::IS_PUBLIC), $typhoon->getMethods(MethodReflection::IS_PUBLIC), 'getMethods(IS_PUBLIC).name');
+        $this->assertSameNames($native->getMethods(\ReflectionMethod::IS_PROTECTED), $typhoon->getMethods(MethodReflection::IS_PROTECTED), 'getMethods(IS_PROTECTED).name');
+        $this->assertSameNames($native->getMethods(\ReflectionMethod::IS_PRIVATE), $typhoon->getMethods(MethodReflection::IS_PRIVATE), 'getMethods(IS_PRIVATE).name');
+        $this->assertSameNames($native->getMethods(\ReflectionMethod::IS_STATIC), $typhoon->getMethods(MethodReflection::IS_STATIC), 'getMethods(IS_STATIC).name');
 
         if ($native->hasMethod('__construct')) {
             self::assertSame($typhoon->getMethod('__construct'), $typhoon->getConstructor(), 'getConstructor()');
@@ -226,7 +209,8 @@ final class ReflectorCompatibilityTest extends TestCase
         // self::assertSame($native->isUserDefined(), $typhoon->isUserDefined(), $messagePrefix.'isUserDefined()');
         self::assertSame($native->isVariadic(), $typhoon->isVariadic(), $messagePrefix . 'isVariadic()');
         self::assertSame($native->returnsReference(), $typhoon->returnsReference(), $messagePrefix . 'returnsReference()');
-        self::assertSame(array_column($native->getParameters(), 'name'), array_column($typhoon->getParameters(), 'name'), $messagePrefix . 'getParameters().name');
+
+        $this->assertSameNames($native->getParameters(), $typhoon->getParameters(), 'getParameters().name');
 
         foreach ($native->getParameters() as $index => $nativeParameter) {
             self::assertTrue($typhoon->hasParameter($nativeParameter->name), $messagePrefix . "hasParameter({$nativeParameter->name}).");
@@ -254,5 +238,14 @@ final class ReflectorCompatibilityTest extends TestCase
         self::assertSame($native->isPassedByReference(), $typhoon->isPassedByReference(), $messagePrefix . 'isPassedByReference()');
         self::assertSame($native->isPromoted(), $typhoon->isPromoted(), $messagePrefix . 'isPromoted()');
         self::assertSame($native->isVariadic(), $typhoon->isVariadic(), $messagePrefix . 'isVariadic()');
+    }
+
+    /**
+     * @param array<\ReflectionClass|\ReflectionProperty|\ReflectionMethod|\ReflectionParameter> $nativeReflections
+     * @param array<ClassReflection|PropertyReflection|MethodReflection|ParameterReflection> $typhoonReflections
+     */
+    private function assertSameNames(array $nativeReflections, array $typhoonReflections, string $message): void
+    {
+        self::assertSame(array_column($nativeReflections, 'name'), array_column($typhoonReflections, 'name'), $message);
     }
 }
