@@ -4,9 +4,6 @@ declare(strict_types=1);
 
 namespace Typhoon\Reflection\Reflector;
 
-use Typhoon\Type;
-use Typhoon\Type\ShapeType;
-use Typhoon\types;
 use PHPStan\PhpDocParser\Ast\ConstExpr\ConstExprFalseNode;
 use PHPStan\PhpDocParser\Ast\ConstExpr\ConstExprFloatNode;
 use PHPStan\PhpDocParser\Ast\ConstExpr\ConstExprIntegerNode;
@@ -28,6 +25,9 @@ use PHPStan\PhpDocParser\Ast\Type\UnionTypeNode;
 use Typhoon\Reflection\NameResolution\NameAsTypeResolver;
 use Typhoon\Reflection\NameResolution\NameContext;
 use Typhoon\Reflection\ReflectionException;
+use Typhoon\Type;
+use Typhoon\Type\ShapeType;
+use Typhoon\types;
 
 /**
  * @internal

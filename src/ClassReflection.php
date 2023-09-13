@@ -4,13 +4,13 @@ declare(strict_types=1);
 
 namespace Typhoon\Reflection;
 
-use Typhoon\Type;
-use Typhoon\TypeVisitor;
 use Typhoon\Reflection\Reflector\FriendlyReflection;
 use Typhoon\Reflection\Reflector\ReflectionContext;
 use Typhoon\Reflection\Reflector\RootReflection;
 use Typhoon\Reflection\TypeResolver\ClassTemplateResolver;
 use Typhoon\Reflection\TypeResolver\StaticResolver;
+use Typhoon\Type;
+use Typhoon\TypeVisitor;
 
 /**
  * @api

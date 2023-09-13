@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace Typhoon\Reflection;
 
-use Typhoon\TypeVisitor;
 use Typhoon\Reflection\Reflector\FriendlyReflection;
+use Typhoon\TypeVisitor;
 
 /**
  * @api

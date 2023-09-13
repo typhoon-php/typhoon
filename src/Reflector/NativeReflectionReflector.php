@@ -4,8 +4,6 @@ declare(strict_types=1);
 
 namespace Typhoon\Reflection\Reflector;
 
-use Typhoon\Type;
-use Typhoon\types;
 use Typhoon\Reflection\ChangeDetector;
 use Typhoon\Reflection\ChangeDetector\FileChangeDetector;
 use Typhoon\Reflection\ChangeDetector\PhpVersionChangeDetector;
@@ -15,6 +13,8 @@ use Typhoon\Reflection\ParameterReflection;
 use Typhoon\Reflection\PropertyReflection;
 use Typhoon\Reflection\ReflectionException;
 use Typhoon\Reflection\TypeReflection;
+use Typhoon\Type;
+use Typhoon\types;
 
 /**
  * @internal

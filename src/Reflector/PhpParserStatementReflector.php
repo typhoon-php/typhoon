@@ -4,8 +4,6 @@ declare(strict_types=1);
 
 namespace Typhoon\Reflection\Reflector;
 
-use Typhoon\Type;
-use Typhoon\types;
 use PhpParser\Node;
 use PhpParser\Node\Expr;
 use PhpParser\Node\Name;
@@ -26,6 +24,8 @@ use Typhoon\Reflection\Resource;
 use Typhoon\Reflection\TemplateReflection;
 use Typhoon\Reflection\TypeReflection;
 use Typhoon\Reflection\Variance;
+use Typhoon\Type;
+use Typhoon\types;
 
 /**
  * @internal

@@ -4,9 +4,9 @@ declare(strict_types=1);
 
 namespace Typhoon\Reflection\NameResolution;
 
+use Typhoon\Reflection\ReflectionException;
 use Typhoon\Type;
 use Typhoon\types;
-use Typhoon\Reflection\ReflectionException;
 
 /**
  * @internal

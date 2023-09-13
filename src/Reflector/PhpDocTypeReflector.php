@@ -4,9 +4,9 @@ declare(strict_types=1);
 
 namespace Typhoon\Reflection\Reflector;
 
-use Typhoon\Type;
 use PHPStan\PhpDocParser\Ast\Type\TypeNode;
 use Typhoon\Reflection\NameResolution\NameContext;
+use Typhoon\Type;
 
 /**
  * @internal
