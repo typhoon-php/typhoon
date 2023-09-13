@@ -12,12 +12,12 @@ use Typhoon\TypeVisitor;
  */
 final class MethodReflection extends FriendlyReflection
 {
-    public const IS_STATIC = \ReflectionMethod::IS_STATIC;
+    public const IS_FINAL = \ReflectionMethod::IS_FINAL;
+    public const IS_ABSTRACT = \ReflectionMethod::IS_ABSTRACT;
     public const IS_PUBLIC = \ReflectionMethod::IS_PUBLIC;
     public const IS_PROTECTED = \ReflectionMethod::IS_PROTECTED;
     public const IS_PRIVATE = \ReflectionMethod::IS_PRIVATE;
-    public const IS_ABSTRACT = \ReflectionMethod::IS_ABSTRACT;
-    public const IS_FINAL = \ReflectionMethod::IS_FINAL;
+    public const IS_STATIC = \ReflectionMethod::IS_STATIC;
 
     /**
      * @param class-string $class

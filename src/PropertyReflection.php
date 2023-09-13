@@ -12,10 +12,10 @@ use Typhoon\TypeVisitor;
  */
 final class PropertyReflection extends FriendlyReflection
 {
-    public const IS_STATIC = \ReflectionProperty::IS_STATIC;
     public const IS_PUBLIC = \ReflectionProperty::IS_PUBLIC;
     public const IS_PROTECTED = \ReflectionProperty::IS_PROTECTED;
     public const IS_PRIVATE = \ReflectionProperty::IS_PRIVATE;
+    public const IS_STATIC = \ReflectionProperty::IS_STATIC;
     public const IS_READONLY = \ReflectionProperty::IS_READONLY;
 
     /**
