@@ -98,11 +98,11 @@ final class ReflectorCompatibilityTest extends TestCase
         // self::assertSame($native->isInstance(), $typhoon->isInstance(), 'isInstance()');
         self::assertSame($native->isInstantiable(), $typhoon->isInstantiable(), 'isInstantiable()');
         self::assertSame($native->isInterface(), $typhoon->isInterface(), 'isInterface()');
-        // self::assertSame($native->isInternal(), $typhoon->isInternal(), 'isInternal()');
+        self::assertSame($native->isInternal(), $typhoon->isInternal(), 'isInternal()');
         self::assertSame($native->isIterable(), $typhoon->isIterable(), 'isIterable()');
         // self::assertSame($native->isSubclassOf(), $typhoon->isSubclassOf(), 'isSubclassOf()');
         self::assertSame($native->isTrait(), $typhoon->isTrait(), 'isTrait()');
-        // self::assertSame($native->isUserDefined(), $typhoon->isUserDefined(), 'isUserDefined()');
+        self::assertSame($native->isUserDefined(), $typhoon->isUserDefined(), 'isUserDefined()');
 
         if ($native->isInstantiable()) {
             // self::assertEquals($native->newInstance(), $typhoon->newInstance());
@@ -176,7 +176,7 @@ final class ReflectorCompatibilityTest extends TestCase
         // self::assertSame($native->getClosureThis(), $typhoon->getClosureThis(), $messagePrefix.'getClosureThis()');
         // self::assertSame($native->getClosureUsedVariables(), $typhoon->getClosureUsedVariables(), $messagePrefix.'getClosureUsedVariables()');
         // self::assertSame($native->getDeclaringClass(), $typhoon->getDeclaringClass(), $messagePrefix.'getDeclaringClass()');
-        self::assertSame($native->getDocComment() ?: null, $typhoon->getDocComment(), $messagePrefix.'getDocComment()');
+        self::assertSame($native->getDocComment() ?: null, $typhoon->getDocComment(), $messagePrefix . 'getDocComment()');
         // self::assertSame($native->getEndLine(), $typhoon->getEndLine(), $messagePrefix.'getEndLine()');
         // self::assertSame($native->getExtension(), $typhoon->getExtension(), $messagePrefix.'getExtension()');
         self::assertSame($native->getExtensionName() ?: null, $typhoon->getExtensionName(), $messagePrefix . 'getExtensionName()');
@@ -201,12 +201,12 @@ final class ReflectorCompatibilityTest extends TestCase
         self::assertSame($native->isDestructor(), $typhoon->isDestructor(), $messagePrefix . 'isDestructor()');
         self::assertSame($native->isFinal(), $typhoon->isFinal(), $messagePrefix . 'isFinal()');
         self::assertSame($native->isGenerator(), $typhoon->isGenerator(), $messagePrefix . 'isGenerator()');
-        // self::assertSame($native->isInternal(), $typhoon->isInternal(), $messagePrefix.'isInternal()');
+        self::assertSame($native->isInternal(), $typhoon->isInternal(), $messagePrefix . 'isInternal()');
         self::assertSame($native->isPrivate(), $typhoon->isPrivate(), $messagePrefix . 'isPrivate()');
         self::assertSame($native->isProtected(), $typhoon->isProtected(), $messagePrefix . 'isProtected()');
         self::assertSame($native->isPublic(), $typhoon->isPublic(), $messagePrefix . 'isPublic()');
         self::assertSame($native->isStatic(), $typhoon->isStatic(), $messagePrefix . 'isStatic()');
-        // self::assertSame($native->isUserDefined(), $typhoon->isUserDefined(), $messagePrefix.'isUserDefined()');
+        self::assertSame($native->isUserDefined(), $typhoon->isUserDefined(), $messagePrefix . 'isUserDefined()');
         self::assertSame($native->isVariadic(), $typhoon->isVariadic(), $messagePrefix . 'isVariadic()');
         self::assertSame($native->returnsReference(), $typhoon->returnsReference(), $messagePrefix . 'returnsReference()');
 

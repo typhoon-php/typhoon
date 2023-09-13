@@ -37,6 +37,7 @@ final class MethodReflection extends FriendlyReflection
         private readonly array $templates,
         private readonly int $modifiers,
         private readonly ?string $docComment,
+        private readonly bool $internal,
         private readonly ?string $extensionName,
         private readonly ?string $fileName,
         private readonly ?int $startLine,
@@ -80,6 +81,16 @@ final class MethodReflection extends FriendlyReflection
     public function getExtensionName(): ?string
     {
         return $this->extensionName;
+    }
+
+    public function isInternal(): bool
+    {
+        return $this->internal;
+    }
+
+    public function isUserDefined(): bool
+    {
+        return !$this->internal;
     }
 
     /**

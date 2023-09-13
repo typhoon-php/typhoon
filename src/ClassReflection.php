@@ -53,6 +53,7 @@ final class ClassReflection extends FriendlyReflection implements RootReflection
         private readonly ReflectionContext $reflectionContext,
         public readonly string $name,
         private readonly ChangeDetector $changeDetector,
+        private readonly bool $internal,
         private readonly ?string $extensionName,
         private readonly ?string $fileName,
         private readonly ?int $startLine,
@@ -121,6 +122,16 @@ final class ClassReflection extends FriendlyReflection implements RootReflection
     public function getExtensionName(): ?string
     {
         return $this->extensionName;
+    }
+
+    public function isInternal(): bool
+    {
+        return $this->internal;
+    }
+
+    public function isUserDefined(): bool
+    {
+        return !$this->internal;
     }
 
     /**

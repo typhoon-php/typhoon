@@ -57,6 +57,7 @@ final class PhpParserStatementReflector
             reflectionContext: $this->reflectionContext,
             name: $name,
             changeDetector: $this->changeDetector,
+            internal: $this->reflectInternal(),
             extensionName: $this->resource->extensionName,
             fileName: $this->resource->file,
             startLine: $node->getStartLine() > 0 ? $node->getStartLine() : null,
@@ -91,6 +92,11 @@ final class PhpParserStatementReflector
             startLine: null,
             endLine: null,
         );
+    }
+
+    private function reflectInternal(): bool
+    {
+        return $this->resource->extensionName !== null;
     }
 
     /**
@@ -309,6 +315,7 @@ final class PhpParserStatementReflector
                     templates: $this->reflectTemplates($phpDoc),
                     modifiers: $this->reflectMethodModifiers($node, $interface),
                     docComment: $this->reflectDocComment($node),
+                    internal: $this->reflectInternal(),
                     extensionName: $this->resource->extensionName,
                     fileName: $this->resource->file,
                     startLine: $node->getStartLine() > 0 ? $node->getStartLine() : null,
@@ -339,7 +346,7 @@ final class PhpParserStatementReflector
      */
     private function reflectDocComment(Node $node): ?string
     {
-        if ($this->resource->extensionName !== null) {
+        if ($this->reflectInternal()) {
             return null;
         }
 
@@ -538,6 +545,7 @@ final class PhpParserStatementReflector
             templates: [],
             modifiers: MethodReflection::IS_STATIC + MethodReflection::IS_PUBLIC,
             docComment: null,
+            internal: true,
             extensionName: null,
             fileName: null,
             startLine: null,
@@ -564,6 +572,7 @@ final class PhpParserStatementReflector
                 templates: [],
                 modifiers: MethodReflection::IS_STATIC + MethodReflection::IS_PUBLIC,
                 docComment: null,
+                internal: true,
                 extensionName: null,
                 fileName: null,
                 startLine: null,
@@ -593,6 +602,7 @@ final class PhpParserStatementReflector
                 templates: [],
                 modifiers: MethodReflection::IS_STATIC + MethodReflection::IS_PUBLIC,
                 docComment: null,
+                internal: true,
                 extensionName: null,
                 fileName: null,
                 startLine: null,

@@ -54,13 +54,13 @@
 | `isInstance()`                    | ❌ TODO                                 |
 | `isInstantiable()`                | ✅                                      |
 | `isInterface()`                   | ✅                                      |
-| `isInternal()`                    | ❌ TODO                                 |
+| `isInternal()`                    | ✅                                      |
 | `isIterable()`                    | ✅                                      |
 | `isIterateable()`                 | ❌ Use `ClassReflection::isIterable()`  |
 | `isReadOnly()`                    | ✅                                      |
 | `isSubclassOf()`                  | ✅                                      |
 | `isTrait()`                       | ✅                                      |
-| `isUserDefined()`                 | ❌                                      |
+| `isUserDefined()`                 | ✅                                      |
 | `newInstance()`                   | ✅ Via native reflection                |
 | `newInstanceArgs()`               | ✅ Via native reflection                |
 | `newInstanceWithoutConstructor()` | ✅ Via native reflection                |
@@ -153,12 +153,12 @@
 | `isDestructor()`                  | ✅                              |
 | `isFinal()`                       | ✅                              |
 | `isGenerator()`                   | ✅                              |
-| `isInternal()`                    | ❌                              |
+| `isInternal()`                    | ✅                              |
 | `isPrivate()`                     | ✅                              |
 | `isProtected()`                   | ✅                              |
 | `isPublic()`                      | ✅                              |
 | `isStatic()`                      | ✅                              |
-| `isUserDefined()`                 | ❌                              |
+| `isUserDefined()`                 | ✅                              |
 | `isVariadic()`                    | ✅                              |
 | `returnsReference()`              | ✅                              |
 | `setAccessible()`                 | ❌ Has no effect since 8.1      |
