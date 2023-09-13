@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace ExtendedTypeSystem\Type;
+namespace Typhoon\Type;
 
 /** @psalm-check-type-exact $_emptyShape = array */
 $_emptyShape = extractType(new ShapeType());

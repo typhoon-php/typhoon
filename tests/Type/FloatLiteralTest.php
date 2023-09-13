@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace ExtendedTypeSystem\Type;
+namespace Typhoon\Type;
 
 /** @psalm-check-type-exact $_floatLiteral = 3.5 */
 $_floatLiteral = extractType(new FloatLiteralType(3.5));

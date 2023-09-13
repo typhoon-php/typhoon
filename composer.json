@@ -1,6 +1,6 @@
 {
-    "name": "extended-type-system/type",
-    "description": "PHP Extended Type System • Type",
+    "name": "typhoon/type",
+    "description": "Typhoon Type",
     "license": "MIT",
     "type": "library",
     "authors": [
@@ -20,12 +20,12 @@
     },
     "autoload": {
         "psr-4": {
-            "ExtendedTypeSystem\\": "src/"
+            "Typhoon\\": "src/"
         }
     },
     "autoload-dev": {
         "psr-4": {
-            "ExtendedTypeSystem\\": "tests/"
+            "Typhoon\\": "tests/"
         },
         "files": [
             "tests/Type/functions.php"

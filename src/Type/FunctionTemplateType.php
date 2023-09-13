@@ -2,10 +2,10 @@
 
 declare(strict_types=1);
 
-namespace ExtendedTypeSystem\Type;
+namespace Typhoon\Type;
 
-use ExtendedTypeSystem\Type;
-use ExtendedTypeSystem\TypeVisitor;
+use Typhoon\Type;
+use Typhoon\TypeVisitor;
 
 /**
  * @api
@@ -27,7 +27,7 @@ final class FunctionTemplateType implements Type
 
     /**
      * @internal
-     * @psalm-internal ExtendedTypeSystem
+     * @psalm-internal Typhoon
      * @param callable-string $function
      * @param non-empty-string $name
      */

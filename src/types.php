@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace ExtendedTypeSystem;
+namespace Typhoon;
 
 /**
  * @api
@@ -493,42 +493,42 @@ final class types
 
 /**
  * @internal
- * @psalm-internal ExtendedTypeSystem
+ * @psalm-internal Typhoon
  */
 const __nonEmptyList = new Type\NonEmptyListType();
 
 /**
  * @internal
- * @psalm-internal ExtendedTypeSystem
+ * @psalm-internal Typhoon
  */
 const __list = new Type\ListType();
 
 /**
  * @internal
- * @psalm-internal ExtendedTypeSystem
+ * @psalm-internal Typhoon
  */
 const __nonEmptyArray = new Type\NonEmptyArrayType();
 
 /**
  * @internal
- * @psalm-internal ExtendedTypeSystem
+ * @psalm-internal Typhoon
  */
 const __array = new Type\ArrayType();
 
 /**
  * @internal
- * @psalm-internal ExtendedTypeSystem
+ * @psalm-internal Typhoon
  */
 const __iterable = new Type\IterableType();
 
 /**
  * @internal
- * @psalm-internal ExtendedTypeSystem
+ * @psalm-internal Typhoon
  */
 const __closure = new Type\ClosureType();
 
 /**
  * @internal
- * @psalm-internal ExtendedTypeSystem
+ * @psalm-internal Typhoon
  */
 const __callable = new Type\CallableType();

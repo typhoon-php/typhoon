@@ -2,10 +2,10 @@
 
 declare(strict_types=1);
 
-namespace ExtendedTypeSystem\Type;
+namespace Typhoon\Type;
 
-use ExtendedTypeSystem\Type;
-use ExtendedTypeSystem\TypeVisitor;
+use Typhoon\Type;
+use Typhoon\TypeVisitor;
 
 /**
  * @api
@@ -28,7 +28,7 @@ final class IterableType implements Type
 
     /**
      * @internal
-     * @psalm-internal ExtendedTypeSystem
+     * @psalm-internal Typhoon
      * @param Type<TKey> $keyType
      * @param Type<TValue> $valueType
      */

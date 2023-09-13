@@ -2,10 +2,10 @@
 
 declare(strict_types=1);
 
-namespace ExtendedTypeSystem\Type;
+namespace Typhoon\Type;
 
-use ExtendedTypeSystem\Type;
-use ExtendedTypeSystem\TypeVisitor;
+use Typhoon\Type;
+use Typhoon\TypeVisitor;
 
 /**
  * @api
@@ -32,7 +32,7 @@ final class MethodTemplateType implements Type
 
     /**
      * @internal
-     * @psalm-internal ExtendedTypeSystem
+     * @psalm-internal Typhoon
      * @param class-string $class
      * @param non-empty-string $method
      * @param non-empty-string $name

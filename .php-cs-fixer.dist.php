@@ -17,8 +17,6 @@ $config = (new PhpCsFixer\Config())
     ->setFinder($finder)
     ->setCacheFile(__DIR__ . '/var/.php-cs-fixer.cache');
 
-(new PhpCsFixerCodingStandard())->applyTo($config, [
-    'final_public_method_for_abstract_class' => false,
-]);
+(new PhpCsFixerCodingStandard())->applyTo($config);
 
 return $config;

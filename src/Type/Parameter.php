@@ -2,9 +2,9 @@
 
 declare(strict_types=1);
 
-namespace ExtendedTypeSystem\Type;
+namespace Typhoon\Type;
 
-use ExtendedTypeSystem\Type;
+use Typhoon\Type;
 
 /**
  * @api
@@ -24,7 +24,7 @@ final class Parameter
 
     /**
      * @internal
-     * @psalm-internal ExtendedTypeSystem
+     * @psalm-internal Typhoon
      * @param Type<TType> $type
      */
     public function __construct(

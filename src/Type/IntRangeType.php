@@ -2,10 +2,10 @@
 
 declare(strict_types=1);
 
-namespace ExtendedTypeSystem\Type;
+namespace Typhoon\Type;
 
-use ExtendedTypeSystem\Type;
-use ExtendedTypeSystem\TypeVisitor;
+use Typhoon\Type;
+use Typhoon\TypeVisitor;
 
 /**
  * @api
@@ -21,7 +21,7 @@ final class IntRangeType implements Type
 
     /**
      * @internal
-     * @psalm-internal ExtendedTypeSystem
+     * @psalm-internal Typhoon
      */
     public function __construct(
         ?int $min = null,

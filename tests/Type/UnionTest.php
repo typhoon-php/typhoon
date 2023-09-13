@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace ExtendedTypeSystem\Type;
+namespace Typhoon\Type;
 
 /**
  * @param UnionType<int|string|float> $_type

@@ -2,9 +2,9 @@
 
 declare(strict_types=1);
 
-namespace ExtendedTypeSystem\Type;
+namespace Typhoon\Type;
 
-use ExtendedTypeSystem\Type;
+use Typhoon\Type;
 
 /**
  * @template TType

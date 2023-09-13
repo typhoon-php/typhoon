@@ -1,6 +1,6 @@
-# PHP Extended Type System • Type
+# Typhoon Type
 
-Collection of value objects that represent the types of PHP Extended Type System.
+Collection of value objects that represent the extended PHP type system.
 All the types are inspired by popular PHP static analysis tools: [Psalm](https://psalm.dev/) and [PHPStan](https://phpstan.org/).
 
 This library will never have any dependencies. Once full and stable, it might be proposed as a [PSR](https://www.php-fig.org/psr/) or [PER](https://www.php-fig.org/per/).
@@ -11,13 +11,13 @@ For that purpose we plan to release a special package.
 ## Installation
 
 ```
-composer require extended-type-system/type
+composer require typhoon/type
 ```
 
 ## Usage
 
 ```php
-use ExtendedTypeSystem\types;
+use Typhoon\types;
 
 /**
  * array{
