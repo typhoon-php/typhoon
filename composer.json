@@ -16,16 +16,16 @@
         "typhoon/type": "^0.2@dev"
     },
     "require-dev": {
-        "ergebnis/composer-normalize": "^2.32",
-        "friendsofphp/php-cs-fixer": "^3.21.1",
+        "ergebnis/composer-normalize": "^2.36",
+        "friendsofphp/php-cs-fixer": "^3.26.1",
         "infection/infection": "^0.27.0",
-        "jetbrains/phpstorm-stubs": "^2023.1",
-        "phpunit/phpunit": "^10.2.3",
-        "phpyh/coding-standard": "^2.4.0",
+        "jetbrains/phpstorm-stubs": "^2023.2",
+        "phpunit/phpunit": "^10.3.4",
+        "phpyh/coding-standard": "^2.5.0",
         "psalm/plugin-phpunit": "^0.18.4",
         "symfony/filesystem": "^6.3.1",
-        "symfony/var-dumper": "^6.3.1",
-        "vimeo/psalm": "^5.13.1"
+        "symfony/var-dumper": "^6.3.4",
+        "vimeo/psalm": "^5.15.0"
     },
     "autoload": {
         "psr-4": {

@@ -20,8 +20,6 @@ $config = (new PhpCsFixer\Config())
     ->setFinder($finder)
     ->setCacheFile(__DIR__ . '/var/.php-cs-fixer.cache');
 
-(new PhpCsFixerCodingStandard())->applyTo($config, [
-    'static_lambda' => true,
-]);
+(new PhpCsFixerCodingStandard())->applyTo($config);
 
 return $config;

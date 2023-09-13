@@ -38,7 +38,6 @@
     <ignoreExceptions>
         <classAndDescendants name="LogicException"/>
         <classAndDescendants name="RuntimeException"/>
-        <classAndDescendants name="Psr\SimpleCache\CacheException"/>
     </ignoreExceptions>
 
     <issueHandlers>
@@ -53,7 +52,6 @@
                 <directory name="tests"/>
             </errorLevel>
         </PossiblyUnusedMethod>
-        <UnusedClass errorLevel="info"/>
         <UnusedMethodCall>
             <errorLevel type="suppress">
                 <directory name="tests"/>
