@@ -85,7 +85,7 @@ jobs:
       - uses: ramsey/composer-install@v2
         with:
           composer-options: --optimize-autoloader
-      - run: composer test -- --colors=always
+      - run: composer test -- --colors=always --order-by=random
 
   infection:
     runs-on: ubuntu-latest

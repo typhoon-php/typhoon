@@ -6,42 +6,33 @@ namespace Typhoon\Reflection;
 
 final class ReflectorCompatibilityProvider
 {
+    private const CLASSES = __DIR__ . '/ReflectorCompatibility/classes.php';
+    private const READONLY_CLASSES = __DIR__ . '/ReflectorCompatibility/readonly_classes.php';
+
     /**
      * @psalm-suppress UnusedConstructor
      */
     private function __construct() {}
 
     /**
-     * @return array<string, array{string}>
+     * @return \Generator<string, array{string, string}>
      */
-    public static function classes(): array
+    public static function classes(): \Generator
     {
-        $file = __DIR__ . '/ReflectorCompatibility/classes.php';
+        include_once self::CLASSES;
 
-        include_once $file;
-
-        $classes = NameCollector::collect($file)->classes;
-
-        return array_combine($classes, array_map(
-            static fn (string $class): array => [$class],
-            $classes,
-        ));
+        foreach (NameCollector::collect(self::CLASSES)->classes as $class) {
+            yield $class => [self::CLASSES, $class];
+        }
     }
 
     /**
-     * @return array<string, array{string}>
+     * @return \Generator<string, array{string, string}>
      */
-    public static function classes82(): array
+    public static function readonlyClasses(): \Generator
     {
-        $file = __DIR__ . '/ReflectorCompatibility/classes82.php';
-
-        include_once $file;
-
-        $classes = NameCollector::collect($file)->classes;
-
-        return array_combine($classes, array_map(
-            static fn (string $class): array => [$class],
-            $classes,
-        ));
+        foreach (NameCollector::collect(self::READONLY_CLASSES)->classes as $class) {
+            yield $class => [self::READONLY_CLASSES, $class];
+        }
     }
 }
