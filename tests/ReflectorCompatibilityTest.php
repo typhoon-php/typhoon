@@ -4,43 +4,25 @@ declare(strict_types=1);
 
 namespace Typhoon\Reflection;
 
-use PhpParser\Lexer\Emulative;
-use PhpParser\NodeTraverser;
-use PhpParser\NodeVisitor\NameResolver;
-use PhpParser\Parser\Php7;
 use PHPUnit\Framework\Attributes\CoversNothing;
-use PHPUnit\Framework\Attributes\DataProvider;
+use PHPUnit\Framework\Attributes\DataProviderExternal;
+use PHPUnit\Framework\Attributes\RequiresPhp;
 use PHPUnit\Framework\TestCase;
 
 #[CoversNothing]
 final class ReflectorCompatibilityTest extends TestCase
 {
-    private const STUBS_DIR = __DIR__ . '/ReflectorCompatibility';
-    private const CLASS_STUBS_FILE = self::STUBS_DIR . '/class.php';
-
-    /**
-     * @return array<string, array{string}>
-     */
-    public static function classes(): array
+    #[DataProviderExternal(ReflectorCompatibilityProvider::class, 'classes')]
+    public function testItReflectsClassesCompatibly(string $class): void
     {
-        include_once self::CLASS_STUBS_FILE;
+        $classReflection = Reflector::build(cache: false)->reflectClass($class);
 
-        $phpParser = new Php7(new Emulative());
-        $nodes = $phpParser->parse(file_get_contents(self::CLASS_STUBS_FILE)) ?? [];
-        $traverser = new NodeTraverser();
-        $traverser->addVisitor(new NameResolver());
-        $nameCollector = new NameCollector();
-        $traverser->addVisitor($nameCollector);
-        $traverser->traverse($nodes);
-
-        return array_combine($nameCollector->classes, array_map(
-            static fn (string $class): array => [$class],
-            $nameCollector->classes,
-        ));
+        $this->assertClassEquals(new \ReflectionClass($class), $classReflection);
     }
 
-    #[DataProvider('classes')]
-    public function testClass(string $class): void
+    #[RequiresPhp('^8.2')]
+    #[DataProviderExternal(ReflectorCompatibilityProvider::class, 'classes82')]
+    public function testItReflectsPHP82ClassesCompatibly(string $class): void
     {
         $classReflection = Reflector::build(cache: false)->reflectClass($class);
 

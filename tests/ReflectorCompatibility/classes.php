@@ -26,11 +26,7 @@ namespace Simple
 
     trait JustTrait {}
 
-    readonly class ReadonlyClass {}
-
     abstract class AbstractClass {}
-
-    abstract readonly class AbstractReadonlyClass {}
 
     class PrivateConstructorClass
     {
