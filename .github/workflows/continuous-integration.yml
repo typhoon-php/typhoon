@@ -86,4 +86,4 @@ jobs:
       - uses: ramsey/composer-install@v2
         with:
           composer-options: --optimize-autoloader
-      - run: composer test -- --verbose --colors=always --order-by=random
+      - run: composer test -- --colors=always --order-by=random
