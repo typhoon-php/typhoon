@@ -61,7 +61,7 @@ final class PhpParserStatementReflector
             fileName: $this->resource->file,
             startLine: $node->getStartLine() > 0 ? $node->getStartLine() : null,
             endLine: $node->getEndLine() > 0 ? $node->getEndLine() : null,
-            docComment: $node->getDocComment()?->getText() ?: null,
+            docComment: $this->reflectDocComment($node),
             templates: $this->reflectTemplates($phpDoc),
             interface: $node instanceof Stmt\Interface_,
             enum: $node instanceof Stmt\Enum_,
@@ -207,7 +207,7 @@ final class PhpParserStatementReflector
                 $properties[] = new PropertyReflection(
                     name: $property->name->name,
                     class: $class,
-                    docComment: $node->getDocComment()?->getText() ?: null,
+                    docComment: $this->reflectDocComment($node),
                     hasDefaultValue: $property->default !== null || $node->type === null,
                     promoted: false,
                     modifiers: $this->reflectPropertyModifiers($node, $classReadOnly),
@@ -238,7 +238,7 @@ final class PhpParserStatementReflector
             $properties[] = new PropertyReflection(
                 name: $name,
                 class: $class,
-                docComment: $node->getDocComment()?->getText() ?: null,
+                docComment: $this->reflectDocComment($node),
                 hasDefaultValue: $node->default !== null || $node->type === null,
                 promoted: true,
                 modifiers: $modifiers,
@@ -308,7 +308,7 @@ final class PhpParserStatementReflector
                     name: $name,
                     templates: $this->reflectTemplates($phpDoc),
                     modifiers: $this->reflectMethodModifiers($node, $interface),
-                    docComment: $node->getDocComment()?->getText() ?: null,
+                    docComment: $this->reflectDocComment($node),
                     extensionName: $this->resource->extensionName,
                     fileName: $this->resource->file,
                     startLine: $node->getStartLine() > 0 ? $node->getStartLine() : null,
@@ -332,6 +332,18 @@ final class PhpParserStatementReflector
         }
 
         return $methods;
+    }
+
+    /**
+     * @return ?non-empty-string
+     */
+    private function reflectDocComment(Node $node): ?string
+    {
+        if ($this->resource->extensionName !== null) {
+            return null;
+        }
+
+        return $node->getDocComment()?->getText() ?: null;
     }
 
     private function reflectIsGenerator(Stmt\ClassMethod $node): bool

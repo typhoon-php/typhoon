@@ -39,7 +39,7 @@ namespace Simple
     }
 
     /**
-     * Test
+     * I am class!
      */
     class ClassWithPhpDoc {}
 }
@@ -100,6 +100,10 @@ namespace Properties
         public static string $publicStatic;
         protected static string $protectedStatic;
         private static string $privateStatic;
+        /**
+         * I am property!
+         */
+        private string $withPhpDoc;
 
         public function __construct(
             public string $publicPromoted,
@@ -108,6 +112,10 @@ namespace Properties
             public readonly string $publicReadonlyPromoted,
             protected readonly string $protectedReadonlyPromoted,
             private readonly string $privateReadonlyPromoted,
+            /**
+             * I am promoted property!
+             */
+            private readonly string $promotedWithPhpDoc,
         ) {
         }
     }
@@ -133,6 +141,10 @@ namespace Methods
         static private function optionalArgs(int $a, string $b = 'abc', float $c = 0.2): string {}
         static private function generatorReturnType(): \Generator {}
         static private function yield() { yield 1; }
+        /**
+         * I am method!
+         */
+        static private function withPhpDoc() { yield 1; }
     }
 
     trait TraitWithMethod

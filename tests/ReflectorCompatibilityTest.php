@@ -176,7 +176,7 @@ final class ReflectorCompatibilityTest extends TestCase
         // self::assertSame($native->getClosureThis(), $typhoon->getClosureThis(), $messagePrefix.'getClosureThis()');
         // self::assertSame($native->getClosureUsedVariables(), $typhoon->getClosureUsedVariables(), $messagePrefix.'getClosureUsedVariables()');
         // self::assertSame($native->getDeclaringClass(), $typhoon->getDeclaringClass(), $messagePrefix.'getDeclaringClass()');
-        // self::assertSame($native->getDocComment() ?: null, $typhoon->getDocComment(), $messagePrefix.'getDocComment()');
+        self::assertSame($native->getDocComment() ?: null, $typhoon->getDocComment(), $messagePrefix.'getDocComment()');
         // self::assertSame($native->getEndLine(), $typhoon->getEndLine(), $messagePrefix.'getEndLine()');
         // self::assertSame($native->getExtension(), $typhoon->getExtension(), $messagePrefix.'getExtension()');
         self::assertSame($native->getExtensionName() ?: null, $typhoon->getExtensionName(), $messagePrefix . 'getExtensionName()');
