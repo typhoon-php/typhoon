@@ -19,7 +19,7 @@ use Typhoon\Reflection\TagPrioritizer\PHPStanOverPsalmOverOthersTagPrioritizer;
 /**
  * @api
  */
-final class Reflector
+final class TyphoonReflector
 {
     private ?ReflectionContext $context = null;
 

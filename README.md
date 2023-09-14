@@ -17,7 +17,7 @@ Without stubs native PHP classes are reflected via native reflector that does no
 ```php
 namespace My\Awesome\App;
 
-use Typhoon\Reflection\Reflector;
+use Typhoon\Reflection\TyphoonReflector;
 
 final readonly class Article
 {
@@ -29,7 +29,7 @@ final readonly class Article
     ) {}
 }
 
-$reflector = Reflector::build();
+$reflector = TyphoonReflector::build();
 $articleReflection = $reflector->reflectClass(Article::class);
 
 var_dump($articleReflection->isFinal()); // true
@@ -61,9 +61,9 @@ The main difference is in `getType` method.
 ## Caching
 
 ```php
-use Typhoon\Reflection\Reflector;
+use Typhoon\Reflection\TyphoonReflector;
 
-$reflector = Reflector::build(
+$reflector = TyphoonReflector::build(
     // toggle caching (might be useful in tests)
     // cacheDirectory and detectChanges options have no effect when caching is disabled
     cache: false,
@@ -81,7 +81,7 @@ By default, reflector uses `ComposerClassLocator` if it detects composer autoloa
 You can implement your own locators and pass them to `build` method:
 
 ```php
-use Typhoon\Reflection\Reflector;
+use Typhoon\Reflection\TyphoonReflector;
 use Typhoon\Reflection\ClassLocator;
 
 final class CustomClassLocator implements ClassLocator
@@ -89,7 +89,7 @@ final class CustomClassLocator implements ClassLocator
     // ...
 }
 
-$reflector = Reflector::build(
+$reflector = TyphoonReflector::build(
     classLocator: new ClassLocator\ClassLocatorChain([
         new CustomClassLocator(),
         new ClassLocator\PhpStormStubsClassLocator(),

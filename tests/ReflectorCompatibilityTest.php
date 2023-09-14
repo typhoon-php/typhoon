@@ -60,7 +60,7 @@ final class ReflectorCompatibilityTest extends TestCase
     public function testItReflectsClassesCompatibly(ClassLocator $classLocator, string $file, string $class): void
     {
         require_once $file;
-        $reflector = Reflector::build(cache: false, classLocator: $classLocator);
+        $reflector = TyphoonReflector::build(cache: false, classLocator: $classLocator);
         /** @psalm-suppress ArgumentTypeCoercion */
         $native = new \ReflectionClass($class);
 
@@ -74,7 +74,7 @@ final class ReflectorCompatibilityTest extends TestCase
     public function testItReflectsReadonlyClasses(ClassLocator $classLocator, string $file, string $class): void
     {
         require_once $file;
-        $reflector = Reflector::build(cache: false, classLocator: $classLocator);
+        $reflector = TyphoonReflector::build(cache: false, classLocator: $classLocator);
         /** @psalm-suppress ArgumentTypeCoercion */
         $native = new \ReflectionClass($class);
 
