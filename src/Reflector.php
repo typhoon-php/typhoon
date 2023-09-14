@@ -85,6 +85,17 @@ final class Reflector
         return $this->context()->reflectClass($name);
     }
 
+    /**
+     * @template T of object
+     * @param T $object
+     * @return ClassReflection<T>
+     */
+    public function reflectObject(object $object): ClassReflection
+    {
+        /** @var ClassReflection<T> */
+        return $this->context()->reflectClass($object::class);
+    }
+
     public function clearCache(): void
     {
         $this->cache->clear();
