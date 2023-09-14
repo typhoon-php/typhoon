@@ -29,7 +29,7 @@
         <directory name="src"/>
         <directory name="tests"/>
         <ignoreFiles>
-            <directory name="tests/ReflectorCompatibility"/>
+            <directory name="tests/unit/ReflectorCompatibility"/>
             <directory name="var"/>
             <directory name="vendor"/>
         </ignoreFiles>

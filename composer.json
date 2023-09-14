@@ -40,7 +40,7 @@
     },
     "autoload-dev": {
         "psr-4": {
-            "Typhoon\\Reflection\\": "tests/"
+            "Typhoon\\Reflection\\": "tests/unit"
         }
     },
     "config": {

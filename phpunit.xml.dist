@@ -14,8 +14,8 @@
     </php>
 
     <testsuites>
-        <testsuite name="default">
-            <directory>tests</directory>
+        <testsuite name="unit">
+            <directory>tests/unit</directory>
         </testsuite>
     </testsuites>
 

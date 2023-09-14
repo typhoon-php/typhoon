@@ -13,7 +13,7 @@ $finder = PhpCsFixer\Finder::create()
         __FILE__,
     ])
     ->exclude([
-        'ReflectorCompatibility',
+        'unit/ReflectorCompatibility',
     ]);
 
 $config = (new PhpCsFixer\Config())
