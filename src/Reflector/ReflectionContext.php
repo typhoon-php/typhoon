@@ -17,6 +17,8 @@ final class ReflectionContext
 {
     private readonly Reflections $reflections;
 
+    private ?\ReflectionProperty $classReflectionContextProperty = null;
+
     public function __construct(
         private readonly ClassLocator $classLocator,
         private readonly ReflectionCache $cache,
@@ -89,7 +91,8 @@ final class ReflectionContext
         $cachedReflection = $this->cache->getReflection(ClassReflection::class, $name);
 
         if ($cachedReflection !== null) {
-            $this->setReflectionContext($cachedReflection);
+            $this->classReflectionContextProperty ??= new \ReflectionProperty($cachedReflection, 'reflectionContext');
+            $this->classReflectionContextProperty->setValue($cachedReflection, $this);
             $this->reflections->set($cachedReflection);
 
             return $cachedReflection;
@@ -126,15 +129,5 @@ final class ReflectionContext
         $this->cache->setStandaloneReflection($reflection);
 
         return $reflection;
-    }
-
-    private function setReflectionContext(ClassReflection $classReflection): void
-    {
-        $reflectionContext = $this;
-
-        (function () use ($reflectionContext): void {
-            /** @psalm-suppress UndefinedThisPropertyAssignment */
-            $this->reflectionContext = $reflectionContext;
-        })->call($classReflection);
     }
 }
