@@ -21,6 +21,8 @@ use Typhoon\Reflection\TagPrioritizer\PHPStanOverPsalmOverOthersTagPrioritizer;
  */
 final class Reflector
 {
+    private ?ReflectionContext $context = null;
+
     private function __construct(
         private readonly ClassLocator $classLocator,
         private readonly ReflectionCache $cache,
@@ -64,7 +66,7 @@ final class Reflector
 
     public function reflectResource(Resource $resource): void
     {
-        $this->createContext()->reflectResource($resource);
+        $this->context()->reflectResource($resource);
     }
 
     /**
@@ -80,7 +82,7 @@ final class Reflector
         }
 
         /** @var ClassReflection<T> */
-        return $this->createContext()->reflectClass($name);
+        return $this->context()->reflectClass($name);
     }
 
     public function clearCache(): void
@@ -88,9 +90,9 @@ final class Reflector
         $this->cache->clear();
     }
 
-    private function createContext(): ReflectionContext
+    private function context(): ReflectionContext
     {
-        return new ReflectionContext(
+        return $this->context ??= new ReflectionContext(
             classLocator: $this->classLocator,
             cache: $this->cache,
             phpParserReflector: $this->phpParserReflector,
