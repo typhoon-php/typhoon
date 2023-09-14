@@ -11,9 +11,9 @@ namespace Typhoon\Reflection\Exporter;
 final class Hydrator
 {
     /**
-     * @var array<class-string, object>
+     * @var array<class-string, \Closure(): object>
      */
-    private array $prototypes = [];
+    private array $instantiators = [];
 
     /**
      * @var array<class-string, \Closure(object, array<string, mixed>): void>
@@ -26,7 +26,7 @@ final class Hydrator
      */
     public function hydrate(array $data): object
     {
-        $object = clone $this->prototype(array_key_first($data));
+        $object = $this->instantiator(array_key_first($data))();
 
         if (method_exists($object, '__unserialize')) {
             $object->__unserialize(array_merge(...array_values($data)));
@@ -43,10 +43,11 @@ final class Hydrator
 
     /**
      * @param class-string $class
+     * @return \Closure(): object
      */
-    private function prototype(string $class): object
+    private function instantiator(string $class): \Closure
     {
-        return $this->prototypes[$class] ??= (new \ReflectionClass($class))->newInstanceWithoutConstructor();
+        return $this->instantiators[$class] ??= (new \ReflectionClass($class))->newInstanceWithoutConstructor(...);
     }
 
     /**

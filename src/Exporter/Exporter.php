@@ -10,6 +10,11 @@ namespace Typhoon\Reflection\Exporter;
  */
 final class Exporter
 {
+    /**
+     * @var array<class-string, list<\ReflectionProperty>>
+     */
+    private array $properties = [];
+
     private bool $hydratorAssigned = false;
 
     private function __construct() {}
@@ -106,7 +111,7 @@ final class Exporter
         if (!$this->hydratorAssigned) {
             $this->hydratorAssigned = true;
             $hydratorClass = Hydrator::class;
-            $hydrator = "({$hydrator} ??= new \\{$hydratorClass}())";
+            $hydrator = "(\$__hydrator ??= new \\{$hydratorClass}())";
         }
 
         return "{$hydrator}->hydrate({$this->exportObjectData($object, $indent)})";
@@ -132,17 +137,13 @@ final class Exporter
      */
     private function collectObjectData(object $object): array
     {
-        $class = new \ReflectionClass($object);
         $data = [$object::class => []];
 
-        if ($class->hasMethod('__serialize')) {
-            /**
-             * @var array
-             * @psalm-suppress MixedMethodCall
-             */
+        if (method_exists($object, '__serialize')) {
+            /** @var array */
             $serializeData = $object->__serialize();
 
-            foreach ($this->allInstanceProperties($class) as $property) {
+            foreach ($this->allInstanceProperties($object::class) as $property) {
                 if (\array_key_exists($property->name, $serializeData)) {
                     $data[$property->class][$property->name] = $serializeData[$property->name];
                 }
@@ -153,7 +154,7 @@ final class Exporter
 
         $nonPrivatePropertiesMap = [];
 
-        foreach ($this->allInstanceProperties($class) as $property) {
+        foreach ($this->allInstanceProperties($object::class) as $property) {
             if (!$property->isPrivate()) {
                 if (isset($nonPrivatePropertiesMap[$property->name])) {
                     continue;
@@ -169,18 +170,28 @@ final class Exporter
     }
 
     /**
-     * @return \Generator<\ReflectionProperty>
+     * @param class-string $class
+     * @return list<\ReflectionProperty>
      */
-    private function allInstanceProperties(\ReflectionClass $class): \Generator
+    private function allInstanceProperties(string $class): array
     {
+        if (isset($this->properties[$class])) {
+            return $this->properties[$class];
+        }
+
+        $reflectionClass = new \ReflectionClass($class);
+        $properties = [];
+
         do {
-            foreach ($class->getProperties() as $property) {
-                if (!$property->isStatic() && $property->class === $class->name) {
-                    yield $property;
+            foreach ($reflectionClass->getProperties() as $property) {
+                if (!$property->isStatic() && $property->class === $class) {
+                    $properties[] = $property;
                 }
             }
 
-            $class = $class->getParentClass();
-        } while ($class !== false);
+            $reflectionClass = $reflectionClass->getParentClass();
+        } while ($reflectionClass !== false);
+
+        return $this->properties[$class] = $properties;
     }
 }
