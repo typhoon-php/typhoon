@@ -12,26 +12,34 @@ use Symfony\Component\Finder\Finder;
 #[CoversClass(FileReflectionCache::class)]
 final class FileReflectionCacheTest extends TestCase
 {
-    private const CACHE_DIR = __DIR__ . '/file_reflection_cache';
+    private const BASE_CACHE_DIR = __DIR__ . '/file_reflection_cache';
+
+    private string $cacheDir = self::BASE_CACHE_DIR;
+
+    public static function setUpBeforeClass(): void
+    {
+        (new Filesystem())->remove(self::BASE_CACHE_DIR);
+    }
+
+    public static function tearDownAfterClass(): void
+    {
+        (new Filesystem())->remove(self::BASE_CACHE_DIR);
+    }
 
     protected function setUp(): void
     {
-        (new Filesystem())->remove(self::CACHE_DIR);
+        $this->cacheDir = self::BASE_CACHE_DIR . '/' . uniqid(more_entropy: true);
+        (new Filesystem())->mkdir($this->cacheDir);
     }
 
     protected function tearDown(): void
     {
-        (new Filesystem())->remove(self::CACHE_DIR);
-    }
-
-    private static function assertCacheDirEmpty(): void
-    {
-        self::assertCount(0, (new Finder())->files()->in(self::CACHE_DIR));
+        (new Filesystem())->remove($this->cacheDir);
     }
 
     public function testItCachesStandaloneReflection(): void
     {
-        $cache = new FileReflectionCache(directory: self::CACHE_DIR);
+        $cache = new FileReflectionCache(directory: $this->cacheDir);
         $reflection = new RootReflectionStub('a', changed: false);
         $cache->setStandaloneReflection($reflection);
 
@@ -42,19 +50,19 @@ final class FileReflectionCacheTest extends TestCase
 
     public function testItDetectsStandaloneReflectionChange(): void
     {
-        $cache = new FileReflectionCache(directory: self::CACHE_DIR);
+        $cache = new FileReflectionCache(directory: $this->cacheDir);
         $reflection = new RootReflectionStub('a', changed: true);
         $cache->setStandaloneReflection($reflection);
 
         $cachedReflection = $cache->getReflection(RootReflectionStub::class, 'a');
 
         self::assertNull($cachedReflection);
-        self::assertCacheDirEmpty();
+        $this->assertNoFilesInCacheDir();
     }
 
     public function testItDoesNotDetectStandaloneReflectionChangeIfChangeDetectionDisabled(): void
     {
-        $cache = new FileReflectionCache(directory: self::CACHE_DIR, detectChanges: false);
+        $cache = new FileReflectionCache(directory: $this->cacheDir, detectChanges: false);
         $reflection = new RootReflectionStub('a', changed: true);
         $cache->setStandaloneReflection($reflection);
 
@@ -65,7 +73,7 @@ final class FileReflectionCacheTest extends TestCase
 
     public function testItCachesFileReflections(): void
     {
-        $cache = new FileReflectionCache(directory: self::CACHE_DIR);
+        $cache = new FileReflectionCache(directory: $this->cacheDir);
         $reflectionA = new RootReflectionStub('a', changed: false);
         $reflectionB = new RootReflectionStub('b', changed: false);
         $reflections = new Reflections();
@@ -84,7 +92,7 @@ final class FileReflectionCacheTest extends TestCase
 
     public function testItDetectsFileReflectionsChange(): void
     {
-        $cache = new FileReflectionCache(directory: self::CACHE_DIR);
+        $cache = new FileReflectionCache(directory: $this->cacheDir);
         $reflectionA = new RootReflectionStub('a', changed: true);
         $reflectionB = new RootReflectionStub('b', changed: false);
         $reflections = new Reflections();
@@ -99,22 +107,26 @@ final class FileReflectionCacheTest extends TestCase
         self::assertFalse($hasFile);
         self::assertNull($cachedReflectionA);
         self::assertNull($cachedReflectionB);
-        self::assertCacheDirEmpty();
+        $this->assertNoFilesInCacheDir();
     }
 
     public function testItDetectsFileChange(): void
     {
-        $file = self::CACHE_DIR . '/x.txt';
         $filesystem = new Filesystem();
-        $filesystem->mkdir(self::CACHE_DIR);
+        $file = $this->cacheDir . '/x.txt';
         $filesystem->touch($file);
-        $cache = new FileReflectionCache(directory: self::CACHE_DIR);
+        $cache = new FileReflectionCache(directory: $this->cacheDir);
 
         $cache->setFileReflections($file, new Reflections());
         $filesystem->remove($file);
         $hasFile = $cache->hasFile($file);
 
         self::assertFalse($hasFile);
-        self::assertCacheDirEmpty();
+        $this->assertNoFilesInCacheDir();
+    }
+
+    private function assertNoFilesInCacheDir(): void
+    {
+        self::assertCount(0, (new Finder())->files()->in($this->cacheDir));
     }
 }
