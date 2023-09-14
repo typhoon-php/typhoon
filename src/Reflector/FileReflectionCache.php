@@ -97,10 +97,10 @@ final class FileReflectionCache implements ReflectionCache
             
             try {
                 \$reflection = {$reflectionExported};
-            } catch (\\Throwable) {
+            } catch (\\Throwable \$exception) {
                 \$unlink();
 
-                return null;
+                throw \$exception;
             }
             
             if (\$this->detectChanges && \$reflection->getChangeDetector()->changed()) {
@@ -161,10 +161,10 @@ final class FileReflectionCache implements ReflectionCache
 
                 try {
                     \$reflection = {$exportedReflection};
-                } catch (\\Throwable) {
+                } catch (\\Throwable \$exception) {
                     \$unlink();
 
-                    return null;
+                    throw \$exception;
                 }
 
                 if (\$this->detectChanges && \$reflection->getChangeDetector()->changed()) {
@@ -181,6 +181,10 @@ final class FileReflectionCache implements ReflectionCache
 
     public function clear(): void
     {
+        if (!is_dir($this->directory)) {
+            return;
+        }
+
         $files = new \RecursiveIteratorIterator(
             new \RecursiveDirectoryIterator($this->directory, \RecursiveDirectoryIterator::SKIP_DOTS),
             \RecursiveIteratorIterator::CHILD_FIRST,
