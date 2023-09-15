@@ -102,19 +102,13 @@ final class ReflectionContext
         }
 
         if ($anonymousClassName !== null) {
-            $this->reflectResource(new Resource($anonymousClassName->file));
-
-            return $this->reflections->get(ClassReflection::class, $name)
-                ?? throw new ReflectionException(sprintf('Class "%s" is not found in %s.', $name, $anonymousClassName->file));
+            return $this->reflectClassFromResource(new Resource($anonymousClassName->file), $name);
         }
 
         $resource = $this->classLocator->locateClass($name);
 
         if ($resource !== null) {
-            $this->reflectResource($resource);
-
-            return $this->reflections->get(ClassReflection::class, $name)
-                ?? throw new ReflectionException(sprintf('Class "%s" is not found in %s.', $name, $resource->file));
+            return $this->reflectClassFromResource($resource, $name);
         }
 
         try {
@@ -127,10 +121,7 @@ final class ReflectionContext
         $file = $reflectionClass->getFileName();
 
         if ($file !== false) {
-            $this->reflectResource(new Resource($file, $reflectionClass->getExtensionName() ?: null));
-
-            return $this->reflections->get(ClassReflection::class, $name)
-                ?? throw new ReflectionException(sprintf('Class "%s" is not found in %s.', $name, $file));
+            return $this->reflectClassFromResource(new Resource($file, $reflectionClass->getExtensionName() ?: null), $name);
         }
 
         $reflection = $this->nativeReflectionReflector->reflectClass($reflectionClass, $this);
@@ -139,5 +130,13 @@ final class ReflectionContext
         $this->cache->setStandaloneReflection($reflection);
 
         return $reflection;
+    }
+
+    private function reflectClassFromResource(Resource $resource, string $name): ClassReflection
+    {
+        $this->reflectResource($resource);
+
+        return $this->reflections->get(ClassReflection::class, $name)
+            ?? throw new ReflectionException(sprintf('Class "%s" is not found in %s.', $name, $resource->file));
     }
 }
