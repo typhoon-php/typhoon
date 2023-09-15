@@ -188,3 +188,27 @@ namespace ComplexMethodOrder
         public function b(): void {}
     }
 }
+
+namespace Anonymous
+{
+
+    use Simple\JustClass;
+    use Simple\JustInterface;
+
+
+    new /** I am an anonym! */ class ('a') implements JustInterface {
+        public function __construct(
+            /**
+             * I am promoted property!
+             */
+            private readonly string $promotedWithPhpDoc,
+        ) {
+        }
+    };
+    new class extends JustClass {
+        public function nested()
+        {
+            new class {};
+        }
+    };
+}

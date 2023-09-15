@@ -44,13 +44,11 @@ final class PhpParserStatementReflector
         private readonly ChangeDetector $changeDetector,
     ) {}
 
-    public function reflectClass(Stmt\ClassLike $node): ClassReflection
+    /**
+     * @param class-string $name
+     */
+    public function reflectClass(Stmt\ClassLike $node, string $name): ClassReflection
     {
-        if ($node->name === null) {
-            throw new ReflectionException('Anonymous classes are not supported yet.');
-        }
-
-        $name = $this->nameContext->resolveNameAsClass($node->name->toString());
         $phpDoc = $this->phpDocParser->parseNodePhpDoc($node);
 
         return new ClassReflection(
@@ -68,7 +66,7 @@ final class PhpParserStatementReflector
             enum: $node instanceof Stmt\Enum_,
             trait: $node instanceof Stmt\Trait_,
             modifiers: $this->reflectClassModifiers($node),
-            anonymous: false,
+            anonymous: $node->name === null,
             parentType: $this->reflectParent($node, $phpDoc),
             ownInterfaceTypes: $this->reflectOwnInterfaceTypes($node, $phpDoc),
             ownProperties: $this->reflectOwnProperties(class: $name, classNode: $node),
@@ -79,7 +77,7 @@ final class PhpParserStatementReflector
     /**
      * @param class-string $class
      */
-    public function reflectEnumNameProperty(string $class): PropertyReflection
+    private function reflectEnumNameProperty(string $class): PropertyReflection
     {
         return new PropertyReflection(
             name: 'name',

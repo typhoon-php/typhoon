@@ -6,12 +6,13 @@ namespace Typhoon\Reflection\Reflector;
 
 use PhpParser\Node;
 use PhpParser\Node\Stmt;
-use PhpParser\NodeTraverser;
 use PhpParser\NodeVisitorAbstract;
+use Typhoon\Reflection\AnonymousClassName;
 use Typhoon\Reflection\ChangeDetector;
 use Typhoon\Reflection\ClassReflection;
 use Typhoon\Reflection\NameResolution\NameContext;
 use Typhoon\Reflection\PhpDocParser\PhpDocParser;
+use Typhoon\Reflection\ReflectionException;
 use Typhoon\Reflection\Resource;
 
 /**
@@ -33,9 +34,7 @@ final class DiscoveringVisitor extends NodeVisitorAbstract
     public function enterNode(Node $node): ?int
     {
         if ($node instanceof Stmt\ClassLike) {
-            if ($node->name === null) {
-                return NodeTraverser::DONT_TRAVERSE_CHILDREN;
-            }
+            $name = $this->resolveClassName($node);
 
             $reflector = new PhpParserStatementReflector(
                 phpDocParser: $this->phpDocParser,
@@ -48,13 +47,28 @@ final class DiscoveringVisitor extends NodeVisitorAbstract
 
             $this->reflections->setLazy(
                 class: ClassReflection::class,
-                name: $this->nameContext->resolveNameAsClass($node->name->toString()),
-                reflectionLoader: static fn (): ClassReflection => $reflector->reflectClass($node),
+                name: $name,
+                reflectionLoader: static fn (): ClassReflection => $reflector->reflectClass($node, $name),
             );
-
-            return NodeTraverser::DONT_TRAVERSE_CHILDREN;
         }
 
         return null;
+    }
+
+    /**
+     * @return class-string
+     */
+    private function resolveClassName(Stmt\ClassLike $node): string
+    {
+        if ($node->name !== null) {
+            return $this->nameContext->resolveNameAsClass($node->name->toString());
+        }
+
+        if (!$node instanceof Stmt\Class_) {
+            throw new ReflectionException();
+        }
+
+        return AnonymousClassName::fromNode(file: $this->resource->file, node: $node, nameContext: $this->nameContext)
+            ->toStringWithoutRtdKeyCounter();
     }
 }

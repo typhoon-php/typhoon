@@ -100,7 +100,6 @@ $reflector = TyphoonReflector::build(
 
 ## TODO
 
-- [ ] anonymous classes
 - [ ] attributes
 - [ ] traits
 - [ ] class constants

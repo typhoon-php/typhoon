@@ -24,7 +24,7 @@ final class NameContextVisitor extends NodeVisitorAbstract
     public function enterNode(Node $node): ?int
     {
         if ($node instanceof Stmt\Namespace_) {
-            $this->nameContext->enterNamespace($node->name?->toString());
+            $this->nameContext->enterNamespace($node->name?->toCodeString());
 
             return null;
         }
@@ -61,7 +61,7 @@ final class NameContextVisitor extends NodeVisitorAbstract
 
             $this->nameContext->enterClass(
                 name: $node->name->name,
-                parent: $node instanceof Stmt\Class_ ? $node->extends?->toString() : null,
+                parent: $node instanceof Stmt\Class_ ? $node->extends?->toCodeString() : null,
                 templateNames: array_keys($this->phpDocParser->parseNodePhpDoc($node)->templates),
             );
 
@@ -110,13 +110,13 @@ final class NameContextVisitor extends NodeVisitorAbstract
     private function addUse(int $type, Node\Name $name, Node\Identifier $alias, ?Node\Name $prefix = null): void
     {
         if ($type === Stmt\Use_::TYPE_NORMAL) {
-            $this->nameContext->addUse($name->toString(), $alias->name, $prefix?->toString());
+            $this->nameContext->addUse($name->toCodeString(), $alias->name, $prefix?->toCodeString());
 
             return;
         }
 
         if ($type === Stmt\Use_::TYPE_CONSTANT) {
-            $this->nameContext->addConstantUse($name->toString(), $alias->name, $prefix?->toString());
+            $this->nameContext->addConstantUse($name->toCodeString(), $alias->name, $prefix?->toCodeString());
 
             return;
         }

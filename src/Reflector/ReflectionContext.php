@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Typhoon\Reflection\Reflector;
 
+use Typhoon\Reflection\AnonymousClassName;
 use Typhoon\Reflection\ClassLocator;
 use Typhoon\Reflection\ClassReflection;
 use Typhoon\Reflection\ReflectionException;
@@ -69,10 +70,6 @@ final class ReflectionContext
      */
     public function reflectClass(string $name): ClassReflection
     {
-        if (str_starts_with($name, 'class@anonymous')) {
-            throw new ReflectionException('Anonymous classes are not supported yet.');
-        }
-
         /** @var ClassReflection<T> */
         return $this->doReflectClass($name);
     }
@@ -82,6 +79,12 @@ final class ReflectionContext
      */
     private function doReflectClass(string $name): ClassReflection
     {
+        $anonymousClassName = AnonymousClassName::tryFromString($name);
+
+        if ($anonymousClassName !== null) {
+            $name = $anonymousClassName->toStringWithoutRtdKeyCounter();
+        }
+
         $reflection = $this->reflections->get(ClassReflection::class, $name);
 
         if ($reflection !== null) {
@@ -96,6 +99,13 @@ final class ReflectionContext
             $this->reflections->set($cachedReflection);
 
             return $cachedReflection;
+        }
+
+        if ($anonymousClassName !== null) {
+            $this->reflectResource(new Resource($anonymousClassName->file));
+
+            return $this->reflections->get(ClassReflection::class, $name)
+                ?? throw new ReflectionException(sprintf('Class "%s" is not found in %s.', $name, $anonymousClassName->file));
         }
 
         $resource = $this->classLocator->locateClass($name);
