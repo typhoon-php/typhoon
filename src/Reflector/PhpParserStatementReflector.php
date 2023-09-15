@@ -127,7 +127,7 @@ final class PhpParserStatementReflector
 
         foreach ($phpDoc->extendedTypes as $phpDocExtendedType) {
             /** @var Type\NamedObjectType $extendedType */
-            $extendedType = $this->reflectPhpDocType($phpDocExtendedType);
+            $extendedType = $this->safelyReflectPhpDocType($phpDocExtendedType);
 
             if ($extendedType->class === $parentClass) {
                 return $extendedType;
@@ -167,7 +167,7 @@ final class PhpParserStatementReflector
 
         foreach ($phpDocInterfaceTypes as $phpDocInterfaceType) {
             /** @var Type\NamedObjectType $implementedType */
-            $implementedType = $this->reflectPhpDocType($phpDocInterfaceType);
+            $implementedType = $this->safelyReflectPhpDocType($phpDocInterfaceType);
             $phpDocInterfaceTypesByClass[$implementedType->class] = $implementedType;
         }
 
@@ -423,7 +423,7 @@ final class PhpParserStatementReflector
             $templates[] = new TemplateReflection(
                 position: $position,
                 name: $template->name,
-                constraint: $this->reflectPhpDocType($template->bound) ?? types::mixed,
+                constraint: $this->safelyReflectPhpDocType($template->bound) ?? types::mixed,
                 variance: $variance instanceof Variance ? $variance : Variance::INVARIANT,
             );
         }
@@ -434,9 +434,20 @@ final class PhpParserStatementReflector
     private function reflectType(?Node $native, ?TypeNode $phpDoc): TypeReflection
     {
         return new TypeReflection(
-            native: $this->reflectNativeType($native),
-            phpDoc: $this->reflectPhpDocType($phpDoc),
+            native: $this->safelyReflectNativeType($native),
+            phpDoc: $this->safelyReflectPhpDocType($phpDoc),
         );
+    }
+
+    private function safelyReflectNativeType(?Node $node): ?Type
+    {
+        try {
+            return $this->reflectNativeType($node);
+        } catch (ReflectionException) {
+            // TODO logging
+
+            return null;
+        }
     }
 
     /**
@@ -501,12 +512,15 @@ final class PhpParserStatementReflector
         throw new ReflectionException(sprintf('%s is not supported.', $node::class));
     }
 
-    /**
-     * @return ($node is null ? null : Type)
-     */
-    private function reflectPhpDocType(?TypeNode $node): ?Type
+    private function safelyReflectPhpDocType(?TypeNode $node): ?Type
     {
-        return $this->phpDocTypeReflector->reflectType($node, $this->nameContext, $this->reflectionContext);
+        try {
+            return $this->phpDocTypeReflector->reflectType($node, $this->nameContext, $this->reflectionContext);
+        } catch (\Throwable $exception) {
+            // TODO logging
+
+            return null;
+        }
     }
 
     private function isParameterPromoted(Node\Param $node): bool
