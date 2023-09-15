@@ -33,33 +33,38 @@ final class ReflectorCompatibilityTest extends TestCase
     }
 
     /**
-     * @return \Generator<string, array{ClassLocator, string, string}>
+     * @return \Generator<string, array{ClassLocator, string}>
      */
     public static function classes(): \Generator
     {
+        require_once self::CLASSES;
+
         foreach (self::classLocators() as $classLocatorName => $classLocator) {
             foreach (NameCollector::collect(self::CLASSES)->classes as $class) {
-                yield $class . ' using ' . $classLocatorName => [$classLocator, self::CLASSES, $class];
+                yield $class . ' using ' . $classLocatorName => [$classLocator, $class];
             }
         }
     }
 
     /**
-     * @return \Generator<string, array{ClassLocator, string, string}>
+     * @return \Generator<string, array{ClassLocator, string}>
      */
     public static function readonlyClasses(): \Generator
     {
+        if (\PHP_VERSION_ID >= 80200) {
+            require_once self::READONLY_CLASSES;
+        }
+
         foreach (self::classLocators() as $classLocatorName => $classLocator) {
             foreach (NameCollector::collect(self::READONLY_CLASSES)->classes as $class) {
-                yield $class . ' using ' . $classLocatorName => [$classLocator, self::READONLY_CLASSES, $class];
+                yield $class . ' using ' . $classLocatorName => [$classLocator, $class];
             }
         }
     }
 
     #[DataProvider('classes')]
-    public function testItReflectsClassesCompatibly(ClassLocator $classLocator, string $file, string $class): void
+    public function testItReflectsClassesCompatibly(ClassLocator $classLocator, string $class): void
     {
-        require_once $file;
         $reflector = TyphoonReflector::build(cache: false, classLocator: $classLocator);
         /** @psalm-suppress ArgumentTypeCoercion */
         $native = new \ReflectionClass($class);
@@ -71,9 +76,8 @@ final class ReflectorCompatibilityTest extends TestCase
 
     #[RequiresPhp('>=8.2')]
     #[DataProvider('readonlyClasses')]
-    public function testItReflectsReadonlyClasses(ClassLocator $classLocator, string $file, string $class): void
+    public function testItReflectsReadonlyClasses(ClassLocator $classLocator, string $class): void
     {
-        require_once $file;
         $reflector = TyphoonReflector::build(cache: false, classLocator: $classLocator);
         /** @psalm-suppress ArgumentTypeCoercion */
         $native = new \ReflectionClass($class);
