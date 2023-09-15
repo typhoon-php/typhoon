@@ -14,6 +14,7 @@ use function Typhoon\Reflection\Exceptionally\exceptionally;
 /**
  * @internal
  * @psalm-internal Typhoon\Reflection
+ * @infection-ignore-all
  */
 final class FileReflectionCache implements ReflectionCache
 {
