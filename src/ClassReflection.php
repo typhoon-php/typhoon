@@ -38,7 +38,7 @@ final class ClassReflection extends FriendlyReflection implements RootReflection
      * @psalm-internal Typhoon\Reflection
      * @param class-string<T> $name
      * @param ?non-empty-string $extensionName
-     * @param ?non-empty-string $fileName
+     * @param ?non-empty-string $file
      * @param ?positive-int $startLine
      * @param ?positive-int $endLine
      * @param ?non-empty-string $docComment
@@ -55,7 +55,7 @@ final class ClassReflection extends FriendlyReflection implements RootReflection
         private readonly ChangeDetector $changeDetector,
         private readonly bool $internal,
         private readonly ?string $extensionName,
-        private readonly ?string $fileName,
+        private readonly ?string $file,
         private readonly ?int $startLine,
         private readonly ?int $endLine,
         private readonly ?string $docComment,
@@ -139,7 +139,7 @@ final class ClassReflection extends FriendlyReflection implements RootReflection
      */
     public function getFileName(): ?string
     {
-        return $this->fileName;
+        return $this->file;
     }
 
     /**

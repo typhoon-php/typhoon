@@ -26,7 +26,7 @@ final class MethodReflection extends FriendlyReflection
      * @param list<ParameterReflection> $parameters
      * @param ?non-empty-string $docComment
      * @param ?non-empty-string $extensionName
-     * @param ?non-empty-string $fileName
+     * @param ?non-empty-string $file
      * @param ?positive-int $startLine
      * @param ?positive-int $endLine
      * @param int-mask-of<self::IS_*> $modifiers
@@ -39,7 +39,7 @@ final class MethodReflection extends FriendlyReflection
         private readonly ?string $docComment,
         private readonly bool $internal,
         private readonly ?string $extensionName,
-        private readonly ?string $fileName,
+        private readonly ?string $file,
         private readonly ?int $startLine,
         private readonly ?int $endLine,
         private readonly bool $returnsReference,
@@ -98,7 +98,7 @@ final class MethodReflection extends FriendlyReflection
      */
     public function getFileName(): ?string
     {
-        return $this->fileName;
+        return $this->file;
     }
 
     /**
