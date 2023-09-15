@@ -333,7 +333,7 @@ final class ContextAwarePhpDocTypeReflector
                 return types::constant($exprNode->name);
             }
 
-            $class = $this->nameContext->resolveNameAsClass($exprNode->name);
+            $class = $this->nameContext->resolveNameAsClass($exprNode->className);
 
             return types::classConstant($class, $exprNode->name);
         }
