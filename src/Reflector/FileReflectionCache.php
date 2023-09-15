@@ -17,7 +17,11 @@ use function Typhoon\Reflection\Exceptionally\exceptionally;
  */
 final class FileReflectionCache implements ReflectionCache
 {
+    private static ?int $scriptStartTime = null;
+
     private static ?string $reference = null;
+
+    private static ?bool $opcacheEnabled = null;
 
     private readonly string $directory;
 
@@ -25,7 +29,13 @@ final class FileReflectionCache implements ReflectionCache
         ?string $directory = null,
         private readonly bool $detectChanges = true,
     ) {
+        self::scriptStartTime();
         $this->directory = $directory ?? self::defaultCacheDirectory();
+    }
+
+    private static function scriptStartTime(): int
+    {
+        return self::$scriptStartTime ??= $_SERVER['REQUEST_TIME'] ?? time();
     }
 
     private static function defaultCacheDirectory(): string
@@ -44,6 +54,16 @@ final class FileReflectionCache implements ReflectionCache
     private static function referenceChanged(string $reference): bool
     {
         return $reference !== self::reference();
+    }
+
+    /**
+     * @psalm-suppress MixedArgument
+     */
+    private static function opcacheEnabled(): bool
+    {
+        return self::$opcacheEnabled ??= (\function_exists('opcache_invalidate')
+            && filter_var(\ini_get('opcache.enable'), FILTER_VALIDATE_BOOL)
+            && (!\in_array(\PHP_SAPI, ['cli', 'phpdbg'], true) || filter_var(\ini_get('opcache.enable_cli'), FILTER_VALIDATE_BOOL)));
     }
 
     public function hasFile(string $file): bool
@@ -151,7 +171,7 @@ final class FileReflectionCache implements ReflectionCache
             $this->write($reflectionFile, <<<PHP
                 <?php
 
-                {$unlinkFunctionCode};
+                {$unlinkFunctionCode}
 
                 if (self::referenceChanged({$referenceExported})) {
                     \$unlink();
@@ -194,9 +214,15 @@ final class FileReflectionCache implements ReflectionCache
         foreach ($files as $file) {
             if ($file->isDir()) {
                 rmdir($file->getPathname());
-            } else {
-                unlink($file->getPathname());
+
+                continue;
             }
+
+            if (self::opcacheEnabled()) {
+                opcache_invalidate($file->getPathname(), true);
+            }
+
+            @unlink($file->getPathname());
         }
     }
 
@@ -236,13 +262,28 @@ final class FileReflectionCache implements ReflectionCache
      */
     private function write(string $file, string $code): void
     {
-        $directory = \dirname($file);
+        exceptionally(static function () use ($file, $code): void {
+            $directory = \dirname($file);
 
-        if (!is_dir($directory) && !mkdir($directory, recursive: true)) {
-            throw new \RuntimeException('');
-        }
+            if (!is_dir($directory)) {
+                mkdir($directory, recursive: true);
+            }
 
-        exceptionally(static fn (): int|false => file_put_contents($file, $code));
+            $tmp = $directory . '/' . uniqid(more_entropy: true);
+            $handle = fopen($tmp, 'x');
+            fwrite($handle, $code);
+            fclose($handle);
+
+            // set mtime in the past to enable OPcache compilation for this file
+            touch($tmp, self::scriptStartTime() - 10);
+
+            rename($tmp, $file);
+
+            if (self::opcacheEnabled()) {
+                opcache_invalidate($file, true);
+                opcache_compile_file($file);
+            }
+        });
     }
 
     /**
@@ -251,13 +292,21 @@ final class FileReflectionCache implements ReflectionCache
      */
     private function unlinkFunctionCode(array $files): string
     {
+        $opcacheInvalidations = implode(PHP_EOL, array_map(
+            static fn (string $file): string => sprintf('        opcache_invalidate(%s);', Exporter::export($file)),
+            $files,
+        ));
         $unlinks = implode(PHP_EOL, array_map(
-            static fn (?string $file): string => sprintf('    unlink(%s);', Exporter::export($file)),
+            static fn (string $file): string => sprintf('    unlink(%s);', Exporter::export($file)),
             $files,
         ));
 
         return <<<PHP
             \$unlink = static function (): void {
+                if (self::opcacheEnabled()) {
+            {$opcacheInvalidations}
+                }
+            
             {$unlinks}
             };
             PHP;

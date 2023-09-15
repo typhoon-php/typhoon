@@ -3,4 +3,4 @@
 /infection.json
 /phpstan.neon
 /psalm.xml
-/tests/Reflector/file_reflection_cache
+/tests/unit/Reflector/file_reflection_cache

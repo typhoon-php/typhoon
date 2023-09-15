@@ -90,23 +90,35 @@ final class FileReflectionCacheTest extends TestCase
         self::assertEquals($reflectionB, $cachedReflectionB);
     }
 
-    public function testItDetectsFileReflectionsChange(): void
+    public function testItDetectsFileReflectionsChangeViaHasFile(): void
     {
         $cache = new FileReflectionCache(directory: $this->cacheDir);
         $reflectionA = new RootReflectionStub('a', changed: true);
-        $reflectionB = new RootReflectionStub('b', changed: false);
+        $reflectionB = new RootReflectionStub('b', changed: true);
         $reflections = new Reflections();
         $reflections->set($reflectionA);
         $reflections->set($reflectionB);
         $cache->setFileReflections(__FILE__, $reflections);
 
         $hasFile = $cache->hasFile(__FILE__);
-        $cachedReflectionA = $cache->getReflection(RootReflectionStub::class, 'a');
-        $cachedReflectionB = $cache->getReflection(RootReflectionStub::class, 'b');
 
         self::assertFalse($hasFile);
+        $this->assertNoFilesInCacheDir();
+    }
+
+    public function testItDetectsFileReflectionsChangeViaGetReflection(): void
+    {
+        $cache = new FileReflectionCache(directory: $this->cacheDir);
+        $reflectionA = new RootReflectionStub('a', changed: true);
+        $reflectionB = new RootReflectionStub('b', changed: true);
+        $reflections = new Reflections();
+        $reflections->set($reflectionA);
+        $reflections->set($reflectionB);
+        $cache->setFileReflections(__FILE__, $reflections);
+
+        $cachedReflectionA = $cache->getReflection(RootReflectionStub::class, 'a');
+
         self::assertNull($cachedReflectionA);
-        self::assertNull($cachedReflectionB);
         $this->assertNoFilesInCacheDir();
     }
 
