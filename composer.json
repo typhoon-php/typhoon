@@ -14,6 +14,7 @@
         "composer-runtime-api": "^2.0",
         "nikic/php-parser": "^4.15",
         "phpstan/phpdoc-parser": "^1.0",
+        "psr/simple-cache": "^3.0",
         "typhoon/type": "^0.2@dev",
         "typhoon/type-stringifier": "^0.2@dev"
     },
@@ -28,6 +29,8 @@
         "symfony/filesystem": "^6.3",
         "symfony/finder": "^6.3",
         "symfony/var-dumper": "^6.3.4",
+        "typhoon/exporter": "^0.2@dev",
+        "typhoon/opcache": "^0.2@dev",
         "vimeo/psalm": "^5.15.0"
     },
     "autoload": {

@@ -8,10 +8,9 @@ use PHPUnit\Framework\Attributes\CoversNothing;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\RequiresPhp;
 use PHPUnit\Framework\TestCase;
-use Typhoon\Reflection\ClassLocator\ClassLocatorChain;
-use Typhoon\Reflection\ClassLocator\ComposerClassLocator;
-use Typhoon\Reflection\ClassLocator\NullClassLocator;
-use Typhoon\Reflection\ClassLocator\PhpStormStubsClassLocator;
+use Typhoon\Reflection\ClassLoader\ComposerClassLoader;
+use Typhoon\Reflection\ClassLoader\NativeReflectionClassLoader;
+use Typhoon\Reflection\ClassLoader\PhpStormStubsClassLoader;
 
 #[CoversNothing]
 final class ReflectorCompatibilityTest extends TestCase
@@ -20,20 +19,22 @@ final class ReflectorCompatibilityTest extends TestCase
     private const READONLY_CLASSES = __DIR__ . '/ReflectorCompatibility/readonly_classes.php';
 
     /**
-     * @return \Generator<string, ClassLocator>
+     * @return \Generator<string, list<ClassLoader>>
      */
-    public static function classLocators(): \Generator
+    public static function classLoaders(): \Generator
     {
-        yield 'NullClassLocator' => new NullClassLocator();
-        yield 'ComposerClassLocator' => new ComposerClassLocator();
-        yield 'ComposerClassLocator + PhpStormStubsClassLocator' => new ClassLocatorChain([
-            new ComposerClassLocator(),
-            new PhpStormStubsClassLocator(),
-        ]);
+        yield 'default class loader' => [
+            new ComposerClassLoader(),
+            new PhpStormStubsClassLoader(),
+            new NativeReflectionClassLoader(),
+        ];
+        yield 'NativeReflectionClassLoader' => [
+            new NativeReflectionClassLoader(),
+        ];
     }
 
     /**
-     * @return \Generator<string, array{ClassLocator, string}>
+     * @return \Generator<string, array{list<ClassLoader>, string}>
      */
     public static function classes(): \Generator
     {
@@ -41,19 +42,19 @@ final class ReflectorCompatibilityTest extends TestCase
 
         $anonymousClasses = AnonymousClassName::declared(file: self::CLASSES);
 
-        foreach (self::classLocators() as $classLocatorName => $classLocator) {
+        foreach (self::classLoaders() as $classLoadersName => $classLoaders) {
             foreach (NameCollector::collect(self::CLASSES)->classes as $class) {
-                yield $class . ' using ' . $classLocatorName => [$classLocator, $class];
+                yield $class . ' using ' . $classLoadersName => [$classLoaders, $class];
             }
 
             foreach ($anonymousClasses as $anonymousClass) {
-                yield 'anonymous at line ' . $anonymousClass->line . ' using ' . $classLocatorName => [$classLocator, $anonymousClass->toString()];
+                yield 'anonymous at line ' . $anonymousClass->line . ' using ' . $classLoadersName => [$classLoaders, $anonymousClass->toString()];
             }
         }
     }
 
     /**
-     * @return \Generator<string, array{ClassLocator, string}>
+     * @return \Generator<string, array{list<ClassLoader>, string}>
      */
     public static function readonlyClasses(): \Generator
     {
@@ -61,17 +62,20 @@ final class ReflectorCompatibilityTest extends TestCase
             require_once self::READONLY_CLASSES;
         }
 
-        foreach (self::classLocators() as $classLocatorName => $classLocator) {
+        foreach (self::classLoaders() as $classLoadersName => $classLoaders) {
             foreach (NameCollector::collect(self::READONLY_CLASSES)->classes as $class) {
-                yield $class . ' using ' . $classLocatorName => [$classLocator, $class];
+                yield $class . ' using ' . $classLoadersName => [$classLoaders, $class];
             }
         }
     }
 
+    /**
+     * @param list<ClassLoader> $classLoaders
+     */
     #[DataProvider('classes')]
-    public function testItReflectsClassesCompatibly(ClassLocator $classLocator, string $class): void
+    public function testItReflectsClassesCompatibly(array $classLoaders, string $class): void
     {
-        $reflector = TyphoonReflector::build(cache: false, classLocator: $classLocator);
+        $reflector = TyphoonReflector::build(classLoaders: $classLoaders);
         /** @psalm-suppress ArgumentTypeCoercion */
         $native = new \ReflectionClass($class);
 
@@ -80,11 +84,14 @@ final class ReflectorCompatibilityTest extends TestCase
         $this->assertClassEquals($native, $typhoon);
     }
 
+    /**
+     * @param ?list<ClassLoader> $classLoaders
+     */
     #[RequiresPhp('>=8.2')]
     #[DataProvider('readonlyClasses')]
-    public function testItReflectsReadonlyClasses(ClassLocator $classLocator, string $class): void
+    public function testItReflectsReadonlyClasses(?array $classLoaders, string $class): void
     {
-        $reflector = TyphoonReflector::build(cache: false, classLocator: $classLocator);
+        $reflector = TyphoonReflector::build(classLoaders: $classLoaders);
         /** @psalm-suppress ArgumentTypeCoercion */
         $native = new \ReflectionClass($class);
 

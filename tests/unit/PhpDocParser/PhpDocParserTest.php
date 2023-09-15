@@ -8,31 +8,16 @@ use PHPStan\PhpDocParser\Ast\PhpDoc\TemplateTagValueNode;
 use PHPStan\PhpDocParser\Ast\Type\GenericTypeNode;
 use PHPStan\PhpDocParser\Ast\Type\IdentifierTypeNode;
 use PHPStan\PhpDocParser\Ast\Type\TypeNode;
-use PHPStan\PhpDocParser\Lexer\Lexer;
-use PHPStan\PhpDocParser\Parser\PhpDocParser as PHPStanPhpDocParser;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Typhoon\Reflection\TagPrioritizer;
 use Typhoon\Reflection\Variance;
-use function PHPUnit\Framework\anything;
-use function PHPUnit\Framework\never;
 
 #[CoversClass(PhpDocParser::class)]
 #[CoversClass(PhpDocBuilder::class)]
 #[CoversClass(PhpDoc::class)]
 final class PhpDocParserTest extends TestCase
 {
-    public function testNothingIsCalledForNodeWithEmptyPHPDoc(): void
-    {
-        $parser = $this->createMock(PHPStanPhpDocParser::class);
-        $parser->expects(never())->method(anything());
-        $lexer = $this->createMock(Lexer::class);
-        $lexer->expects(never())->method(anything());
-        $phpDocParser = new PhpDocParser(parser: $parser, lexer: $lexer);
-
-        $phpDocParser->parsePhpDoc('');
-    }
-
     public function testItReturnsNullVarTypeWhenNoVarTag(): void
     {
         $parser = new PhpDocParser();

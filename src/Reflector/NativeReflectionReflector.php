@@ -11,6 +11,7 @@ use Typhoon\Reflection\ClassReflection;
 use Typhoon\Reflection\MethodReflection;
 use Typhoon\Reflection\ParameterReflection;
 use Typhoon\Reflection\PropertyReflection;
+use Typhoon\Reflection\ReflectionContext;
 use Typhoon\Reflection\ReflectionException;
 use Typhoon\Reflection\TypeReflection;
 use Typhoon\Type;
@@ -65,7 +66,7 @@ final class NativeReflectionReflector
         }
 
         if ($class->isInternal()) {
-            return new PhpVersionChangeDetector($class->getExtensionName() ?: null);
+            return PhpVersionChangeDetector::fromExtension($class->getExtensionName() ?: null);
         }
 
         throw new ReflectionException();

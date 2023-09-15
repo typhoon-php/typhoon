@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace Typhoon\Reflection;
 
 use Typhoon\Reflection\Reflector\FriendlyReflection;
-use Typhoon\Reflection\Reflector\ReflectionContext;
 use Typhoon\Reflection\Reflector\RootReflection;
 use Typhoon\Reflection\TypeResolver\ClassTemplateResolver;
 use Typhoon\Reflection\TypeResolver\StaticResolver;
@@ -513,8 +512,8 @@ final class ClassReflection extends FriendlyReflection implements RootReflection
 
         foreach ($this->templates as $template) {
             $resolvedTemplateArguments[$template->name] = $templateArguments[$template->name]
-                ?? $templateArguments[$template->position]
-                ?? $template->constraint;
+                ?? $templateArguments[$template->getPosition()]
+                ?? $template->getConstraint();
         }
 
         /** @var self<T> */
@@ -562,13 +561,16 @@ final class ClassReflection extends FriendlyReflection implements RootReflection
         return $vars;
     }
 
+    public function __clone()
+    {
+        if ((debug_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS, 2)[1]['class'] ?? null) !== self::class) {
+            throw new ReflectionException();
+        }
+    }
+
     protected function withResolvedTypes(TypeVisitor $typeResolver): static
     {
-        $vars = get_object_vars($this);
-        $vars['modifiers'] = $this->modifiers;
-        unset($vars['propertiesIndexedByName'], $vars['methodsIndexedByName']);
-
-        $class = new self(...$vars);
+        $class = clone $this;
         $class->propertiesIndexedByName = array_map(
             static fn (PropertyReflection $property): PropertyReflection => $property->withResolvedTypes($typeResolver),
             $this->getPropertiesIndexedByName(),
@@ -638,6 +640,4 @@ final class ClassReflection extends FriendlyReflection implements RootReflection
     {
         return $this->reflectionClass ??= new \ReflectionClass($this->name);
     }
-
-    private function __clone() {}
 }

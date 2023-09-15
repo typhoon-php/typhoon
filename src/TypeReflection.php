@@ -14,6 +14,10 @@ use Typhoon\TypeVisitor;
  */
 final class TypeReflection extends FriendlyReflection
 {
+    /**
+     * @internal
+     * @psalm-internal Typhoon\Reflection
+     */
     public function __construct(
         private readonly ?Type $native,
         private readonly ?Type $phpDoc,
@@ -29,9 +33,16 @@ final class TypeReflection extends FriendlyReflection
         return $this->phpDoc;
     }
 
-    public function resolve(): Type
+    public function getResolved(): Type
     {
         return $this->phpDoc ?? $this->native ?? types::mixed;
+    }
+
+    public function __clone()
+    {
+        if ((debug_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS, 2)[1]['class'] ?? null) !== self::class) {
+            throw new ReflectionException();
+        }
     }
 
     protected function withResolvedTypes(TypeVisitor $typeResolver): static

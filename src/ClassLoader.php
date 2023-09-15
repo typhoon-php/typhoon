@@ -7,10 +7,10 @@ namespace Typhoon\Reflection;
 /**
  * @api
  */
-interface ClassLocator
+interface ClassLoader
 {
     /**
      * @param non-empty-string $name
      */
-    public function locateClass(string $name): ?Resource;
+    public function loadClass(ParsingContext $parsingContext, string $name): bool;
 }

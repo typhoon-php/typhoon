@@ -20,6 +20,8 @@ final class MethodReflection extends FriendlyReflection
     public const IS_STATIC = \ReflectionMethod::IS_STATIC;
 
     /**
+     * @internal
+     * @psalm-internal Typhoon\Reflection
      * @param class-string $class
      * @param non-empty-string $name
      * @param list<TemplateReflection> $templates
@@ -44,8 +46,10 @@ final class MethodReflection extends FriendlyReflection
         private readonly ?int $endLine,
         private readonly bool $returnsReference,
         private readonly bool $generator,
-        private readonly array $parameters,
-        private readonly TypeReflection $returnType,
+        /** @readonly */
+        private array $parameters,
+        /** @readonly */
+        private TypeReflection $returnType,
         private ?\ReflectionMethod $reflectionMethod = null,
     ) {}
 
@@ -294,40 +298,42 @@ final class MethodReflection extends FriendlyReflection
         return $data;
     }
 
+    public function __clone()
+    {
+        if ((debug_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS, 2)[1]['class'] ?? null) !== self::class) {
+            throw new ReflectionException();
+        }
+    }
+
     protected function withResolvedTypes(TypeVisitor $typeResolver): static
     {
-        $data = get_object_vars($this);
-        $data['parameters'] = array_map(
+        $method = clone $this;
+        $method->parameters = array_map(
             static fn (ParameterReflection $parameter): ParameterReflection => $parameter->withResolvedTypes($typeResolver),
             $this->parameters,
         );
-        $data['returnType'] = $this->returnType->withResolvedTypes($typeResolver);
-        $data['modifiers'] = $this->modifiers;
+        $method->returnType->withResolvedTypes($typeResolver);
 
-        return new self(...$data);
+        return $method;
     }
 
     protected function toChildOf(FriendlyReflection $parent): static
     {
-        $data = get_object_vars($this);
-
+        $method = clone $this;
         $parentParametersByPosition = $parent->parameters;
-        $data['parameters'] = array_map(
+        $method->parameters = array_map(
             static fn (ParameterReflection $parameter): ParameterReflection => isset($parentParametersByPosition[$parameter->getPosition()])
                 ? $parameter->toChildOf($parentParametersByPosition[$parameter->getPosition()])
                 : $parameter,
             $this->parameters,
         );
-        $data['returnType'] = $this->returnType->toChildOf($parent->returnType);
-        $data['modifiers'] = $this->modifiers;
+        $method->returnType->toChildOf($parent->returnType);
 
-        return new self(...$data);
+        return $method;
     }
 
     private function reflectionMethod(): \ReflectionMethod
     {
         return $this->reflectionMethod ??= new \ReflectionMethod($this->class, $this->name);
     }
-
-    private function __clone() {}
 }

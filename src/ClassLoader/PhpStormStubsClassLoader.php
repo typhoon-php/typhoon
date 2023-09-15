@@ -2,16 +2,16 @@
 
 declare(strict_types=1);
 
-namespace Typhoon\Reflection\ClassLocator;
+namespace Typhoon\Reflection\ClassLoader;
 
 use JetBrains\PHPStormStub\PhpStormStubsMap;
-use Typhoon\Reflection\ClassLocator;
-use Typhoon\Reflection\Resource;
+use Typhoon\Reflection\ClassLoader;
+use Typhoon\Reflection\ParsingContext;
 
 /**
  * @api
  */
-final class PhpStormStubsClassLocator implements ClassLocator
+final class PhpStormStubsClassLoader implements ClassLoader
 {
     private readonly string $directory;
 
@@ -26,17 +26,19 @@ final class PhpStormStubsClassLocator implements ClassLocator
         return class_exists(PhpStormStubsMap::class);
     }
 
-    public function locateClass(string $name): ?Resource
+    public function loadClass(ParsingContext $parsingContext, string $name): bool
     {
         if (isset(PhpStormStubsMap::CLASSES[$name])) {
             $file = PhpStormStubsMap::CLASSES[$name];
 
-            return new Resource(
+            $parsingContext->parseFile(
                 file: $this->directory . '/' . $file,
-                extensionName: substr($file, 0, strpos($file, '/') ?: 0) ?: null,
+                extension: substr($file, 0, strpos($file, '/') ?: 0) ?: null,
             );
+
+            return true;
         }
 
-        return null;
+        return false;
     }
 }

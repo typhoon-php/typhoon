@@ -11,30 +11,30 @@ namespace Typhoon\Reflection\Reflector;
 interface ReflectionCache
 {
     /**
-     * @param non-empty-string $file
-     */
-    public function hasFile(string $file): bool;
-
-    /**
-     * @param class-string<RootReflection> $reflectionClass
-     * @param non-empty-string $name
-     */
-    public function hasReflection(string $reflectionClass, string $name): bool;
-
-    /**
      * @template TReflection of RootReflection
-     * @param class-string<TReflection> $reflectionClass
+     * @param class-string<TReflection> $class
      * @param non-empty-string $name
-     * @return ?TReflection
+     * @return ?RootReflection
      */
-    public function getReflection(string $reflectionClass, string $name): ?RootReflection;
+    public function getReflection(string $class, string $name): ?RootReflection;
 
-    public function setStandaloneReflection(RootReflection $reflection): void;
+    public function addReflection(RootReflection $reflection): void;
+
+    /**
+     * @param class-string<RootReflection> $class
+     * @param non-empty-string $name
+     */
+    public function deleteReflection(string $class, string $name): void;
 
     /**
      * @param non-empty-string $file
      */
-    public function setFileReflections(string $file, Reflections $reflections): void;
+    public function getResource(string $file): ?Resource;
 
-    public function clear(): void;
+    public function addResource(Resource $resource): void;
+
+    /**
+     * @param non-empty-string $file
+     */
+    public function deleteResource(string $file): void;
 }

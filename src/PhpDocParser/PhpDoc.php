@@ -15,6 +15,8 @@ use PHPStan\PhpDocParser\Ast\Type\TypeNode;
  */
 final class PhpDoc
 {
+    private static ?self $empty = null;
+
     /**
      * @param array<non-empty-string, TypeNode> $paramTypes
      * @param array<non-empty-string, TemplateTagValueNode> $templates
@@ -29,4 +31,9 @@ final class PhpDoc
         public readonly array $extendedTypes = [],
         public readonly array $implementedTypes = [],
     ) {}
+
+    public static function empty(): self
+    {
+        return self::$empty ??= new self();
+    }
 }

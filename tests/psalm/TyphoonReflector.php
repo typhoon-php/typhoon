@@ -23,3 +23,19 @@ function testReflectObjectInfersClassReflectionGenericType(TyphoonReflector $ref
     $_classReflection = $reflector->reflectObject(new \stdClass());
     /** @psalm-check-type-exact $_classReflection = \Typhoon\Reflection\ClassReflection<\stdClass> */
 }
+
+function testClassExistsAssertsThatStringIsClass(TyphoonReflector $reflector, string $class): void
+{
+    if ($reflector->classExists($class)) {
+        /** @psalm-check-type-exact $class = class-string */
+    }
+}
+
+function testClassExistsDoesNotBreakInitialClassType(TyphoonReflector $reflector): void
+{
+    $class = \stdClass::class;
+
+    if ($reflector->classExists($class)) {
+        /** @psalm-check-type-exact $class = class-string<\stdClass> */
+    }
+}

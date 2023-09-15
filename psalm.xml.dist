@@ -38,6 +38,7 @@
     <ignoreExceptions>
         <classAndDescendants name="LogicException"/>
         <classAndDescendants name="RuntimeException"/>
+        <classAndDescendants name="Psr\SimpleCache\InvalidArgumentException"/>
     </ignoreExceptions>
 
     <issueHandlers>

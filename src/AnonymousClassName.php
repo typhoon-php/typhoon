@@ -49,7 +49,7 @@ final class AnonymousClassName
             return null;
         }
 
-        if (preg_match('/^(.+)@anonymous\x00(.+):(\d+)(?:\$(\w+))?$/', $name, $matches) !== 1) {
+        if (preg_match('/^\\?(.+)@anonymous\x00(.+):(\d+)(?:\$(\w+))?$/', $name, $matches) !== 1) {
             return null;
         }
 

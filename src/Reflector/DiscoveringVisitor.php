@@ -8,12 +8,11 @@ use PhpParser\Node;
 use PhpParser\Node\Stmt;
 use PhpParser\NodeVisitorAbstract;
 use Typhoon\Reflection\AnonymousClassName;
-use Typhoon\Reflection\ChangeDetector;
 use Typhoon\Reflection\ClassReflection;
 use Typhoon\Reflection\NameResolution\NameContext;
-use Typhoon\Reflection\PhpDocParser\PhpDocParser;
+use Typhoon\Reflection\ParsingContext;
+use Typhoon\Reflection\ReflectionContext;
 use Typhoon\Reflection\ReflectionException;
-use Typhoon\Reflection\Resource;
 
 /**
  * @internal
@@ -22,33 +21,23 @@ use Typhoon\Reflection\Resource;
 final class DiscoveringVisitor extends NodeVisitorAbstract
 {
     public function __construct(
-        private readonly PhpDocParser $phpDocParser,
-        private readonly PhpDocTypeReflector $phpDocTypeReflector,
-        private readonly ReflectionContext $reflectionContext,
+        private readonly ParsingContext $parsingContext,
         private readonly NameContext $nameContext,
-        private readonly Reflections $reflections,
         private readonly Resource $resource,
-        private readonly ChangeDetector $changeDetector,
     ) {}
 
     public function enterNode(Node $node): ?int
     {
         if ($node instanceof Stmt\ClassLike) {
             $name = $this->resolveClassName($node);
-
-            $reflector = new PhpParserStatementReflector(
-                phpDocParser: $this->phpDocParser,
-                phpDocTypeReflector: $this->phpDocTypeReflector,
-                nameContext: clone $this->nameContext,
-                reflectionContext: $this->reflectionContext,
-                resource: $this->resource,
-                changeDetector: $this->changeDetector,
-            );
-
-            $this->reflections->setLazy(
-                class: ClassReflection::class,
+            $nameContext = clone $this->nameContext;
+            $this->parsingContext->registerClassReflector(
                 name: $name,
-                reflectionLoader: static fn (): ClassReflection => $reflector->reflectClass($node, $name),
+                reflector: fn (ReflectionContext $reflectionContext): ClassReflection => (new PhpParserReflector(
+                    reflectionContext: $reflectionContext,
+                    nameContext: $nameContext,
+                    resource: $this->resource,
+                ))->reflectClass($node, $name),
             );
         }
 
@@ -68,7 +57,12 @@ final class DiscoveringVisitor extends NodeVisitorAbstract
             throw new ReflectionException();
         }
 
-        return AnonymousClassName::fromNode(file: $this->resource->file, node: $node, nameContext: $this->nameContext)
-            ->toStringWithoutRtdKeyCounter();
+        $name = AnonymousClassName::fromNode(
+            file: $this->resource->file,
+            node: $node,
+            nameContext: $this->nameContext,
+        );
+
+        return $name->toStringWithoutRtdKeyCounter();
     }
 }

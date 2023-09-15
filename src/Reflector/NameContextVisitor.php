@@ -8,7 +8,6 @@ use PhpParser\Node;
 use PhpParser\Node\Stmt;
 use PhpParser\NodeVisitorAbstract;
 use Typhoon\Reflection\NameResolution\NameContext;
-use Typhoon\Reflection\PhpDocParser\PhpDocParser;
 
 /**
  * @internal
@@ -17,7 +16,6 @@ use Typhoon\Reflection\PhpDocParser\PhpDocParser;
 final class NameContextVisitor extends NodeVisitorAbstract
 {
     public function __construct(
-        private readonly PhpDocParser $phpDocParser,
         private readonly NameContext $nameContext,
     ) {}
 
@@ -62,7 +60,7 @@ final class NameContextVisitor extends NodeVisitorAbstract
             $this->nameContext->enterClass(
                 name: $node->name->name,
                 parent: $node instanceof Stmt\Class_ ? $node->extends?->toCodeString() : null,
-                templateNames: array_keys($this->phpDocParser->parseNodePhpDoc($node)->templates),
+                templateNames: array_keys(PhpDocParsingVisitor::fromNode($node)->templates),
             );
 
             return null;
@@ -71,7 +69,7 @@ final class NameContextVisitor extends NodeVisitorAbstract
         if ($node instanceof Stmt\ClassMethod) {
             $this->nameContext->enterMethod(
                 name: $node->name->name,
-                templateNames: array_keys($this->phpDocParser->parseNodePhpDoc($node)->templates),
+                templateNames: array_keys(PhpDocParsingVisitor::fromNode($node)->templates),
             );
 
             return null;

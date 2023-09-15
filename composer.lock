@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "97a79a60ae633a79fa233354c64727ac",
+    "content-hash": "3e531beb369f0a506d87a7d6a48e07e5",
     "packages": [
         {
             "name": "nikic/php-parser",
@@ -108,6 +108,57 @@
                 "source": "https://github.com/phpstan/phpdoc-parser/tree/1.24.0"
             },
             "time": "2023-09-07T20:46:32+00:00"
+        },
+        {
+            "name": "psr/simple-cache",
+            "version": "3.0.0",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/php-fig/simple-cache.git",
+                "reference": "764e0b3939f5ca87cb904f570ef9be2d78a07865"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/php-fig/simple-cache/zipball/764e0b3939f5ca87cb904f570ef9be2d78a07865",
+                "reference": "764e0b3939f5ca87cb904f570ef9be2d78a07865",
+                "shasum": ""
+            },
+            "require": {
+                "php": ">=8.0.0"
+            },
+            "type": "library",
+            "extra": {
+                "branch-alias": {
+                    "dev-master": "3.0.x-dev"
+                }
+            },
+            "autoload": {
+                "psr-4": {
+                    "Psr\\SimpleCache\\": "src/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "PHP-FIG",
+                    "homepage": "https://www.php-fig.org/"
+                }
+            ],
+            "description": "Common interfaces for simple caching",
+            "keywords": [
+                "cache",
+                "caching",
+                "psr",
+                "psr-16",
+                "simple-cache"
+            ],
+            "support": {
+                "source": "https://github.com/php-fig/simple-cache/tree/3.0.0"
+            },
+            "time": "2021-10-29T13:26:27+00:00"
         },
         {
             "name": "typhoon/type",
@@ -2978,6 +3029,54 @@
             "time": "2022-12-03T07:47:07+00:00"
         },
         {
+            "name": "psr/clock",
+            "version": "1.0.0",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/php-fig/clock.git",
+                "reference": "e41a24703d4560fd0acb709162f73b8adfc3aa0d"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/php-fig/clock/zipball/e41a24703d4560fd0acb709162f73b8adfc3aa0d",
+                "reference": "e41a24703d4560fd0acb709162f73b8adfc3aa0d",
+                "shasum": ""
+            },
+            "require": {
+                "php": "^7.0 || ^8.0"
+            },
+            "type": "library",
+            "autoload": {
+                "psr-4": {
+                    "Psr\\Clock\\": "src/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "PHP-FIG",
+                    "homepage": "https://www.php-fig.org/"
+                }
+            ],
+            "description": "Common interface for reading the clock.",
+            "homepage": "https://github.com/php-fig/clock",
+            "keywords": [
+                "clock",
+                "now",
+                "psr",
+                "psr-20",
+                "time"
+            ],
+            "support": {
+                "issues": "https://github.com/php-fig/clock/issues",
+                "source": "https://github.com/php-fig/clock/tree/1.0.0"
+            },
+            "time": "2022-11-25T14:36:26+00:00"
+        },
+        {
             "name": "psr/container",
             "version": "2.0.2",
             "source": {
@@ -5795,6 +5894,119 @@
             "time": "2021-07-28T10:34:58+00:00"
         },
         {
+            "name": "typhoon/exporter",
+            "version": "0.2.x-dev",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/typhoon-php/exporter.git",
+                "reference": "0c7eb9e8650f233f0c33833956f167ecbc57ca1b"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/typhoon-php/exporter/zipball/0c7eb9e8650f233f0c33833956f167ecbc57ca1b",
+                "reference": "0c7eb9e8650f233f0c33833956f167ecbc57ca1b",
+                "shasum": ""
+            },
+            "require": {
+                "php": "^8.1"
+            },
+            "require-dev": {
+                "ergebnis/composer-normalize": "^2.36",
+                "friendsofphp/php-cs-fixer": "^3.26.1",
+                "infection/infection": "^0.27.0",
+                "phpunit/phpunit": "^10.3.4",
+                "phpyh/coding-standard": "^2.5.0",
+                "psalm/plugin-phpunit": "^0.18.4",
+                "symfony/finder": "^6.3",
+                "symfony/var-dumper": "^6.3",
+                "vimeo/psalm": "^5.15.0"
+            },
+            "default-branch": true,
+            "type": "library",
+            "autoload": {
+                "psr-4": {
+                    "Typhoon\\Exporter\\": "src/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Valentin Udaltsov",
+                    "email": "udaltsov.valentin@gmail.com"
+                }
+            ],
+            "description": "Typhoon Exporter",
+            "support": {
+                "issues": "https://github.com/typhoon-php/exporter/issues",
+                "source": "https://github.com/typhoon-php/exporter/tree/0.2.x"
+            },
+            "time": "2023-09-20T16:18:16+00:00"
+        },
+        {
+            "name": "typhoon/opcache",
+            "version": "0.2.x-dev",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/typhoon-php/opcache.git",
+                "reference": "535ed3353a2843e789f2ce7b6bc9bf682f63bb79"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/typhoon-php/opcache/zipball/535ed3353a2843e789f2ce7b6bc9bf682f63bb79",
+                "reference": "535ed3353a2843e789f2ce7b6bc9bf682f63bb79",
+                "shasum": ""
+            },
+            "require": {
+                "php": "^8.1",
+                "psr/clock": "^1.0",
+                "psr/log": "^1.0 || ^2.0 || ^3.0",
+                "psr/simple-cache": "^3.0",
+                "typhoon/exporter": "^0.2.0@dev"
+            },
+            "provide": {
+                "psr/simple-cache-implementation": "^3.0"
+            },
+            "require-dev": {
+                "ergebnis/composer-normalize": "^2.36",
+                "friendsofphp/php-cs-fixer": "^3.26.1",
+                "infection/infection": "^0.27.0",
+                "mikey179/vfsstream": "^1.6",
+                "phpunit/phpunit": "^10.3.4",
+                "phpyh/coding-standard": "^2.5.0",
+                "psalm/plugin-phpunit": "^0.18.4",
+                "symfony/filesystem": "^6.3",
+                "symfony/finder": "^6.3",
+                "symfony/var-dumper": "^6.3",
+                "vimeo/psalm": "^5.15.0"
+            },
+            "default-branch": true,
+            "type": "library",
+            "autoload": {
+                "psr-4": {
+                    "Typhoon\\OPcache\\": "src/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Valentin Udaltsov",
+                    "email": "udaltsov.valentin@gmail.com"
+                }
+            ],
+            "description": "PSR-16 compliant cache that stores values as PHP files, suitable for OPcaching.",
+            "support": {
+                "issues": "https://github.com/typhoon-php/opcache/issues",
+                "source": "https://github.com/typhoon-php/opcache/tree/0.2.x"
+            },
+            "time": "2023-09-21T02:28:17+00:00"
+        },
+        {
             "name": "vimeo/psalm",
             "version": "5.15.0",
             "source": {
@@ -5966,7 +6178,9 @@
     "minimum-stability": "stable",
     "stability-flags": {
         "typhoon/type": 20,
-        "typhoon/type-stringifier": 20
+        "typhoon/type-stringifier": 20,
+        "typhoon/exporter": 20,
+        "typhoon/opcache": 20
     },
     "prefer-stable": false,
     "prefer-lowest": false,

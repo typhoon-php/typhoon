@@ -9,7 +9,7 @@
 | `IS_IMPLICIT_ABSTRACT`            | ✅                                      |
 | `IS_READONLY`                     | ✅                                      |
 | `$name`                           | ✅                                      |
-| `__clone()`                       | ✅ `private`                            |
+| `__clone()`                       | ✅ Cloning is forbidden                 |
 | `__construct()`                   | ❌ `@internal`                          |
 | `__toString()`                    | ❌ Not going to implement               |
 | `getAttributes()`                 | ❌ TODO                                 |
@@ -77,7 +77,7 @@
 | `IS_STATIC`           | ✅                              |
 | `$class`              | ✅                              |
 | `$name`               | ✅                              |
-| `__clone()`           | ✅ `private`                    |
+| `__clone()`           | ✅ Cloning is forbidden         |
 | `__construct()`       | ❌ `@internal`                  |
 | `__toString()`        | ❌ Not going to implement       |
 | `getAttributes()`     | ❌ TODO                         |
@@ -113,7 +113,7 @@
 | `IS_STATIC`                       | ✅                              |
 | `$class`                          | ✅                              |
 | `$name`                           | ✅                              |
-| `__clone()`                       | ✅ `private`                    |
+| `__clone()`                       | ✅ Cloning is forbidden         |
 | `__construct()`                   | ❌ `@internal`                  |
 | `__toString()`                    | ❌ Not going to implement       |
 | `getAttributes()`                 | ❌ TODO                         |
@@ -168,7 +168,7 @@
 | ReflectionParameter             | ParameterReflection         |
 |---------------------------------|-----------------------------|
 | `$name`                         | ✅                           |
-| `__clone()`                     | ✅ `private`                 |
+| `__clone()`                     | ✅ Cloning is forbidden      |
 | `__construct()`                 | ❌ `@internal`               |
 | `__toString()`                  | ❌ Not going to implement    |
 | `allowsNull()`                  | ❌ Use `getType()`           |

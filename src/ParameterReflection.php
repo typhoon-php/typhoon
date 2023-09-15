@@ -22,7 +22,7 @@ final class ParameterReflection extends FriendlyReflection
      * @param ?positive-int $endLine
      */
     public function __construct(
-        public readonly string|array $function,
+        private readonly string|array $function,
         private readonly int $position,
         public readonly string $name,
         private readonly bool $passedByReference,
@@ -30,7 +30,8 @@ final class ParameterReflection extends FriendlyReflection
         private readonly bool $optional,
         private readonly bool $variadic,
         private readonly bool $promoted,
-        private readonly TypeReflection $type,
+        /** @readonly */
+        private TypeReflection $type,
         private readonly ?int $startLine,
         private readonly ?int $endLine,
         private ?\ReflectionParameter $reflectionParameter = null,
@@ -116,26 +117,31 @@ final class ParameterReflection extends FriendlyReflection
         return $this->endLine;
     }
 
+    public function __clone()
+    {
+        if ((debug_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS, 2)[1]['class'] ?? null) !== self::class) {
+            throw new ReflectionException();
+        }
+    }
+
     protected function withResolvedTypes(TypeVisitor $typeResolver): static
     {
-        $data = get_object_vars($this);
-        $data['type'] = $this->type->withResolvedTypes($typeResolver);
+        $parameter = clone $this;
+        $parameter->type = $this->type->withResolvedTypes($typeResolver);
 
-        return new self(...$data);
+        return $parameter;
     }
 
     protected function toChildOf(FriendlyReflection $parent): static
     {
-        $data = get_object_vars($this);
-        $data['type'] = $this->type->toChildOf($parent->type);
+        $parameter = clone $this;
+        $parameter->type = $this->type->toChildOf($parent->type);
 
-        return new self(...$data);
+        return $parameter;
     }
 
     private function reflectionParameter(): \ReflectionParameter
     {
         return $this->reflectionParameter ??= new \ReflectionParameter($this->function, $this->name);
     }
-
-    private function __clone() {}
 }

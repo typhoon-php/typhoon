@@ -9,18 +9,50 @@ use Typhoon\types;
 
 /**
  * @api
- * @psalm-immutable
  */
 final class TemplateReflection
 {
     /**
+     * @internal
+     * @psalm-internal Typhoon\Reflection
      * @param int<0, max> $position
      * @param non-empty-string $name
      */
     public function __construct(
-        public readonly int $position,
+        private readonly int $position,
         public readonly string $name,
-        public readonly Type $constraint = types::mixed,
-        public readonly Variance $variance = Variance::INVARIANT,
+        private readonly Type $constraint = types::mixed,
+        private readonly Variance $variance = Variance::INVARIANT,
     ) {}
+
+    /**
+     * @return non-empty-string
+     */
+    public function getName(): string
+    {
+        return $this->name;
+    }
+
+    /**
+     * @return int<0, max>
+     */
+    public function getPosition(): int
+    {
+        return $this->position;
+    }
+
+    public function getConstraint(): Type
+    {
+        return $this->constraint;
+    }
+
+    public function getVariance(): Variance
+    {
+        return $this->variance;
+    }
+
+    public function __clone()
+    {
+        throw new ReflectionException();
+    }
 }

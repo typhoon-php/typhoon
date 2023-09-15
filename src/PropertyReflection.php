@@ -35,7 +35,8 @@ final class PropertyReflection extends FriendlyReflection
         private readonly bool $hasDefaultValue,
         private readonly bool $promoted,
         private readonly int $modifiers,
-        private readonly TypeReflection $type,
+        /** @readonly */
+        private TypeReflection $type,
         private readonly ?int $startLine,
         private readonly ?int $endLine,
         private ?\ReflectionProperty $reflectionProperty = null,
@@ -154,28 +155,31 @@ final class PropertyReflection extends FriendlyReflection
         return $data;
     }
 
+    public function __clone()
+    {
+        if ((debug_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS, 2)[1]['class'] ?? null) !== self::class) {
+            throw new ReflectionException();
+        }
+    }
+
     protected function withResolvedTypes(TypeVisitor $typeResolver): static
     {
-        $vars = get_object_vars($this);
-        $vars['type'] = $this->type->withResolvedTypes($typeResolver);
-        $vars['modifiers'] = $this->modifiers;
+        $property = clone $this;
+        $property->type = $this->type->withResolvedTypes($typeResolver);
 
-        return new self(...$vars);
+        return $property;
     }
 
     protected function toChildOf(FriendlyReflection $parent): static
     {
-        $data = get_object_vars($this);
-        $data['type'] = $this->type->toChildOf($parent->type);
-        $data['modifiers'] = $this->modifiers;
+        $property = clone $this;
+        $property->type = $this->type->toChildOf($parent->type);
 
-        return new self(...$data);
+        return $property;
     }
 
     private function reflectionProperty(): \ReflectionProperty
     {
         return $this->reflectionProperty ??= new \ReflectionProperty($this->class, $this->name);
     }
-
-    private function __clone() {}
 }
