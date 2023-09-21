@@ -18,14 +18,20 @@ Without stubs native PHP classes are reflected via native reflector that does no
 namespace My\Awesome\App;
 
 use Typhoon\Reflection\TyphoonReflector;
+use Typhoon\Type\types;
 
+/**
+ * @template T
+ */
 final readonly class Article
 {
     /**
      * @param non-empty-list<non-empty-string> $tags
+     * @param T $data
      */
     public function __construct(
         private array $tags,
+        public mixed $data,
     ) {}
 }
 
@@ -38,17 +44,22 @@ var_dump($articleReflection->getNamespaceName()); // 'My\Awesome\App'
 $tagsReflection = $articleReflection->getProperty('tags');
 
 var_dump($tagsReflection->isReadOnly()); // true
+var_dump($tagsReflection->getType()->getNative()); // object representation of array<array-key, mixed> type
+var_dump($tagsReflection->getType()->getPhpDoc()); // object representation of non-empty-list<non-empty-string> type
 
-var_dump($tagsReflection->getType()->getNative());
-// class Typhoon\Type\ArrayType (2) {
-//   $keyType => enum Typhoon\Type\ArrayKeyType;
-//   $valueType => enum Typhoon\Type\MixedType;
-// }
+$dataReflection = $articleReflection->getProperty('data');
 
-var_dump($tagsReflection->getType()->getPhpDoc());
-// class Typhoon\Type\NonEmptyListType (1) {
-//   $valueType => enum Typhoon\Type\NonEmptyStringType;
-// }
+var_dump($dataReflection->isPublic()); // true
+var_dump($dataReflection->getType()->getNative()); // object representation of mixed type
+var_dump($dataReflection->getType()->getPhpDoc()); // object representation of T:Article type
+
+var_dump(
+    $articleReflection
+        ->withResolvedTemplates(['T' => types::nonEmptyString])
+        ->getProperty('data')
+        ->getType()
+        ->getPhpDoc(),
+); // object representation of non-empty-string type
 ```
 
 ## Compatibility
