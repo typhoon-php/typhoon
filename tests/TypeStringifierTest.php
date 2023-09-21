@@ -2,11 +2,13 @@
 
 declare(strict_types=1);
 
-namespace Typhoon;
+namespace Typhoon\TypeStringifier;
 
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
+use Typhoon\Type\Type;
+use Typhoon\Type\types;
 
 #[CoversClass(TypeStringifier::class)]
 final class TypeStringifierTest extends TestCase

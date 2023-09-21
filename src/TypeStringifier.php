@@ -2,60 +2,10 @@
 
 declare(strict_types=1);
 
-namespace Typhoon;
+namespace Typhoon\TypeStringifier;
 
-use Typhoon\Type\ArrayKeyType;
-use Typhoon\Type\ArrayType;
-use Typhoon\Type\BoolType;
-use Typhoon\Type\CallableArrayType;
-use Typhoon\Type\CallableStringType;
-use Typhoon\Type\CallableType;
-use Typhoon\Type\ClassConstantType;
-use Typhoon\Type\ClassStringType;
-use Typhoon\Type\ClassTemplateType;
-use Typhoon\Type\ClosedResourceType;
-use Typhoon\Type\ClosureType;
-use Typhoon\Type\ConstantType;
-use Typhoon\Type\EnumStringType;
-use Typhoon\Type\FalseType;
-use Typhoon\Type\FloatLiteralType;
-use Typhoon\Type\FloatType;
-use Typhoon\Type\FunctionTemplateType;
-use Typhoon\Type\InterfaceStringType;
-use Typhoon\Type\IntersectionType;
-use Typhoon\Type\IntLiteralType;
-use Typhoon\Type\IntRangeType;
-use Typhoon\Type\IntType;
-use Typhoon\Type\IterableType;
-use Typhoon\Type\KeyOfType;
-use Typhoon\Type\ListType;
-use Typhoon\Type\LiteralIntType;
-use Typhoon\Type\LiteralStringType;
-use Typhoon\Type\MethodTemplateType;
-use Typhoon\Type\MixedType;
-use Typhoon\Type\NamedClassStringType;
-use Typhoon\Type\NamedObjectType;
-use Typhoon\Type\NeverType;
-use Typhoon\Type\NonEmptyArrayType;
-use Typhoon\Type\NonEmptyListType;
-use Typhoon\Type\NonEmptyStringType;
-use Typhoon\Type\NullType;
-use Typhoon\Type\NumericStringType;
-use Typhoon\Type\NumericType;
-use Typhoon\Type\ObjectType;
-use Typhoon\Type\Parameter;
-use Typhoon\Type\ResourceType;
-use Typhoon\Type\ScalarType;
-use Typhoon\Type\ShapeElement;
-use Typhoon\Type\ShapeType;
-use Typhoon\Type\StaticType;
-use Typhoon\Type\StringLiteralType;
-use Typhoon\Type\StringType;
-use Typhoon\Type\TraitStringType;
-use Typhoon\Type\TrueType;
-use Typhoon\Type\UnionType;
-use Typhoon\Type\ValueOfType;
-use Typhoon\Type\VoidType;
+use Typhoon\Type;
+use Typhoon\Type\TypeVisitor;
 
 /**
  * @psalm-api
@@ -70,52 +20,52 @@ final class TypeStringifier implements TypeVisitor
     /**
      * @return non-empty-string
      */
-    public static function stringify(Type $type): string
+    public static function stringify(Type\Type $type): string
     {
         return $type->accept(new self());
     }
 
-    public function visitNever(NeverType $type): mixed
+    public function visitNever(Type\NeverType $type): mixed
     {
         return 'never';
     }
 
-    public function visitVoid(VoidType $type): mixed
+    public function visitVoid(Type\VoidType $type): mixed
     {
         return 'void';
     }
 
-    public function visitNull(NullType $type): mixed
+    public function visitNull(Type\NullType $type): mixed
     {
         return 'null';
     }
 
-    public function visitFalse(FalseType $type): mixed
+    public function visitFalse(Type\FalseType $type): mixed
     {
         return 'false';
     }
 
-    public function visitTrue(TrueType $type): mixed
+    public function visitTrue(Type\TrueType $type): mixed
     {
         return 'true';
     }
 
-    public function visitBool(BoolType $type): mixed
+    public function visitBool(Type\BoolType $type): mixed
     {
         return 'bool';
     }
 
-    public function visitIntLiteral(IntLiteralType $type): mixed
+    public function visitIntLiteral(Type\IntLiteralType $type): mixed
     {
         return (string) $type->value;
     }
 
-    public function visitLiteralInt(LiteralIntType $type): mixed
+    public function visitLiteralInt(Type\LiteralIntType $type): mixed
     {
         return 'literal-int';
     }
 
-    public function visitIntRange(IntRangeType $type): mixed
+    public function visitIntRange(Type\IntRangeType $type): mixed
     {
         if ($type->min === null && $type->max === null) {
             return 'int';
@@ -124,110 +74,110 @@ final class TypeStringifier implements TypeVisitor
         return sprintf('int<%s, %s>', $type->min ?? 'min', $type->max ?? 'max');
     }
 
-    public function visitInt(IntType $type): mixed
+    public function visitInt(Type\IntType $type): mixed
     {
         return 'int';
     }
 
-    public function visitFloatLiteral(FloatLiteralType $type): mixed
+    public function visitFloatLiteral(Type\FloatLiteralType $type): mixed
     {
         return (string) $type->value;
     }
 
-    public function visitFloat(FloatType $type): mixed
+    public function visitFloat(Type\FloatType $type): mixed
     {
         return 'float';
     }
 
-    public function visitStringLiteral(StringLiteralType $type): mixed
+    public function visitStringLiteral(Type\StringLiteralType $type): mixed
     {
         return $this->escapeStringLiteral($type->value);
     }
 
-    public function visitLiteralString(LiteralStringType $type): mixed
+    public function visitLiteralString(Type\LiteralStringType $type): mixed
     {
         return 'literal-string';
     }
 
-    public function visitNumericString(NumericStringType $type): mixed
+    public function visitNumericString(Type\NumericStringType $type): mixed
     {
         return 'numeric-string';
     }
 
-    public function visitNamedClassString(NamedClassStringType $type): mixed
+    public function visitNamedClassString(Type\NamedClassStringType $type): mixed
     {
         return sprintf('class-string<%s>', $type->type->accept($this));
     }
 
-    public function visitClassString(ClassStringType $type): mixed
+    public function visitClassString(Type\ClassStringType $type): mixed
     {
         return 'class-string';
     }
 
-    public function visitCallableString(CallableStringType $type): mixed
+    public function visitCallableString(Type\CallableStringType $type): mixed
     {
         return 'callable-string';
     }
 
-    public function visitInterfaceString(InterfaceStringType $type): mixed
+    public function visitInterfaceString(Type\InterfaceStringType $type): mixed
     {
         return 'interface-string';
     }
 
-    public function visitEnumString(EnumStringType $type): mixed
+    public function visitEnumString(Type\EnumStringType $type): mixed
     {
         return 'enum-string';
     }
 
-    public function visitTraitString(TraitStringType $type): mixed
+    public function visitTraitString(Type\TraitStringType $type): mixed
     {
         return 'trait-string';
     }
 
-    public function visitNonEmptyString(NonEmptyStringType $type): mixed
+    public function visitNonEmptyString(Type\NonEmptyStringType $type): mixed
     {
         return 'non-empty-string';
     }
 
-    public function visitString(StringType $type): mixed
+    public function visitString(Type\StringType $type): mixed
     {
         return 'string';
     }
 
-    public function visitNumeric(NumericType $type): mixed
+    public function visitNumeric(Type\NumericType $type): mixed
     {
         return 'numeric';
     }
 
-    public function visitArrayKey(ArrayKeyType $type): mixed
+    public function visitArrayKey(Type\ArrayKeyType $type): mixed
     {
         return 'array-key';
     }
 
-    public function visitScalar(ScalarType $type): mixed
+    public function visitScalar(Type\ScalarType $type): mixed
     {
         return 'scalar';
     }
 
-    public function visitNonEmptyList(NonEmptyListType $type): mixed
+    public function visitNonEmptyList(Type\NonEmptyListType $type): mixed
     {
-        if ($type->valueType instanceof MixedType) {
+        if ($type->valueType instanceof Type\MixedType) {
             return 'non-empty-list';
         }
 
         return $this->stringifyGenericType('non-empty-list', [$type->valueType]);
     }
 
-    public function visitList(ListType $type): mixed
+    public function visitList(Type\ListType $type): mixed
     {
-        if ($type->valueType instanceof MixedType) {
+        if ($type->valueType instanceof Type\MixedType) {
             return 'list';
         }
 
         return $this->stringifyGenericType('list', [$type->valueType]);
     }
 
-    public function visitShape(ShapeType $type): mixed
+    public function visitShape(Type\ShapeType $type): mixed
     {
         if ($type->elements === []) {
             return $type->sealed ? 'list{}' : 'array';
@@ -238,7 +188,7 @@ final class TypeStringifier implements TypeVisitor
                 '%s{%s%s}',
                 $type->sealed ? 'list' : 'array',
                 implode(', ', array_map(
-                    fn (int $key, ShapeElement $element) => ($element->optional ? $key . '?: ' : '') . $element->type->accept($this),
+                    fn (int $key, Type\ShapeElement $element) => ($element->optional ? $key . '?: ' : '') . $element->type->accept($this),
                     array_keys($type->elements),
                     $type->elements,
                 )),
@@ -249,7 +199,7 @@ final class TypeStringifier implements TypeVisitor
         return sprintf(
             'array{%s%s}',
             implode(', ', array_map(
-                function (int|string $key, ShapeElement $element): string {
+                function (int|string $key, Type\ShapeElement $element): string {
                     if (\is_string($key) && ($key === '' || preg_match('/\W/', $key))) {
                         $key = $this->escapeStringLiteral($key);
                     }
@@ -263,10 +213,10 @@ final class TypeStringifier implements TypeVisitor
         );
     }
 
-    public function visitNonEmptyArray(NonEmptyArrayType $type): mixed
+    public function visitNonEmptyArray(Type\NonEmptyArrayType $type): mixed
     {
-        if ($type->keyType instanceof ArrayKeyType) {
-            if ($type->valueType instanceof MixedType) {
+        if ($type->keyType instanceof Type\ArrayKeyType) {
+            if ($type->valueType instanceof Type\MixedType) {
                 return 'non-empty-array';
             }
 
@@ -276,15 +226,15 @@ final class TypeStringifier implements TypeVisitor
         return $this->stringifyGenericType('non-empty-array', [$type->keyType, $type->valueType]);
     }
 
-    public function visitCallableArray(CallableArrayType $type): mixed
+    public function visitCallableArray(Type\CallableArrayType $type): mixed
     {
         return 'callable-array';
     }
 
-    public function visitArray(ArrayType $type): mixed
+    public function visitArray(Type\ArrayType $type): mixed
     {
-        if ($type->keyType instanceof ArrayKeyType) {
-            if ($type->valueType instanceof MixedType) {
+        if ($type->keyType instanceof Type\ArrayKeyType) {
+            if ($type->valueType instanceof Type\MixedType) {
                 return 'array';
             }
 
@@ -294,10 +244,10 @@ final class TypeStringifier implements TypeVisitor
         return $this->stringifyGenericType('array', [$type->keyType, $type->valueType]);
     }
 
-    public function visitIterable(IterableType $type): mixed
+    public function visitIterable(Type\IterableType $type): mixed
     {
-        if ($type->keyType instanceof MixedType) {
-            if ($type->valueType instanceof MixedType) {
+        if ($type->keyType instanceof Type\MixedType) {
+            if ($type->valueType instanceof Type\MixedType) {
                 return 'iterable';
             }
 
@@ -307,7 +257,7 @@ final class TypeStringifier implements TypeVisitor
         return $this->stringifyGenericType('iterable', [$type->keyType, $type->valueType]);
     }
 
-    public function visitNamedObject(NamedObjectType $type): mixed
+    public function visitNamedObject(Type\NamedObjectType $type): mixed
     {
         if ($type->templateArguments === []) {
             return $type->class;
@@ -316,7 +266,7 @@ final class TypeStringifier implements TypeVisitor
         return $this->stringifyGenericType($type->class, $type->templateArguments);
     }
 
-    public function visitStatic(StaticType $type): mixed
+    public function visitStatic(Type\StaticType $type): mixed
     {
         if ($type->templateArguments === []) {
             return 'static';
@@ -325,105 +275,105 @@ final class TypeStringifier implements TypeVisitor
         return $this->stringifyGenericType('static', $type->templateArguments);
     }
 
-    public function visitObject(ObjectType $type): mixed
+    public function visitObject(Type\ObjectType $type): mixed
     {
         return 'object';
     }
 
-    public function visitResource(ResourceType $type): mixed
+    public function visitResource(Type\ResourceType $type): mixed
     {
         return 'resource';
     }
 
-    public function visitClosedResource(ClosedResourceType $type): mixed
+    public function visitClosedResource(Type\ClosedResourceType $type): mixed
     {
         return 'closed-resource';
     }
 
-    public function visitClosure(ClosureType $type): mixed
+    public function visitClosure(Type\ClosureType $type): mixed
     {
         return $this->stringifyCallable('Closure', $type->parameters, $type->returnType);
     }
 
-    public function visitCallable(CallableType $type): mixed
+    public function visitCallable(Type\CallableType $type): mixed
     {
         return $this->stringifyCallable('callable', $type->parameters, $type->returnType);
     }
 
-    public function visitConstant(ConstantType $type): mixed
+    public function visitConstant(Type\ConstantType $type): mixed
     {
         return $type->constant;
     }
 
-    public function visitClassConstant(ClassConstantType $type): mixed
+    public function visitClassConstant(Type\ClassConstantType $type): mixed
     {
         return sprintf('%s::%s', $type->class, $type->constant);
     }
 
-    public function visitKeyOf(KeyOfType $type): mixed
+    public function visitKeyOf(Type\KeyOfType $type): mixed
     {
         return $this->stringifyGenericType('key-of', [$type->type]);
     }
 
-    public function visitValueOf(ValueOfType $type): mixed
+    public function visitValueOf(Type\ValueOfType $type): mixed
     {
         return $this->stringifyGenericType('value-of', [$type->type]);
     }
 
-    public function visitFunctionTemplate(FunctionTemplateType $type): mixed
+    public function visitFunctionTemplate(Type\FunctionTemplateType $type): mixed
     {
         return sprintf('%s:%s()', $type->name, $type->function);
     }
 
-    public function visitClassTemplate(ClassTemplateType $type): mixed
+    public function visitClassTemplate(Type\ClassTemplateType $type): mixed
     {
         return sprintf('%s:%s', $type->name, $type->class);
     }
 
-    public function visitMethodTemplate(MethodTemplateType $type): mixed
+    public function visitMethodTemplate(Type\MethodTemplateType $type): mixed
     {
         return sprintf('%s:%s::%s()', $type->name, $type->class, $type->method);
     }
 
-    public function visitIntersection(IntersectionType $type): mixed
+    public function visitIntersection(Type\IntersectionType $type): mixed
     {
         return implode('&', array_map(
-            fn (Type $inner): string => $inner instanceof UnionType ? sprintf('(%s)', $inner->accept($this)) : $inner->accept($this),
+            fn (Type\Type $inner): string => $inner instanceof Type\UnionType ? sprintf('(%s)', $inner->accept($this)) : $inner->accept($this),
             $type->types,
         ));
     }
 
-    public function visitUnion(UnionType $type): mixed
+    public function visitUnion(Type\UnionType $type): mixed
     {
         return implode('|', array_map(
-            fn (Type $inner): string => $inner instanceof IntersectionType ? sprintf('(%s)', $inner->accept($this)) : $inner->accept($this),
+            fn (Type\Type $inner): string => $inner instanceof Type\IntersectionType ? sprintf('(%s)', $inner->accept($this)) : $inner->accept($this),
             $type->types,
         ));
     }
 
-    public function visitMixed(MixedType $type): mixed
+    public function visitMixed(Type\MixedType $type): mixed
     {
         return 'mixed';
     }
 
     /**
-     * @param non-empty-list<Type> $templateArguments
+     * @param non-empty-list<Type\Type> $templateArguments
      * @return non-empty-string
      */
     private function stringifyGenericType(string $name, array $templateArguments): string
     {
         return sprintf('%s<%s>', $name, implode(', ', array_map(
-            fn (Type $type): string => $type->accept($this),
+            fn (Type\Type $type): string => $type->accept($this),
             $templateArguments,
         )));
     }
 
     /**
      * @param non-empty-string $name
-     * @param list<Parameter> $parameters
+     * @param list<Type\Parameter> $parameters
      * @return non-empty-string
      */
-    private function stringifyCallable(string $name, array $parameters, ?Type $returnType): string
+    private function stringifyCallable(string $name, array $parameters, ?Type\Type $returnType): string
     {
         if ($parameters === [] && $returnType === null) {
             return $name;
@@ -433,7 +383,7 @@ final class TypeStringifier implements TypeVisitor
             '%s(%s)%s',
             $name,
             implode(', ', array_map(
-                fn (Parameter $parameter): string => $parameter->type->accept($this) . match (true) {
+                fn (Type\Parameter $parameter): string => $parameter->type->accept($this) . match (true) {
                     $parameter->variadic => '...',
                     $parameter->hasDefault => '=',
                     default => '',

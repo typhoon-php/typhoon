@@ -23,12 +23,12 @@
     },
     "autoload": {
         "psr-4": {
-            "Typhoon\\": "src/"
+            "Typhoon\\TypeStringifier\\": "src/"
         }
     },
     "autoload-dev": {
         "psr-4": {
-            "Typhoon\\": "tests/"
+            "Typhoon\\TypeStringifier\\": "tests/"
         }
     },
     "config": {
