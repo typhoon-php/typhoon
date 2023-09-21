@@ -370,7 +370,7 @@ final class MethodReflection extends FriendlyReflection
             static fn (ParameterReflection $parameter): ParameterReflection => $parameter->withResolvedTypes($typeResolver),
             $this->parameters,
         );
-        $method->returnType->withResolvedTypes($typeResolver);
+        $method->returnType = $method->returnType->withResolvedTypes($typeResolver);
 
         return $method;
     }
@@ -385,7 +385,7 @@ final class MethodReflection extends FriendlyReflection
                 : $parameter,
             $this->parameters,
         );
-        $method->returnType->toChildOf($parent->returnType);
+        $method->returnType = $method->returnType->toChildOf($parent->returnType);
 
         return $method;
     }
