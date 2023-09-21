@@ -5899,12 +5899,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/typhoon-php/exporter.git",
-                "reference": "0c7eb9e8650f233f0c33833956f167ecbc57ca1b"
+                "reference": "de6e5dc788b3e5079756c63d9b0d9d95b25133d3"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/typhoon-php/exporter/zipball/0c7eb9e8650f233f0c33833956f167ecbc57ca1b",
-                "reference": "0c7eb9e8650f233f0c33833956f167ecbc57ca1b",
+                "url": "https://api.github.com/repos/typhoon-php/exporter/zipball/de6e5dc788b3e5079756c63d9b0d9d95b25133d3",
+                "reference": "de6e5dc788b3e5079756c63d9b0d9d95b25133d3",
                 "shasum": ""
             },
             "require": {
@@ -5943,7 +5943,7 @@
                 "issues": "https://github.com/typhoon-php/exporter/issues",
                 "source": "https://github.com/typhoon-php/exporter/tree/0.2.x"
             },
-            "time": "2023-09-20T16:18:16+00:00"
+            "time": "2023-09-21T14:51:43+00:00"
         },
         {
             "name": "typhoon/opcache",
