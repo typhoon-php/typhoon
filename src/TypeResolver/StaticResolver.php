@@ -213,12 +213,10 @@ final class StaticResolver implements TypeVisitor
     public function visitStatic(Type\StaticType $type): mixed
     {
         /** @psalm-suppress ImpureFunctionCall */
-        $templateArguments = array_map(
+        return types::object($this->class, ...array_map(
             fn (Type\Type $type): Type\Type => $type->accept($this),
             $type->templateArguments,
-        );
-
-        return types::object($this->class, ...$templateArguments);
+        ));
     }
 
     public function visitObject(Type\ObjectType $type): mixed

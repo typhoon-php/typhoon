@@ -215,7 +215,7 @@ final class ClassTemplateResolver implements TypeVisitor
     public function visitStatic(Type\StaticType $type): mixed
     {
         /** @psalm-suppress ImpureFunctionCall */
-        return types::object($type->declaringClass, ...array_map(
+        return types::static($type->declaringClass, ...array_map(
             fn (Type\Type $type): Type\Type => $type->accept($this),
             $type->templateArguments,
         ));

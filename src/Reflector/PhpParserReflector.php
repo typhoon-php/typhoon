@@ -490,7 +490,13 @@ final class PhpParserReflector
         }
 
         if ($node instanceof Name) {
-            return types::object($this->nameContext->resolveNameAsClass($node->toCodeString()));
+            $resolvedName = $this->nameContext->resolveNameAsClass($node->toCodeString());
+
+            if ($node->toString() === 'static') {
+                return types::static($resolvedName);
+            }
+
+            return types::object($resolvedName);
         }
 
         throw new ReflectionException(sprintf('%s is not supported.', $node::class));
