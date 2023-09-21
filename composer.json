@@ -20,15 +20,15 @@
     },
     "autoload": {
         "psr-4": {
-            "Typhoon\\": "src/"
+            "Typhoon\\Type\\": "src/"
         }
     },
     "autoload-dev": {
         "psr-4": {
-            "Typhoon\\": "tests/"
+            "Typhoon\\Type\\": "tests/psalm/"
         },
         "files": [
-            "tests/Type/functions.php"
+            "tests/psalm/functions.php"
         ]
     },
     "config": {

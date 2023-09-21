@@ -2,39 +2,39 @@
 
 declare(strict_types=1);
 
-namespace Typhoon;
+namespace Typhoon\Type;
 
 /**
  * @api
  */
 final class types
 {
-    public const never = Type\NeverType::type;
-    public const void = Type\VoidType::type;
-    public const null = Type\NullType::type;
-    public const false = Type\FalseType::type;
-    public const true = Type\TrueType::type;
-    public const bool = Type\BoolType::type;
-    public const literalInt = Type\LiteralIntType::type;
-    public const int = Type\IntType::type;
-    public const float = Type\FloatType::type;
-    public const literalString = Type\LiteralStringType::type;
-    public const numericString = Type\NumericStringType::type;
-    public const classString = Type\ClassStringType::type;
-    public const callableString = Type\CallableStringType::type;
-    public const interfaceString = Type\InterfaceStringType::type;
-    public const enumString = Type\EnumStringType::type;
-    public const traitString = Type\TraitStringType::type;
-    public const nonEmptyString = Type\NonEmptyStringType::type;
-    public const string = Type\StringType::type;
-    public const numeric = Type\NumericType::type;
-    public const scalar = Type\ScalarType::type;
-    public const callableArray = Type\CallableArrayType::type;
-    public const object = Type\ObjectType::type;
-    public const resource = Type\ResourceType::type;
-    public const closedResource = Type\ClosedResourceType::type;
-    public const arrayKey = Type\ArrayKeyType::type;
-    public const mixed = Type\MixedType::type;
+    public const never = NeverType::type;
+    public const void = VoidType::type;
+    public const null = NullType::type;
+    public const false = FalseType::type;
+    public const true = TrueType::type;
+    public const bool = BoolType::type;
+    public const literalInt = LiteralIntType::type;
+    public const int = IntType::type;
+    public const float = FloatType::type;
+    public const literalString = LiteralStringType::type;
+    public const numericString = NumericStringType::type;
+    public const classString = ClassStringType::type;
+    public const callableString = CallableStringType::type;
+    public const interfaceString = InterfaceStringType::type;
+    public const enumString = EnumStringType::type;
+    public const traitString = TraitStringType::type;
+    public const nonEmptyString = NonEmptyStringType::type;
+    public const string = StringType::type;
+    public const numeric = NumericType::type;
+    public const scalar = ScalarType::type;
+    public const callableArray = CallableArrayType::type;
+    public const object = ObjectType::type;
+    public const resource = ResourceType::type;
+    public const closedResource = ClosedResourceType::type;
+    public const arrayKey = ArrayKeyType::type;
+    public const mixed = MixedType::type;
 
     /**
      * @psalm-suppress UnusedConstructor
@@ -43,50 +43,50 @@ final class types
 
     /**
      * @psalm-pure
-     * @return Type\IntRangeType<negative-int>
+     * @return IntRangeType<negative-int>
      */
-    public static function negativeInt(): Type\IntRangeType
+    public static function negativeInt(): IntRangeType
     {
-        /** @var Type\IntRangeType<negative-int> */
-        return new Type\IntRangeType(max: -1);
+        /** @var IntRangeType<negative-int> */
+        return new IntRangeType(max: -1);
     }
 
     /**
      * @psalm-pure
-     * @return Type\IntRangeType<non-positive-int>
+     * @return IntRangeType<non-positive-int>
      */
-    public static function nonPositiveInt(): Type\IntRangeType
+    public static function nonPositiveInt(): IntRangeType
     {
-        /** @var Type\IntRangeType<non-positive-int> */
-        return new Type\IntRangeType(max: 0);
+        /** @var IntRangeType<non-positive-int> */
+        return new IntRangeType(max: 0);
     }
 
     /**
      * @psalm-pure
-     * @return Type\IntRangeType<non-negative-int>
+     * @return IntRangeType<non-negative-int>
      */
-    public static function nonNegativeInt(): Type\IntRangeType
+    public static function nonNegativeInt(): IntRangeType
     {
-        /** @var Type\IntRangeType<non-negative-int> */
-        return new Type\IntRangeType(0);
+        /** @var IntRangeType<non-negative-int> */
+        return new IntRangeType(0);
     }
 
     /**
      * @psalm-pure
-     * @return Type\IntRangeType<positive-int>
+     * @return IntRangeType<positive-int>
      */
-    public static function positiveInt(): Type\IntRangeType
+    public static function positiveInt(): IntRangeType
     {
-        /** @var Type\IntRangeType<positive-int> */
-        return new Type\IntRangeType(1);
+        /** @var IntRangeType<positive-int> */
+        return new IntRangeType(1);
     }
 
     /**
      * @psalm-pure
      */
-    public static function int(?int $min = null, ?int $max = null): Type\IntRangeType
+    public static function int(?int $min = null, ?int $max = null): IntRangeType
     {
-        return new Type\IntRangeType($min, $max);
+        return new IntRangeType($min, $max);
     }
 
     /**
@@ -94,105 +94,105 @@ final class types
      * @psalm-suppress NoValue, InvalidTemplateParam, TypeDoesNotContainType
      * @template TValue of int|float|string
      * @param TValue $value
-     * @return ($value is int ? Type\IntLiteralType<TValue> : ($value is float ? Type\FloatLiteralType<TValue> : Type\StringLiteralType<TValue>))
+     * @return ($value is int ? IntLiteralType<TValue> : ($value is float ? FloatLiteralType<TValue> : StringLiteralType<TValue>))
      */
-    public static function literal(int|float|string $value): Type\IntLiteralType|Type\FloatLiteralType|Type\StringLiteralType
+    public static function literal(int|float|string $value): IntLiteralType|FloatLiteralType|StringLiteralType
     {
         if (\is_int($value)) {
-            return new Type\IntLiteralType($value);
+            return new IntLiteralType($value);
         }
 
         if (\is_float($value)) {
-            return new Type\FloatLiteralType($value);
+            return new FloatLiteralType($value);
         }
 
-        return new Type\StringLiteralType($value);
+        return new StringLiteralType($value);
     }
 
     /**
      * @psalm-pure
      * @template TValue of int
      * @param TValue $value
-     * @return Type\IntLiteralType<TValue>
+     * @return IntLiteralType<TValue>
      */
-    public static function intLiteral(int $value): Type\IntLiteralType
+    public static function intLiteral(int $value): IntLiteralType
     {
-        return new Type\IntLiteralType($value);
+        return new IntLiteralType($value);
     }
 
     /**
      * @psalm-pure
      * @template TValue of float
      * @param TValue $value
-     * @return Type\FloatLiteralType<TValue>
+     * @return FloatLiteralType<TValue>
      */
-    public static function floatLiteral(float $value): Type\FloatLiteralType
+    public static function floatLiteral(float $value): FloatLiteralType
     {
-        return new Type\FloatLiteralType($value);
+        return new FloatLiteralType($value);
     }
 
     /**
      * @psalm-pure
      * @template TValue of string
      * @param TValue $value
-     * @return Type\StringLiteralType<TValue>
+     * @return StringLiteralType<TValue>
      */
-    public static function stringLiteral(string $value): Type\StringLiteralType
+    public static function stringLiteral(string $value): StringLiteralType
     {
-        return new Type\StringLiteralType($value);
+        return new StringLiteralType($value);
     }
 
     /**
      * @psalm-pure
      * @template TObject of object
      * @param Type<TObject> $type
-     * @return Type\NamedClassStringType<TObject>
+     * @return NamedClassStringType<TObject>
      */
-    public static function classString(Type $type): Type\NamedClassStringType
+    public static function classString(Type $type): NamedClassStringType
     {
-        return new Type\NamedClassStringType($type);
+        return new NamedClassStringType($type);
     }
 
     /**
      * @psalm-pure
      * @template TValue
      * @param Type<TValue> $valueType
-     * @return Type\NonEmptyListType<TValue>
+     * @return NonEmptyListType<TValue>
      */
-    public static function nonEmptyList(Type $valueType = self::mixed): Type\NonEmptyListType
+    public static function nonEmptyList(Type $valueType = self::mixed): NonEmptyListType
     {
         if ($valueType === self::mixed) {
             return __nonEmptyList;
         }
 
-        return new Type\NonEmptyListType($valueType);
+        return new NonEmptyListType($valueType);
     }
 
     /**
      * @psalm-pure
      * @template TValue
      * @param Type<TValue> $valueType
-     * @return Type\ListType<TValue>
+     * @return ListType<TValue>
      */
-    public static function list(Type $valueType = self::mixed): Type\ListType
+    public static function list(Type $valueType = self::mixed): ListType
     {
         if ($valueType === self::mixed) {
             return __list;
         }
 
-        return new Type\ListType($valueType);
+        return new ListType($valueType);
     }
 
     /**
      * @psalm-pure
-     * @param array<Type|Type\ShapeElement> $elements
+     * @param array<Type|ShapeElement> $elements
      */
-    public static function shape(array $elements = [], bool $sealed = true): Type\ShapeType
+    public static function shape(array $elements = [], bool $sealed = true): ShapeType
     {
-        return new Type\ShapeType(
+        return new ShapeType(
             array_map(
-                static fn (Type|Type\ShapeElement $element): Type\ShapeElement => $element instanceof Type
-                    ? new Type\ShapeElement($element)
+                static fn (Type|ShapeElement $element): ShapeElement => $element instanceof Type
+                    ? new ShapeElement($element)
                     : $element,
                 $elements,
             ),
@@ -202,9 +202,9 @@ final class types
 
     /**
      * @psalm-pure
-     * @param array<Type|Type\ShapeElement> $elements
+     * @param array<Type|ShapeElement> $elements
      */
-    public static function unsealedShape(array $elements = []): Type\ShapeType
+    public static function unsealedShape(array $elements = []): ShapeType
     {
         return self::shape($elements, false);
     }
@@ -213,22 +213,22 @@ final class types
      * @psalm-pure
      * @template TType
      * @param Type<TType> $type
-     * @return Type\ShapeElement<TType>
+     * @return ShapeElement<TType>
      */
-    public static function element(Type $type, bool $optional): Type\ShapeElement
+    public static function element(Type $type, bool $optional): ShapeElement
     {
-        return new Type\ShapeElement($type, $optional);
+        return new ShapeElement($type, $optional);
     }
 
     /**
      * @psalm-pure
      * @template TType
      * @param Type<TType> $type
-     * @return Type\ShapeElement<TType>
+     * @return ShapeElement<TType>
      */
-    public static function optional(Type $type): Type\ShapeElement
+    public static function optional(Type $type): ShapeElement
     {
-        return new Type\ShapeElement($type, true);
+        return new ShapeElement($type, true);
     }
 
     /**
@@ -237,15 +237,15 @@ final class types
      * @template TValue
      * @param Type<TKey> $keyType
      * @param Type<TValue> $valueType
-     * @return Type\NonEmptyArrayType<TKey, TValue>
+     * @return NonEmptyArrayType<TKey, TValue>
      */
-    public static function nonEmptyArray(Type $keyType = self::arrayKey, Type $valueType = self::mixed): Type\NonEmptyArrayType
+    public static function nonEmptyArray(Type $keyType = self::arrayKey, Type $valueType = self::mixed): NonEmptyArrayType
     {
         if ($keyType === self::arrayKey && $valueType === self::mixed) {
             return __nonEmptyArray;
         }
 
-        return new Type\NonEmptyArrayType($keyType, $valueType);
+        return new NonEmptyArrayType($keyType, $valueType);
     }
 
     /**
@@ -254,15 +254,15 @@ final class types
      * @template TValue
      * @param Type<TKey> $keyType
      * @param Type<TValue> $valueType
-     * @return Type\ArrayType<TKey, TValue>
+     * @return ArrayType<TKey, TValue>
      */
-    public static function array(Type $keyType = self::arrayKey, Type $valueType = self::mixed): Type\ArrayType
+    public static function array(Type $keyType = self::arrayKey, Type $valueType = self::mixed): ArrayType
     {
         if ($keyType === self::arrayKey && $valueType === self::mixed) {
             return __array;
         }
 
-        return new Type\ArrayType($keyType, $valueType);
+        return new ArrayType($keyType, $valueType);
     }
 
     /**
@@ -271,15 +271,15 @@ final class types
      * @template TValue
      * @param Type<TKey> $keyType
      * @param Type<TValue> $valueType
-     * @return Type\IterableType<TKey, TValue>
+     * @return IterableType<TKey, TValue>
      */
-    public static function iterable(Type $keyType = self::mixed, Type $valueType = self::mixed): Type\IterableType
+    public static function iterable(Type $keyType = self::mixed, Type $valueType = self::mixed): IterableType
     {
         if ($keyType === self::mixed && $valueType === self::mixed) {
             return __iterable;
         }
 
-        return new Type\IterableType($keyType, $valueType);
+        return new IterableType($keyType, $valueType);
     }
 
     /**
@@ -287,11 +287,11 @@ final class types
      * @no-named-arguments
      * @template TObject of object
      * @param class-string<TObject> $class
-     * @return Type\NamedObjectType<TObject>
+     * @return NamedObjectType<TObject>
      */
-    public static function object(string $class, Type ...$templateArguments): Type\NamedObjectType
+    public static function object(string $class, Type ...$templateArguments): NamedObjectType
     {
-        return new Type\NamedObjectType($class, $templateArguments);
+        return new NamedObjectType($class, $templateArguments);
     }
 
     /**
@@ -299,63 +299,63 @@ final class types
      * @no-named-arguments
      * @template TObject of object
      * @param class-string<TObject> $declaringClass
-     * @return Type\StaticType<TObject>
+     * @return StaticType<TObject>
      */
-    public static function static(string $declaringClass, Type ...$templateArguments): Type\StaticType
+    public static function static(string $declaringClass, Type ...$templateArguments): StaticType
     {
-        return new Type\StaticType($declaringClass, $templateArguments);
+        return new StaticType($declaringClass, $templateArguments);
     }
 
     /**
      * @psalm-pure
      * @template TType
      * @param Type<TType> $type
-     * @return Type\Parameter<TType>
+     * @return Parameter<TType>
      */
-    public static function param(Type $type = self::mixed, bool $hasDefault = false, bool $variadic = false): Type\Parameter
+    public static function param(Type $type = self::mixed, bool $hasDefault = false, bool $variadic = false): Parameter
     {
-        return new Type\Parameter($type, $hasDefault, $variadic);
+        return new Parameter($type, $hasDefault, $variadic);
     }
 
     /**
      * @psalm-pure
      * @template TType
      * @param Type<TType> $type
-     * @return Type\Parameter<TType>
+     * @return Parameter<TType>
      */
-    public static function defaultParam(Type $type = self::mixed): Type\Parameter
+    public static function defaultParam(Type $type = self::mixed): Parameter
     {
-        return new Type\Parameter($type, true);
+        return new Parameter($type, true);
     }
 
     /**
      * @psalm-pure
      * @template TType
      * @param Type<TType> $type
-     * @return Type\Parameter<TType>
+     * @return Parameter<TType>
      */
-    public static function variadicParam(Type $type = self::mixed): Type\Parameter
+    public static function variadicParam(Type $type = self::mixed): Parameter
     {
-        return new Type\Parameter($type, variadic: true);
+        return new Parameter($type, variadic: true);
     }
 
     /**
      * @psalm-pure
      * @template TReturn
-     * @param list<Type|Type\Parameter> $parameters
+     * @param list<Type|Parameter> $parameters
      * @param Type<TReturn> $returnType
-     * @return Type\ClosureType<TReturn>
+     * @return ClosureType<TReturn>
      */
-    public static function closure(array $parameters = [], ?Type $returnType = null): Type\ClosureType
+    public static function closure(array $parameters = [], ?Type $returnType = null): ClosureType
     {
         if ($parameters === [] && $returnType === null) {
             return __closure;
         }
 
-        return new Type\ClosureType(
+        return new ClosureType(
             array_map(
-                static fn (Type|Type\Parameter $parameter): Type\Parameter => $parameter instanceof Type
-                    ? new Type\Parameter($parameter)
+                static fn (Type|Parameter $parameter): Parameter => $parameter instanceof Type
+                    ? new Parameter($parameter)
                     : $parameter,
                 $parameters,
             ),
@@ -366,20 +366,20 @@ final class types
     /**
      * @psalm-pure
      * @template TReturn
-     * @param list<Type|Type\Parameter> $parameters
+     * @param list<Type|Parameter> $parameters
      * @param Type<TReturn> $returnType
-     * @return Type\CallableType<TReturn>
+     * @return CallableType<TReturn>
      */
-    public static function callable(array $parameters = [], ?Type $returnType = null): Type\CallableType
+    public static function callable(array $parameters = [], ?Type $returnType = null): CallableType
     {
         if ($parameters === [] && $returnType === null) {
             return __callable;
         }
 
-        return new Type\CallableType(
+        return new CallableType(
             array_map(
-                static fn (Type|Type\Parameter $parameter): Type\Parameter => $parameter instanceof Type
-                    ? new Type\Parameter($parameter)
+                static fn (Type|Parameter $parameter): Parameter => $parameter instanceof Type
+                    ? new Parameter($parameter)
                     : $parameter,
                 $parameters,
             ),
@@ -391,9 +391,9 @@ final class types
      * @psalm-pure
      * @param non-empty-string $constant
      */
-    public static function constant(string $constant): Type\ConstantType
+    public static function constant(string $constant): ConstantType
     {
-        return new Type\ConstantType($constant);
+        return new ConstantType($constant);
     }
 
     /**
@@ -401,25 +401,25 @@ final class types
      * @param class-string $class
      * @param non-empty-string $constant
      */
-    public static function classConstant(string $class, string $constant): Type\ClassConstantType
+    public static function classConstant(string $class, string $constant): ClassConstantType
     {
-        return new Type\ClassConstantType($class, $constant);
+        return new ClassConstantType($class, $constant);
     }
 
     /**
      * @psalm-pure
      */
-    public static function keyOf(Type $type): Type\KeyOfType
+    public static function keyOf(Type $type): KeyOfType
     {
-        return new Type\KeyOfType($type);
+        return new KeyOfType($type);
     }
 
     /**
      * @psalm-pure
      */
-    public static function valueOf(Type $type): Type\ValueOfType
+    public static function valueOf(Type $type): ValueOfType
     {
-        return new Type\ValueOfType($type);
+        return new ValueOfType($type);
     }
 
     /**
@@ -427,9 +427,9 @@ final class types
      * @param class-string $class
      * @param non-empty-string $name
      */
-    public static function classTemplate(string $class, string $name): Type\ClassTemplateType
+    public static function classTemplate(string $class, string $name): ClassTemplateType
     {
-        return new Type\ClassTemplateType($class, $name);
+        return new ClassTemplateType($class, $name);
     }
 
     /**
@@ -438,9 +438,9 @@ final class types
      * @param non-empty-string $method
      * @param non-empty-string $name
      */
-    public static function methodTemplate(string $class, string $method, string $name): Type\MethodTemplateType
+    public static function methodTemplate(string $class, string $method, string $name): MethodTemplateType
     {
-        return new Type\MethodTemplateType($class, $method, $name);
+        return new MethodTemplateType($class, $method, $name);
     }
 
     /**
@@ -448,9 +448,9 @@ final class types
      * @param callable-string $function
      * @param non-empty-string $name
      */
-    public static function functionTemplate(string $function, string $name): Type\FunctionTemplateType
+    public static function functionTemplate(string $function, string $name): FunctionTemplateType
     {
-        return new Type\FunctionTemplateType($function, $name);
+        return new FunctionTemplateType($function, $name);
     }
 
     /**
@@ -458,20 +458,20 @@ final class types
      * @no-named-arguments
      * @template TType
      * @param Type<TType> $type
-     * @return Type\UnionType<?TType>
+     * @return UnionType<?TType>
      */
-    public static function nullable(Type $type): Type\UnionType
+    public static function nullable(Type $type): UnionType
     {
-        return new Type\UnionType([self::null, $type]);
+        return new UnionType([self::null, $type]);
     }
 
     /**
      * @psalm-pure
      * @no-named-arguments
      */
-    public static function intersection(Type $type1, Type $type2, Type ...$moreTypes): Type\IntersectionType
+    public static function intersection(Type $type1, Type $type2, Type ...$moreTypes): IntersectionType
     {
-        return new Type\IntersectionType([$type1, $type2, ...$moreTypes]);
+        return new IntersectionType([$type1, $type2, ...$moreTypes]);
     }
 
     /**
@@ -481,11 +481,11 @@ final class types
      * @param Type<TType> $type1
      * @param Type<TType> $type2
      * @param Type<TType> ...$moreTypes
-     * @return Type\UnionType<TType>
+     * @return UnionType<TType>
      */
-    public static function union(Type $type1, Type $type2, Type ...$moreTypes): Type\UnionType
+    public static function union(Type $type1, Type $type2, Type ...$moreTypes): UnionType
     {
-        return new Type\UnionType([$type1, $type2, ...$moreTypes]);
+        return new UnionType([$type1, $type2, ...$moreTypes]);
     }
 }
 
@@ -493,40 +493,40 @@ final class types
  * @internal
  * @psalm-internal Typhoon
  */
-const __nonEmptyList = new Type\NonEmptyListType();
+const __nonEmptyList = new NonEmptyListType();
 
 /**
  * @internal
  * @psalm-internal Typhoon
  */
-const __list = new Type\ListType();
+const __list = new ListType();
 
 /**
  * @internal
  * @psalm-internal Typhoon
  */
-const __nonEmptyArray = new Type\NonEmptyArrayType();
+const __nonEmptyArray = new NonEmptyArrayType();
 
 /**
  * @internal
  * @psalm-internal Typhoon
  */
-const __array = new Type\ArrayType();
+const __array = new ArrayType();
 
 /**
  * @internal
  * @psalm-internal Typhoon
  */
-const __iterable = new Type\IterableType();
+const __iterable = new IterableType();
 
 /**
  * @internal
  * @psalm-internal Typhoon
  */
-const __closure = new Type\ClosureType();
+const __closure = new ClosureType();
 
 /**
  * @internal
  * @psalm-internal Typhoon
  */
-const __callable = new Type\CallableType();
+const __callable = new CallableType();

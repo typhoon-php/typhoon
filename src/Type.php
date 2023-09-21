@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Typhoon;
+namespace Typhoon\Type;
 
 /**
  * @api
