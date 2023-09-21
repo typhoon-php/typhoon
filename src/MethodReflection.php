@@ -138,6 +138,50 @@ final class MethodReflection extends FriendlyReflection
     }
 
     /**
+     * @psalm-assert-if-true non-empty-string $name
+     */
+    public function hasTemplateWithName(string $name): bool
+    {
+        foreach ($this->templates as $template) {
+            if ($template->name === $name) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    /**
+     * @psalm-assert-if-true int<0, max> $position
+     */
+    public function hasTemplateWithPosition(int $position): bool
+    {
+        return isset($this->templates[$position]);
+    }
+
+    /**
+     * @psalm-assert int<0, max> $position
+     */
+    public function getTemplateByPosition(int $position): TemplateReflection
+    {
+        return $this->templates[$position] ?? throw new ReflectionException();
+    }
+
+    /**
+     * @psalm-assert non-empty-string $name
+     */
+    public function getTemplateByName(string $name): TemplateReflection
+    {
+        foreach ($this->templates as $template) {
+            if ($template->name === $name) {
+                return $template;
+            }
+        }
+
+        throw new ReflectionException();
+    }
+
+    /**
      * @return int-mask-of<self::IS_*>
      */
     public function getModifiers(): int
@@ -232,21 +276,6 @@ final class MethodReflection extends FriendlyReflection
         return $this->getNumberOfParameters();
     }
 
-    public function hasParameter(int|string $positionOrName): bool
-    {
-        if (\is_int($positionOrName)) {
-            return isset($this->parameters[$positionOrName]);
-        }
-
-        foreach ($this->parameters as $parameter) {
-            if ($parameter->name === $positionOrName) {
-                return true;
-            }
-        }
-
-        return false;
-    }
-
     /**
      * @return list<ParameterReflection>
      */
@@ -255,14 +284,43 @@ final class MethodReflection extends FriendlyReflection
         return $this->parameters;
     }
 
-    public function getParameter(int|string $positionOrName): ParameterReflection
+    /**
+     * @psalm-assert-if-true non-empty-string $name
+     */
+    public function hasParameterWithName(string $name): bool
     {
-        if (\is_int($positionOrName)) {
-            return $this->parameters[$positionOrName] ?? throw new ReflectionException();
+        foreach ($this->parameters as $parameter) {
+            if ($parameter->name === $name) {
+                return true;
+            }
         }
 
+        return false;
+    }
+
+    /**
+     * @psalm-assert-if-true int<0, max> $position
+     */
+    public function hasParameterWithPosition(int $position): bool
+    {
+        return isset($this->parameters[$position]);
+    }
+
+    /**
+     * @psalm-assert int<0, max> $position
+     */
+    public function getParameterByPosition(int $position): ParameterReflection
+    {
+        return $this->parameters[$position] ?? throw new ReflectionException();
+    }
+
+    /**
+     * @psalm-assert non-empty-string $name
+     */
+    public function getParameterByName(string $name): ParameterReflection
+    {
         foreach ($this->parameters as $parameter) {
-            if ($parameter->name === $positionOrName) {
+            if ($parameter->name === $name) {
                 return $parameter;
             }
         }

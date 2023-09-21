@@ -174,6 +174,44 @@ final class ClassReflection extends FriendlyReflection implements RootReflection
     }
 
     /**
+     * @psalm-assert-if-true non-empty-string $name
+     */
+    public function hasTemplateWithName(string $name): bool
+    {
+        foreach ($this->templates as $template) {
+            if ($template->name === $name) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    /**
+     * @psalm-assert-if-true int<0, max> $position
+     */
+    public function hasTemplateWithPosition(int $position): bool
+    {
+        return isset($this->templates[$position]);
+    }
+
+    public function getTemplateByPosition(int $position): TemplateReflection
+    {
+        return $this->templates[$position] ?? throw new ReflectionException();
+    }
+
+    public function getTemplateByName(string $name): TemplateReflection
+    {
+        foreach ($this->templates as $template) {
+            if ($template->name === $name) {
+                return $template;
+            }
+        }
+
+        throw new ReflectionException();
+    }
+
+    /**
      * @return int-mask-of<self::IS_*>
      */
     public function getModifiers(): int
@@ -369,6 +407,11 @@ final class ClassReflection extends FriendlyReflection implements RootReflection
         }
 
         return \in_array($class->name, $this->getParentClassNames(), true);
+    }
+
+    public function isInstance(object $object): bool
+    {
+        return $object instanceof $this->name;
     }
 
     /**

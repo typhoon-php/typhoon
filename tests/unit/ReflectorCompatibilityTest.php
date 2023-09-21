@@ -269,9 +269,9 @@ final class ReflectorCompatibilityTest extends TestCase
 
         foreach ($native->getParameters() as $position => $nativeParameter) {
             $name = $nativeParameter->name;
-            self::assertTrue($typhoon->hasParameter($name), $messagePrefix . ".hasParameter({$name})");
-            self::assertTrue($typhoon->hasParameter($position), $messagePrefix . ".hasParameter({$position})");
-            self::assertSame($typhoon->getParameter($position), $typhoon->getParameter($name), $messagePrefix . ".getParameter({$position}) === getParameter({$name})");
+            self::assertTrue($typhoon->hasParameterWithName($name), $messagePrefix . ".hasParameter({$name})");
+            self::assertTrue($typhoon->hasParameterWithPosition($position), $messagePrefix . ".hasParameter({$position})");
+            self::assertSame($typhoon->getParameterByPosition($position), $typhoon->getParameterByName($name), $messagePrefix . ".getParameter({$position}) === getParameter({$name})");
             $this->assertParameterEquals($nativeParameter, $typhoon->getParameters()[$position], $messagePrefix . ".getParameter()[{$position}]");
         }
     }
