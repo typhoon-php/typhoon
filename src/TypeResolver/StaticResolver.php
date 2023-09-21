@@ -5,14 +5,14 @@ declare(strict_types=1);
 namespace Typhoon\Reflection\TypeResolver;
 
 use Typhoon\Type;
-use Typhoon\types;
-use Typhoon\TypeVisitor;
+use Typhoon\Type\types;
+use Typhoon\Type\TypeVisitor;
 
 /**
  * @internal
  * @psalm-internal Typhoon\Reflection
  * @psalm-immutable
- * @implements TypeVisitor<Type>
+ * @implements TypeVisitor<Type\Type>
  */
 final class StaticResolver implements TypeVisitor
 {
@@ -205,7 +205,7 @@ final class StaticResolver implements TypeVisitor
     {
         /** @psalm-suppress ImpureFunctionCall */
         return types::object($type->class, ...array_map(
-            fn (Type $type): Type => $type->accept($this),
+            fn (Type\Type $type): Type\Type => $type->accept($this),
             $type->templateArguments,
         ));
     }
@@ -214,7 +214,7 @@ final class StaticResolver implements TypeVisitor
     {
         /** @psalm-suppress ImpureFunctionCall */
         $templateArguments = array_map(
-            fn (Type $type): Type => $type->accept($this),
+            fn (Type\Type $type): Type\Type => $type->accept($this),
             $type->templateArguments,
         );
 
@@ -307,7 +307,7 @@ final class StaticResolver implements TypeVisitor
     {
         /** @psalm-suppress ImpureFunctionCall */
         return types::intersection(...array_map(
-            fn (Type $type): Type => $type->accept($this),
+            fn (Type\Type $type): Type\Type => $type->accept($this),
             $type->types,
         ));
     }
@@ -316,7 +316,7 @@ final class StaticResolver implements TypeVisitor
     {
         /** @psalm-suppress ImpureFunctionCall */
         return types::union(...array_map(
-            fn (Type $type): Type => $type->accept($this),
+            fn (Type\Type $type): Type\Type => $type->accept($this),
             $type->types,
         ));
     }

@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace Typhoon\Reflection;
 
-use Typhoon\Type;
-use Typhoon\types;
+use Typhoon\Type\Type;
+use Typhoon\Type\types;
 
 /**
  * @api

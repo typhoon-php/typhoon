@@ -15,7 +15,7 @@ use Typhoon\Reflection\ReflectionContext;
 use Typhoon\Reflection\ReflectionException;
 use Typhoon\Reflection\TypeReflection;
 use Typhoon\Type;
-use Typhoon\types;
+use Typhoon\Type\types;
 
 /**
  * @internal
@@ -190,9 +190,9 @@ final class NativeReflectionReflector
 
     /**
      * @param ?class-string $class
-     * @return ($reflectionType is null ? null : Type)
+     * @return ($reflectionType is null ? null : Type\Type)
      */
-    private function reflectNativeType(?\ReflectionType $reflectionType, ?string $class): ?Type
+    private function reflectNativeType(?\ReflectionType $reflectionType, ?string $class): ?Type\Type
     {
         if ($reflectionType === null) {
             return null;
@@ -200,14 +200,14 @@ final class NativeReflectionReflector
 
         if ($reflectionType instanceof \ReflectionUnionType) {
             return types::union(...array_map(
-                fn (\ReflectionType $child): Type => $this->reflectNativeType($child, $class),
+                fn (\ReflectionType $child): Type\Type => $this->reflectNativeType($child, $class),
                 $reflectionType->getTypes(),
             ));
         }
 
         if ($reflectionType instanceof \ReflectionIntersectionType) {
             return types::intersection(...array_map(
-                fn (\ReflectionType $child): Type => $this->reflectNativeType($child, $class),
+                fn (\ReflectionType $child): Type\Type => $this->reflectNativeType($child, $class),
                 $reflectionType->getTypes(),
             ));
         }

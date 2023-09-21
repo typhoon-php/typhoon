@@ -9,7 +9,7 @@ use Typhoon\Reflection\Reflector\RootReflection;
 use Typhoon\Reflection\TypeResolver\ClassTemplateResolver;
 use Typhoon\Reflection\TypeResolver\StaticResolver;
 use Typhoon\Type;
-use Typhoon\TypeVisitor;
+use Typhoon\Type\TypeVisitor;
 
 /**
  * @api
@@ -499,7 +499,7 @@ final class ClassReflection extends FriendlyReflection implements RootReflection
     }
 
     /**
-     * @param array<Type> $templateArguments
+     * @param array<Type\Type> $templateArguments
      * @return self<T>
      */
     public function withResolvedTemplates(array $templateArguments = []): self

@@ -5,20 +5,20 @@ declare(strict_types=1);
 namespace Typhoon\Reflection\TypeResolver;
 
 use Typhoon\Type;
-use Typhoon\types;
-use Typhoon\TypeVisitor;
+use Typhoon\Type\types;
+use Typhoon\Type\TypeVisitor;
 
 /**
  * @internal
  * @psalm-internal Typhoon\Reflection
  * @psalm-immutable
- * @implements TypeVisitor<Type>
+ * @implements TypeVisitor<Type\Type>
  */
 final class ClassTemplateResolver implements TypeVisitor
 {
     /**
      * @param class-string $class
-     * @param non-empty-array<non-empty-string, Type> $templateArguments
+     * @param non-empty-array<non-empty-string, Type\Type> $templateArguments
      */
     public function __construct(
         private readonly string $class,
@@ -207,7 +207,7 @@ final class ClassTemplateResolver implements TypeVisitor
     {
         /** @psalm-suppress ImpureFunctionCall */
         return types::object($type->class, ...array_map(
-            fn (Type $type): Type => $type->accept($this),
+            fn (Type\Type $type): Type\Type => $type->accept($this),
             $type->templateArguments,
         ));
     }
@@ -216,7 +216,7 @@ final class ClassTemplateResolver implements TypeVisitor
     {
         /** @psalm-suppress ImpureFunctionCall */
         return types::object($type->declaringClass, ...array_map(
-            fn (Type $type): Type => $type->accept($this),
+            fn (Type\Type $type): Type\Type => $type->accept($this),
             $type->templateArguments,
         ));
     }
@@ -311,7 +311,7 @@ final class ClassTemplateResolver implements TypeVisitor
     {
         /** @psalm-suppress ImpureFunctionCall */
         return types::intersection(...array_map(
-            fn (Type $type): Type => $type->accept($this),
+            fn (Type\Type $type): Type\Type => $type->accept($this),
             $type->types,
         ));
     }
@@ -320,7 +320,7 @@ final class ClassTemplateResolver implements TypeVisitor
     {
         /** @psalm-suppress ImpureFunctionCall */
         return types::union(...array_map(
-            fn (Type $type): Type => $type->accept($this),
+            fn (Type\Type $type): Type\Type => $type->accept($this),
             $type->types,
         ));
     }

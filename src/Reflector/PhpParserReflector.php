@@ -24,7 +24,7 @@ use Typhoon\Reflection\TemplateReflection;
 use Typhoon\Reflection\TypeReflection;
 use Typhoon\Reflection\Variance;
 use Typhoon\Type;
-use Typhoon\types;
+use Typhoon\Type\types;
 
 /**
  * @internal
@@ -426,7 +426,7 @@ final class PhpParserReflector
         );
     }
 
-    private function safelyReflectNativeType(?Node $node): ?Type
+    private function safelyReflectNativeType(?Node $node): ?Type\Type
     {
         try {
             return $this->reflectNativeType($node);
@@ -438,9 +438,9 @@ final class PhpParserReflector
     }
 
     /**
-     * @return ($node is null ? null : Type)
+     * @return ($node is null ? null : Type\Type)
      */
-    private function reflectNativeType(?Node $node): ?Type
+    private function reflectNativeType(?Node $node): ?Type\Type
     {
         if ($node === null) {
             return null;
@@ -452,14 +452,14 @@ final class PhpParserReflector
 
         if ($node instanceof Node\UnionType) {
             return types::union(...array_map(
-                fn (Node $child): Type => $this->reflectNativeType($child),
+                fn (Node $child): Type\Type => $this->reflectNativeType($child),
                 $node->types,
             ));
         }
 
         if ($node instanceof Node\IntersectionType) {
             return types::intersection(...array_map(
-                fn (Node $child): Type => $this->reflectNativeType($child),
+                fn (Node $child): Type\Type => $this->reflectNativeType($child),
                 $node->types,
             ));
         }
@@ -496,7 +496,7 @@ final class PhpParserReflector
         throw new ReflectionException(sprintf('%s is not supported.', $node::class));
     }
 
-    private function safelyReflectPhpDocType(?TypeNode $node): ?Type
+    private function safelyReflectPhpDocType(?TypeNode $node): ?Type\Type
     {
         if ($node === null) {
             return null;

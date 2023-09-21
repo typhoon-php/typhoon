@@ -26,9 +26,8 @@ use Typhoon\Reflection\NameResolution\NameAsTypeResolver;
 use Typhoon\Reflection\NameResolution\NameContext;
 use Typhoon\Reflection\ReflectionException;
 use Typhoon\Type;
-use Typhoon\Type\ShapeType;
-use Typhoon\types;
-use Typhoon\TypeStringifier;
+use Typhoon\Type\types;
+use Typhoon\TypeStringifier\TypeStringifier;
 
 /**
  * @internal
@@ -47,12 +46,12 @@ final class PhpDocTypeReflector
     /**
      * @param callable(non-empty-string): bool $classExists
      */
-    public static function reflect(NameContext $nameContext, callable $classExists, TypeNode $typeNode): Type
+    public static function reflect(NameContext $nameContext, callable $classExists, TypeNode $typeNode): Type\Type
     {
         return (new self($nameContext, $classExists))->doReflect($typeNode);
     }
 
-    private function doReflect(TypeNode $node): Type
+    private function doReflect(TypeNode $node): Type\Type
     {
         if ($node instanceof NullableTypeNode) {
             return types::nullable($this->doReflect($node->type));
@@ -96,7 +95,7 @@ final class PhpDocTypeReflector
     /**
      * @param list<TypeNode> $genericTypes
      */
-    private function reflectIdentifier(string $name, array $genericTypes = []): Type
+    private function reflectIdentifier(string $name, array $genericTypes = []): Type\Type
     {
         if ($name === 'int') {
             return $this->reflectInt($genericTypes);
@@ -160,7 +159,7 @@ final class PhpDocTypeReflector
     /**
      * @param list<TypeNode> $genericTypes
      */
-    private function reflectName(string $name, array $genericTypes): Type
+    private function reflectName(string $name, array $genericTypes): Type\Type
     {
         $type = $this->nameContext->resolveName($name, new NameAsTypeResolver(
             classExists: $this->classExists,
@@ -177,7 +176,7 @@ final class PhpDocTypeReflector
     /**
      * @param list<TypeNode> $templateArguments
      */
-    private function reflectInt(array $templateArguments): Type
+    private function reflectInt(array $templateArguments): Type\Type
     {
         return match (\count($templateArguments)) {
             0 => types::int,
@@ -207,7 +206,7 @@ final class PhpDocTypeReflector
     /**
      * @param list<TypeNode> $templateArguments
      */
-    private function reflectList(array $templateArguments): Type
+    private function reflectList(array $templateArguments): Type\Type
     {
         return match (\count($templateArguments)) {
             0 => types::list(),
@@ -219,7 +218,7 @@ final class PhpDocTypeReflector
     /**
      * @param list<TypeNode> $templateArguments
      */
-    private function reflectNonEmptyList(array $templateArguments): Type
+    private function reflectNonEmptyList(array $templateArguments): Type\Type
     {
         return match (\count($templateArguments)) {
             0 => types::nonEmptyList(),
@@ -231,7 +230,7 @@ final class PhpDocTypeReflector
     /**
      * @param list<TypeNode> $templateArguments
      */
-    private function reflectArray(array $templateArguments): Type
+    private function reflectArray(array $templateArguments): Type\Type
     {
         /**
          * @psalm-suppress MixedArgumentTypeCoercion
@@ -248,7 +247,7 @@ final class PhpDocTypeReflector
     /**
      * @param list<TypeNode> $templateArguments
      */
-    private function reflectNonEmptyArray(array $templateArguments): Type
+    private function reflectNonEmptyArray(array $templateArguments): Type\Type
     {
         /**
          * @psalm-suppress MixedArgumentTypeCoercion
@@ -265,7 +264,7 @@ final class PhpDocTypeReflector
     /**
      * @param list<TypeNode> $templateArguments
      */
-    private function reflectIterable(array $templateArguments): Type
+    private function reflectIterable(array $templateArguments): Type\Type
     {
         return match (\count($templateArguments)) {
             0 => types::iterable(),
@@ -275,7 +274,7 @@ final class PhpDocTypeReflector
         };
     }
 
-    private function reflectArrayShape(ArrayShapeNode $node): ShapeType
+    private function reflectArrayShape(ArrayShapeNode $node): Type\ShapeType
     {
         $elements = [];
 
@@ -303,7 +302,7 @@ final class PhpDocTypeReflector
         return types::shape($elements, $node->sealed);
     }
 
-    private function reflectConstExpr(ConstTypeNode $node): Type
+    private function reflectConstExpr(ConstTypeNode $node): Type\Type
     {
         $exprNode = $node->constExpr;
 
@@ -344,7 +343,7 @@ final class PhpDocTypeReflector
         throw new ReflectionException(sprintf('PhpDoc node %s is not supported.', $exprNode::class));
     }
 
-    private function reflectCallable(CallableTypeNode $node): Type
+    private function reflectCallable(CallableTypeNode $node): Type\Type
     {
         if ($node->identifier->name === 'callable') {
             return types::callable(

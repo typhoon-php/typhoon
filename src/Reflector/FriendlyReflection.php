@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace Typhoon\Reflection\Reflector;
 
-use Typhoon\Type;
-use Typhoon\TypeVisitor;
+use Typhoon\Type\Type;
+use Typhoon\Type\TypeVisitor;
 
 /**
  * @internal
