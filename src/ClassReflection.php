@@ -551,16 +551,8 @@ final class ClassReflection extends FriendlyReflection implements RootReflection
             return $this;
         }
 
-        $resolvedTemplateArguments = [];
-
-        foreach ($this->templates as $template) {
-            $resolvedTemplateArguments[$template->name] = $templateArguments[$template->name]
-                ?? $templateArguments[$template->getPosition()]
-                ?? $template->getConstraint();
-        }
-
         /** @var self<T> */
-        return $this->withResolvedTypes(new ClassTemplateResolver($this->name, $resolvedTemplateArguments));
+        return $this->withResolvedTypes(ClassTemplateResolver::create($this->name, $this->templates, $templateArguments));
     }
 
     /**

@@ -9,6 +9,7 @@ use Typhoon\Type\types;
 
 /**
  * @api
+ * @psalm-immutable
  */
 final class TemplateReflection
 {

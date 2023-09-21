@@ -4,13 +4,13 @@ declare(strict_types=1);
 
 namespace Typhoon\Reflection\TypeResolver;
 
+use Typhoon\Reflection\TemplateReflection;
 use Typhoon\Type;
 use Typhoon\Type\types;
 use Typhoon\Type\TypeVisitor;
 
 /**
- * @internal
- * @psalm-internal Typhoon\Reflection
+ * @api
  * @psalm-immutable
  * @implements TypeVisitor<Type\Type>
  */
@@ -20,10 +20,29 @@ final class ClassTemplateResolver implements TypeVisitor
      * @param class-string $class
      * @param non-empty-array<non-empty-string, Type\Type> $templateArguments
      */
-    public function __construct(
+    private function __construct(
         private readonly string $class,
         private readonly array $templateArguments,
     ) {}
+
+    /**
+     * @psalm-pure
+     * @param class-string $class
+     * @param non-empty-array<TemplateReflection> $templates
+     * @param array<Type\Type> $templateArguments
+     */
+    public static function create(string $class, array $templates, array $templateArguments): self
+    {
+        $resolvedTemplateArguments = [];
+
+        foreach ($templates as $template) {
+            $resolvedTemplateArguments[$template->name] = $templateArguments[$template->name]
+                ?? $templateArguments[$template->getPosition()]
+                ?? $template->getConstraint();
+        }
+
+        return new self($class, $resolvedTemplateArguments);
+    }
 
     public function visitNever(Type\NeverType $type): mixed
     {
