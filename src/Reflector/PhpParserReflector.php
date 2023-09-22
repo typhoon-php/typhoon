@@ -82,7 +82,7 @@ final class PhpParserReflector
             promoted: false,
             modifiers: PropertyReflection::IS_PUBLIC + PropertyReflection::IS_READONLY,
             deprecated: false,
-            type: new TypeReflection(native: types::string, phpDoc: types::nonEmptyString),
+            type: TypeReflection::create(native: types::string, phpDoc: types::nonEmptyString),
             startLine: null,
             endLine: null,
         );
@@ -427,7 +427,7 @@ final class PhpParserReflector
 
     private function reflectType(?Node $native, ?TypeNode $phpDoc): TypeReflection
     {
-        return new TypeReflection(
+        return TypeReflection::create(
             native: $this->safelyReflectNativeType($native),
             phpDoc: $this->safelyReflectPhpDocType($phpDoc),
         );
@@ -574,7 +574,7 @@ final class PhpParserReflector
             generator: false,
             deprecated: false,
             parameters: [],
-            returnType: new TypeReflection(types::array(), types::list(types::object($class))),
+            returnType: TypeReflection::create(types::array(), types::list(types::object($class))),
         );
     }
 
@@ -617,7 +617,7 @@ final class PhpParserReflector
                         endLine: null,
                     ),
                 ],
-                returnType: new TypeReflection(types::array(), types::list(types::object($class))),
+                returnType: TypeReflection::create(types::array(), types::list(types::object($class))),
             ),
             new MethodReflection(
                 class: $class,
@@ -649,7 +649,7 @@ final class PhpParserReflector
                         endLine: null,
                     ),
                 ],
-                returnType: new TypeReflection(
+                returnType: TypeReflection::create(
                     types::nullable(types::array()),
                     types::nullable(types::list(types::object($class))),
                 ),

@@ -189,7 +189,7 @@ final class NativeReflectionReflector
      */
     private function reflectType(?\ReflectionType $type, ?string $class): TypeReflection
     {
-        return new TypeReflection(
+        return TypeReflection::create(
             native: $this->reflectNativeType($type, $class),
             phpDoc: null,
         );

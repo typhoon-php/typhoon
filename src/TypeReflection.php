@@ -14,14 +14,24 @@ use Typhoon\Type\TypeVisitor;
  */
 final class TypeReflection extends FriendlyReflection
 {
+    private function __construct(
+        private readonly ?Type $native,
+        private readonly ?Type $phpDoc,
+        private readonly Type $resolved,
+    ) {}
+
     /**
      * @internal
      * @psalm-internal Typhoon\Reflection
      */
-    public function __construct(
-        private readonly ?Type $native,
-        private readonly ?Type $phpDoc,
-    ) {}
+    public static function create(?Type $native, ?Type $phpDoc): self
+    {
+        return new self(
+            native: $native,
+            phpDoc: $phpDoc,
+            resolved: $phpDoc ?? $native ?? types::mixed,
+        );
+    }
 
     public function getNative(): ?Type
     {
@@ -35,21 +45,15 @@ final class TypeReflection extends FriendlyReflection
 
     public function getResolved(): Type
     {
-        return $this->phpDoc ?? $this->native ?? types::mixed;
-    }
-
-    public function __clone()
-    {
-        if ((debug_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS, 2)[1]['class'] ?? null) !== self::class) {
-            throw new ReflectionException();
-        }
+        return $this->resolved;
     }
 
     protected function withResolvedTypes(TypeVisitor $typeResolver): static
     {
         return new self(
-            native: $this->native?->accept($typeResolver),
-            phpDoc: $this->phpDoc?->accept($typeResolver),
+            native: $this->native,
+            phpDoc: $this->phpDoc,
+            resolved: $this->resolved->accept($typeResolver),
         );
     }
 
@@ -69,7 +73,10 @@ final class TypeReflection extends FriendlyReflection
 
         return new self(
             native: $this->native,
-            phpDoc: $parent->phpDoc,
+            phpDoc: $this->phpDoc,
+            resolved: $parent->phpDoc,
         );
     }
+
+    private function __clone() {}
 }

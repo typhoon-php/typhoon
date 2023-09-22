@@ -44,22 +44,20 @@ var_dump($articleReflection->getNamespaceName()); // 'My\Awesome\App'
 $tagsReflection = $articleReflection->getProperty('tags');
 
 var_dump($tagsReflection->isReadOnly()); // true
-var_dump($tagsReflection->getType()->getNative()); // object representation of array<array-key, mixed> type
-var_dump($tagsReflection->getType()->getPhpDoc()); // object representation of non-empty-list<non-empty-string> type
+var_dump($tagsReflection->getType()->getResolved()); // object representation of non-empty-list<non-empty-string> type
 
 $dataReflection = $articleReflection->getProperty('data');
 
 var_dump($dataReflection->isPublic()); // true
-var_dump($dataReflection->getType()->getNative()); // object representation of mixed type
-var_dump($dataReflection->getType()->getPhpDoc()); // object representation of T:Article type
+var_dump($dataReflection->getType()->getResolved()); // object representation of T:Article type
 
 var_dump(
     $articleReflection
-        ->withResolvedTemplates(['T' => types::nonEmptyString])
+        ->withResolvedTemplates(['T' => types::bool])
         ->getProperty('data')
         ->getType()
-        ->getPhpDoc(),
-); // object representation of non-empty-string type
+        ->getResolved(),
+); // object representation of bool type
 ```
 
 ## Compatibility
