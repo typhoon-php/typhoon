@@ -29,7 +29,7 @@ final class MethodTemplateType implements Type
 
     /**
      * @internal
-     * @psalm-internal Typhoon
+     * @psalm-internal Typhoon\Type
      * @param class-string $class
      * @param non-empty-string $method
      * @param non-empty-string $name

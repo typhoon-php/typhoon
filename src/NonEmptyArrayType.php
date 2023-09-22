@@ -25,7 +25,7 @@ final class NonEmptyArrayType implements Type
 
     /**
      * @internal
-     * @psalm-internal Typhoon
+     * @psalm-internal Typhoon\Type
      * @param Type<TKey> $keyType
      * @param Type<TValue> $valueType
      */

@@ -16,7 +16,7 @@ final class ValueOfType implements Type
 
     /**
      * @internal
-     * @psalm-internal Typhoon
+     * @psalm-internal Typhoon\Type
      */
     public function __construct(
         Type $type,

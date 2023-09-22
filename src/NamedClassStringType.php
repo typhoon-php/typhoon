@@ -19,7 +19,7 @@ final class NamedClassStringType implements Type
 
     /**
      * @internal
-     * @psalm-internal Typhoon
+     * @psalm-internal Typhoon\Type
      * @param Type<TObject> $type
      */
     public function __construct(

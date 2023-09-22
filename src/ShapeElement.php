@@ -20,7 +20,7 @@ final class ShapeElement
 
     /**
      * @internal
-     * @psalm-internal Typhoon
+     * @psalm-internal Typhoon\Type
      * @param Type<TType> $type
      */
     public function __construct(

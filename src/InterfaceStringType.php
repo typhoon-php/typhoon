@@ -13,7 +13,7 @@ enum InterfaceStringType implements Type
 {
     /**
      * @internal
-     * @psalm-internal Typhoon
+     * @psalm-internal Typhoon\Type
      */
     case type;
 

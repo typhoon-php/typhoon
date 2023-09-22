@@ -19,7 +19,7 @@ final class FloatLiteralType implements Type
 
     /**
      * @internal
-     * @psalm-internal Typhoon
+     * @psalm-internal Typhoon\Type
      * @param TValue $value
      */
     public function __construct(

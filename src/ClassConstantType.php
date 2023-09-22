@@ -24,7 +24,7 @@ final class ClassConstantType implements Type
 
     /**
      * @internal
-     * @psalm-internal Typhoon
+     * @psalm-internal Typhoon\Type
      * @param class-string $class
      * @param non-empty-string $constant
      */

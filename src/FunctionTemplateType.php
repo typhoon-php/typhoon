@@ -24,7 +24,7 @@ final class FunctionTemplateType implements Type
 
     /**
      * @internal
-     * @psalm-internal Typhoon
+     * @psalm-internal Typhoon\Type
      * @param callable-string $function
      * @param non-empty-string $name
      */

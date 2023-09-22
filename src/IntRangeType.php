@@ -18,7 +18,7 @@ final class IntRangeType implements Type
 
     /**
      * @internal
-     * @psalm-internal Typhoon
+     * @psalm-internal Typhoon\Type
      */
     public function __construct(
         ?int $min = null,

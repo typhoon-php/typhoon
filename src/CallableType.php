@@ -24,7 +24,7 @@ final class CallableType implements Type
 
     /**
      * @internal
-     * @psalm-internal Typhoon
+     * @psalm-internal Typhoon\Type
      * @param list<Parameter> $parameters
      * @param ?Type<TReturn> $returnType
      */

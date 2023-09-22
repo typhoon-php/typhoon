@@ -19,7 +19,7 @@ final class IntersectionType implements Type
 
     /**
      * @internal
-     * @psalm-internal Typhoon
+     * @psalm-internal Typhoon\Type
      * @no-named-arguments
      * @param non-empty-list<Type> $types
      */

@@ -19,7 +19,7 @@ final class ListType implements Type
 
     /**
      * @internal
-     * @psalm-internal Typhoon
+     * @psalm-internal Typhoon\Type
      * @param Type<TValue> $valueType
      */
     public function __construct(

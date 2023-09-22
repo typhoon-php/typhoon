@@ -491,42 +491,42 @@ final class types
 
 /**
  * @internal
- * @psalm-internal Typhoon
+ * @psalm-internal Typhoon\Type
  */
 const __nonEmptyList = new NonEmptyListType();
 
 /**
  * @internal
- * @psalm-internal Typhoon
+ * @psalm-internal Typhoon\Type
  */
 const __list = new ListType();
 
 /**
  * @internal
- * @psalm-internal Typhoon
+ * @psalm-internal Typhoon\Type
  */
 const __nonEmptyArray = new NonEmptyArrayType();
 
 /**
  * @internal
- * @psalm-internal Typhoon
+ * @psalm-internal Typhoon\Type
  */
 const __array = new ArrayType();
 
 /**
  * @internal
- * @psalm-internal Typhoon
+ * @psalm-internal Typhoon\Type
  */
 const __iterable = new IterableType();
 
 /**
  * @internal
- * @psalm-internal Typhoon
+ * @psalm-internal Typhoon\Type
  */
 const __closure = new ClosureType();
 
 /**
  * @internal
- * @psalm-internal Typhoon
+ * @psalm-internal Typhoon\Type
  */
 const __callable = new CallableType();

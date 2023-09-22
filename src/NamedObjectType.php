@@ -24,7 +24,7 @@ final class NamedObjectType implements Type
 
     /**
      * @internal
-     * @psalm-internal Typhoon
+     * @psalm-internal Typhoon\Type
      * @no-named-arguments
      * @param class-string<TObject> $class
      * @param list<Type> $templateArguments

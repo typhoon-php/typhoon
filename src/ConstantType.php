@@ -19,7 +19,7 @@ final class ConstantType implements Type
 
     /**
      * @internal
-     * @psalm-internal Typhoon
+     * @psalm-internal Typhoon\Type
      * @param non-empty-string $constant
      */
     public function __construct(

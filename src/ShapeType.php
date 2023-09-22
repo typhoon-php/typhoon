@@ -21,7 +21,7 @@ final class ShapeType implements Type
 
     /**
      * @internal
-     * @psalm-internal Typhoon
+     * @psalm-internal Typhoon\Type
      * @param array<ShapeElement> $elements
      */
     public function __construct(
