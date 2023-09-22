@@ -9,7 +9,6 @@ use Typhoon\Reflection\Reflector\RootReflection;
 use Typhoon\Reflection\TypeResolver\ClassTemplateResolver;
 use Typhoon\Reflection\TypeResolver\StaticResolver;
 use Typhoon\Type;
-use Typhoon\Type\TypeVisitor;
 
 /**
  * @api
@@ -551,23 +550,42 @@ final class ClassReflection extends FriendlyReflection implements RootReflection
      * @param array<Type\Type> $templateArguments
      * @return self<T>
      */
-    public function withResolvedTemplates(array $templateArguments = []): self
+    public function resolveTemplates(array $templateArguments = []): self
     {
         if ($this->templates === []) {
             return $this;
         }
 
         /** @var self<T> */
-        return $this->withResolvedTypes(ClassTemplateResolver::create($this->name, $this->templates, $templateArguments));
+        return $this->resolvedTypes(ClassTemplateResolver::create($this->name, $this->templates, $templateArguments));
+    }
+
+    /**
+     * @deprecated in favor of resolveTemplates()
+     * @param array<Type\Type> $templateArguments
+     * @return self<T>
+     */
+    public function withResolvedTemplates(array $templateArguments = []): self
+    {
+        return $this->resolveTemplates($templateArguments);
     }
 
     /**
      * @return self<T>
      */
-    public function withResolvedStatic(): self
+    public function resolveStatic(): self
     {
         /** @var self<T> */
-        return $this->withResolvedTypes(new StaticResolver($this->name));
+        return $this->resolvedTypes(new StaticResolver($this->name));
+    }
+
+    /**
+     * @deprecated in favor of resolveStatic()
+     * @return self<T>
+     */
+    public function withResolvedStatic(): self
+    {
+        return $this->resolveStatic();
     }
 
     /**
@@ -624,24 +642,24 @@ final class ClassReflection extends FriendlyReflection implements RootReflection
         return $this->nativeReflection ??= new \ReflectionClass($this->name);
     }
 
-    protected function withResolvedTypes(TypeVisitor $typeResolver): static
+    protected function toChildOf(FriendlyReflection $parent): static
+    {
+        throw new \BadMethodCallException(sprintf('Method %s must not be invoked.', __METHOD__));
+    }
+
+    private function resolvedTypes(ClassTemplateResolver|StaticResolver $typeResolver): self
     {
         $class = clone $this;
         $class->propertiesIndexedByName = array_map(
-            static fn (PropertyReflection $property): PropertyReflection => $property->withResolvedTypes($typeResolver),
+            static fn (PropertyReflection $property): PropertyReflection => $property->resolvedTypes($typeResolver),
             $this->getPropertiesIndexedByName(),
         );
         $class->methodsIndexedByName = array_map(
-            static fn (MethodReflection $method): MethodReflection => $method->withResolvedTypes($typeResolver),
+            static fn (MethodReflection $method): MethodReflection => $method->resolvedTypes($typeResolver),
             $this->getMethodsIndexedByName(),
         );
 
         return $class;
-    }
-
-    protected function toChildOf(FriendlyReflection $parent): static
-    {
-        throw new \BadMethodCallException(sprintf('Method %s must not be invoked.', __METHOD__));
     }
 
     /**
@@ -668,7 +686,7 @@ final class ClassReflection extends FriendlyReflection implements RootReflection
 
         return $this->reflectionContext
             ->reflectClass($this->parentType->class)
-            ->withResolvedTemplates($this->parentType->templateArguments);
+            ->resolveTemplates($this->parentType->templateArguments);
     }
 
     /**
@@ -685,7 +703,7 @@ final class ClassReflection extends FriendlyReflection implements RootReflection
         foreach ($this->ownInterfaceTypes as $interfaceType) {
             yield $this->reflectionContext
                 ->reflectClass($interfaceType->class)
-                ->withResolvedTemplates($interfaceType->templateArguments);
+                ->resolveTemplates($interfaceType->templateArguments);
         }
     }
 }

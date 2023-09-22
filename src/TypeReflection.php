@@ -5,9 +5,10 @@ declare(strict_types=1);
 namespace Typhoon\Reflection;
 
 use Typhoon\Reflection\Reflector\FriendlyReflection;
+use Typhoon\Reflection\TypeResolver\ClassTemplateResolver;
+use Typhoon\Reflection\TypeResolver\StaticResolver;
 use Typhoon\Type\Type;
 use Typhoon\Type\types;
-use Typhoon\Type\TypeVisitor;
 
 /**
  * @api
@@ -48,7 +49,7 @@ final class TypeReflection extends FriendlyReflection
         return $this->resolved;
     }
 
-    protected function withResolvedTypes(TypeVisitor $typeResolver): static
+    public function resolve(ClassTemplateResolver|StaticResolver $typeResolver): self
     {
         return new self(
             native: $this->native,

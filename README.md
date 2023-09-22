@@ -53,7 +53,7 @@ var_dump($dataReflection->getType()->getResolved()); // object representation of
 
 var_dump(
     $articleReflection
-        ->withResolvedTemplates(['T' => types::bool])
+        ->resolveTemplates(['T' => types::bool])
         ->getProperty('data')
         ->getType()
         ->getResolved(),

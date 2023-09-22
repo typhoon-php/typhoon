@@ -5,7 +5,8 @@ declare(strict_types=1);
 namespace Typhoon\Reflection;
 
 use Typhoon\Reflection\Reflector\FriendlyReflection;
-use Typhoon\Type\TypeVisitor;
+use Typhoon\Reflection\TypeResolver\ClassTemplateResolver;
+use Typhoon\Reflection\TypeResolver\StaticResolver;
 
 /**
  * @api
@@ -180,10 +181,10 @@ final class PropertyReflection extends FriendlyReflection
         return $this->nativeReflection ??= new \ReflectionProperty($this->class, $this->name);
     }
 
-    protected function withResolvedTypes(TypeVisitor $typeResolver): static
+    public function resolvedTypes(ClassTemplateResolver|StaticResolver $typeResolver): self
     {
         $property = clone $this;
-        $property->type = $this->type->withResolvedTypes($typeResolver);
+        $property->type = $this->type->resolve($typeResolver);
 
         return $property;
     }
