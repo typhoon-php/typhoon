@@ -46,7 +46,7 @@ final class ClassReflection extends FriendlyReflection implements RootReflection
      * @param list<Type\NamedObjectType> $ownInterfaceTypes
      * @param list<PropertyReflection> $ownProperties
      * @param list<MethodReflection> $ownMethods
-     * @param ?\ReflectionClass<T> $reflectionClass
+     * @param ?\ReflectionClass<T> $nativeReflection
      */
     public function __construct(
         private readonly ReflectionContext $reflectionContext,
@@ -69,7 +69,7 @@ final class ClassReflection extends FriendlyReflection implements RootReflection
         private readonly array $ownInterfaceTypes,
         private readonly array $ownProperties,
         private readonly array $ownMethods,
-        private ?\ReflectionClass $reflectionClass = null,
+        private ?\ReflectionClass $nativeReflection = null,
     ) {}
 
     /**
@@ -575,7 +575,7 @@ final class ClassReflection extends FriendlyReflection implements RootReflection
      */
     public function newInstance(mixed ...$args): object
     {
-        return $this->reflectionClass()->newInstance(...$args);
+        return $this->getNativeReflection()->newInstance(...$args);
     }
 
     /**
@@ -583,7 +583,7 @@ final class ClassReflection extends FriendlyReflection implements RootReflection
      */
     public function newInstanceArgs(array $args = []): object
     {
-        return $this->reflectionClass()->newInstanceArgs($args);
+        return $this->getNativeReflection()->newInstanceArgs($args);
     }
 
     /**
@@ -591,13 +591,13 @@ final class ClassReflection extends FriendlyReflection implements RootReflection
      */
     public function newInstanceWithoutConstructor(): object
     {
-        return $this->reflectionClass()->newInstanceWithoutConstructor();
+        return $this->getNativeReflection()->newInstanceWithoutConstructor();
     }
 
     public function __serialize(): array
     {
         $vars = get_object_vars($this);
-        unset($vars['reflectionContext'], $vars['propertiesIndexedByName'], $vars['methodsIndexedByName'], $vars['reflectionClass']);
+        unset($vars['reflectionContext'], $vars['propertiesIndexedByName'], $vars['methodsIndexedByName'], $vars['nativeReflection']);
 
         return $vars;
     }
@@ -614,6 +614,14 @@ final class ClassReflection extends FriendlyReflection implements RootReflection
         if ((debug_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS, 2)[1]['class'] ?? null) !== self::class) {
             throw new ReflectionException();
         }
+    }
+
+    /**
+     * @return \ReflectionClass<T>
+     */
+    public function getNativeReflection(): \ReflectionClass
+    {
+        return $this->nativeReflection ??= new \ReflectionClass($this->name);
     }
 
     protected function withResolvedTypes(TypeVisitor $typeResolver): static
@@ -679,13 +687,5 @@ final class ClassReflection extends FriendlyReflection implements RootReflection
                 ->reflectClass($interfaceType->class)
                 ->withResolvedTemplates($interfaceType->templateArguments);
         }
-    }
-
-    /**
-     * @return \ReflectionClass<T>
-     */
-    private function reflectionClass(): \ReflectionClass
-    {
-        return $this->reflectionClass ??= new \ReflectionClass($this->name);
     }
 }

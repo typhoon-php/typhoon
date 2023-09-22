@@ -51,7 +51,7 @@ final class MethodReflection extends FriendlyReflection
         private array $parameters,
         /** @readonly */
         private TypeReflection $returnType,
-        private ?\ReflectionMethod $reflectionMethod = null,
+        private ?\ReflectionMethod $nativeReflection = null,
     ) {}
 
     /**
@@ -341,23 +341,23 @@ final class MethodReflection extends FriendlyReflection
 
     public function invoke(?object $object = null, mixed ...$args): mixed
     {
-        return $this->reflectionMethod()->invoke($object, ...$args);
+        return $this->getNativeReflection()->invoke($object, ...$args);
     }
 
     public function invokeArgs(?object $object = null, array $args = []): mixed
     {
-        return $this->reflectionMethod()->invokeArgs($object, $args);
+        return $this->getNativeReflection()->invokeArgs($object, $args);
     }
 
     public function getClosure(?object $object = null): \Closure
     {
-        return $this->reflectionMethod()->getClosure($object);
+        return $this->getNativeReflection()->getClosure($object);
     }
 
     public function __serialize(): array
     {
         $data = get_object_vars($this);
-        unset($data['reflectionMethod']);
+        unset($data['nativeReflection']);
 
         return $data;
     }
@@ -374,6 +374,11 @@ final class MethodReflection extends FriendlyReflection
         if ((debug_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS, 2)[1]['class'] ?? null) !== self::class) {
             throw new ReflectionException();
         }
+    }
+
+    public function getNativeReflection(): \ReflectionMethod
+    {
+        return $this->nativeReflection ??= new \ReflectionMethod($this->class, $this->name);
     }
 
     protected function withResolvedTypes(TypeVisitor $typeResolver): static
@@ -401,10 +406,5 @@ final class MethodReflection extends FriendlyReflection
         $method->returnType = $method->returnType->toChildOf($parent->returnType);
 
         return $method;
-    }
-
-    private function reflectionMethod(): \ReflectionMethod
-    {
-        return $this->reflectionMethod ??= new \ReflectionMethod($this->class, $this->name);
     }
 }

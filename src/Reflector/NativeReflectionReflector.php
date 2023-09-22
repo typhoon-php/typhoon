@@ -54,7 +54,7 @@ final class NativeReflectionReflector
             ),
             ownProperties: $this->reflectOwnProperties($class),
             ownMethods: $this->reflectOwnMethods($class),
-            reflectionClass: $class,
+            nativeReflection: $class,
         );
     }
 
@@ -108,6 +108,7 @@ final class NativeReflectionReflector
                     type: $this->reflectType($property->getType(), $class->name),
                     startLine: null,
                     endLine: null,
+                    nativeReflection: $property,
                 );
             }
         }
@@ -142,6 +143,7 @@ final class NativeReflectionReflector
                     deprecated: $method->isDeprecated(),
                     parameters: $this->reflectParameters($method, $class->name),
                     returnType: $this->reflectType($method->getReturnType(), $class->name),
+                    nativeReflection: $method,
                 );
             }
         }
@@ -175,6 +177,7 @@ final class NativeReflectionReflector
                 type: $this->reflectType($parameter->getType(), $class),
                 startLine: null,
                 endLine: null,
+                nativeReflection: $parameter,
             );
         }
 

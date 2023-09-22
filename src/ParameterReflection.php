@@ -35,7 +35,7 @@ final class ParameterReflection extends FriendlyReflection
         private TypeReflection $type,
         private readonly ?int $startLine,
         private readonly ?int $endLine,
-        private ?\ReflectionParameter $reflectionParameter = null,
+        private ?\ReflectionParameter $nativeReflection = null,
     ) {}
 
     public function canBePassedByValue(): bool
@@ -45,7 +45,7 @@ final class ParameterReflection extends FriendlyReflection
 
     public function getDefaultValue(): mixed
     {
-        return $this->reflectionParameter()->getDefaultValue();
+        return $this->getNativeReflection()->getDefaultValue();
     }
 
     /**
@@ -102,7 +102,7 @@ final class ParameterReflection extends FriendlyReflection
     public function __serialize(): array
     {
         $data = get_object_vars($this);
-        unset($data['reflectionParameter']);
+        unset($data['nativeReflection']);
 
         return $data;
     }
@@ -137,6 +137,11 @@ final class ParameterReflection extends FriendlyReflection
         }
     }
 
+    public function getNativeReflection(): \ReflectionParameter
+    {
+        return $this->nativeReflection ??= new \ReflectionParameter($this->function, $this->name);
+    }
+
     protected function withResolvedTypes(TypeVisitor $typeResolver): static
     {
         $parameter = clone $this;
@@ -151,10 +156,5 @@ final class ParameterReflection extends FriendlyReflection
         $parameter->type = $this->type->toChildOf($parent->type);
 
         return $parameter;
-    }
-
-    private function reflectionParameter(): \ReflectionParameter
-    {
-        return $this->reflectionParameter ??= new \ReflectionParameter($this->function, $this->name);
     }
 }

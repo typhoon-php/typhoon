@@ -40,12 +40,12 @@ final class PropertyReflection extends FriendlyReflection
         private TypeReflection $type,
         private readonly ?int $startLine,
         private readonly ?int $endLine,
-        private ?\ReflectionProperty $reflectionProperty = null,
+        private ?\ReflectionProperty $nativeReflection = null,
     ) {}
 
     public function getDefaultValue(): mixed
     {
-        return $this->reflectionProperty()->getDefaultValue();
+        return $this->getNativeReflection()->getDefaultValue();
     }
 
     /**
@@ -71,7 +71,7 @@ final class PropertyReflection extends FriendlyReflection
 
     public function getValue(?object $object = null): mixed
     {
-        return $this->reflectionProperty()->getValue($object);
+        return $this->getNativeReflection()->getValue($object);
     }
 
     public function hasDefaultValue(): bool
@@ -82,7 +82,7 @@ final class PropertyReflection extends FriendlyReflection
     public function isInitialized(?object $object = null): bool
     {
         /** @var bool */
-        return $this->reflectionProperty()->isInitialized($object);
+        return $this->getNativeReflection()->isInitialized($object);
     }
 
     /**
@@ -131,9 +131,9 @@ final class PropertyReflection extends FriendlyReflection
     public function setValue(?object $object, mixed $value): void
     {
         if ($this->isStatic()) {
-            $this->reflectionProperty()->setValue($value);
+            $this->getNativeReflection()->setValue($value);
         } else {
-            $this->reflectionProperty()->setValue($object, $value);
+            $this->getNativeReflection()->setValue($object, $value);
         }
     }
 
@@ -156,7 +156,7 @@ final class PropertyReflection extends FriendlyReflection
     public function __serialize(): array
     {
         $data = get_object_vars($this);
-        unset($data['reflectionProperty']);
+        unset($data['nativeReflection']);
 
         return $data;
     }
@@ -175,6 +175,11 @@ final class PropertyReflection extends FriendlyReflection
         }
     }
 
+    public function getNativeReflection(): \ReflectionProperty
+    {
+        return $this->nativeReflection ??= new \ReflectionProperty($this->class, $this->name);
+    }
+
     protected function withResolvedTypes(TypeVisitor $typeResolver): static
     {
         $property = clone $this;
@@ -189,10 +194,5 @@ final class PropertyReflection extends FriendlyReflection
         $property->type = $this->type->toChildOf($parent->type);
 
         return $property;
-    }
-
-    private function reflectionProperty(): \ReflectionProperty
-    {
-        return $this->reflectionProperty ??= new \ReflectionProperty($this->class, $this->name);
     }
 }
