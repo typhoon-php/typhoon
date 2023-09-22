@@ -13,7 +13,7 @@ use Typhoon\Type\TypeVisitor;
 
 /**
  * @api
- * @template T of object
+ * @template-covariant T of object
  */
 final class ClassReflection extends FriendlyReflection implements RootReflection
 {
