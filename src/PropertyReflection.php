@@ -44,6 +44,18 @@ final class PropertyReflection extends FriendlyReflection
         private ?\ReflectionProperty $nativeReflection = null,
     ) {}
 
+    /**
+     * @internal
+     * @psalm-internal Typhoon\Reflection
+     */
+    public static function fromPrototype(self $prototype, self $child): self
+    {
+        $new = clone $child;
+        $new->type = TypeReflection::fromPrototype($prototype->type, $child->type);
+
+        return $new;
+    }
+
     public function getDefaultValue(): mixed
     {
         return $this->getNativeReflection()->getDefaultValue();
@@ -185,14 +197,6 @@ final class PropertyReflection extends FriendlyReflection
     {
         $property = clone $this;
         $property->type = $this->type->resolve($typeResolver);
-
-        return $property;
-    }
-
-    protected function toChildOf(FriendlyReflection $parent): static
-    {
-        $property = clone $this;
-        $property->type = $this->type->toChildOf($parent->type);
 
         return $property;
     }

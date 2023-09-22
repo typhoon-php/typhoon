@@ -39,6 +39,18 @@ final class ParameterReflection extends FriendlyReflection
         private ?\ReflectionParameter $nativeReflection = null,
     ) {}
 
+    /**
+     * @internal
+     * @psalm-internal Typhoon\Reflection
+     */
+    public static function fromPrototype(self $prototype, self $child): self
+    {
+        $new = clone $child;
+        $new->type = TypeReflection::fromPrototype($prototype->type, $child->type);
+
+        return $new;
+    }
+
     public function canBePassedByValue(): bool
     {
         return !$this->passedByReference;
@@ -147,14 +159,6 @@ final class ParameterReflection extends FriendlyReflection
     {
         $parameter = clone $this;
         $parameter->type = $this->type->resolve($typeResolver);
-
-        return $parameter;
-    }
-
-    protected function toChildOf(FriendlyReflection $parent): static
-    {
-        $parameter = clone $this;
-        $parameter->type = $this->type->toChildOf($parent->type);
 
         return $parameter;
     }

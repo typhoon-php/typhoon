@@ -56,6 +56,25 @@ final class MethodReflection extends FriendlyReflection
     ) {}
 
     /**
+     * @internal
+     * @psalm-internal Typhoon\Reflection
+     */
+    public static function fromPrototype(self $prototype, self $child): self
+    {
+        $new = clone $child;
+        /** @psalm-suppress DocblockTypeContradiction */
+        $new->parameters = array_map(
+            static fn (ParameterReflection $childParameter): ParameterReflection => $prototype->hasParameterWithPosition($childParameter->getPosition())
+                ? ParameterReflection::fromPrototype($prototype->getParameterByPosition($childParameter->getPosition()), $childParameter)
+                : $childParameter,
+            $child->parameters,
+        );
+        $new->returnType = TypeReflection::fromPrototype($prototype->returnType, $child->returnType);
+
+        return $new;
+    }
+
+    /**
      * @return non-empty-string
      */
     public function getName(): string
@@ -390,21 +409,6 @@ final class MethodReflection extends FriendlyReflection
             $this->parameters,
         );
         $method->returnType = $method->returnType->resolve($typeResolver);
-
-        return $method;
-    }
-
-    protected function toChildOf(FriendlyReflection $parent): static
-    {
-        $method = clone $this;
-        $parentParametersByPosition = $parent->parameters;
-        $method->parameters = array_map(
-            static fn (ParameterReflection $parameter): ParameterReflection => isset($parentParametersByPosition[$parameter->getPosition()])
-                ? $parameter->toChildOf($parentParametersByPosition[$parameter->getPosition()])
-                : $parameter,
-            $this->parameters,
-        );
-        $method->returnType = $method->returnType->toChildOf($parent->returnType);
 
         return $method;
     }

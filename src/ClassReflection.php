@@ -465,7 +465,7 @@ final class ClassReflection extends FriendlyReflection implements RootReflection
                 continue;
             }
 
-            $propertiesIndexedByName[$name] = $propertiesIndexedByName[$name]->toChildOf($parentProperty);
+            $propertiesIndexedByName[$name] = PropertyReflection::fromPrototype($parentProperty, $propertiesIndexedByName[$name]);
         }
 
         return $this->propertiesIndexedByName = $propertiesIndexedByName;
@@ -526,7 +526,7 @@ final class ClassReflection extends FriendlyReflection implements RootReflection
                     continue;
                 }
 
-                $methodsIndexedByName[$name] = $methodsIndexedByName[$name]->toChildOf($parentMethod);
+                $methodsIndexedByName[$name] = MethodReflection::fromPrototype($parentMethod, $methodsIndexedByName[$name]);
             }
         }
 
@@ -640,11 +640,6 @@ final class ClassReflection extends FriendlyReflection implements RootReflection
     public function getNativeReflection(): \ReflectionClass
     {
         return $this->nativeReflection ??= new \ReflectionClass($this->name);
-    }
-
-    protected function toChildOf(FriendlyReflection $parent): static
-    {
-        throw new \BadMethodCallException(sprintf('Method %s must not be invoked.', __METHOD__));
     }
 
     private function resolvedTypes(ClassTemplateResolver|StaticResolver $typeResolver): self

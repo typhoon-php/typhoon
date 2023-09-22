@@ -34,6 +34,27 @@ final class TypeReflection extends FriendlyReflection
         );
     }
 
+    public static function fromPrototype(self $prototype, self $child): self
+    {
+        if ($child->phpDoc !== null) {
+            return $child;
+        }
+
+        if ($prototype->phpDoc === null) {
+            return $child;
+        }
+
+        if ($prototype->native !== $child->native) {
+            return $child;
+        }
+
+        return new self(
+            native: $child->native,
+            phpDoc: $child->phpDoc,
+            resolved: $prototype->phpDoc,
+        );
+    }
+
     public function getNative(): ?Type
     {
         return $this->native;
@@ -55,27 +76,6 @@ final class TypeReflection extends FriendlyReflection
             native: $this->native,
             phpDoc: $this->phpDoc,
             resolved: $this->resolved->accept($typeResolver),
-        );
-    }
-
-    protected function toChildOf(FriendlyReflection $parent): static
-    {
-        if ($this->phpDoc !== null) {
-            return $this;
-        }
-
-        if ($parent->phpDoc === null) {
-            return $this;
-        }
-
-        if ($parent->native !== $this->native) {
-            return $this;
-        }
-
-        return new self(
-            native: $this->native,
-            phpDoc: $this->phpDoc,
-            resolved: $parent->phpDoc,
         );
     }
 
