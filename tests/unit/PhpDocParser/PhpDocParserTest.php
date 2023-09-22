@@ -14,7 +14,6 @@ use Typhoon\Reflection\TagPrioritizer;
 use Typhoon\Reflection\Variance;
 
 #[CoversClass(PhpDocParser::class)]
-#[CoversClass(PhpDocBuilder::class)]
 #[CoversClass(PhpDoc::class)]
 final class PhpDocParserTest extends TestCase
 {
@@ -28,7 +27,7 @@ final class PhpDocParserTest extends TestCase
                  * @example
                  */
                 PHP,
-        )->varType;
+        )->varType();
 
         self::assertNull($varType);
     }
@@ -46,7 +45,7 @@ final class PhpDocParserTest extends TestCase
                  * @psalm-var string
                  */
                 PHP,
-        )->varType;
+        )->varType();
 
         self::assertEquals(new IdentifierTypeNode('string'), $varType);
     }
@@ -61,7 +60,7 @@ final class PhpDocParserTest extends TestCase
                  * @example
                  */
                 PHP,
-        )->paramTypes;
+        )->paramTypes();
 
         self::assertEmpty($paramTypes);
     }
@@ -81,7 +80,7 @@ final class PhpDocParserTest extends TestCase
                  * @psalm-param string $a
                  */
                 PHP,
-        )->paramTypes;
+        )->paramTypes();
 
         self::assertEquals(
             [
@@ -102,7 +101,7 @@ final class PhpDocParserTest extends TestCase
                  * @example
                  */
                 PHP,
-        )->returnType;
+        )->returnType();
 
         self::assertNull($returnType);
     }
@@ -120,7 +119,7 @@ final class PhpDocParserTest extends TestCase
                  * @psalm-return string
                  */
                 PHP,
-        )->returnType;
+        )->returnType();
 
         self::assertEquals(new IdentifierTypeNode('string'), $returnType);
     }
@@ -135,9 +134,24 @@ final class PhpDocParserTest extends TestCase
                  * @example
                  */
                 PHP,
-        )->templates;
+        )->templates();
 
         self::assertEmpty($templates);
+    }
+
+    public function testItReturnsEmptyTemplateNamesWhenNoTemplateTag(): void
+    {
+        $parser = new PhpDocParser();
+
+        $templateNames = $parser->parsePhpDoc(
+            <<<'PHP'
+                /**
+                 * @example
+                 */
+                PHP,
+        )->templateNames();
+
+        self::assertEmpty($templateNames);
     }
 
     public function testItReturnsLatestPrioritizedTemplates(): void
@@ -155,15 +169,35 @@ final class PhpDocParserTest extends TestCase
                  * @psalm-template T of string
                  */
                 PHP,
-        )->templates;
+        )->templates();
 
         self::assertEquals(
             [
-                'T' => $this->createTemplateTagValueNode('T', new IdentifierTypeNode('string'), Variance::INVARIANT),
-                'T2' => $this->createTemplateTagValueNode('T2', new IdentifierTypeNode('mixed'), Variance::INVARIANT),
+                $this->createTemplateTagValueNode('T', new IdentifierTypeNode('string'), Variance::INVARIANT),
+                $this->createTemplateTagValueNode('T2', new IdentifierTypeNode('mixed'), Variance::INVARIANT),
             ],
             $templates,
         );
+    }
+
+    public function testItReturnsLatestPrioritizedTemplateNames(): void
+    {
+        $parser = new PhpDocParser();
+
+        $templateNames = $parser->parsePhpDoc(
+            <<<'PHP'
+                /**
+                 * @example
+                 * @template T of int
+                 * @template T2 of object
+                 * @template T2 of mixed
+                 * @psalm-template T of float
+                 * @psalm-template T of string
+                 */
+                PHP,
+        )->templateNames();
+
+        self::assertSame(['T', 'T2'], $templateNames);
     }
 
     public function testItAddsVarianceAttributeToTemplates(): void
@@ -178,31 +212,31 @@ final class PhpDocParserTest extends TestCase
                  * @template-contravariant TContravariant
                  */
                 PHP,
-        )->templates;
+        )->templates();
 
         self::assertEquals(
             [
-                'TInvariant' => $this->createTemplateTagValueNode('TInvariant', null, Variance::INVARIANT),
-                'TCovariant' => $this->createTemplateTagValueNode('TCovariant', null, Variance::COVARIANT),
-                'TContravariant' => $this->createTemplateTagValueNode('TContravariant', null, Variance::CONTRAVARIANT),
+                $this->createTemplateTagValueNode('TInvariant', null, Variance::INVARIANT),
+                $this->createTemplateTagValueNode('TCovariant', null, Variance::COVARIANT),
+                $this->createTemplateTagValueNode('TContravariant', null, Variance::CONTRAVARIANT),
             ],
             $templates,
         );
     }
 
-    public function testItReturnsEmptyInheritedTypesWhenNoExtendsTag(): void
+    public function testItReturnsEmptyExtendedTypesWhenNoExtendsTag(): void
     {
         $parser = new PhpDocParser();
 
-        $inheritedTypes = $parser->parsePhpDoc(
+        $extendedTypes = $parser->parsePhpDoc(
             <<<'PHP'
                 /**
                  * @example
                  */
                 PHP,
-        )->extendedTypes;
+        )->extendedTypes();
 
-        self::assertEmpty($inheritedTypes);
+        self::assertEmpty($extendedTypes);
     }
 
     public function testItReturnsLatestPrioritizedExtendedTypes(): void
@@ -221,7 +255,7 @@ final class PhpDocParserTest extends TestCase
                  * @phpstan-extends C<string>
                  */
                 PHP,
-        )->extendedTypes;
+        )->extendedTypes();
 
         self::assertEquals(
             [
@@ -232,26 +266,26 @@ final class PhpDocParserTest extends TestCase
         );
     }
 
-    public function testItReturnsEmptyInheritedTypesWhenNoImplementsTag(): void
+    public function testItReturnsEmptyImplementedTypesWhenNoImplementsTag(): void
     {
         $parser = new PhpDocParser();
 
-        $inheritedTypes = $parser->parsePhpDoc(
+        $implementedTypes = $parser->parsePhpDoc(
             <<<'PHP'
                 /**
                  * @example
                  */
                 PHP,
-        )->implementedTypes;
+        )->implementedTypes();
 
-        self::assertEmpty($inheritedTypes);
+        self::assertEmpty($implementedTypes);
     }
 
     public function testItReturnsLatestPrioritizedImplementedTypes(): void
     {
         $parser = new PhpDocParser();
 
-        $implemented = $parser->parsePhpDoc(
+        $implementedTypes = $parser->parsePhpDoc(
             <<<'PHP'
                 /**
                  * @example
@@ -263,14 +297,14 @@ final class PhpDocParserTest extends TestCase
                  * @phpstan-implements C<string>
                  */
                 PHP,
-        )->implementedTypes;
+        )->implementedTypes();
 
         self::assertEquals(
             [
                 $this->createGenericTypeNode(new IdentifierTypeNode('C'), [new IdentifierTypeNode('string')]),
                 $this->createGenericTypeNode(new IdentifierTypeNode('D'), [new IdentifierTypeNode('mixed')]),
             ],
-            $implemented,
+            $implementedTypes,
         );
     }
 
@@ -288,7 +322,7 @@ final class PhpDocParserTest extends TestCase
                  * @param string $a
                  */
                 PHP,
-        );
+        )->paramTypes();
     }
 
     private function createTemplateTagValueNode(string $name, ?TypeNode $bound, Variance $variance): TemplateTagValueNode

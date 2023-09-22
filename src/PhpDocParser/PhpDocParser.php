@@ -31,8 +31,8 @@ final class PhpDocParser
     public function parsePhpDoc(string $phpDoc): PhpDoc
     {
         $tokens = $this->lexer->tokenize($phpDoc);
-        $tags = $this->parser->parse(new TokenIterator($tokens))->getTags();
+        $phpDoc = $this->parser->parse(new TokenIterator($tokens));
 
-        return (new PhpDocBuilder($this->tagPrioritizer))->addTags($tags)->build();
+        return new PhpDoc($this->tagPrioritizer, $phpDoc->getTags());
     }
 }

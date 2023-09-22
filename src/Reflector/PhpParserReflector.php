@@ -112,7 +112,7 @@ final class PhpParserReflector
 
         $parentClass = $this->nameContext->resolveNameAsClass($node->extends->toCodeString());
 
-        foreach ($phpDoc->extendedTypes as $phpDocExtendedType) {
+        foreach ($phpDoc->extendedTypes() as $phpDocExtendedType) {
             /** @var Type\NamedObjectType $extendedType */
             $extendedType = $this->safelyReflectPhpDocType($phpDocExtendedType);
 
@@ -131,17 +131,17 @@ final class PhpParserReflector
     {
         if ($node instanceof Stmt\Interface_) {
             $interfaceNames = $node->extends;
-            $phpDocInterfaceTypes = $phpDoc->extendedTypes;
+            $phpDocInterfaceTypes = $phpDoc->extendedTypes();
         } elseif ($node instanceof Stmt\Class_) {
             $interfaceNames = $node->implements;
-            $phpDocInterfaceTypes = $phpDoc->implementedTypes;
+            $phpDocInterfaceTypes = $phpDoc->implementedTypes();
         } elseif ($node instanceof Stmt\Enum_) {
             $interfaceNames = [
                 ...$node->implements,
                 new Name\FullyQualified(\UnitEnum::class),
                 ...($node->scalarType === null ? [] : [new Name\FullyQualified(\BackedEnum::class)]),
             ];
-            $phpDocInterfaceTypes = $phpDoc->implementedTypes;
+            $phpDocInterfaceTypes = $phpDoc->implementedTypes();
         } else {
             return [];
         }
@@ -194,7 +194,7 @@ final class PhpParserReflector
 
         foreach ($classNode->getProperties() as $node) {
             $phpDoc = PhpDocParsingVisitor::fromNode($node);
-            $type = $this->reflectType($node->type, $phpDoc->varType);
+            $type = $this->reflectType($node->type, $phpDoc->varType());
 
             foreach ($node->props as $property) {
                 $properties[] = new PropertyReflection(
@@ -235,7 +235,7 @@ final class PhpParserReflector
                 hasDefaultValue: $node->default !== null || $node->type === null,
                 promoted: true,
                 modifiers: $modifiers,
-                type: $this->reflectType($node->type, $phpDoc->paramTypes[$name] ?? null),
+                type: $this->reflectType($node->type, $phpDoc->paramTypes()[$name] ?? null),
                 startLine: $node->getStartLine() > 0 ? $node->getStartLine() : null,
                 endLine: $node->getEndLine() > 0 ? $node->getEndLine() : null,
             );
@@ -294,7 +294,7 @@ final class PhpParserReflector
             $phpDoc = PhpDocParsingVisitor::fromNode($node);
 
             try {
-                $this->nameContext->enterMethod($name, array_keys($phpDoc->templates));
+                $this->nameContext->enterMethod($name, $phpDoc->templateNames());
 
                 $methods[] = new MethodReflection(
                     class: $class,
@@ -310,7 +310,7 @@ final class PhpParserReflector
                     returnsReference: $node->byRef,
                     generator: $this->reflectIsGenerator($node),
                     parameters: $this->reflectParameters([$class, $name], $node->params, $phpDoc),
-                    returnType: $this->reflectType($node->returnType, $phpDoc->returnType),
+                    returnType: $this->reflectType($node->returnType, $phpDoc->returnType()),
                 );
             } finally {
                 $this->nameContext->leaveMethod();
@@ -389,7 +389,7 @@ final class PhpParserReflector
                 optional: $isOptional,
                 variadic: $node->variadic,
                 promoted: $this->isParameterPromoted($node),
-                type: $this->reflectType($node->type, $phpDoc->paramTypes[$name] ?? null),
+                type: $this->reflectType($node->type, $phpDoc->paramTypes()[$name] ?? null),
                 startLine: $node->getStartLine() > 0 ? $node->getStartLine() : null,
                 endLine: $node->getEndLine() > 0 ? $node->getEndLine() : null,
             );
@@ -405,7 +405,7 @@ final class PhpParserReflector
     {
         $templates = [];
 
-        foreach (array_values($phpDoc->templates) as $position => $template) {
+        foreach ($phpDoc->templates() as $position => $template) {
             $variance = $template->getAttribute('variance');
             $templates[] = new TemplateReflection(
                 position: $position,
