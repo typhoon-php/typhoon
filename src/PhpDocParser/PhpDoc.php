@@ -77,6 +77,28 @@ final class PhpDoc
         return false;
     }
 
+    public function isFinal(): bool
+    {
+        foreach ($this->tags as $tag) {
+            if ($tag->name === '@final') {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    public function isReadonly(): bool
+    {
+        foreach ($this->tags as $tag) {
+            if (\in_array($tag->name, ['@readonly', '@psalm-readonly', '@phpstan-readonly'], true)) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
     public function varType(): ?TypeNode
     {
         if ($this->varType !== false) {

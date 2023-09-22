@@ -48,6 +48,68 @@ final class PhpDocParserTest extends TestCase
         self::assertTrue($deprecated);
     }
 
+    public function testIsFinalReturnsFalseIfNoFinalTag(): void
+    {
+        $parser = new PhpDocParser();
+
+        $final = $parser->parsePhpDoc(
+            <<<'PHP'
+                /**
+                 * @example
+                 */
+                PHP,
+        )->isFinal();
+
+        self::assertFalse($final);
+    }
+
+    public function testIsFinalReturnsTrueIfFinal(): void
+    {
+        $parser = new PhpDocParser();
+
+        $final = $parser->parsePhpDoc(
+            <<<'PHP'
+                /**
+                 * @example
+                 * @final
+                 */
+                PHP,
+        )->isFinal();
+
+        self::assertTrue($final);
+    }
+
+    public function testIsReadonlyReturnsFalseIfNoReadonlyTag(): void
+    {
+        $parser = new PhpDocParser();
+
+        $readonly = $parser->parsePhpDoc(
+            <<<'PHP'
+                /**
+                 * @example
+                 */
+                PHP,
+        )->isReadonly();
+
+        self::assertFalse($readonly);
+    }
+
+    public function testIsReadonlyReturnsTrueIfReadonly(): void
+    {
+        $parser = new PhpDocParser();
+
+        $readonly = $parser->parsePhpDoc(
+            <<<'PHP'
+                /**
+                 * @example
+                 * @readonly
+                 */
+                PHP,
+        )->isReadonly();
+
+        self::assertTrue($readonly);
+    }
+
     public function testItReturnsNullVarTypeWhenNoVarTag(): void
     {
         $parser = new PhpDocParser();
