@@ -149,7 +149,7 @@
 | `isAbstract()`                    | ✅                                                 |
 | `isClosure()`                     | ✅                                                 |
 | `isConstructor()`                 | ✅                                                 |
-| `isDeprecated()`                  | ❌ TODO                                            |
+| `isDeprecated()`                  | ✅                                                 |
 | `isDestructor()`                  | ✅                                                 |
 | `isFinal()`                       | ✅                                                 |
 | `isGenerator()`                   | ✅                                                 |

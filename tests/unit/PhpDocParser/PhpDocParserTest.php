@@ -17,6 +17,37 @@ use Typhoon\Reflection\Variance;
 #[CoversClass(PhpDoc::class)]
 final class PhpDocParserTest extends TestCase
 {
+    public function testIsDeprecatedReturnsFalseIfNoDeprecatedTag(): void
+    {
+        $parser = new PhpDocParser();
+
+        $deprecated = $parser->parsePhpDoc(
+            <<<'PHP'
+                /**
+                 * @example
+                 */
+                PHP,
+        )->isDeprecated();
+
+        self::assertFalse($deprecated);
+    }
+
+    public function testIsDeprecatedReturnsTrueIfDeprecated(): void
+    {
+        $parser = new PhpDocParser();
+
+        $deprecated = $parser->parsePhpDoc(
+            <<<'PHP'
+                /**
+                 * @example
+                 * @deprecated
+                 */
+                PHP,
+        )->isDeprecated();
+
+        self::assertTrue($deprecated);
+    }
+
     public function testItReturnsNullVarTypeWhenNoVarTag(): void
     {
         $parser = new PhpDocParser();

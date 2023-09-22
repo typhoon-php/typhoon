@@ -33,6 +33,7 @@ final class PhpDocParsingVisitor extends NodeVisitorAbstract
             $node instanceof Node\Stmt\ClassLike
             || $node instanceof Node\Stmt\Property
             || $node instanceof Node\Stmt\ClassMethod
+            || $node instanceof Node\Param
         )) {
             return null;
         }

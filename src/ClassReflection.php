@@ -64,6 +64,7 @@ final class ClassReflection extends FriendlyReflection implements RootReflection
         private readonly bool $trait,
         private readonly int $modifiers,
         private readonly bool $anonymous,
+        private readonly bool $deprecated,
         private readonly ?Type\NamedObjectType $parentType,
         private readonly array $ownInterfaceTypes,
         private readonly array $ownProperties,
@@ -291,6 +292,11 @@ final class ClassReflection extends FriendlyReflection implements RootReflection
         return !$this->interface
             && !$this->isAbstract()
             && $this->implementsInterface(\Traversable::class);
+    }
+
+    public function isDeprecated(): bool
+    {
+        return $this->deprecated;
     }
 
     /**

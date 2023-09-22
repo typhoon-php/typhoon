@@ -252,7 +252,7 @@ final class ReflectorCompatibilityTest extends TestCase
         self::assertSame($native->isAbstract(), $typhoon->isAbstract(), $messagePrefix . '.isAbstract()');
         self::assertSame($native->isClosure(), $typhoon->isClosure(), $messagePrefix . '.isClosure()');
         self::assertSame($native->isConstructor(), $typhoon->isConstructor(), $messagePrefix . '.isConstructor()');
-        // self::assertSame($native->isDeprecated(), $typhoon->isDeprecated(), $messagePrefix . '.isDeprecated()');
+        self::assertSame($native->isDeprecated(), $typhoon->isDeprecated(), $messagePrefix . '.isDeprecated()');
         self::assertSame($native->isDestructor(), $typhoon->isDestructor(), $messagePrefix . '.isDestructor()');
         self::assertSame($native->isFinal(), $typhoon->isFinal(), $messagePrefix . '.isFinal()');
         self::assertSame($native->isGenerator(), $typhoon->isGenerator(), $messagePrefix . '.isGenerator()');

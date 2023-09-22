@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Typhoon\Reflection\PhpDocParser;
 
+use PHPStan\PhpDocParser\Ast\PhpDoc\DeprecatedTagValueNode;
 use PHPStan\PhpDocParser\Ast\PhpDoc\ExtendsTagValueNode;
 use PHPStan\PhpDocParser\Ast\PhpDoc\ImplementsTagValueNode;
 use PHPStan\PhpDocParser\Ast\PhpDoc\ParamTagValueNode;
@@ -63,6 +64,17 @@ final class PhpDoc
             tagPrioritizer: new TagPrioritizer\PHPStanOverPsalmOverOthersTagPrioritizer(),
             tags: [],
         );
+    }
+
+    public function isDeprecated(): bool
+    {
+        foreach ($this->tags as $tag) {
+            if ($tag->value instanceof DeprecatedTagValueNode) {
+                return true;
+            }
+        }
+
+        return false;
     }
 
     public function varType(): ?TypeNode

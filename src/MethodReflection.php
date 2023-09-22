@@ -46,6 +46,7 @@ final class MethodReflection extends FriendlyReflection
         private readonly ?int $endLine,
         private readonly bool $returnsReference,
         private readonly bool $generator,
+        private readonly bool $deprecated,
         /** @readonly */
         private array $parameters,
         /** @readonly */
@@ -252,6 +253,11 @@ final class MethodReflection extends FriendlyReflection
     public function returnsReference(): bool
     {
         return $this->returnsReference;
+    }
+
+    public function isDeprecated(): bool
+    {
+        return $this->deprecated;
     }
 
     /**

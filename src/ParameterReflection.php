@@ -30,6 +30,7 @@ final class ParameterReflection extends FriendlyReflection
         private readonly bool $optional,
         private readonly bool $variadic,
         private readonly bool $promoted,
+        private readonly bool $deprecated,
         /** @readonly */
         private TypeReflection $type,
         private readonly ?int $startLine,
@@ -91,6 +92,11 @@ final class ParameterReflection extends FriendlyReflection
     public function isVariadic(): bool
     {
         return $this->variadic;
+    }
+
+    public function isDeprecated(): bool
+    {
+        return $this->deprecated;
     }
 
     public function __serialize(): array

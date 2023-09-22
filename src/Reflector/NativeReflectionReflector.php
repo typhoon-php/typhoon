@@ -46,6 +46,7 @@ final class NativeReflectionReflector
             trait: $class->isTrait(),
             modifiers: $class->getModifiers(),
             anonymous: $class->isAnonymous(),
+            deprecated: false,
             parentType: $this->reflectParent($class),
             ownInterfaceTypes: array_map(
                 static fn (string $interface): Type\NamedObjectType => types::object($interface),
@@ -103,6 +104,7 @@ final class NativeReflectionReflector
                     hasDefaultValue: $property->hasDefaultValue(),
                     promoted: $property->isPromoted(),
                     modifiers: $modifiers,
+                    deprecated: false,
                     type: $this->reflectType($property->getType(), $class->name),
                     startLine: null,
                     endLine: null,
@@ -137,6 +139,7 @@ final class NativeReflectionReflector
                     endLine: $method->getEndLine() ?: null,
                     returnsReference: $method->returnsReference(),
                     generator: $method->isGenerator(),
+                    deprecated: $method->isDeprecated(),
                     parameters: $this->reflectParameters($method, $class->name),
                     returnType: $this->reflectType($method->getReturnType(), $class->name),
                 );
@@ -168,6 +171,7 @@ final class NativeReflectionReflector
                 optional: $parameter->isOptional(),
                 variadic: $parameter->isVariadic(),
                 promoted: $parameter->isPromoted(),
+                deprecated: false,
                 type: $this->reflectType($parameter->getType(), $class),
                 startLine: null,
                 endLine: null,

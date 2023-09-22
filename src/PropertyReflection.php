@@ -35,6 +35,7 @@ final class PropertyReflection extends FriendlyReflection
         private readonly bool $hasDefaultValue,
         private readonly bool $promoted,
         private readonly int $modifiers,
+        private readonly bool $deprecated,
         /** @readonly */
         private TypeReflection $type,
         private readonly ?int $startLine,
@@ -120,6 +121,11 @@ final class PropertyReflection extends FriendlyReflection
     public function isPromoted(): bool
     {
         return $this->promoted;
+    }
+
+    public function isDeprecated(): bool
+    {
+        return $this->deprecated;
     }
 
     public function setValue(?object $object, mixed $value): void

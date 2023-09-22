@@ -61,6 +61,7 @@ final class PhpParserReflector
             trait: $node instanceof Stmt\Trait_,
             modifiers: $this->reflectClassModifiers($node),
             anonymous: $node->name === null,
+            deprecated: $phpDoc->isDeprecated(),
             parentType: $this->reflectParent($node, $phpDoc),
             ownInterfaceTypes: $this->reflectOwnInterfaceTypes($node, $phpDoc),
             ownProperties: $this->reflectOwnProperties(class: $name, classNode: $node),
@@ -80,6 +81,7 @@ final class PhpParserReflector
             hasDefaultValue: false,
             promoted: false,
             modifiers: PropertyReflection::IS_PUBLIC + PropertyReflection::IS_READONLY,
+            deprecated: false,
             type: new TypeReflection(native: types::string, phpDoc: types::nonEmptyString),
             startLine: null,
             endLine: null,
@@ -204,6 +206,7 @@ final class PhpParserReflector
                     hasDefaultValue: $property->default !== null || $node->type === null,
                     promoted: false,
                     modifiers: $this->reflectPropertyModifiers($node, $classReadOnly),
+                    deprecated: $phpDoc->isDeprecated(),
                     type: $type,
                     startLine: $node->getStartLine() > 0 ? $node->getStartLine() : null,
                     endLine: $node->getEndLine() > 0 ? $node->getEndLine() : null,
@@ -235,6 +238,7 @@ final class PhpParserReflector
                 hasDefaultValue: $node->default !== null || $node->type === null,
                 promoted: true,
                 modifiers: $modifiers,
+                deprecated: $phpDoc->isDeprecated(),
                 type: $this->reflectType($node->type, $phpDoc->paramTypes()[$name] ?? null),
                 startLine: $node->getStartLine() > 0 ? $node->getStartLine() : null,
                 endLine: $node->getEndLine() > 0 ? $node->getEndLine() : null,
@@ -309,6 +313,7 @@ final class PhpParserReflector
                     endLine: $node->getEndLine() > 0 ? $node->getEndLine() : null,
                     returnsReference: $node->byRef,
                     generator: $this->reflectIsGenerator($node),
+                    deprecated: $phpDoc->isDeprecated(),
                     parameters: $this->reflectParameters([$class, $name], $node->params, $phpDoc),
                     returnType: $this->reflectType($node->returnType, $phpDoc->returnType()),
                 );
@@ -371,7 +376,7 @@ final class PhpParserReflector
      * @param array<Node\Param> $nodes
      * @return list<ParameterReflection>
      */
-    private function reflectParameters(string|array $function, array $nodes, PhpDoc $phpDoc): array
+    private function reflectParameters(string|array $function, array $nodes, PhpDoc $methodPhpDoc): array
     {
         $parameters = [];
         $isOptional = false;
@@ -379,6 +384,7 @@ final class PhpParserReflector
         foreach (array_values($nodes) as $position => $node) {
             \assert($node->var instanceof Expr\Variable && \is_string($node->var->name));
             $name = $node->var->name;
+            $phpDoc = PhpDocParsingVisitor::fromNode($node);
             $isOptional = $isOptional || $node->default !== null || $node->variadic;
             $parameters[] = new ParameterReflection(
                 function: $function,
@@ -389,7 +395,8 @@ final class PhpParserReflector
                 optional: $isOptional,
                 variadic: $node->variadic,
                 promoted: $this->isParameterPromoted($node),
-                type: $this->reflectType($node->type, $phpDoc->paramTypes()[$name] ?? null),
+                deprecated: $phpDoc->isDeprecated(),
+                type: $this->reflectType($node->type, $methodPhpDoc->paramTypes()[$name] ?? null),
                 startLine: $node->getStartLine() > 0 ? $node->getStartLine() : null,
                 endLine: $node->getEndLine() > 0 ? $node->getEndLine() : null,
             );
@@ -540,6 +547,7 @@ final class PhpParserReflector
             hasDefaultValue: false,
             promoted: false,
             modifiers: PropertyReflection::IS_PUBLIC + PropertyReflection::IS_READONLY,
+            deprecated: false,
             type: $this->reflectType($scalarType, null),
             startLine: null,
             endLine: null,
@@ -564,6 +572,7 @@ final class PhpParserReflector
             endLine: null,
             returnsReference: false,
             generator: false,
+            deprecated: false,
             parameters: [],
             returnType: new TypeReflection(types::array(), types::list(types::object($class))),
         );
@@ -591,6 +600,7 @@ final class PhpParserReflector
                 endLine: null,
                 returnsReference: false,
                 generator: false,
+                deprecated: false,
                 parameters: [
                     new ParameterReflection(
                         function: [$class, 'from'],
@@ -601,6 +611,7 @@ final class PhpParserReflector
                         optional: false,
                         variadic: false,
                         promoted: false,
+                        deprecated: false,
                         type: $valueType,
                         startLine: null,
                         endLine: null,
@@ -621,6 +632,7 @@ final class PhpParserReflector
                 endLine: null,
                 returnsReference: false,
                 generator: false,
+                deprecated: false,
                 parameters: [
                     new ParameterReflection(
                         function: [$class, 'tryFrom'],
@@ -631,6 +643,7 @@ final class PhpParserReflector
                         optional: false,
                         variadic: false,
                         promoted: false,
+                        deprecated: false,
                         type: $valueType,
                         startLine: null,
                         endLine: null,
