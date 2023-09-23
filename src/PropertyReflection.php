@@ -4,14 +4,14 @@ declare(strict_types=1);
 
 namespace Typhoon\Reflection;
 
-use Typhoon\Reflection\Reflector\FriendlyReflection;
+use Typhoon\Reflection\Reflector\Reflection;
 use Typhoon\Reflection\TypeResolver\ClassTemplateResolver;
 use Typhoon\Reflection\TypeResolver\StaticResolver;
 
 /**
  * @api
  */
-final class PropertyReflection extends FriendlyReflection
+final class PropertyReflection extends Reflection
 {
     public const IS_PUBLIC = \ReflectionProperty::IS_PUBLIC;
     public const IS_PROTECTED = \ReflectionProperty::IS_PROTECTED;
@@ -199,5 +199,10 @@ final class PropertyReflection extends FriendlyReflection
         $property->type = $this->type->resolve($typeResolver);
 
         return $property;
+    }
+
+    protected function childReflections(): iterable
+    {
+        yield $this->type;
     }
 }

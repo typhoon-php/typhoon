@@ -4,14 +4,14 @@ declare(strict_types=1);
 
 namespace Typhoon\Reflection;
 
-use Typhoon\Reflection\Reflector\FriendlyReflection;
+use Typhoon\Reflection\Reflector\Reflection;
 use Typhoon\Reflection\TypeResolver\ClassTemplateResolver;
 use Typhoon\Reflection\TypeResolver\StaticResolver;
 
 /**
  * @api
  */
-final class MethodReflection extends FriendlyReflection
+final class MethodReflection extends Reflection
 {
     public const IS_FINAL = \ReflectionMethod::IS_FINAL;
     public const IS_ABSTRACT = \ReflectionMethod::IS_ABSTRACT;
@@ -411,5 +411,12 @@ final class MethodReflection extends FriendlyReflection
         $method->returnType = $method->returnType->resolve($typeResolver);
 
         return $method;
+    }
+
+    protected function childReflections(): iterable
+    {
+        yield from $this->templates;
+        yield from $this->parameters;
+        yield $this->returnType;
     }
 }

@@ -11,7 +11,6 @@ use Typhoon\Reflection\ClassReflection;
 use Typhoon\Reflection\MethodReflection;
 use Typhoon\Reflection\ParameterReflection;
 use Typhoon\Reflection\PropertyReflection;
-use Typhoon\Reflection\ReflectionContext;
 use Typhoon\Reflection\ReflectionException;
 use Typhoon\Reflection\TypeReflection;
 use Typhoon\Type;
@@ -28,10 +27,9 @@ final class NativeReflectionReflector
      * @param \ReflectionClass<T> $class
      * @return ClassReflection<T>
      */
-    public function reflectClass(\ReflectionClass $class, ReflectionContext $reflectionContext): ClassReflection
+    public function reflectClass(\ReflectionClass $class): ClassReflection
     {
         return new ClassReflection(
-            reflectionContext: $reflectionContext,
             name: $class->name,
             changeDetector: $this->reflectChangeDetector($class),
             internal: $class->isInternal(),
@@ -158,16 +156,17 @@ final class NativeReflectionReflector
     private function reflectParameters(\ReflectionFunctionAbstract $function, ?string $class): array
     {
         $parameters = [];
-        /** @var callable-string|array{class-string, non-empty-string} */
-        $reflectedFunction = $function instanceof \ReflectionMethod ? [$function->class, $function->name] : $function->name;
 
         foreach ($function->getParameters() as $parameter) {
             /** @var int<0, max> */
             $position = $parameter->getPosition();
+            /** @var non-empty-string */
+            $functionOrMethod = $function->name;
             $parameters[] = new ParameterReflection(
-                function: $reflectedFunction,
                 position: $position,
                 name: $parameter->name,
+                class: $class,
+                functionOrMethod: $functionOrMethod,
                 passedByReference: $parameter->isPassedByReference(),
                 defaultValueAvailable: $parameter->isDefaultValueAvailable(),
                 optional: $parameter->isOptional(),

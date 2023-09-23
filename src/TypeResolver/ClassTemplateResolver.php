@@ -27,6 +27,7 @@ final class ClassTemplateResolver implements TypeVisitor
 
     /**
      * @psalm-pure
+     * @psalm-suppress ImpurePropertyFetch
      * @param class-string $class
      * @param non-empty-array<TemplateReflection> $templates
      * @param array<Type\Type> $templateArguments

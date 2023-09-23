@@ -4,28 +4,30 @@ declare(strict_types=1);
 
 namespace Typhoon\Reflection;
 
-use Typhoon\Reflection\Reflector\FriendlyReflection;
+use Typhoon\Reflection\Reflector\Reflection;
 use Typhoon\Reflection\TypeResolver\ClassTemplateResolver;
 use Typhoon\Reflection\TypeResolver\StaticResolver;
 
 /**
  * @api
  */
-final class ParameterReflection extends FriendlyReflection
+final class ParameterReflection extends Reflection
 {
     /**
      * @internal
      * @psalm-internal Typhoon\Reflection
-     * @param callable-string|array{class-string, non-empty-string} $function
+     * @param ?class-string $class
+     * @param non-empty-string $functionOrMethod
      * @param int<0, max> $position
      * @param non-empty-string $name
      * @param ?positive-int $startLine
      * @param ?positive-int $endLine
      */
     public function __construct(
-        private readonly string|array $function,
         private readonly int $position,
         public readonly string $name,
+        private readonly ?string $class,
+        private readonly string $functionOrMethod,
         private readonly bool $passedByReference,
         private readonly bool $defaultValueAvailable,
         private readonly bool $optional,
@@ -143,16 +145,12 @@ final class ParameterReflection extends FriendlyReflection
         return $this->endLine;
     }
 
-    public function __clone()
-    {
-        if ((debug_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS, 2)[1]['class'] ?? null) !== self::class) {
-            throw new ReflectionException();
-        }
-    }
-
     public function getNativeReflection(): \ReflectionParameter
     {
-        return $this->nativeReflection ??= new \ReflectionParameter($this->function, $this->name);
+        return $this->nativeReflection ??= new \ReflectionParameter(
+            $this->class === null ? $this->functionOrMethod : [$this->class, $this->functionOrMethod],
+            $this->name,
+        );
     }
 
     public function resolvedTypes(ClassTemplateResolver|StaticResolver $typeResolver): self
@@ -161,5 +159,10 @@ final class ParameterReflection extends FriendlyReflection
         $parameter->type = $this->type->resolve($typeResolver);
 
         return $parameter;
+    }
+
+    protected function childReflections(): iterable
+    {
+        yield $this->type;
     }
 }

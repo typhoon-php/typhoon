@@ -10,12 +10,12 @@ use Typhoon\Reflection\ChangeDetector;
  * @internal
  * @psalm-internal Typhoon\Reflection
  */
-interface RootReflection
+abstract class RootReflection extends Reflection
 {
     /**
      * @return non-empty-string
      */
-    public function getName(): string;
+    abstract public function getName(): string;
 
-    public function getChangeDetector(): ChangeDetector;
+    abstract public function getChangeDetector(): ChangeDetector;
 }

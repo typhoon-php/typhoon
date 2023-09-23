@@ -46,7 +46,6 @@ final class PhpParserReflector
         $phpDoc = PhpDocParsingVisitor::fromNode($node);
 
         return new ClassReflection(
-            reflectionContext: $this->reflectionContext,
             name: $name,
             changeDetector: $this->resource->changeDetector,
             internal: $this->resource->isInternal(),
@@ -314,7 +313,7 @@ final class PhpParserReflector
                     returnsReference: $node->byRef,
                     generator: $this->reflectIsGenerator($node),
                     deprecated: $phpDoc->isDeprecated(),
-                    parameters: $this->reflectParameters([$class, $name], $node->params, $phpDoc),
+                    parameters: $this->reflectParameters($class, $name, $node->params, $phpDoc),
                     returnType: $this->reflectType($node->returnType, $phpDoc->returnType()),
                 );
             } finally {
@@ -372,11 +371,12 @@ final class PhpParserReflector
     }
 
     /**
-     * @param callable-string|array{class-string, non-empty-string} $function
+     * @param ?class-string $class
+     * @param non-empty-string $functionOrMethod
      * @param array<Node\Param> $nodes
      * @return list<ParameterReflection>
      */
-    private function reflectParameters(string|array $function, array $nodes, PhpDoc $methodPhpDoc): array
+    private function reflectParameters(?string $class, string $functionOrMethod, array $nodes, PhpDoc $methodPhpDoc): array
     {
         $parameters = [];
         $isOptional = false;
@@ -387,9 +387,10 @@ final class PhpParserReflector
             $phpDoc = PhpDocParsingVisitor::fromNode($node);
             $isOptional = $isOptional || $node->default !== null || $node->variadic;
             $parameters[] = new ParameterReflection(
-                function: $function,
                 position: $position,
                 name: $name,
+                class: $class,
+                functionOrMethod: $functionOrMethod,
                 passedByReference: $node->byRef,
                 defaultValueAvailable: $node->default !== null,
                 optional: $isOptional,
@@ -603,9 +604,10 @@ final class PhpParserReflector
                 deprecated: false,
                 parameters: [
                     new ParameterReflection(
-                        function: [$class, 'from'],
                         position: 0,
                         name: 'value',
+                        class: $class,
+                        functionOrMethod: 'from',
                         passedByReference: false,
                         defaultValueAvailable: false,
                         optional: false,
@@ -635,9 +637,10 @@ final class PhpParserReflector
                 deprecated: false,
                 parameters: [
                     new ParameterReflection(
-                        function: [$class, 'tryFrom'],
                         position: 0,
                         name: 'value',
+                        class: $class,
+                        functionOrMethod: 'tryFrom',
                         passedByReference: false,
                         defaultValueAvailable: false,
                         optional: false,

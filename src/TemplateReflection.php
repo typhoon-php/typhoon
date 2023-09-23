@@ -4,14 +4,14 @@ declare(strict_types=1);
 
 namespace Typhoon\Reflection;
 
+use Typhoon\Reflection\Reflector\Reflection;
 use Typhoon\Type\Type;
 use Typhoon\Type\types;
 
 /**
  * @api
- * @psalm-immutable
  */
-final class TemplateReflection
+final class TemplateReflection extends Reflection
 {
     /**
      * @internal
@@ -55,5 +55,10 @@ final class TemplateReflection
     public function __clone()
     {
         throw new ReflectionException();
+    }
+
+    protected function childReflections(): iterable
+    {
+        return [];
     }
 }

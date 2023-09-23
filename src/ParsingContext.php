@@ -13,7 +13,7 @@ interface ParsingContext
 
     /**
      * @param non-empty-string $name
-     * @param callable(ReflectionContext): ClassReflection $reflector
+     * @param callable(): ClassReflection $reflector
      */
     public function registerClassReflector(string $name, callable $reflector): void;
 }

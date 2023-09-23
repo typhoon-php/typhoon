@@ -7,7 +7,6 @@ namespace Typhoon\Reflection\ClassLoader;
 use Typhoon\Reflection\ClassLoader;
 use Typhoon\Reflection\ClassReflection;
 use Typhoon\Reflection\ParsingContext;
-use Typhoon\Reflection\ReflectionContext;
 use Typhoon\Reflection\Reflector\NativeReflectionReflector;
 
 /**
@@ -37,8 +36,8 @@ final class NativeReflectionClassLoader implements ClassLoader
         }
 
         $parsingContext->registerClassReflector(
-            $name,
-            fn (ReflectionContext $reflectionContext): ClassReflection => $this->nativeReflectionReflector->reflectClass($reflectionClass, $reflectionContext),
+            name: $name,
+            reflector: fn (): ClassReflection => $this->nativeReflectionReflector->reflectClass($reflectionClass),
         );
 
         return true;

@@ -21,7 +21,7 @@ use Typhoon\Reflection\ReflectionException;
 final class DiscoveringVisitor extends NodeVisitorAbstract
 {
     public function __construct(
-        private readonly ParsingContext $parsingContext,
+        private readonly ParsingContext&ReflectionContext $context,
         private readonly NameContext $nameContext,
         private readonly Resource $resource,
     ) {}
@@ -31,10 +31,10 @@ final class DiscoveringVisitor extends NodeVisitorAbstract
         if ($node instanceof Stmt\ClassLike) {
             $name = $this->resolveClassName($node);
             $nameContext = clone $this->nameContext;
-            $this->parsingContext->registerClassReflector(
+            $this->context->registerClassReflector(
                 name: $name,
-                reflector: fn (ReflectionContext $reflectionContext): ClassReflection => (new PhpParserReflector(
-                    reflectionContext: $reflectionContext,
+                reflector: fn (): ClassReflection => (new PhpParserReflector(
+                    reflectionContext: $this->context,
                     nameContext: $nameContext,
                     resource: $this->resource,
                 ))->reflectClass($node, $name),

@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace Typhoon\Reflection;
 
-use Typhoon\Reflection\Reflector\FriendlyReflection;
 use Typhoon\Reflection\Reflector\RootReflection;
 use Typhoon\Reflection\TypeResolver\ClassTemplateResolver;
 use Typhoon\Reflection\TypeResolver\StaticResolver;
@@ -14,7 +13,7 @@ use Typhoon\Type;
  * @api
  * @template-covariant T of object
  */
-final class ClassReflection extends FriendlyReflection implements RootReflection
+final class ClassReflection extends RootReflection
 {
     public const IS_IMPLICIT_ABSTRACT = \ReflectionClass::IS_IMPLICIT_ABSTRACT;
     public const IS_EXPLICIT_ABSTRACT = \ReflectionClass::IS_EXPLICIT_ABSTRACT;
@@ -48,7 +47,6 @@ final class ClassReflection extends FriendlyReflection implements RootReflection
      * @param ?\ReflectionClass<T> $nativeReflection
      */
     public function __construct(
-        private readonly ReflectionContext $reflectionContext,
         public readonly string $name,
         private readonly ChangeDetector $changeDetector,
         private readonly bool $internal,
@@ -640,6 +638,13 @@ final class ClassReflection extends FriendlyReflection implements RootReflection
     public function getNativeReflection(): \ReflectionClass
     {
         return $this->nativeReflection ??= new \ReflectionClass($this->name);
+    }
+
+    protected function childReflections(): iterable
+    {
+        yield from $this->templates;
+        yield from $this->ownProperties;
+        yield from $this->ownMethods;
     }
 
     private function resolvedTypes(ClassTemplateResolver|StaticResolver $typeResolver): self

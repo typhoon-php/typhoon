@@ -29,18 +29,26 @@ final class Context implements ParsingContext, ReflectionContext
     private array $parsedFiles = [];
 
     /**
-     * @var array<class-string<RootReflection>, array<non-empty-string, false|RootReflection|callable(self): RootReflection>>
+     * @var array<class-string<RootReflection>, array<non-empty-string, false|RootReflection|callable(): RootReflection>>
      */
     private array $reflections = [];
 
-    private ?\ReflectionProperty $classReflectionContextProperty = null;
+    /**
+     * @var \Closure(Reflection): void
+     */
+    private \Closure $reflectionLoader;
 
     public function __construct(
         private readonly ClassLoader $classLoader,
         private readonly PhpParser $phpParser,
         private readonly PhpDocParser $phpDocParser,
         private readonly ReflectionCache $cache = new NullReflectionCache(),
-    ) {}
+    ) {
+        $loadMethod = new \ReflectionMethod(Reflection::class, 'load');
+        $this->reflectionLoader = function (Reflection $reflection) use ($loadMethod): void {
+            $loadMethod->invoke($reflection, $this);
+        };
+    }
 
     public function parseFile(string $file, ?string $extension = null): void
     {
@@ -70,7 +78,7 @@ final class Context implements ParsingContext, ReflectionContext
             new PhpDocParsingVisitor($this->phpDocParser),
             $nameContextVisitor,
             new DiscoveringVisitor(
-                parsingContext: $this,
+                context: $this,
                 nameContext: $nameContext,
                 resource: $resource,
             ),
@@ -139,10 +147,10 @@ final class Context implements ParsingContext, ReflectionContext
      * @template TReflection of RootReflection
      * @param class-string<TReflection> $class
      * @param non-empty-string $name
-     * @param \Closure(): void $reflect
+     * @param \Closure(): void $parse
      * @return ?TReflection
      */
-    private function resolveReflection(string $class, string $name, \Closure $reflect): ?RootReflection
+    private function resolveReflection(string $class, string $name, \Closure $parse): ?RootReflection
     {
         $reflection = $this->reflections[$class][$name] ?? null;
 
@@ -156,7 +164,8 @@ final class Context implements ParsingContext, ReflectionContext
 
         if (\is_callable($reflection)) {
             /** @var TReflection */
-            $reflection = $reflection($this);
+            $reflection = $reflection();
+            ($this->reflectionLoader)($reflection);
             $this->cache->addReflection($reflection);
 
             return $this->reflections[$class][$name] = $reflection;
@@ -165,7 +174,7 @@ final class Context implements ParsingContext, ReflectionContext
         $cachedReflection = $this->cache->getReflection($class, $name);
 
         if ($cachedReflection !== null) {
-            $this->loadCachedReflection($cachedReflection);
+            ($this->reflectionLoader)($cachedReflection);
 
             /** @var TReflection */
             return $this->reflections[$class][$name] = $cachedReflection;
@@ -173,9 +182,9 @@ final class Context implements ParsingContext, ReflectionContext
 
         $this->reflections[$class][$name] = false;
 
-        $reflect();
+        $parse();
 
-        /** @var false|RootReflection|callable(self): RootReflection */
+        /** @var false|RootReflection|callable(): RootReflection */
         $reflection = $this->reflections[$class][$name] ?? false;
 
         if ($reflection instanceof $class) {
@@ -184,29 +193,13 @@ final class Context implements ParsingContext, ReflectionContext
 
         if (\is_callable($reflection)) {
             /** @var TReflection */
-            $reflection = $reflection($this);
+            $reflection = $reflection();
+            ($this->reflectionLoader)($reflection);
             $this->cache->addReflection($reflection);
 
             return $this->reflections[$class][$name] = $reflection;
         }
 
         return null;
-    }
-
-    private function loadCachedReflection(RootReflection $reflection): void
-    {
-        if (!$reflection instanceof ClassReflection) {
-            return;
-        }
-
-        $property = $this->classReflectionContextProperty ??= new \ReflectionProperty(ClassReflection::class, 'reflectionContext');
-
-        try {
-            $property->setValue($reflection, $this);
-        } catch (\Error) {
-            if ($property->getValue($reflection) !== $this) {
-                throw new ReflectionException();
-            }
-        }
     }
 }
