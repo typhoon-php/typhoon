@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace Typhoon\Reflection;
 
-use Typhoon\Reflection\Reflector\Reflection;
 use Typhoon\Reflection\TypeResolver\ClassTemplateResolver;
 use Typhoon\Reflection\TypeResolver\StaticResolver;
 use Typhoon\Type\Type;
@@ -13,7 +12,7 @@ use Typhoon\Type\types;
 /**
  * @api
  */
-final class TypeReflection extends Reflection
+final class TypeReflection
 {
     private function __construct(
         private readonly ?Type $native,
@@ -79,9 +78,9 @@ final class TypeReflection extends Reflection
         );
     }
 
-    protected function childReflections(): iterable
+    public function __serialize(): array
     {
-        return [];
+        return get_object_vars($this);
     }
 
     private function __clone() {}

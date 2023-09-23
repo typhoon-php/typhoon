@@ -4,20 +4,25 @@ declare(strict_types=1);
 
 namespace Typhoon\Reflection;
 
-use Typhoon\Reflection\Reflector\Reflection;
+use Typhoon\Reflection\Reflector\ContextAwareReflection;
 use Typhoon\Reflection\TypeResolver\ClassTemplateResolver;
 use Typhoon\Reflection\TypeResolver\StaticResolver;
 
 /**
  * @api
  */
-final class PropertyReflection extends Reflection
+final class PropertyReflection extends ContextAwareReflection
 {
     public const IS_PUBLIC = \ReflectionProperty::IS_PUBLIC;
     public const IS_PROTECTED = \ReflectionProperty::IS_PROTECTED;
     public const IS_PRIVATE = \ReflectionProperty::IS_PRIVATE;
     public const IS_STATIC = \ReflectionProperty::IS_STATIC;
     public const IS_READONLY = \ReflectionProperty::IS_READONLY;
+
+    /**
+     * @psalm-suppress PropertyNotSetInConstructor
+     */
+    private readonly ReflectionContext $reflectionContext;
 
     /**
      * @internal
@@ -173,10 +178,10 @@ final class PropertyReflection extends Reflection
 
     public function __serialize(): array
     {
-        $data = get_object_vars($this);
-        unset($data['nativeReflection']);
-
-        return $data;
+        return array_diff_key(get_object_vars($this), [
+            'reflectionContext' => null,
+            'nativeReflection' => null,
+        ]);
     }
 
     public function __unserialize(array $data): void
@@ -198,7 +203,7 @@ final class PropertyReflection extends Reflection
         return $this->nativeReflection ??= new \ReflectionProperty($this->class, $this->name);
     }
 
-    public function resolvedTypes(ClassTemplateResolver|StaticResolver $typeResolver): self
+    public function resolveTypes(ClassTemplateResolver|StaticResolver $typeResolver): self
     {
         $property = clone $this;
         $property->type = $this->type->resolve($typeResolver);
@@ -206,8 +211,9 @@ final class PropertyReflection extends Reflection
         return $property;
     }
 
-    protected function childReflections(): iterable
+    protected function setContext(ReflectionContext $reflectionContext): void
     {
-        yield $this->type;
+        /** @psalm-suppress InaccessibleProperty */
+        $this->reflectionContext = $reflectionContext;
     }
 }

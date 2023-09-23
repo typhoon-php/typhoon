@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Typhoon\Reflection;
 
+use Typhoon\Reflection\Reflector\ContextAwareReflection;
 use Typhoon\Reflection\Reflector\RootReflection;
 use Typhoon\Reflection\TypeResolver\ClassTemplateResolver;
 use Typhoon\Reflection\TypeResolver\StaticResolver;
@@ -13,7 +14,7 @@ use Typhoon\Type;
  * @api
  * @template-covariant T of object
  */
-final class ClassReflection extends RootReflection
+final class ClassReflection extends ContextAwareReflection implements RootReflection
 {
     public const IS_IMPLICIT_ABSTRACT = \ReflectionClass::IS_IMPLICIT_ABSTRACT;
     public const IS_EXPLICIT_ABSTRACT = \ReflectionClass::IS_EXPLICIT_ABSTRACT;
@@ -29,6 +30,11 @@ final class ClassReflection extends RootReflection
      * @var ?array<non-empty-string, MethodReflection>
      */
     private ?array $methodsIndexedByName = null;
+
+    /**
+     * @psalm-suppress PropertyNotSetInConstructor
+     */
+    private readonly ReflectionContext $reflectionContext;
 
     /**
      * @internal
@@ -612,10 +618,12 @@ final class ClassReflection extends RootReflection
 
     public function __serialize(): array
     {
-        $vars = get_object_vars($this);
-        unset($vars['reflectionContext'], $vars['propertiesIndexedByName'], $vars['methodsIndexedByName'], $vars['nativeReflection']);
-
-        return $vars;
+        return array_diff_key(get_object_vars($this), [
+            'propertiesIndexedByName' => null,
+            'methodsIndexedByName' => null,
+            'reflectionContext' => null,
+            'nativeReflection' => null,
+        ]);
     }
 
     public function __unserialize(array $data): void
@@ -640,22 +648,25 @@ final class ClassReflection extends RootReflection
         return $this->nativeReflection ??= new \ReflectionClass($this->name);
     }
 
-    protected function childReflections(): iterable
+    protected function setContext(ReflectionContext $reflectionContext): void
     {
-        yield from $this->templates;
-        yield from $this->ownProperties;
-        yield from $this->ownMethods;
+        /** @psalm-suppress InaccessibleProperty */
+        $this->reflectionContext = $reflectionContext;
+
+        foreach ([...$this->ownProperties, ...$this->ownMethods] as $reflection) {
+            $reflection->setContext($reflectionContext);
+        }
     }
 
     private function resolvedTypes(ClassTemplateResolver|StaticResolver $typeResolver): self
     {
         $class = clone $this;
         $class->propertiesIndexedByName = array_map(
-            static fn (PropertyReflection $property): PropertyReflection => $property->resolvedTypes($typeResolver),
+            static fn (PropertyReflection $property): PropertyReflection => $property->resolveTypes($typeResolver),
             $this->getPropertiesIndexedByName(),
         );
         $class->methodsIndexedByName = array_map(
-            static fn (MethodReflection $method): MethodReflection => $method->resolvedTypes($typeResolver),
+            static fn (MethodReflection $method): MethodReflection => $method->resolveTypes($typeResolver),
             $this->getMethodsIndexedByName(),
         );
 

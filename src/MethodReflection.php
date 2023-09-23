@@ -4,14 +4,14 @@ declare(strict_types=1);
 
 namespace Typhoon\Reflection;
 
-use Typhoon\Reflection\Reflector\Reflection;
+use Typhoon\Reflection\Reflector\ContextAwareReflection;
 use Typhoon\Reflection\TypeResolver\ClassTemplateResolver;
 use Typhoon\Reflection\TypeResolver\StaticResolver;
 
 /**
  * @api
  */
-final class MethodReflection extends Reflection
+final class MethodReflection extends ContextAwareReflection
 {
     public const IS_FINAL = \ReflectionMethod::IS_FINAL;
     public const IS_ABSTRACT = \ReflectionMethod::IS_ABSTRACT;
@@ -19,6 +19,11 @@ final class MethodReflection extends Reflection
     public const IS_PROTECTED = \ReflectionMethod::IS_PROTECTED;
     public const IS_PRIVATE = \ReflectionMethod::IS_PRIVATE;
     public const IS_STATIC = \ReflectionMethod::IS_STATIC;
+
+    /**
+     * @psalm-suppress PropertyNotSetInConstructor
+     */
+    private readonly ReflectionContext $reflectionContext;
 
     /**
      * @internal
@@ -381,10 +386,10 @@ final class MethodReflection extends Reflection
 
     public function __serialize(): array
     {
-        $data = get_object_vars($this);
-        unset($data['nativeReflection']);
-
-        return $data;
+        return array_diff_key(get_object_vars($this), [
+            'reflectionContext' => null,
+            'nativeReflection' => null,
+        ]);
     }
 
     public function __unserialize(array $data): void
@@ -406,11 +411,11 @@ final class MethodReflection extends Reflection
         return $this->nativeReflection ??= new \ReflectionMethod($this->class, $this->name);
     }
 
-    public function resolvedTypes(ClassTemplateResolver|StaticResolver $typeResolver): self
+    public function resolveTypes(ClassTemplateResolver|StaticResolver $typeResolver): self
     {
         $method = clone $this;
         $method->parameters = array_map(
-            static fn (ParameterReflection $parameter): ParameterReflection => $parameter->resolvedTypes($typeResolver),
+            static fn (ParameterReflection $parameter): ParameterReflection => $parameter->resolveTypes($typeResolver),
             $this->parameters,
         );
         $method->returnType = $method->returnType->resolve($typeResolver);
@@ -418,10 +423,13 @@ final class MethodReflection extends Reflection
         return $method;
     }
 
-    protected function childReflections(): iterable
+    protected function setContext(ReflectionContext $reflectionContext): void
     {
-        yield from $this->templates;
-        yield from $this->parameters;
-        yield $this->returnType;
+        /** @psalm-suppress InaccessibleProperty */
+        $this->reflectionContext = $reflectionContext;
+
+        foreach ($this->parameters as $parameter) {
+            $parameter->setContext($reflectionContext);
+        }
     }
 }

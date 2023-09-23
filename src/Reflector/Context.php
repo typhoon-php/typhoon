@@ -34,21 +34,16 @@ final class Context implements ParsingContext, ReflectionContext
     private array $reflections = [];
 
     /**
-     * @var \Closure(Reflection): void
+     * @var array<class-string, \ReflectionMethod>
      */
-    private \Closure $reflectionLoader;
+    private array $setContextReflections = [];
 
     public function __construct(
         private readonly ClassLoader $classLoader,
         private readonly PhpParser $phpParser,
         private readonly PhpDocParser $phpDocParser,
         private readonly ReflectionCache $cache = new NullReflectionCache(),
-    ) {
-        $loadMethod = new \ReflectionMethod(Reflection::class, 'load');
-        $this->reflectionLoader = function (Reflection $reflection) use ($loadMethod): void {
-            $loadMethod->invoke($reflection, $this);
-        };
-    }
+    ) {}
 
     public function parseFile(string $file, ?string $extension = null): void
     {
@@ -143,6 +138,11 @@ final class Context implements ParsingContext, ReflectionContext
         }) ?? throw new ReflectionException();
     }
 
+    public function __serialize(): array
+    {
+        throw new ReflectionException();
+    }
+
     /**
      * @template TReflection of RootReflection
      * @param class-string<TReflection> $class
@@ -165,7 +165,7 @@ final class Context implements ParsingContext, ReflectionContext
         if (\is_callable($reflection)) {
             /** @var TReflection */
             $reflection = $reflection();
-            ($this->reflectionLoader)($reflection);
+            $this->setReflectionContext($reflection);
             $this->cache->addReflection($reflection);
 
             return $this->reflections[$class][$name] = $reflection;
@@ -174,7 +174,7 @@ final class Context implements ParsingContext, ReflectionContext
         $cachedReflection = $this->cache->getReflection($class, $name);
 
         if ($cachedReflection !== null) {
-            ($this->reflectionLoader)($cachedReflection);
+            $this->setReflectionContext($cachedReflection);
 
             /** @var TReflection */
             return $this->reflections[$class][$name] = $cachedReflection;
@@ -194,7 +194,7 @@ final class Context implements ParsingContext, ReflectionContext
         if (\is_callable($reflection)) {
             /** @var TReflection */
             $reflection = $reflection();
-            ($this->reflectionLoader)($reflection);
+            $this->setReflectionContext($reflection);
             $this->cache->addReflection($reflection);
 
             return $this->reflections[$class][$name] = $reflection;
@@ -202,4 +202,11 @@ final class Context implements ParsingContext, ReflectionContext
 
         return null;
     }
+
+    private function setReflectionContext(RootReflection $reflection): void
+    {
+        ($this->setContextReflections[$reflection::class] ??= (new \ReflectionMethod($reflection, 'setContext')))->invoke($reflection, $this);
+    }
+
+    private function __clone() {}
 }

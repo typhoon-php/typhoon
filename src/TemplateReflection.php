@@ -4,14 +4,13 @@ declare(strict_types=1);
 
 namespace Typhoon\Reflection;
 
-use Typhoon\Reflection\Reflector\Reflection;
 use Typhoon\Type\Type;
 use Typhoon\Type\types;
 
 /**
  * @api
  */
-final class TemplateReflection extends Reflection
+final class TemplateReflection
 {
     /**
      * @internal
@@ -52,13 +51,10 @@ final class TemplateReflection extends Reflection
         return $this->variance;
     }
 
-    public function __clone()
+    public function __serialize(): array
     {
-        throw new ReflectionException();
+        return get_object_vars($this);
     }
 
-    protected function childReflections(): iterable
-    {
-        return [];
-    }
+    private function __clone() {}
 }

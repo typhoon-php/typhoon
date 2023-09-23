@@ -4,15 +4,20 @@ declare(strict_types=1);
 
 namespace Typhoon\Reflection;
 
-use Typhoon\Reflection\Reflector\Reflection;
+use Typhoon\Reflection\Reflector\ContextAwareReflection;
 use Typhoon\Reflection\TypeResolver\ClassTemplateResolver;
 use Typhoon\Reflection\TypeResolver\StaticResolver;
 
 /**
  * @api
  */
-final class ParameterReflection extends Reflection
+final class ParameterReflection extends ContextAwareReflection
 {
+    /**
+     * @psalm-suppress PropertyNotSetInConstructor
+     */
+    private readonly ReflectionContext $reflectionContext;
+
     /**
      * @internal
      * @psalm-internal Typhoon\Reflection
@@ -134,10 +139,10 @@ final class ParameterReflection extends Reflection
 
     public function __serialize(): array
     {
-        $data = get_object_vars($this);
-        unset($data['nativeReflection']);
-
-        return $data;
+        return array_diff_key(get_object_vars($this), [
+            'reflectionContext' => null,
+            'nativeReflection' => null,
+        ]);
     }
 
     public function __unserialize(array $data): void
@@ -171,7 +176,7 @@ final class ParameterReflection extends Reflection
         );
     }
 
-    public function resolvedTypes(ClassTemplateResolver|StaticResolver $typeResolver): self
+    public function resolveTypes(ClassTemplateResolver|StaticResolver $typeResolver): self
     {
         $parameter = clone $this;
         $parameter->type = $this->type->resolve($typeResolver);
@@ -179,8 +184,9 @@ final class ParameterReflection extends Reflection
         return $parameter;
     }
 
-    protected function childReflections(): iterable
+    protected function setContext(ReflectionContext $reflectionContext): void
     {
-        yield $this->type;
+        /** @psalm-suppress InaccessibleProperty */
+        $this->reflectionContext = $reflectionContext;
     }
 }
