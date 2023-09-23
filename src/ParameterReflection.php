@@ -53,6 +53,24 @@ final class ParameterReflection extends Reflection
         return $new;
     }
 
+    public function getDeclaringClass(): ?ClassReflection
+    {
+        if ($this->class === null) {
+            return null;
+        }
+
+        return $this->reflectionContext->reflectClass($this->class);
+    }
+
+    public function getDeclaringFunction(): MethodReflection
+    {
+        if ($this->class === null) {
+            throw new ReflectionException();
+        }
+
+        return $this->reflectionContext->reflectClass($this->class)->getMethod($this->functionOrMethod);
+    }
+
     public function canBePassedByValue(): bool
     {
         return !$this->passedByReference;

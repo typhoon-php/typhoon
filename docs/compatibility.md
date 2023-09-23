@@ -81,7 +81,7 @@
 | `__construct()`       | ❌ `@internal`                                                      |
 | `__toString()`        | ❌ Not going to implement                                           |
 | `getAttributes()`     | ❌ TODO                                                             |
-| `getDeclaringClass()` | ❌ TODO                                                             |
+| `getDeclaringClass()` | ✅                                                                  |
 | `getDefaultValue()`   | ✅ Via native reflection                                            |
 | `getDocComment()`     | ✅️ Returns `?non-empty-string`                                     |
 | `getModifiers()`      | ✅                                                                  |
@@ -122,7 +122,7 @@
 | `getClosureScopeClass()`          | ❌ TODO                                            |
 | `getClosureThis()`                | ❌ TODO                                            |
 | `getClosureUsedVariables()`       | ❌ TODO                                            |
-| `getDeclaringClass()`             | ❌ TODO                                            |
+| `getDeclaringClass()`             | ✅                                                 |
 | `getDocComment()`                 | ✅️ Returns `?non-empty-string`                    |
 | `getEndLine()`                    | ✅ Returns `?positive-int`                         |
 | `getExtension()`                  | ❌ Not going to implement                          |
@@ -175,8 +175,8 @@
 | `canBePassedByValue()`          | ✅                                          |
 | `getAttributes()`               | ❌ TODO                                     |
 | `getClass()`                    | ❌ Not going to implement: use `getType()`  |
-| `getDeclaringClass()`           | ❌ TODO                                     |
-| `getDeclaringFunction()`        | ❌ TODO                                     |
+| `getDeclaringClass()`           | ✅                                          |
+| `getDeclaringFunction()`        | ✅                                          |
 | `getDefaultValue()`             | ✅ Via native reflection                    |
 | `getDefaultValueConstantName()` | ❌ TODO                                     |
 | `getName()`                     | ✅                                          |

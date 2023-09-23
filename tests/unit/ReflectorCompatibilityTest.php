@@ -198,7 +198,7 @@ final class ReflectorCompatibilityTest extends TestCase
 
         self::assertSame($native->name, $typhoon->name, $messagePrefix . '.name');
         // self::assertSame($native->getAttributes(), $typhoon->getAttributes(), $messagePrefix . '.getAttributes()');
-        // self::assertSame($native->getDeclaringClass(), $typhoon->getDeclaringClass(), $messagePrefix . '.getDeclaringClass()');
+        self::assertSame($native->getDeclaringClass()->name, $typhoon->getDeclaringClass()->name, $messagePrefix . '.getDeclaringClass()');
         self::assertSame($native->getDocComment() ?: null, $typhoon->getDocComment(), $messagePrefix . '.getDocComment()');
         self::assertSame($native->getModifiers(), $typhoon->getModifiers(), $messagePrefix . '.getModifiers()');
         self::assertSame($native->getName(), $typhoon->getName(), $messagePrefix . '.getName()');
@@ -230,7 +230,7 @@ final class ReflectorCompatibilityTest extends TestCase
         // self::assertSame($native->getClosureScopeClass(), $typhoon->getClosureScopeClass(), $messagePrefix . '.getClosureScopeClass()');
         // self::assertSame($native->getClosureThis(), $typhoon->getClosureThis(), $messagePrefix . '.getClosureThis()');
         // self::assertSame($native->getClosureUsedVariables(), $typhoon->getClosureUsedVariables(), $messagePrefix . '.getClosureUsedVariables()');
-        // self::assertSame($native->getDeclaringClass(), $typhoon->getDeclaringClass(), $messagePrefix . '.getDeclaringClass()');
+        self::assertSame($native->getDeclaringClass()->name, $typhoon->getDeclaringClass()->name, $messagePrefix . '.getDeclaringClass()');
         self::assertSame($native->getDocComment() ?: null, $typhoon->getDocComment(), $messagePrefix . '.getDocComment()');
         // self::assertSame($native->getEndLine(), $typhoon->getEndLine(), $messagePrefix . '.getEndLine()');
         // self::assertSame($native->getExtension(), $typhoon->getExtension(), $messagePrefix . '.getExtension()');
@@ -281,8 +281,8 @@ final class ReflectorCompatibilityTest extends TestCase
         self::assertSame($native->name, $typhoon->name, $messagePrefix . '.name');
         self::assertSame($native->canBePassedByValue(), $typhoon->canBePassedByValue(), $messagePrefix . '.canBePassedByValue()');
         // self::assertSame($native->getAttributes(), $typhoon->getAttributes(), $messagePrefix . '.getAttributes()');
-        // self::assertSame($native->getDeclaringClass(), $typhoon->getDeclaringClass(), $messagePrefix . '.getDeclaringClass()');
-        // self::assertSame($native->getDeclaringFunction(), $typhoon->getDeclaringFunction(), $messagePrefix . '.getDeclaringFunction()');
+        self::assertSame($native->getDeclaringClass()?->name, $typhoon->getDeclaringClass()?->name, $messagePrefix . '.getDeclaringClass()');
+        self::assertSame($native->getDeclaringFunction()->name, $typhoon->getDeclaringFunction()->name, $messagePrefix . '.getDeclaringFunction()');
         // self::assertSame($native->getDefaultValueConstantName(), $typhoon->getDefaultValueConstantName(), $messagePrefix . '.getDefaultValueConstantName()');
         self::assertSame($native->getName(), $typhoon->getName(), $messagePrefix . '.getName()');
         self::assertSame($native->getPosition(), $typhoon->getPosition(), $messagePrefix . '.getPosition()');

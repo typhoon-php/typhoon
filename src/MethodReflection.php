@@ -82,6 +82,11 @@ final class MethodReflection extends Reflection
         return $this->name;
     }
 
+    public function getDeclaringClass(): ClassReflection
+    {
+        return $this->reflectionContext->reflectClass($this->class);
+    }
+
     /**
      * @return non-empty-string
      */

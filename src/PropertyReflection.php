@@ -56,6 +56,11 @@ final class PropertyReflection extends Reflection
         return $new;
     }
 
+    public function getDeclaringClass(): ClassReflection
+    {
+        return $this->reflectionContext->reflectClass($this->class);
+    }
+
     public function getDefaultValue(): mixed
     {
         return $this->getNativeReflection()->getDefaultValue();
