@@ -12,6 +12,7 @@ use PhpParser\Node\Stmt;
 use PhpParser\NodeTraverser;
 use PhpParser\NodeVisitorAbstract;
 use PHPStan\PhpDocParser\Ast\Type\TypeNode;
+use Typhoon\Reflection\AttributeReflection;
 use Typhoon\Reflection\ClassReflection;
 use Typhoon\Reflection\MethodReflection;
 use Typhoon\Reflection\NameResolution\NameContext;
@@ -54,6 +55,7 @@ final class PhpParserReflector
             startLine: $node->getStartLine() > 0 ? $node->getStartLine() : null,
             endLine: $node->getEndLine() > 0 ? $node->getEndLine() : null,
             docComment: $this->reflectDocComment($node),
+            attributes: $this->reflectAttributes($node, [$name]),
             templates: $this->reflectTemplates($phpDoc),
             interface: $node instanceof Stmt\Interface_,
             enum: $node instanceof Stmt\Enum_,
@@ -85,6 +87,40 @@ final class PhpParserReflector
             startLine: null,
             endLine: null,
         );
+    }
+
+    /**
+     * @param non-empty-list $nativeOwnerArguments
+     * @return list<AttributeReflection>
+     */
+    private function reflectAttributes(Stmt\ClassLike $node, array $nativeOwnerArguments): array
+    {
+        $counters = [];
+
+        foreach ($node->attrGroups as $attrGroup) {
+            foreach ($attrGroup->attrs as $attr) {
+                $counters[$attr->name->toString()] ??= 0;
+                ++$counters[$attr->name->toString()];
+            }
+        }
+
+        $attributes = [];
+        $position = 0;
+
+        foreach ($node->attrGroups as $attrGroup) {
+            foreach ($attrGroup->attrs as $attr) {
+                $attributes[] = new AttributeReflection(
+                    name: $this->nameContext->resolveNameAsClass($attr->name->toCodeString()),
+                    position: $position,
+                    target: AttributeReflection::TARGET_CLASS,
+                    repeated: $counters[$attr->name->toString()] > 1,
+                    nativeOwnerArguments: $nativeOwnerArguments,
+                );
+                ++$position;
+            }
+        }
+
+        return $attributes;
     }
 
     /**

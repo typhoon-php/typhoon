@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Typhoon\Reflection\Reflector;
 
+use Typhoon\Reflection\AttributeReflection;
 use Typhoon\Reflection\ChangeDetector;
 use Typhoon\Reflection\ChangeDetector\FileChangeDetector;
 use Typhoon\Reflection\ChangeDetector\PhpVersionChangeDetector;
@@ -38,6 +39,7 @@ final class NativeReflectionReflector
             startLine: $class->getStartLine() ?: null,
             endLine: $class->getEndLine() ?: null,
             docComment: $class->getDocComment() ?: null,
+            attributes: $this->reflectAttributes($class->getAttributes(), [$class->name]),
             templates: [],
             interface: $class->isInterface(),
             enum: $class->isEnum(),
@@ -181,6 +183,33 @@ final class NativeReflectionReflector
         }
 
         return $parameters;
+    }
+
+    /**
+     * @param list<\ReflectionAttribute> $reflectionAttributes
+     * @param non-empty-list $nativeOwnerArguments
+     * @return list<AttributeReflection>
+     */
+    private function reflectAttributes(array $reflectionAttributes, array $nativeOwnerArguments): array
+    {
+        $attributes = [];
+
+        foreach ($reflectionAttributes as $position => $attribute) {
+            /** @var AttributeReflection::TARGET_* */
+            $target = $attribute->getTarget();
+            /** @var class-string */
+            $name = $attribute->getName();
+            $attributes[] = new AttributeReflection(
+                name: $name,
+                position: $position,
+                target: $target,
+                repeated: $attribute->isRepeated(),
+                nativeOwnerArguments: $nativeOwnerArguments,
+                nativeReflection: $attribute,
+            );
+        }
+
+        return $attributes;
     }
 
     /**

@@ -12,7 +12,7 @@
 | `__clone()`                       | ✅ Cloning is forbidden                                           |
 | `__construct()`                   | ❌ `@internal`                                                    |
 | `__toString()`                    | ❌ Not going to implement                                         |
-| `getAttributes()`                 | ❌ TODO                                                           |
+| `getAttributes()`                 | ✅                                                                |
 | `getConstant()`                   | ❌ TODO                                                           |
 | `getConstants()`                  | ❌ TODO                                                           |
 | `getConstructor()`                | ✅                                                                |
