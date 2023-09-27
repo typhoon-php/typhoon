@@ -11,6 +11,9 @@ $finder = PhpCsFixer\Finder::create()
     ])
     ->append([
         __FILE__,
+    ])
+    ->exclude([
+        'psalm',
     ]);
 
 $config = (new PhpCsFixer\Config())
