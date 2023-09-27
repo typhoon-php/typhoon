@@ -33,8 +33,8 @@ final class StaticType implements Type
         string $declaringClass,
         array $templateArguments = [],
     ) {
-        $this->templateArguments = $templateArguments;
         $this->declaringClass = $declaringClass;
+        $this->templateArguments = $templateArguments;
     }
 
     public function accept(TypeVisitor $visitor): mixed
