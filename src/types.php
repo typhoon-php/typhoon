@@ -450,33 +450,11 @@ final class types
 
     /**
      * @psalm-pure
-     * @param class-string $class
      * @param non-empty-string $name
      */
-    public static function classTemplate(string $class, string $name): ClassTemplateType
+    public static function template(string $name): TemplateType
     {
-        return new ClassTemplateType($class, $name);
-    }
-
-    /**
-     * @psalm-pure
-     * @param class-string $class
-     * @param non-empty-string $method
-     * @param non-empty-string $name
-     */
-    public static function methodTemplate(string $class, string $method, string $name): MethodTemplateType
-    {
-        return new MethodTemplateType($class, $method, $name);
-    }
-
-    /**
-     * @psalm-pure
-     * @param callable-string $function
-     * @param non-empty-string $name
-     */
-    public static function functionTemplate(string $function, string $name): FunctionTemplateType
-    {
-        return new FunctionTemplateType($function, $name);
+        return new TemplateType($name);
     }
 
     /**
