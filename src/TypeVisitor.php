@@ -39,6 +39,12 @@ interface TypeVisitor
     public function visitIntRange(IntRangeType $type): mixed;
 
     /** @return TReturn */
+    public function visitIntMask(IntMaskType $type): mixed;
+
+    /** @return TReturn */
+    public function visitIntMaskOf(IntMaskOfType $type): mixed;
+
+    /** @return TReturn */
     public function visitInt(IntType $type): mixed;
 
     /** @return TReturn */

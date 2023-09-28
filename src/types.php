@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace Typhoon\Type;
 
+use Psalm\Type\Atomic\TIntMask;
+
 /**
  * @api
  */
@@ -79,6 +81,28 @@ final class types
     {
         /** @var IntRangeType<positive-int> */
         return new IntRangeType(1);
+    }
+
+    /**
+     * @psalm-pure
+     * @no-named-arguments
+     * @param int<0, max> $int
+     * @param int<0, max> ...$ints
+     */
+    public static function intMask(int $int, int ...$ints): IntMaskType
+    {
+        return new IntMaskType([$int, ...$ints]);
+    }
+
+    /**
+     * @psalm-pure
+     * @template TIntMask of positive-int
+     * @param Type<TIntMask> $type
+     * @return IntMaskOfType<TIntMask>
+     */
+    public static function intMaskOf(Type $type): IntMaskOfType
+    {
+        return new IntMaskOfType($type);
     }
 
     /**
