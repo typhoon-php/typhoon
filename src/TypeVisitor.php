@@ -162,6 +162,9 @@ interface TypeVisitor
     public function visitTemplate(TemplateType $type): mixed;
 
     /** @return TReturn */
+    public function visitConditional(ConditionalType $type): mixed;
+
+    /** @return TReturn */
     public function visitIntersection(IntersectionType $type): mixed;
 
     /** @return TReturn */

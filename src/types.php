@@ -447,6 +447,14 @@ final class types
 
     /**
      * @psalm-pure
+     */
+    public static function conditional(Argument|TemplateType $subject, Type $is, Type $if, Type $else): ConditionalType
+    {
+        return new ConditionalType($subject, $is, $if, $else);
+    }
+
+    /**
+     * @psalm-pure
      * @no-named-arguments
      * @template TType
      * @param Type<TType> $type
@@ -478,6 +486,15 @@ final class types
     public static function union(Type $type1, Type $type2, Type ...$moreTypes): UnionType
     {
         return new UnionType([$type1, $type2, ...$moreTypes]);
+    }
+
+    /**
+     * @psalm-pure
+     * @param non-empty-string $name
+     */
+    public function arg(string $name): Argument
+    {
+        return new Argument($name);
     }
 }
 
