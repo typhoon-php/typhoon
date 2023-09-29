@@ -323,13 +323,10 @@ final class types
     /**
      * @psalm-pure
      * @no-named-arguments
-     * @template TObject of object
-     * @param class-string<TObject> $declaringClass
-     * @return StaticType<TObject>
      */
-    public static function static(string $declaringClass, Type ...$templateArguments): StaticType
+    public static function static(Type ...$templateArguments): StaticType
     {
-        return new StaticType($declaringClass, $templateArguments);
+        return new StaticType($templateArguments);
     }
 
     /**
