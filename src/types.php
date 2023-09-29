@@ -301,6 +301,28 @@ final class types
 
     /**
      * @psalm-pure
+     * @param array<string, Type|Property> $properties
+     */
+    public static function objectShape(array $properties = []): ObjectShapeType
+    {
+        return new ObjectShapeType(
+            array_map(
+                static fn (Type|Property $property): Property => $property instanceof Type ? new Property($property) : $property,
+                $properties,
+            ),
+        );
+    }
+
+    /**
+     * @psalm-pure
+     */
+    public static function prop(Type $type, bool $optional = false): Property
+    {
+        return new Property($type, $optional);
+    }
+
+    /**
+     * @psalm-pure
      * @no-named-arguments
      * @template TObject of object
      * @param class-string<TObject> $class
