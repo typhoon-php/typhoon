@@ -63,6 +63,9 @@ interface TypeVisitor
     public function visitNumericString(NumericStringType $type): mixed;
 
     /** @return TReturn */
+    public function visitClassStringLiteral(ClassStringLiteralType $type): mixed;
+
+    /** @return TReturn */
     public function visitNamedClassString(NamedClassStringType $type): mixed;
 
     /** @return TReturn */

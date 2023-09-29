@@ -170,6 +170,17 @@ final class types
 
     /**
      * @psalm-pure
+     * @template TClass of class-string
+     * @param TClass $class
+     * @return ClassStringLiteralType<TClass>
+     */
+    public static function classStringLiteral(string $class): ClassStringLiteralType
+    {
+        return new ClassStringLiteralType($class);
+    }
+
+    /**
+     * @psalm-pure
      * @template TObject of object
      * @param Type<TObject> $type
      * @return NamedClassStringType<TObject>
