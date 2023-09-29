@@ -10,10 +10,10 @@ namespace Typhoon\Type;
  * @template-covariant TArray of array
  * @implements Type<TArray>
  */
-final class ShapeType implements Type
+final class ArrayShapeType implements Type
 {
     /**
-     * @var array<ShapeElement>
+     * @var array<ArrayElement>
      */
     public readonly array $elements;
 
@@ -22,18 +22,18 @@ final class ShapeType implements Type
     /**
      * @internal
      * @psalm-internal Typhoon\Type
-     * @param array<ShapeElement> $elements
+     * @param array<ArrayElement> $elements
      */
     public function __construct(
         array $elements = [],
         bool $sealed = true,
     ) {
-        $this->sealed = $sealed;
         $this->elements = $elements;
+        $this->sealed = $sealed;
     }
 
     public function accept(TypeVisitor $visitor): mixed
     {
-        return $visitor->visitShape($this);
+        return $visitor->visitArrayShape($this);
     }
 }

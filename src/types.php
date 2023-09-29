@@ -222,14 +222,14 @@ final class types
 
     /**
      * @psalm-pure
-     * @param array<Type|ShapeElement> $elements
+     * @param array<Type|ArrayElement> $elements
      */
-    public static function shape(array $elements = [], bool $sealed = true): ShapeType
+    public static function arrayShape(array $elements = [], bool $sealed = true): ArrayShapeType
     {
-        return new ShapeType(
+        return new ArrayShapeType(
             array_map(
-                static fn (Type|ShapeElement $element): ShapeElement => $element instanceof Type
-                    ? new ShapeElement($element)
+                static fn (Type|ArrayElement $element): ArrayElement => $element instanceof Type
+                    ? new ArrayElement($element)
                     : $element,
                 $elements,
             ),
@@ -239,33 +239,13 @@ final class types
 
     /**
      * @psalm-pure
-     * @param array<Type|ShapeElement> $elements
-     */
-    public static function unsealedShape(array $elements = []): ShapeType
-    {
-        return self::shape($elements, false);
-    }
-
-    /**
-     * @psalm-pure
      * @template TType
      * @param Type<TType> $type
-     * @return ShapeElement<TType>
+     * @return ArrayElement<TType>
      */
-    public static function element(Type $type, bool $optional): ShapeElement
+    public static function arrayElement(Type $type, bool $optional = false): ArrayElement
     {
-        return new ShapeElement($type, $optional);
-    }
-
-    /**
-     * @psalm-pure
-     * @template TType
-     * @param Type<TType> $type
-     * @return ShapeElement<TType>
-     */
-    public static function optional(Type $type): ShapeElement
-    {
-        return new ShapeElement($type, true);
+        return new ArrayElement($type, $optional);
     }
 
     /**
@@ -349,28 +329,6 @@ final class types
     public static function param(Type $type = self::mixed, bool $hasDefault = false, bool $variadic = false): Parameter
     {
         return new Parameter($type, $hasDefault, $variadic);
-    }
-
-    /**
-     * @psalm-pure
-     * @template TType
-     * @param Type<TType> $type
-     * @return Parameter<TType>
-     */
-    public static function defaultParam(Type $type = self::mixed): Parameter
-    {
-        return new Parameter($type, true);
-    }
-
-    /**
-     * @psalm-pure
-     * @template TType
-     * @param Type<TType> $type
-     * @return Parameter<TType>
-     */
-    public static function variadicParam(Type $type = self::mixed): Parameter
-    {
-        return new Parameter($type, variadic: true);
     }
 
     /**

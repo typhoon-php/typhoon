@@ -17,7 +17,7 @@ composer require typhoon/type
 ## Usage
 
 ```php
-use Typhoon\types;
+use Typhoon\Type\types;
 
 /**
  * array{
@@ -28,17 +28,17 @@ use Typhoon\types;
  *     ...
  * }
  */
-$type = types::unsealedShape([
+$type = types::arrayShape([
     types::nonEmptyString,
     'a' => types::optional(types::union(types::int, types::float)),
     'b' => types::object(Traversable::class, types::numericString, types::false),
     'c' => types::callable(
         parameters: [
             types::classConstant(PDO::class, '*'),
-            types::defaultParam(types::classTemplate(Generator::class, 'TSend')),
-            types::variadicParam(types::scalar),
+            types::param(types::classTemplate(Generator::class, 'TSend'), hasDefault: true),
+            types::param(types::scalar, variadic: true),
         ],
         returnType: types::void,
     ),
-]);
+], sealed: false);
 ```
