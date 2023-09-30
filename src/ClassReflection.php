@@ -602,6 +602,13 @@ final class ClassReflection extends FriendlyReflection implements RootReflection
         return $vars;
     }
 
+    public function __unserialize(array $data): void
+    {
+        foreach ($data as $name => $value) {
+            $this->{$name} = $value;
+        }
+    }
+
     public function __clone()
     {
         if ((debug_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS, 2)[1]['class'] ?? null) !== self::class) {
