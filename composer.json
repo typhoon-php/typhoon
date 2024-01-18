@@ -38,8 +38,8 @@
         "sort-packages": true
     },
     "scripts": {
-        "cleanup": "find var ! -path var ! -path var/.gitignore -exec rm -rf {} +",
         "fixcs": "PHP_CS_FIXER_IGNORE_ENV=1 vendor/bin/php-cs-fixer fix -v",
+        "pre-command-run": "mkdir -p var",
         "psalm": "psalm --show-info"
     }
 }
