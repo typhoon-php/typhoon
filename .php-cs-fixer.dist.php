@@ -2,9 +2,11 @@
 
 declare(strict_types=1);
 
+use PhpCsFixer\Config;
+use PhpCsFixer\Finder;
 use PHPyh\CodingStandard\PhpCsFixerCodingStandard;
 
-$finder = PhpCsFixer\Finder::create()
+$finder = Finder::create()
     ->in([
         __DIR__ . '/src',
         __DIR__ . '/tests',
@@ -16,7 +18,7 @@ $finder = PhpCsFixer\Finder::create()
         'psalm',
     ]);
 
-$config = (new PhpCsFixer\Config())
+$config = (new Config())
     ->setFinder($finder)
     ->setCacheFile(__DIR__ . '/var/.php-cs-fixer.cache');
 

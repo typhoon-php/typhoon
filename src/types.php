@@ -228,7 +228,7 @@ final class types
     {
         return new ArrayShapeType(
             array_map(
-                static fn (Type|ArrayElement $element): ArrayElement => $element instanceof Type
+                static fn(Type|ArrayElement $element): ArrayElement => $element instanceof Type
                     ? new ArrayElement($element)
                     : $element,
                 $elements,
@@ -307,7 +307,7 @@ final class types
     {
         return new ObjectShapeType(
             array_map(
-                static fn (Type|Property $property): Property => $property instanceof Type ? new Property($property) : $property,
+                static fn(Type|Property $property): Property => $property instanceof Type ? new Property($property) : $property,
                 $properties,
             ),
         );
@@ -368,7 +368,7 @@ final class types
 
         return new ClosureType(
             array_map(
-                static fn (Type|Parameter $parameter): Parameter => $parameter instanceof Type
+                static fn(Type|Parameter $parameter): Parameter => $parameter instanceof Type
                     ? new Parameter($parameter)
                     : $parameter,
                 $parameters,
@@ -392,7 +392,7 @@ final class types
 
         return new CallableType(
             array_map(
-                static fn (Type|Parameter $parameter): Parameter => $parameter instanceof Type
+                static fn(Type|Parameter $parameter): Parameter => $parameter instanceof Type
                     ? new Parameter($parameter)
                     : $parameter,
                 $parameters,
