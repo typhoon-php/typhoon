@@ -188,7 +188,7 @@ final class TypeStringifier implements TypeVisitor
                 '%s{%s%s}',
                 $type->sealed ? 'list' : 'array',
                 implode(', ', array_map(
-                    fn (int $key, Type\ShapeElement $element) => ($element->optional ? $key . '?: ' : '') . $element->type->accept($this),
+                    fn(int $key, Type\ShapeElement $element) => ($element->optional ? $key . '?: ' : '') . $element->type->accept($this),
                     array_keys($type->elements),
                     $type->elements,
                 )),
@@ -338,7 +338,7 @@ final class TypeStringifier implements TypeVisitor
     public function visitIntersection(Type\IntersectionType $type): mixed
     {
         return implode('&', array_map(
-            fn (Type\Type $inner): string => $inner instanceof Type\UnionType ? sprintf('(%s)', $inner->accept($this)) : $inner->accept($this),
+            fn(Type\Type $inner): string => $inner instanceof Type\UnionType ? sprintf('(%s)', $inner->accept($this)) : $inner->accept($this),
             $type->types,
         ));
     }
@@ -346,7 +346,7 @@ final class TypeStringifier implements TypeVisitor
     public function visitUnion(Type\UnionType $type): mixed
     {
         return implode('|', array_map(
-            fn (Type\Type $inner): string => $inner instanceof Type\IntersectionType ? sprintf('(%s)', $inner->accept($this)) : $inner->accept($this),
+            fn(Type\Type $inner): string => $inner instanceof Type\IntersectionType ? sprintf('(%s)', $inner->accept($this)) : $inner->accept($this),
             $type->types,
         ));
     }
@@ -363,7 +363,7 @@ final class TypeStringifier implements TypeVisitor
     private function stringifyGenericType(string $name, array $templateArguments): string
     {
         return sprintf('%s<%s>', $name, implode(', ', array_map(
-            fn (Type\Type $type): string => $type->accept($this),
+            fn(Type\Type $type): string => $type->accept($this),
             $templateArguments,
         )));
     }
@@ -383,7 +383,7 @@ final class TypeStringifier implements TypeVisitor
             '%s(%s)%s',
             $name,
             implode(', ', array_map(
-                fn (Type\Parameter $parameter): string => $parameter->type->accept($this) . match (true) {
+                fn(Type\Parameter $parameter): string => $parameter->type->accept($this) . match (true) {
                     $parameter->variadic => '...',
                     $parameter->hasDefault => '=',
                     default => '',
