@@ -5,8 +5,8 @@ declare(strict_types=1);
 namespace Typhoon\Reflection;
 
 use Typhoon\Reflection\Reflector\ContextAwareReflection;
-use Typhoon\Reflection\TypeResolver\ClassTemplateResolver;
 use Typhoon\Reflection\TypeResolver\StaticResolver;
+use Typhoon\Reflection\TypeResolver\TemplateResolver;
 
 /**
  * @api
@@ -411,7 +411,7 @@ final class MethodReflection extends ContextAwareReflection
         return $this->nativeReflection ??= new \ReflectionMethod($this->class, $this->name);
     }
 
-    public function resolveTypes(ClassTemplateResolver|StaticResolver $typeResolver): self
+    public function resolveTypes(TemplateResolver|StaticResolver $typeResolver): self
     {
         $method = clone $this;
         $method->parameters = array_map(

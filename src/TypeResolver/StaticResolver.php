@@ -5,6 +5,11 @@ declare(strict_types=1);
 namespace Typhoon\Reflection\TypeResolver;
 
 use Typhoon\Type;
+use Typhoon\Type\ClassStringLiteralType;
+use Typhoon\Type\IntMaskOfType;
+use Typhoon\Type\IntMaskType;
+use Typhoon\Type\ObjectShapeType;
+use Typhoon\Type\TruthyString;
 use Typhoon\Type\types;
 use Typhoon\Type\TypeVisitor;
 
@@ -68,6 +73,16 @@ final class StaticResolver implements TypeVisitor
         return $type;
     }
 
+    public function visitIntMask(IntMaskType $type): mixed
+    {
+        return $type;
+    }
+
+    public function visitIntMaskOf(IntMaskOfType $type): mixed
+    {
+        return $type;
+    }
+
     public function visitInt(Type\IntType $type): mixed
     {
         return $type;
@@ -94,6 +109,11 @@ final class StaticResolver implements TypeVisitor
     }
 
     public function visitNumericString(Type\NumericStringType $type): mixed
+    {
+        return $type;
+    }
+
+    public function visitClassStringLiteral(ClassStringLiteralType $type): mixed
     {
         return $type;
     }
@@ -134,6 +154,11 @@ final class StaticResolver implements TypeVisitor
         return $type;
     }
 
+    public function visitTruthyString(TruthyString $type): mixed
+    {
+        return $type;
+    }
+
     public function visitString(Type\StringType $type): mixed
     {
         return $type;
@@ -164,12 +189,12 @@ final class StaticResolver implements TypeVisitor
         return types::list($type->valueType->accept($this));
     }
 
-    public function visitShape(Type\ShapeType $type): mixed
+    public function visitArrayShape(Type\ArrayShapeType $type): mixed
     {
         /** @psalm-suppress ImpureFunctionCall */
-        return types::shape(
+        return types::arrayShape(
             array_map(
-                fn(Type\ShapeElement $element): Type\ShapeElement => types::element(
+                fn(Type\ArrayElement $element): Type\ArrayElement => types::arrayElement(
                     $element->type->accept($this),
                     $element->optional,
                 ),
@@ -205,7 +230,7 @@ final class StaticResolver implements TypeVisitor
     {
         /** @psalm-suppress ImpureFunctionCall */
         return types::object($type->class, ...array_map(
-            fn(Type\Type $type): Type\Type => $type->accept($this),
+            fn(Type\Type $templateArgument): Type\Type => $templateArgument->accept($this),
             $type->templateArguments,
         ));
     }
@@ -214,9 +239,23 @@ final class StaticResolver implements TypeVisitor
     {
         /** @psalm-suppress ImpureFunctionCall */
         return types::object($this->class, ...array_map(
-            fn(Type\Type $type): Type\Type => $type->accept($this),
+            fn(Type\Type $templateArgument): Type\Type => $templateArgument->accept($this),
             $type->templateArguments,
         ));
+    }
+
+    public function visitObjectShape(ObjectShapeType $type): mixed
+    {
+        /** @psalm-suppress ImpureFunctionCall */
+        return types::objectShape(
+            array_map(
+                fn(Type\Property $property): Type\Property => types::prop(
+                    $property->type->accept($this),
+                    $property->optional,
+                ),
+                $type->properties,
+            ),
+        );
     }
 
     public function visitObject(Type\ObjectType $type): mixed
@@ -286,26 +325,26 @@ final class StaticResolver implements TypeVisitor
         return types::valueOf($type->type->accept($this));
     }
 
-    public function visitFunctionTemplate(Type\FunctionTemplateType $type): mixed
+    public function visitTemplate(Type\TemplateType $type): mixed
     {
         return $type;
     }
 
-    public function visitClassTemplate(Type\ClassTemplateType $type): mixed
+    public function visitConditional(Type\ConditionalType $type): mixed
     {
-        return $type;
-    }
-
-    public function visitMethodTemplate(Type\MethodTemplateType $type): mixed
-    {
-        return $type;
+        return types::conditional(
+            $type->subject,
+            $type->is->accept($this),
+            $type->if->accept($this),
+            $type->else->accept($this),
+        );
     }
 
     public function visitIntersection(Type\IntersectionType $type): mixed
     {
         /** @psalm-suppress ImpureFunctionCall */
         return types::intersection(...array_map(
-            fn(Type\Type $type): Type\Type => $type->accept($this),
+            fn(Type\Type $part): Type\Type => $part->accept($this),
             $type->types,
         ));
     }
@@ -314,7 +353,7 @@ final class StaticResolver implements TypeVisitor
     {
         /** @psalm-suppress ImpureFunctionCall */
         return types::union(...array_map(
-            fn(Type\Type $type): Type\Type => $type->accept($this),
+            fn(Type\Type $part): Type\Type => $part->accept($this),
             $type->types,
         ));
     }

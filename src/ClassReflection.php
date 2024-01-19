@@ -6,8 +6,8 @@ namespace Typhoon\Reflection;
 
 use Typhoon\Reflection\Reflector\ContextAwareReflection;
 use Typhoon\Reflection\Reflector\RootReflection;
-use Typhoon\Reflection\TypeResolver\ClassTemplateResolver;
 use Typhoon\Reflection\TypeResolver\StaticResolver;
+use Typhoon\Reflection\TypeResolver\TemplateResolver;
 use Typhoon\Type;
 
 /**
@@ -571,7 +571,7 @@ final class ClassReflection extends ContextAwareReflection implements RootReflec
         }
 
         /** @var self<T> */
-        return $this->resolvedTypes(ClassTemplateResolver::create($this->name, $this->templates, $templateArguments));
+        return $this->resolvedTypes(TemplateResolver::create($this->templates, $templateArguments));
     }
 
     /**
@@ -668,7 +668,7 @@ final class ClassReflection extends ContextAwareReflection implements RootReflec
         }
     }
 
-    private function resolvedTypes(ClassTemplateResolver|StaticResolver $typeResolver): self
+    private function resolvedTypes(TemplateResolver|StaticResolver $typeResolver): self
     {
         $class = clone $this;
         $class->propertiesIndexedByName = array_map(

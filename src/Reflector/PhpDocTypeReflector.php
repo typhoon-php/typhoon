@@ -274,12 +274,12 @@ final class PhpDocTypeReflector
         };
     }
 
-    private function reflectArrayShape(ArrayShapeNode $node): Type\ShapeType
+    private function reflectArrayShape(ArrayShapeNode $node): Type\ArrayShapeType
     {
         $elements = [];
 
         foreach ($node->items as $item) {
-            $type = types::element($this->doReflect($item->valueType), $item->optional);
+            $type = types::arrayElement($this->doReflect($item->valueType), $item->optional);
 
             if ($item->keyName === null) {
                 $elements[] = $type;
@@ -299,7 +299,7 @@ final class PhpDocTypeReflector
             $elements[$key] = $type;
         }
 
-        return types::shape($elements, $node->sealed);
+        return types::arrayShape($elements, $node->sealed);
     }
 
     private function reflectConstExpr(ConstTypeNode $node): Type\Type

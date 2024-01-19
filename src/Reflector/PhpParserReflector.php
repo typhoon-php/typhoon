@@ -333,7 +333,7 @@ final class PhpParserReflector
             $phpDoc = PhpDocParsingVisitor::fromNode($node);
 
             try {
-                $this->nameContext->enterMethod($name, $phpDoc->templateNames());
+                $this->nameContext->enterMethod($phpDoc->templateNames());
 
                 $methods[] = new MethodReflection(
                     class: $class,
@@ -534,13 +534,11 @@ final class PhpParserReflector
         }
 
         if ($node instanceof Name) {
-            $resolvedName = $this->nameContext->resolveNameAsClass($node->toCodeString());
-
             if ($node->toString() === 'static') {
-                return types::static($resolvedName);
+                return types::static();
             }
 
-            return types::object($resolvedName);
+            return types::object($this->nameContext->resolveNameAsClass($node->toCodeString()));
         }
 
         throw new ReflectionException(sprintf('%s is not supported.', $node::class));

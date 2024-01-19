@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace Typhoon\Reflection;
 
-use Typhoon\Reflection\TypeResolver\ClassTemplateResolver;
 use Typhoon\Reflection\TypeResolver\StaticResolver;
+use Typhoon\Reflection\TypeResolver\TemplateResolver;
 use Typhoon\Type\Type;
 use Typhoon\Type\types;
 
@@ -69,7 +69,7 @@ final class TypeReflection
         return $this->resolved;
     }
 
-    public function resolve(ClassTemplateResolver|StaticResolver $typeResolver): self
+    public function resolve(TemplateResolver|StaticResolver $typeResolver): self
     {
         return new self(
             native: $this->native,
