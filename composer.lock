@@ -4,20 +4,20 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "dc333944746b111fd10dfbe1f28c7d1c",
+    "content-hash": "5af7733e11a74444182e511712043301",
     "packages": [
         {
             "name": "typhoon/type",
-            "version": "0.2.x-dev",
+            "version": "0.3.x-dev",
             "source": {
                 "type": "git",
                 "url": "https://github.com/typhoon-php/type.git",
-                "reference": "39db9d53f572a051e15387aece4ba35833dc0afc"
+                "reference": "2c58b639f6f276424b9df9435744f4a52e1a59a2"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/typhoon-php/type/zipball/39db9d53f572a051e15387aece4ba35833dc0afc",
-                "reference": "39db9d53f572a051e15387aece4ba35833dc0afc",
+                "url": "https://api.github.com/repos/typhoon-php/type/zipball/2c58b639f6f276424b9df9435744f4a52e1a59a2",
+                "reference": "2c58b639f6f276424b9df9435744f4a52e1a59a2",
                 "shasum": ""
             },
             "require": {
@@ -49,9 +49,9 @@
             "description": "Typhoon Type",
             "support": {
                 "issues": "https://github.com/typhoon-php/type/issues",
-                "source": "https://github.com/typhoon-php/type/tree/0.2.x"
+                "source": "https://github.com/typhoon-php/type/tree/0.3.x"
             },
-            "time": "2023-09-22T01:28:22+00:00"
+            "time": "2024-01-19T00:17:58+00:00"
         }
     ],
     "packages-dev": [
