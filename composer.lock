@@ -166,12 +166,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/typhoon-php/type.git",
-                "reference": "2c58b639f6f276424b9df9435744f4a52e1a59a2"
+                "reference": "423387108f9294c327171a2ea4c024ca3f743f8a"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/typhoon-php/type/zipball/2c58b639f6f276424b9df9435744f4a52e1a59a2",
-                "reference": "2c58b639f6f276424b9df9435744f4a52e1a59a2",
+                "url": "https://api.github.com/repos/typhoon-php/type/zipball/423387108f9294c327171a2ea4c024ca3f743f8a",
+                "reference": "423387108f9294c327171a2ea4c024ca3f743f8a",
                 "shasum": ""
             },
             "require": {
@@ -180,6 +180,7 @@
             "require-dev": {
                 "ergebnis/composer-normalize": "^2.36.0",
                 "friendsofphp/php-cs-fixer": "^3.26.1",
+                "phpunit/phpunit": "^10.5",
                 "phpyh/coding-standard": "^2.5.0",
                 "vimeo/psalm": "^5.15.0"
             },
@@ -205,7 +206,7 @@
                 "issues": "https://github.com/typhoon-php/type/issues",
                 "source": "https://github.com/typhoon-php/type/tree/0.3.x"
             },
-            "time": "2024-01-19T00:17:58+00:00"
+            "time": "2024-01-24T14:05:58+00:00"
         },
         {
             "name": "typhoon/type-stringifier",
@@ -213,12 +214,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/typhoon-php/type-stringifier.git",
-                "reference": "5e85beedca66992be23124e756a47e82f9c66e31"
+                "reference": "ad073c9f6087f672344e7f5f3b8a59c0ec8db2b6"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/typhoon-php/type-stringifier/zipball/5e85beedca66992be23124e756a47e82f9c66e31",
-                "reference": "5e85beedca66992be23124e756a47e82f9c66e31",
+                "url": "https://api.github.com/repos/typhoon-php/type-stringifier/zipball/ad073c9f6087f672344e7f5f3b8a59c0ec8db2b6",
+                "reference": "ad073c9f6087f672344e7f5f3b8a59c0ec8db2b6",
                 "shasum": ""
             },
             "require": {
@@ -255,7 +256,7 @@
                 "issues": "https://github.com/typhoon-php/type-stringifier/issues",
                 "source": "https://github.com/typhoon-php/type-stringifier/tree/0.3.x"
             },
-            "time": "2024-01-19T09:26:14+00:00"
+            "time": "2024-01-24T14:10:30+00:00"
         }
     ],
     "packages-dev": [

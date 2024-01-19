@@ -44,8 +44,8 @@ final class PhpDocParsingVisitor extends NodeVisitorAbstract
             return null;
         }
 
-        $text = $this->phpDocParser->parsePhpDoc($text);
-        $node->setAttribute(self::ATTRIBUTE, $text);
+        $phpDoc = $this->phpDocParser->parsePhpDoc($text);
+        $node->setAttribute(self::ATTRIBUTE, $phpDoc);
 
         return null;
     }

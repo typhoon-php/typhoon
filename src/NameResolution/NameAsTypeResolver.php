@@ -16,11 +16,11 @@ use Typhoon\Type\types;
 final class NameAsTypeResolver implements NameResolver
 {
     /**
-     * @param callable(non-empty-string): bool $classExists
+     * @param \Closure(non-empty-string): bool $classExists
      * @param list<Type> $templateArguments
      */
     public function __construct(
-        private $classExists,
+        private \Closure $classExists,
         private readonly array $templateArguments = [],
     ) {}
 

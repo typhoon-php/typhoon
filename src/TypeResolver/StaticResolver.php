@@ -9,7 +9,6 @@ use Typhoon\Type\ClassStringLiteralType;
 use Typhoon\Type\IntMaskOfType;
 use Typhoon\Type\IntMaskType;
 use Typhoon\Type\ObjectShapeType;
-use Typhoon\Type\TruthyString;
 use Typhoon\Type\types;
 use Typhoon\Type\TypeVisitor;
 
@@ -154,7 +153,7 @@ final class StaticResolver implements TypeVisitor
         return $type;
     }
 
-    public function visitTruthyString(TruthyString $type): mixed
+    public function visitTruthyString(Type\TruthyStringType $type): mixed
     {
         return $type;
     }
@@ -334,8 +333,8 @@ final class StaticResolver implements TypeVisitor
     {
         return types::conditional(
             $type->subject,
-            $type->is->accept($this),
             $type->if->accept($this),
+            $type->then->accept($this),
             $type->else->accept($this),
         );
     }

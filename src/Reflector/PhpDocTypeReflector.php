@@ -15,11 +15,14 @@ use PHPStan\PhpDocParser\Ast\Type\ArrayShapeNode;
 use PHPStan\PhpDocParser\Ast\Type\ArrayTypeNode;
 use PHPStan\PhpDocParser\Ast\Type\CallableTypeNode;
 use PHPStan\PhpDocParser\Ast\Type\CallableTypeParameterNode;
+use PHPStan\PhpDocParser\Ast\Type\ConditionalTypeForParameterNode;
+use PHPStan\PhpDocParser\Ast\Type\ConditionalTypeNode;
 use PHPStan\PhpDocParser\Ast\Type\ConstTypeNode;
 use PHPStan\PhpDocParser\Ast\Type\GenericTypeNode;
 use PHPStan\PhpDocParser\Ast\Type\IdentifierTypeNode;
 use PHPStan\PhpDocParser\Ast\Type\IntersectionTypeNode;
 use PHPStan\PhpDocParser\Ast\Type\NullableTypeNode;
+use PHPStan\PhpDocParser\Ast\Type\ObjectShapeNode;
 use PHPStan\PhpDocParser\Ast\Type\TypeNode;
 use PHPStan\PhpDocParser\Ast\Type\UnionTypeNode;
 use Typhoon\Reflection\NameResolution\NameAsTypeResolver;
@@ -27,7 +30,6 @@ use Typhoon\Reflection\NameResolution\NameContext;
 use Typhoon\Reflection\ReflectionException;
 use Typhoon\Type;
 use Typhoon\Type\types;
-use Typhoon\TypeStringifier\TypeStringifier;
 
 /**
  * @internal
@@ -36,17 +38,17 @@ use Typhoon\TypeStringifier\TypeStringifier;
 final class PhpDocTypeReflector
 {
     /**
-     * @param callable(non-empty-string): bool $classExists
+     * @param \Closure(non-empty-string): bool $classExists
      */
     private function __construct(
         private readonly NameContext $nameContext,
-        private $classExists,
+        private readonly \Closure $classExists,
     ) {}
 
     /**
-     * @param callable(non-empty-string): bool $classExists
+     * @param \Closure(non-empty-string): bool $classExists
      */
-    public static function reflect(NameContext $nameContext, callable $classExists, TypeNode $typeNode): Type\Type
+    public static function reflect(NameContext $nameContext, \Closure $classExists, TypeNode $typeNode): Type\Type
     {
         return (new self($nameContext, $classExists))->doReflect($typeNode);
     }
@@ -73,6 +75,10 @@ final class PhpDocTypeReflector
             return $this->reflectArrayShape($node);
         }
 
+        if ($node instanceof ObjectShapeNode) {
+            return $this->reflectObjectShape($node);
+        }
+
         if ($node instanceof ConstTypeNode) {
             return $this->reflectConstExpr($node);
         }
@@ -87,6 +93,10 @@ final class PhpDocTypeReflector
 
         if ($node instanceof GenericTypeNode) {
             return $this->reflectIdentifier($node->type->name, $node->genericTypes);
+        }
+
+        if ($node instanceof ConditionalTypeNode || $node instanceof ConditionalTypeForParameterNode) {
+            return $this->reflectConditional($node);
         }
 
         throw new ReflectionException(sprintf('Type node %s is not supported.', $node::class));
@@ -129,18 +139,31 @@ final class PhpDocTypeReflector
             return $this->reflectIterable($genericTypes);
         }
 
-        // todo check no generics?
+        if ($name === 'class-string') {
+            return $this->reflectClassString($genericTypes);
+        }
 
+        if ($name === 'key-of') {
+            return $this->reflectKeyOf($genericTypes);
+        }
+
+        if ($name === 'value-of') {
+            return $this->reflectValueOf($genericTypes);
+        }
+
+        // todo warning
+
+        /** @var Type\Type */
         return match ($name) {
             'null' => types::null,
             'true' => types::true,
             'false' => types::false,
             'bool' => types::bool,
             'float' => types::float,
-            'positive-int' => types::positiveInt(),
-            'negative-int' => types::negativeInt(),
-            'non-negative-int' => types::nonNegativeInt(),
-            'non-positive-int' => types::nonPositiveInt(),
+            'positive-int' => types::positiveInt,
+            'negative-int' => types::negativeInt,
+            'non-negative-int' => types::nonNegativeInt,
+            'non-positive-int' => types::nonPositiveInt,
             'numeric' => types::numeric,
             'string' => types::string,
             'non-empty-string' => types::nonEmptyString,
@@ -149,7 +172,6 @@ final class PhpDocTypeReflector
             'array-key' => types::arrayKey,
             'literal-int' => types::literalInt,
             'literal-string' => types::literalString,
-            'class-string' => types::classString,
             'callable-string' => types::callableString,
             'interface-string' => types::interfaceString,
             'enum-string' => types::enumString,
@@ -191,27 +213,32 @@ final class PhpDocTypeReflector
     {
         return match (\count($templateArguments)) {
             0 => types::int,
-            2 => types::int(
+            2 => types::intRange(
                 min: $this->reflectIntLimit($templateArguments[0], 'min'),
                 max: $this->reflectIntLimit($templateArguments[1], 'max'),
             ),
-            default => throw new \LogicException(),
+            default => throw new ReflectionException(sprintf('int range type should have 2 arguments, got %d.', \count($templateArguments)))
         };
     }
 
-    private function reflectIntLimit(TypeNode $type, string $unlimitedName): ?int
+    /**
+     * @param 'min'|'max' $parameterName
+     */
+    private function reflectIntLimit(TypeNode $type, string $parameterName): ?int
     {
-        if ($type instanceof IdentifierTypeNode && $type->name === $unlimitedName) {
+        if ($type instanceof IdentifierTypeNode && $type->name === $parameterName) {
             return null;
         }
 
-        $type = $this->doReflect($type);
-
-        if ($type instanceof Type\IntLiteralType) {
-            return $type->value;
+        if (!$type instanceof ConstTypeNode) {
+            throw new ReflectionException(sprintf('Invalid int range %s argument: %s.', $parameterName, $type));
         }
 
-        throw new ReflectionException(sprintf('%s cannot be used as int range limit.', TypeStringifier::stringify($type)));
+        if (!$type->constExpr instanceof ConstExprIntegerNode) {
+            throw new ReflectionException(sprintf('Invalid int range %s argument: %s.', $parameterName, $type));
+        }
+
+        return (int) $type->constExpr->value;
     }
 
     /**
@@ -220,7 +247,7 @@ final class PhpDocTypeReflector
     private function reflectIntMask(array $templateArguments): Type\IntMaskType
     {
         if ($templateArguments === []) {
-            throw new \LogicException();
+            throw new ReflectionException('int-mask type should have at least 1 argument.');
         }
 
         return types::intMask(...array_map($this->reflectIntMaskInt(...), $templateArguments));
@@ -232,24 +259,20 @@ final class PhpDocTypeReflector
     private function reflectIntMaskInt(TypeNode $node): int
     {
         if (!$node instanceof ConstTypeNode) {
-            throw new ReflectionException('TODO');
+            throw new ReflectionException(sprintf('Invalid int-mask argument: %s.', $node));
         }
 
         if (!$node->constExpr instanceof ConstExprIntegerNode) {
-            throw new ReflectionException('TODO');
+            throw new ReflectionException(sprintf('Invalid int-mask argument: %s.', $node));
         }
 
-        $int = (int) $node->constExpr->value;
+        $value = (int) $node->constExpr->value;
 
-        if ((string) $int !== $node->constExpr->value) {
-            throw new ReflectionException('TODO');
+        if ($value < 0) {
+            throw new ReflectionException(sprintf('Invalid int-mask argument: %d.', $value));
         }
 
-        if ($int < 0) {
-            throw new ReflectionException('TODO');
-        }
-
-        return $int;
+        return $value;
     }
 
     /**
@@ -258,7 +281,7 @@ final class PhpDocTypeReflector
     private function reflectIntMaskOf(array $templateArguments): Type\IntMaskOfType
     {
         if (\count($templateArguments) !== 1) {
-            throw new \LogicException();
+            throw new ReflectionException(sprintf('int-mask-of type should have 1 argument, got %d.', \count($templateArguments)));
         }
 
         /** @psalm-suppress MixedArgumentTypeCoercion */
@@ -270,10 +293,10 @@ final class PhpDocTypeReflector
      */
     private function reflectList(array $templateArguments): Type\Type
     {
-        return match (\count($templateArguments)) {
+        return match ($number = \count($templateArguments)) {
             0 => types::list(),
             1 => types::list($this->doReflect($templateArguments[0])),
-            default => throw new \LogicException(),
+            default => throw new ReflectionException(sprintf('list type should have at most 1 argument, got %d.', $number)),
         };
     }
 
@@ -282,10 +305,10 @@ final class PhpDocTypeReflector
      */
     private function reflectNonEmptyList(array $templateArguments): Type\Type
     {
-        return match (\count($templateArguments)) {
+        return match ($number = \count($templateArguments)) {
             0 => types::nonEmptyList(),
             1 => types::nonEmptyList($this->doReflect($templateArguments[0])),
-            default => throw new \LogicException(),
+            default => throw new ReflectionException(sprintf('non-empty-list type should have at most 1 argument, got %d.', $number)),
         };
     }
 
@@ -298,11 +321,11 @@ final class PhpDocTypeReflector
          * @psalm-suppress MixedArgumentTypeCoercion
          * @todo check array-key
          */
-        return match (\count($templateArguments)) {
+        return match ($number = \count($templateArguments)) {
             0 => types::array(),
             1 => types::array(valueType: $this->doReflect($templateArguments[0])),
             2 => types::array(...array_map($this->doReflect(...), $templateArguments)),
-            default => throw new \LogicException(),
+            default => throw new ReflectionException(sprintf('array type should have at most 2 arguments, got %d.', $number)),
         };
     }
 
@@ -315,11 +338,11 @@ final class PhpDocTypeReflector
          * @psalm-suppress MixedArgumentTypeCoercion
          * @todo check array-key
          */
-        return match (\count($templateArguments)) {
+        return match ($number = \count($templateArguments)) {
             0 => types::nonEmptyArray(),
             1 => types::nonEmptyArray(valueType: $this->doReflect($templateArguments[0])),
             2 => types::nonEmptyArray(...array_map($this->doReflect(...), $templateArguments)),
-            default => throw new \LogicException(),
+            default => throw new ReflectionException(sprintf('non-empty-array type should have at most 2 arguments, got %d.', $number)),
         };
     }
 
@@ -328,11 +351,11 @@ final class PhpDocTypeReflector
      */
     private function reflectIterable(array $templateArguments): Type\Type
     {
-        return match (\count($templateArguments)) {
+        return match ($number = \count($templateArguments)) {
             0 => types::iterable(),
             1 => types::iterable(valueType: $this->doReflect($templateArguments[0])),
             2 => types::iterable(...array_map($this->doReflect(...), $templateArguments)),
-            default => throw new \LogicException(),
+            default => throw new ReflectionException(sprintf('iterable type should have at most 2 arguments, got %d.', $number)),
         };
     }
 
@@ -364,20 +387,39 @@ final class PhpDocTypeReflector
         return types::arrayShape($elements, $node->sealed);
     }
 
+    private function reflectObjectShape(ObjectShapeNode $node): Type\ObjectShapeType
+    {
+        $properties = [];
+
+        foreach ($node->items as $item) {
+            $keyName = $item->keyName;
+
+            $name = match ($keyName::class) {
+                ConstExprStringNode::class => $keyName->value,
+                IdentifierTypeNode::class => $keyName->name,
+                default => throw new ReflectionException(sprintf('%s is not supported.', $keyName::class)),
+            };
+
+            $properties[$name] = types::prop($this->doReflect($item->valueType), $item->optional);
+        }
+
+        return types::objectShape($properties);
+    }
+
     private function reflectConstExpr(ConstTypeNode $node): Type\Type
     {
         $exprNode = $node->constExpr;
 
         if ($exprNode instanceof ConstExprIntegerNode) {
-            return types::intLiteral((int) $exprNode->value);
+            return types::int((int) $exprNode->value);
         }
 
         if ($exprNode instanceof ConstExprFloatNode) {
-            return types::floatLiteral((float) $exprNode->value);
+            return types::float((float) $exprNode->value);
         }
 
         if ($exprNode instanceof ConstExprStringNode) {
-            return types::stringLiteral($exprNode->value);
+            return types::string($exprNode->value);
         }
 
         if ($exprNode instanceof ConstExprTrueNode) {
@@ -398,6 +440,10 @@ final class PhpDocTypeReflector
             }
 
             $class = $this->nameContext->resolveNameAsClass($exprNode->className);
+
+            if ($exprNode->name === 'class') {
+                return types::classString($class);
+            }
 
             return types::classConstant($class, $exprNode->name);
         }
@@ -421,7 +467,7 @@ final class PhpDocTypeReflector
             );
         }
 
-        throw new ReflectionException(sprintf('PhpDoc type "%s" is not supported.', (string) $node));
+        throw new ReflectionException(sprintf('PhpDoc type "%s" is not supported.', $node));
     }
 
     /**
@@ -437,6 +483,72 @@ final class PhpDocTypeReflector
                 variadic: $parameter->isVariadic,
             ),
             $nodes,
+        );
+    }
+
+    /**
+     * @param list<TypeNode> $genericTypes
+     */
+    private function reflectClassString(array $genericTypes): Type\Type
+    {
+        /** @psalm-suppress MixedArgumentTypeCoercion */
+        return match (\count($genericTypes)) {
+            0 => types::classString,
+            1 => types::classString($this->doReflect($genericTypes[0])),
+            default => throw new ReflectionException(),
+        };
+    }
+
+    /**
+     * @param list<TypeNode> $templateArguments
+     */
+    private function reflectKeyOf(array $templateArguments): Type\KeyOfType
+    {
+        return match ($number = \count($templateArguments)) {
+            1 => types::keyOf($this->doReflect($templateArguments[0])),
+            default => throw new ReflectionException(sprintf('key-of type should have 1 argument, got %d.', $number)),
+        };
+    }
+
+    /**
+     * @param list<TypeNode> $templateArguments
+     */
+    private function reflectValueOf(array $templateArguments): Type\ValueOfType
+    {
+        return match ($number = \count($templateArguments)) {
+            1 => types::valueOf($this->doReflect($templateArguments[0])),
+            default => throw new ReflectionException(sprintf('value-of type should have 1 argument, got %d.', $number)),
+        };
+    }
+
+    private function reflectConditional(ConditionalTypeNode|ConditionalTypeForParameterNode $node): Type\ConditionalType
+    {
+        if ($node instanceof ConditionalTypeNode) {
+            $subject = $this->doReflect($node->subjectType);
+
+            if (!$subject instanceof Type\TemplateType) {
+                throw new ReflectionException(sprintf('Conditional type subject should be an argument or a template, got %s.', $node->subjectType));
+            }
+        } else {
+            /** @var non-empty-string */
+            $name = substr($node->parameterName, 1);
+            $subject = types::arg($name);
+        }
+
+        if ($node->negated) {
+            return types::conditional(
+                subject: $subject,
+                if: $this->doReflect($node->targetType),
+                then: $this->doReflect($node->else),
+                else: $this->doReflect($node->if),
+            );
+        }
+
+        return types::conditional(
+            subject: $subject,
+            if: $this->doReflect($node->targetType),
+            then: $this->doReflect($node->if),
+            else: $this->doReflect($node->else),
         );
     }
 }
