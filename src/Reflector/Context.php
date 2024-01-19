@@ -60,7 +60,7 @@ final class Context implements ParsingContext, ReflectionContext
             return;
         }
 
-        $code = exceptionally(static fn (): string|false => file_get_contents($file));
+        $code = exceptionally(static fn(): string|false => file_get_contents($file));
         $resource = new Resource(
             file: $file,
             extension: $extension,

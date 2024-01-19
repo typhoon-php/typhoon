@@ -27,7 +27,7 @@ final class PhpVersionChangeDetector implements ChangeDetector
     {
         return new self(
             extension: $extension,
-            version: exceptionally(static fn (): string|false => phpversion($extension)),
+            version: exceptionally(static fn(): string|false => phpversion($extension)),
         );
     }
 

@@ -496,14 +496,14 @@ final class PhpParserReflector
 
         if ($node instanceof Node\UnionType) {
             return types::union(...array_map(
-                fn (Node $child): Type\Type => $this->reflectNativeType($child),
+                fn(Node $child): Type\Type => $this->reflectNativeType($child),
                 $node->types,
             ));
         }
 
         if ($node instanceof Node\IntersectionType) {
             return types::intersection(...array_map(
-                fn (Node $child): Type\Type => $this->reflectNativeType($child),
+                fn(Node $child): Type\Type => $this->reflectNativeType($child),
                 $node->types,
             ));
         }

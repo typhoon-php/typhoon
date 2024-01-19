@@ -53,12 +53,13 @@
                 <directory name="tests"/>
             </errorLevel>
         </PossiblyUnusedMethod>
+        <RiskyTruthyFalsyComparison errorLevel="suppress"/>
         <UnusedMethodCall>
             <errorLevel type="suppress">
                 <directory name="tests"/>
             </errorLevel>
         </UnusedMethodCall>
-        <UnresolvableInclude type="suppress" errorLevel="suppress"/>
+        <UnresolvableInclude errorLevel="suppress"/>
     </issueHandlers>
 
     <forbiddenFunctions>

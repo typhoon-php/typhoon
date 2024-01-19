@@ -453,7 +453,7 @@ final class ClassReflection extends ContextAwareReflection implements RootReflec
 
         return array_values(array_filter(
             $this->getPropertiesIndexedByName(),
-            static fn (PropertyReflection $property): bool => ($filter & $property->getModifiers()) !== 0,
+            static fn(PropertyReflection $property): bool => ($filter & $property->getModifiers()) !== 0,
         ));
     }
 
@@ -513,7 +513,7 @@ final class ClassReflection extends ContextAwareReflection implements RootReflec
 
         return array_values(array_filter(
             $this->getMethodsIndexedByName(),
-            static fn (MethodReflection $method): bool => ($filter & $method->getModifiers()) !== 0,
+            static fn(MethodReflection $method): bool => ($filter & $method->getModifiers()) !== 0,
         ));
     }
 
@@ -672,11 +672,11 @@ final class ClassReflection extends ContextAwareReflection implements RootReflec
     {
         $class = clone $this;
         $class->propertiesIndexedByName = array_map(
-            static fn (PropertyReflection $property): PropertyReflection => $property->resolveTypes($typeResolver),
+            static fn(PropertyReflection $property): PropertyReflection => $property->resolveTypes($typeResolver),
             $this->getPropertiesIndexedByName(),
         );
         $class->methodsIndexedByName = array_map(
-            static fn (MethodReflection $method): MethodReflection => $method->resolveTypes($typeResolver),
+            static fn(MethodReflection $method): MethodReflection => $method->resolveTypes($typeResolver),
             $this->getMethodsIndexedByName(),
         );
 

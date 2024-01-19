@@ -369,7 +369,7 @@ final class PhpDocTypeReflector
     private function reflectCallableParameters(array $nodes): array
     {
         return array_map(
-            fn (CallableTypeParameterNode $parameter): Type\Parameter => types::param(
+            fn(CallableTypeParameterNode $parameter): Type\Parameter => types::param(
                 type: $this->doReflect($parameter->type),
                 hasDefault: $parameter->isOptional,
                 variadic: $parameter->isVariadic,

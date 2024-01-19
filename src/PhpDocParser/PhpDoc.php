@@ -26,14 +26,14 @@ final class PhpDoc
 {
     private static ?self $empty = null;
 
-    private TypeNode|null|false $varType = false;
+    private null|TypeNode|false $varType = false;
 
     /**
      * @var ?array<non-empty-string, TypeNode>
      */
     private ?array $paramTypes = null;
 
-    private TypeNode|null|false $returnType = false;
+    private null|TypeNode|false $returnType = false;
 
     /**
      * @var ?list<TemplateTagValueNode>
@@ -153,7 +153,7 @@ final class PhpDoc
         }
 
         return $this->paramTypes = array_map(
-            static fn (PhpDocTagNode $tag): TypeNode => $tag->value->type,
+            static fn(PhpDocTagNode $tag): TypeNode => $tag->value->type,
             $paramTags,
         );
     }
@@ -255,7 +255,7 @@ final class PhpDoc
         }
 
         return $this->extendedTypes = array_map(
-            static fn (PhpDocTagNode $tag): GenericTypeNode => $tag->value->type,
+            static fn(PhpDocTagNode $tag): GenericTypeNode => $tag->value->type,
             array_values($extendsTags),
         );
     }
@@ -287,7 +287,7 @@ final class PhpDoc
         }
 
         return $this->implementedTypes = array_map(
-            static fn (PhpDocTagNode $tag): GenericTypeNode => $tag->value->type,
+            static fn(PhpDocTagNode $tag): GenericTypeNode => $tag->value->type,
             array_values($implementsTags),
         );
     }

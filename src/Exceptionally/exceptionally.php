@@ -14,7 +14,7 @@ namespace Typhoon\Reflection\Exceptionally;
  */
 function exceptionally(callable $call): mixed
 {
-    set_error_handler(static fn (int $level, string $message, string $file, int $line) => throw new \ErrorException(
+    set_error_handler(static fn(int $level, string $message, string $file, int $line) => throw new \ErrorException(
         message: $message,
         severity: $level,
         filename: $file,

@@ -37,7 +37,7 @@ final class NativeReflectionClassLoader implements ClassLoader
 
         $parsingContext->registerClassReflector(
             name: $name,
-            reflector: fn (): ClassReflection => $this->nativeReflectionReflector->reflectClass($reflectionClass),
+            reflector: fn(): ClassReflection => $this->nativeReflectionReflector->reflectClass($reflectionClass),
         );
 
         return true;

@@ -26,7 +26,7 @@ final class FileChangeDetector implements ChangeDetector
      */
     public static function fromFile(string $file): self
     {
-        return new self($file, exceptionally(static fn (): string|false => md5_file($file)));
+        return new self($file, exceptionally(static fn(): string|false => md5_file($file)));
     }
 
     /**
@@ -40,7 +40,7 @@ final class FileChangeDetector implements ChangeDetector
     public function changed(): bool
     {
         try {
-            return exceptionally(fn (): string|false => md5_file($this->file)) !== $this->hash;
+            return exceptionally(fn(): string|false => md5_file($this->file)) !== $this->hash;
         } catch (\Throwable) {
             return true;
         }

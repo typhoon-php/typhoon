@@ -169,7 +169,7 @@ final class StaticResolver implements TypeVisitor
         /** @psalm-suppress ImpureFunctionCall */
         return types::shape(
             array_map(
-                fn (Type\ShapeElement $element): Type\ShapeElement => types::element(
+                fn(Type\ShapeElement $element): Type\ShapeElement => types::element(
                     $element->type->accept($this),
                     $element->optional,
                 ),
@@ -205,7 +205,7 @@ final class StaticResolver implements TypeVisitor
     {
         /** @psalm-suppress ImpureFunctionCall */
         return types::object($type->class, ...array_map(
-            fn (Type\Type $type): Type\Type => $type->accept($this),
+            fn(Type\Type $type): Type\Type => $type->accept($this),
             $type->templateArguments,
         ));
     }
@@ -214,7 +214,7 @@ final class StaticResolver implements TypeVisitor
     {
         /** @psalm-suppress ImpureFunctionCall */
         return types::object($this->class, ...array_map(
-            fn (Type\Type $type): Type\Type => $type->accept($this),
+            fn(Type\Type $type): Type\Type => $type->accept($this),
             $type->templateArguments,
         ));
     }
@@ -239,7 +239,7 @@ final class StaticResolver implements TypeVisitor
         /** @psalm-suppress ImpureFunctionCall */
         return types::closure(
             array_map(
-                fn (Type\Parameter $parameter): Type\Parameter => types::param(
+                fn(Type\Parameter $parameter): Type\Parameter => types::param(
                     $parameter->type->accept($this),
                     $parameter->hasDefault,
                     $parameter->variadic,
@@ -255,7 +255,7 @@ final class StaticResolver implements TypeVisitor
         /** @psalm-suppress ImpureFunctionCall */
         return types::callable(
             array_map(
-                fn (Type\Parameter $parameter): Type\Parameter => types::param(
+                fn(Type\Parameter $parameter): Type\Parameter => types::param(
                     $parameter->type->accept($this),
                     $parameter->hasDefault,
                     $parameter->variadic,
@@ -305,7 +305,7 @@ final class StaticResolver implements TypeVisitor
     {
         /** @psalm-suppress ImpureFunctionCall */
         return types::intersection(...array_map(
-            fn (Type\Type $type): Type\Type => $type->accept($this),
+            fn(Type\Type $type): Type\Type => $type->accept($this),
             $type->types,
         ));
     }
@@ -314,7 +314,7 @@ final class StaticResolver implements TypeVisitor
     {
         /** @psalm-suppress ImpureFunctionCall */
         return types::union(...array_map(
-            fn (Type\Type $type): Type\Type => $type->accept($this),
+            fn(Type\Type $type): Type\Type => $type->accept($this),
             $type->types,
         ));
     }

@@ -69,7 +69,7 @@ final class MethodReflection extends ContextAwareReflection
         $new = clone $child;
         /** @psalm-suppress DocblockTypeContradiction */
         $new->parameters = array_map(
-            static fn (ParameterReflection $childParameter): ParameterReflection => $prototype->hasParameterWithPosition($childParameter->getPosition())
+            static fn(ParameterReflection $childParameter): ParameterReflection => $prototype->hasParameterWithPosition($childParameter->getPosition())
                 ? ParameterReflection::fromPrototype($prototype->getParameterByPosition($childParameter->getPosition()), $childParameter)
                 : $childParameter,
             $child->parameters,
@@ -415,7 +415,7 @@ final class MethodReflection extends ContextAwareReflection
     {
         $method = clone $this;
         $method->parameters = array_map(
-            static fn (ParameterReflection $parameter): ParameterReflection => $parameter->resolveTypes($typeResolver),
+            static fn(ParameterReflection $parameter): ParameterReflection => $parameter->resolveTypes($typeResolver),
             $this->parameters,
         );
         $method->returnType = $method->returnType->resolve($typeResolver);

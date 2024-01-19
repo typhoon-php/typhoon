@@ -26,20 +26,20 @@ abstract class Name
 
         if ($segments[0] === '') {
             return new FullyQualifiedName(self::concatenate(...array_map(
-                static fn (string $segment): UnqualifiedName => new UnqualifiedName($segment),
+                static fn(string $segment): UnqualifiedName => new UnqualifiedName($segment),
                 \array_slice($segments, 1),
             )));
         }
 
         if ($segments[0] === 'namespace') {
             return new RelativeName(self::concatenate(...array_map(
-                static fn (string $segment): UnqualifiedName => new UnqualifiedName($segment),
+                static fn(string $segment): UnqualifiedName => new UnqualifiedName($segment),
                 \array_slice($segments, 1),
             )));
         }
 
         return self::concatenate(...array_map(
-            static fn (string $segment): UnqualifiedName => new UnqualifiedName($segment),
+            static fn(string $segment): UnqualifiedName => new UnqualifiedName($segment),
             $segments,
         ));
     }

@@ -49,7 +49,7 @@ final class NativeReflectionReflector
             deprecated: false,
             parentType: $this->reflectParent($class),
             ownInterfaceTypes: array_map(
-                static fn (string $interface): Type\NamedObjectType => types::object($interface),
+                static fn(string $interface): Type\NamedObjectType => types::object($interface),
                 $class->getInterfaceNames(),
             ),
             ownProperties: $this->reflectOwnProperties($class),
@@ -235,14 +235,14 @@ final class NativeReflectionReflector
 
         if ($reflectionType instanceof \ReflectionUnionType) {
             return types::union(...array_map(
-                fn (\ReflectionType $child): Type\Type => $this->reflectNativeType($child, $class),
+                fn(\ReflectionType $child): Type\Type => $this->reflectNativeType($child, $class),
                 $reflectionType->getTypes(),
             ));
         }
 
         if ($reflectionType instanceof \ReflectionIntersectionType) {
             return types::intersection(...array_map(
-                fn (\ReflectionType $child): Type\Type => $this->reflectNativeType($child, $class),
+                fn(\ReflectionType $child): Type\Type => $this->reflectNativeType($child, $class),
                 $reflectionType->getTypes(),
             ));
         }

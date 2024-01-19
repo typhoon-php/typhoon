@@ -33,7 +33,7 @@ final class DiscoveringVisitor extends NodeVisitorAbstract
             $nameContext = clone $this->nameContext;
             $this->context->registerClassReflector(
                 name: $name,
-                reflector: fn (): ClassReflection => (new PhpParserReflector(
+                reflector: fn(): ClassReflection => (new PhpParserReflector(
                     reflectionContext: $this->context,
                     nameContext: $nameContext,
                     resource: $this->resource,

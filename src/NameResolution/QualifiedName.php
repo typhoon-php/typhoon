@@ -51,7 +51,7 @@ final class QualifiedName extends Name
     public function toString(): string
     {
         return implode('\\', array_map(
-            static fn (UnqualifiedName $name): string => $name->toString(),
+            static fn(UnqualifiedName $name): string => $name->toString(),
             $this->segments,
         ));
     }

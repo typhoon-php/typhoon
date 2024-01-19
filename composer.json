@@ -19,19 +19,19 @@
         "typhoon/type-stringifier": "^0.2@dev"
     },
     "require-dev": {
-        "ergebnis/composer-normalize": "^2.36",
-        "friendsofphp/php-cs-fixer": "^3.26.1",
-        "infection/infection": "^0.27.0",
-        "jetbrains/phpstorm-stubs": "^2023.2",
-        "phpunit/phpunit": "^10.3.4",
-        "phpyh/coding-standard": "^2.5.0",
+        "ergebnis/composer-normalize": "^2.41.1",
+        "friendsofphp/php-cs-fixer": "^3.47.1",
+        "infection/infection": "^0.27.9",
+        "jetbrains/phpstorm-stubs": "^2023.3",
+        "phpunit/phpunit": "^10.5.8",
+        "phpyh/coding-standard": "^2.6.0",
         "psalm/plugin-phpunit": "^0.18.4",
-        "symfony/filesystem": "^6.3",
-        "symfony/finder": "^6.3",
-        "symfony/var-dumper": "^6.3.4",
+        "symfony/filesystem": "^6.4",
+        "symfony/finder": "^6.4",
+        "symfony/var-dumper": "^6.4.2",
         "typhoon/exporter": "^0.2@dev",
         "typhoon/opcache": "^0.2@dev",
-        "vimeo/psalm": "^5.15.0"
+        "vimeo/psalm": "^5.20.0"
     },
     "autoload": {
         "psr-4": {

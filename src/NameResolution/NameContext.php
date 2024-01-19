@@ -97,7 +97,7 @@ final class NameContext
         $this->classTemplateNamesMap = array_fill_keys(
             array_map(
                 /** @return non-empty-string */
-                static fn (string $templateName): string => (new UnqualifiedName($templateName))->toString(),
+                static fn(string $templateName): string => (new UnqualifiedName($templateName))->toString(),
                 $templateNames,
             ),
             true,
@@ -115,7 +115,7 @@ final class NameContext
         $this->methodTemplateNamesMap = array_fill_keys(
             array_map(
                 /** @return non-empty-string */
-                static fn (string $templateName): string => (new UnqualifiedName($templateName))->toString(),
+                static fn(string $templateName): string => (new UnqualifiedName($templateName))->toString(),
                 $templateNames,
             ),
             true,
