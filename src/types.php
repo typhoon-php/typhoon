@@ -492,7 +492,7 @@ final class types
      * @psalm-pure
      * @param non-empty-string $name
      */
-    public function arg(string $name): Argument
+    public static function arg(string $name): Argument
     {
         return new Argument($name);
     }
