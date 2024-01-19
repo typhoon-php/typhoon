@@ -68,10 +68,9 @@ final class Context implements ParsingContext, ReflectionContext
         );
 
         $nameContext = new NameContext();
-        $nameContextVisitor = new NameContextVisitor($nameContext);
         $this->phpParser->parseAndTraverse($code, [
             new PhpDocParsingVisitor($this->phpDocParser),
-            $nameContextVisitor,
+            new NameContextVisitor($nameContext),
             new DiscoveringVisitor(
                 context: $this,
                 nameContext: $nameContext,
