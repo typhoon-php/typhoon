@@ -101,6 +101,14 @@ final class PhpDocTypeReflector
             return $this->reflectInt($genericTypes);
         }
 
+        if ($name === 'int-mask') {
+            return $this->reflectIntMask($genericTypes);
+        }
+
+        if ($name === 'int-mask-of') {
+            return $this->reflectIntMaskOf($genericTypes);
+        }
+
         if ($name === 'list') {
             return $this->reflectList($genericTypes);
         }
@@ -121,6 +129,8 @@ final class PhpDocTypeReflector
             return $this->reflectIterable($genericTypes);
         }
 
+        // todo check no generics?
+
         return match ($name) {
             'null' => types::null,
             'true' => types::true,
@@ -134,6 +144,7 @@ final class PhpDocTypeReflector
             'numeric' => types::numeric,
             'string' => types::string,
             'non-empty-string' => types::nonEmptyString,
+            'non-falsy-string', 'truthy-string' => types::truthyString,
             'numeric-string' => types::numericString,
             'array-key' => types::arrayKey,
             'literal-int' => types::literalInt,
@@ -201,6 +212,57 @@ final class PhpDocTypeReflector
         }
 
         throw new ReflectionException(sprintf('%s cannot be used as int range limit.', TypeStringifier::stringify($type)));
+    }
+
+    /**
+     * @param list<TypeNode> $templateArguments
+     */
+    private function reflectIntMask(array $templateArguments): Type\IntMaskType
+    {
+        if ($templateArguments === []) {
+            throw new \LogicException();
+        }
+
+        return types::intMask(...array_map($this->reflectIntMaskInt(...), $templateArguments));
+    }
+
+    /**
+     * @return int<0, max>
+     */
+    private function reflectIntMaskInt(TypeNode $node): int
+    {
+        if (!$node instanceof ConstTypeNode) {
+            throw new ReflectionException('TODO');
+        }
+
+        if (!$node->constExpr instanceof ConstExprIntegerNode) {
+            throw new ReflectionException('TODO');
+        }
+
+        $int = (int) $node->constExpr->value;
+
+        if ((string) $int !== $node->constExpr->value) {
+            throw new ReflectionException('TODO');
+        }
+
+        if ($int < 0) {
+            throw new ReflectionException('TODO');
+        }
+
+        return $int;
+    }
+
+    /**
+     * @param list<TypeNode> $templateArguments
+     */
+    private function reflectIntMaskOf(array $templateArguments): Type\IntMaskOfType
+    {
+        if (\count($templateArguments) !== 1) {
+            throw new \LogicException();
+        }
+
+        /** @psalm-suppress MixedArgumentTypeCoercion */
+        return types::intMaskOf($this->doReflect($templateArguments[0]));
     }
 
     /**
