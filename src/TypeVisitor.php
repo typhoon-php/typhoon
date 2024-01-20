@@ -87,7 +87,7 @@ interface TypeVisitor
     public function visitNonEmptyString(NonEmptyStringType $type): mixed;
 
     /** @return TReturn */
-    public function visitTruthyString(TruthyString $type): mixed;
+    public function visitTruthyString(TruthyStringType $type): mixed;
 
     /** @return TReturn */
     public function visitString(StringType $type): mixed;

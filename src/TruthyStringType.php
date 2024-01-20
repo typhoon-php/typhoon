@@ -9,7 +9,7 @@ namespace Typhoon\Type;
  * @psalm-immutable
  * @implements Type<truthy-string>
  */
-enum TruthyString implements Type
+enum TruthyStringType implements Type
 {
     /**
      * @internal

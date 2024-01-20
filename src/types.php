@@ -28,8 +28,8 @@ final class types
     public const enumString = EnumStringType::type;
     public const traitString = TraitStringType::type;
     public const nonEmptyString = NonEmptyStringType::type;
-    public const truthyString = TruthyString::type;
-    public const nonFalsyString = TruthyString::type;
+    public const truthyString = TruthyStringType::type;
+    public const nonFalsyString = TruthyStringType::type;
     public const string = StringType::type;
     public const numeric = NumericType::type;
     public const scalar = ScalarType::type;
