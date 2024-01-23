@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Typhoon\Type;
 
-use PHPUnit\Framework\Attributes\DataProvider;
+use PHPUnit\Framework\Attributes\TestWith;
 use PHPUnit\Framework\TestCase;
 use StaticAnalysisTester\PsalmTester;
 use StaticAnalysisTester\StaticAnalysisTest;
@@ -24,17 +24,60 @@ final class PsalmTest extends TestCase
         return null;
     }
 
-    /**
-     * @return \Generator<string, array{string}>
-     */
-    public static function phptFiles(): \Generator
-    {
-        foreach (glob(__DIR__ . '/psalm/*.phpt') as $file) {
-            yield basename($file) => [$file];
-        }
-    }
-
-    #[DataProvider('phptFiles')]
+    #[TestWith([__DIR__ . '/psalm/ArrayKeyType.phpt'])]
+    #[TestWith([__DIR__ . '/psalm/ArrayShapeType.phpt'])]
+    #[TestWith([__DIR__ . '/psalm/ArrayType.phpt'])]
+    #[TestWith([__DIR__ . '/psalm/BoolType.phpt'])]
+    #[TestWith([__DIR__ . '/psalm/CallableArrayType.phpt'])]
+    #[TestWith([__DIR__ . '/psalm/CallableStringType.phpt'])]
+    #[TestWith([__DIR__ . '/psalm/CallableType.phpt'])]
+    #[TestWith([__DIR__ . '/psalm/ClassConstantType.phpt'])]
+    #[TestWith([__DIR__ . '/psalm/ClassStringLiteralType.phpt'])]
+    #[TestWith([__DIR__ . '/psalm/ClassStringType.phpt'])]
+    #[TestWith([__DIR__ . '/psalm/ClosedResourceType.phpt'])]
+    #[TestWith([__DIR__ . '/psalm/ClosureType.phpt'])]
+    #[TestWith([__DIR__ . '/psalm/ConditionalType.phpt'])]
+    #[TestWith([__DIR__ . '/psalm/ConstantType.phpt'])]
+    #[TestWith([__DIR__ . '/psalm/EnumStringType.phpt'])]
+    #[TestWith([__DIR__ . '/psalm/FalseType.phpt'])]
+    #[TestWith([__DIR__ . '/psalm/FloatLiteralType.phpt'])]
+    #[TestWith([__DIR__ . '/psalm/FloatType.phpt'])]
+    #[TestWith([__DIR__ . '/psalm/InterfaceStringType.phpt'])]
+    #[TestWith([__DIR__ . '/psalm/IntersectionType.phpt'])]
+    #[TestWith([__DIR__ . '/psalm/IntLiteralType.phpt'])]
+    #[TestWith([__DIR__ . '/psalm/IntMaskOfType.phpt'])]
+    #[TestWith([__DIR__ . '/psalm/IntMaskType.phpt'])]
+    #[TestWith([__DIR__ . '/psalm/IntRangeType.phpt'])]
+    #[TestWith([__DIR__ . '/psalm/IntType.phpt'])]
+    #[TestWith([__DIR__ . '/psalm/IterableType.phpt'])]
+    #[TestWith([__DIR__ . '/psalm/KeyOfType.phpt'])]
+    #[TestWith([__DIR__ . '/psalm/ListType.phpt'])]
+    #[TestWith([__DIR__ . '/psalm/LiteralIntType.phpt'])]
+    #[TestWith([__DIR__ . '/psalm/LiteralStringType.phpt'])]
+    #[TestWith([__DIR__ . '/psalm/MixedType.phpt'])]
+    #[TestWith([__DIR__ . '/psalm/NamedClassStringType.phpt'])]
+    #[TestWith([__DIR__ . '/psalm/NamedObjectType.phpt'])]
+    #[TestWith([__DIR__ . '/psalm/NeverType.phpt'])]
+    #[TestWith([__DIR__ . '/psalm/NonEmptyArrayType.phpt'])]
+    #[TestWith([__DIR__ . '/psalm/NonEmptyListType.phpt'])]
+    #[TestWith([__DIR__ . '/psalm/NonEmptyStringType.phpt'])]
+    #[TestWith([__DIR__ . '/psalm/NullType.phpt'])]
+    #[TestWith([__DIR__ . '/psalm/NumericStringType.phpt'])]
+    #[TestWith([__DIR__ . '/psalm/NumericType.phpt'])]
+    #[TestWith([__DIR__ . '/psalm/ObjectShapeType.phpt'])]
+    #[TestWith([__DIR__ . '/psalm/ObjectType.phpt'])]
+    #[TestWith([__DIR__ . '/psalm/ResourceType.phpt'])]
+    #[TestWith([__DIR__ . '/psalm/ScalarType.phpt'])]
+    #[TestWith([__DIR__ . '/psalm/StaticType.phpt'])]
+    #[TestWith([__DIR__ . '/psalm/StringLiteralType.phpt'])]
+    #[TestWith([__DIR__ . '/psalm/StringType.phpt'])]
+    #[TestWith([__DIR__ . '/psalm/TemplateType.phpt'])]
+    #[TestWith([__DIR__ . '/psalm/TraitStringType.phpt'])]
+    #[TestWith([__DIR__ . '/psalm/TrueType.phpt'])]
+    #[TestWith([__DIR__ . '/psalm/TruthyStringType.phpt'])]
+    #[TestWith([__DIR__ . '/psalm/UnionType.phpt'])]
+    #[TestWith([__DIR__ . '/psalm/ValueOfType.phpt'])]
+    #[TestWith([__DIR__ . '/psalm/VoidType.phpt'])]
     public function testPhptFiles(string $phptFile): void
     {
         $this->psalmTester ??= PsalmTester::create();
