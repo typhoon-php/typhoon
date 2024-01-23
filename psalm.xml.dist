@@ -23,6 +23,7 @@
 
     <projectFiles>
         <directory name="src"/>
+        <directory name="static-analysis-tester"/>
         <directory name="tests"/>
         <ignoreFiles>
             <directory name="var"/>
@@ -50,4 +51,9 @@
         <function name="sleep"/>
         <function name="usleep"/>
     </forbiddenFunctions>
+
+    <ignoreExceptions>
+        <classAndDescendants name="LogicException"/>
+        <classAndDescendants name="RuntimeException"/>
+    </ignoreExceptions>
 </psalm>
