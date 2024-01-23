@@ -158,7 +158,7 @@ final class TypeStringifier implements TypeVisitor
         return 'non-empty-string';
     }
 
-    public function visitTruthyString(Type\TruthyString $type): mixed
+    public function visitTruthyString(Type\TruthyStringType $type): mixed
     {
         return 'truthy-string';
     }
