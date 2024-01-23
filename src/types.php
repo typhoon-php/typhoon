@@ -4,8 +4,6 @@ declare(strict_types=1);
 
 namespace Typhoon\Type;
 
-use Psalm\Type\Atomic\TIntMask;
-
 /**
  * @api
  */
@@ -19,6 +17,31 @@ final class types
     public const bool = BoolType::type;
     public const literalInt = LiteralIntType::type;
     public const int = IntType::type;
+
+    /**
+     * @psalm-suppress InvalidConstantAssignmentValue
+     * @var Type<positive-int>
+     */
+    public const positiveInt = __positiveInt;
+
+    /**
+     * @psalm-suppress InvalidConstantAssignmentValue
+     * @var IntRangeType<negative-int>
+     */
+    public const negativeInt = __negativeInt;
+
+    /**
+     * @psalm-suppress InvalidConstantAssignmentValue
+     * @var IntRangeType<non-positive-int>
+     */
+    public const nonPositiveInt = __nonPositiveInt;
+
+    /**
+     * @psalm-suppress InvalidConstantAssignmentValue
+     * @var IntRangeType<non-negative-int>
+     */
+    public const nonNegativeInt = __nonNegativeInt;
+
     public const float = FloatType::type;
     public const literalString = LiteralStringType::type;
     public const numericString = NumericStringType::type;
@@ -47,49 +70,9 @@ final class types
 
     /**
      * @psalm-pure
-     * @return IntRangeType<negative-int>
-     */
-    public static function negativeInt(): IntRangeType
-    {
-        /** @var IntRangeType<negative-int> */
-        return new IntRangeType(max: -1);
-    }
-
-    /**
-     * @psalm-pure
-     * @return IntRangeType<non-positive-int>
-     */
-    public static function nonPositiveInt(): IntRangeType
-    {
-        /** @var IntRangeType<non-positive-int> */
-        return new IntRangeType(max: 0);
-    }
-
-    /**
-     * @psalm-pure
-     * @return IntRangeType<non-negative-int>
-     */
-    public static function nonNegativeInt(): IntRangeType
-    {
-        /** @var IntRangeType<non-negative-int> */
-        return new IntRangeType(0);
-    }
-
-    /**
-     * @psalm-pure
-     * @return IntRangeType<positive-int>
-     */
-    public static function positiveInt(): IntRangeType
-    {
-        /** @var IntRangeType<positive-int> */
-        return new IntRangeType(1);
-    }
-
-    /**
-     * @psalm-pure
      * @no-named-arguments
-     * @param int<0, max> $int
-     * @param int<0, max> ...$ints
+     * @param non-negative-int $int
+     * @param non-negative-int ...$ints
      */
     public static function intMask(int $int, int ...$ints): IntMaskType
     {
@@ -110,29 +93,9 @@ final class types
     /**
      * @psalm-pure
      */
-    public static function int(?int $min = null, ?int $max = null): IntRangeType
+    public static function intRange(?int $min = null, ?int $max = null): IntRangeType
     {
         return new IntRangeType($min, $max);
-    }
-
-    /**
-     * @psalm-pure
-     * @psalm-suppress NoValue, InvalidTemplateParam, TypeDoesNotContainType
-     * @template TValue of int|float|string
-     * @param TValue $value
-     * @return ($value is int ? IntLiteralType<TValue> : ($value is float ? FloatLiteralType<TValue> : StringLiteralType<TValue>))
-     */
-    public static function literal(int|float|string $value): IntLiteralType|FloatLiteralType|StringLiteralType
-    {
-        if (\is_int($value)) {
-            return new IntLiteralType($value);
-        }
-
-        if (\is_float($value)) {
-            return new FloatLiteralType($value);
-        }
-
-        return new StringLiteralType($value);
     }
 
     /**
@@ -141,7 +104,7 @@ final class types
      * @param TValue $value
      * @return IntLiteralType<TValue>
      */
-    public static function intLiteral(int $value): IntLiteralType
+    public static function int(int $value): IntLiteralType
     {
         return new IntLiteralType($value);
     }
@@ -152,7 +115,7 @@ final class types
      * @param TValue $value
      * @return FloatLiteralType<TValue>
      */
-    public static function floatLiteral(float $value): FloatLiteralType
+    public static function float(float $value): FloatLiteralType
     {
         return new FloatLiteralType($value);
     }
@@ -163,7 +126,7 @@ final class types
      * @param TValue $value
      * @return StringLiteralType<TValue>
      */
-    public static function stringLiteral(string $value): StringLiteralType
+    public static function string(string $value): StringLiteralType
     {
         return new StringLiteralType($value);
     }
@@ -171,23 +134,18 @@ final class types
     /**
      * @psalm-pure
      * @template TClass of class-string
-     * @param TClass $class
-     * @return ClassStringLiteralType<TClass>
-     */
-    public static function classStringLiteral(string $class): ClassStringLiteralType
-    {
-        return new ClassStringLiteralType($class);
-    }
-
-    /**
-     * @psalm-pure
      * @template TObject of object
-     * @param Type<TObject> $type
-     * @return NamedClassStringType<TObject>
+     * @param TClass|Type<TObject> $classOrType
+     * @return ($classOrType is TClass ? ClassStringLiteralType<TClass> : NamedClassStringType<TObject>)
+     * @psalm-suppress TypeDoesNotContainType, NoValue
      */
-    public static function classString(Type $type): NamedClassStringType
+    public static function classString(string|Type $classOrType): ClassStringLiteralType|NamedClassStringType
     {
-        return new NamedClassStringType($type);
+        if (\is_string($classOrType)) {
+            return new ClassStringLiteralType($classOrType);
+        }
+
+        return new NamedClassStringType($classOrType);
     }
 
     /**
@@ -344,17 +302,6 @@ final class types
 
     /**
      * @psalm-pure
-     * @template TType
-     * @param Type<TType> $type
-     * @return Parameter<TType>
-     */
-    public static function param(Type $type = self::mixed, bool $hasDefault = false, bool $variadic = false): Parameter
-    {
-        return new Parameter($type, $hasDefault, $variadic);
-    }
-
-    /**
-     * @psalm-pure
      * @template TReturn
      * @param list<Type|Parameter> $parameters
      * @param Type<TReturn> $returnType
@@ -399,6 +346,17 @@ final class types
             ),
             $returnType,
         );
+    }
+
+    /**
+     * @psalm-pure
+     * @template TType
+     * @param Type<TType> $type
+     * @return Parameter<TType>
+     */
+    public static function param(Type $type = self::mixed, bool $hasDefault = false, bool $variadic = false): Parameter
+    {
+        return new Parameter($type, $hasDefault, $variadic);
     }
 
     /**
@@ -455,6 +413,15 @@ final class types
 
     /**
      * @psalm-pure
+     * @param non-empty-string $name
+     */
+    public static function arg(string $name): Argument
+    {
+        return new Argument($name);
+    }
+
+    /**
+     * @psalm-pure
      * @no-named-arguments
      * @template TType
      * @param Type<TType> $type
@@ -487,16 +454,31 @@ final class types
     {
         return new UnionType([$type1, $type2, ...$moreTypes]);
     }
-
-    /**
-     * @psalm-pure
-     * @param non-empty-string $name
-     */
-    public static function arg(string $name): Argument
-    {
-        return new Argument($name);
-    }
 }
+
+/**
+ * @internal
+ * @psalm-internal Typhoon\Type
+ */
+const __positiveInt = new IntRangeType(1);
+
+/**
+ * @internal
+ * @psalm-internal Typhoon\Type
+ */
+const __negativeInt = new IntRangeType(max: -1);
+
+/**
+ * @internal
+ * @psalm-internal Typhoon\Type
+ */
+const __nonPositiveInt = new IntRangeType(max: 0);
+
+/**
+ * @internal
+ * @psalm-internal Typhoon\Type
+ */
+const __nonNegativeInt = new IntRangeType(0);
 
 /**
  * @internal
