@@ -119,8 +119,8 @@ final class TypeStringifierTest extends TestCase
         yield [types::classConstant(\stdClass::class, 'test'), 'stdClass::test'];
         yield [types::keyOf(types::list()), 'key-of<list>'];
         yield [types::valueOf(types::list()), 'value-of<list>'];
-        yield [types::conditional(types::arg('a'), is: types::string, if: types::int, else: types::float), '($a is string ? int : float)'];
-        yield [types::conditional(types::template('T'), is: types::string, if: types::int, else: types::float), '(T is string ? int : float)'];
+        yield [types::conditional(types::arg('a'), if: types::string, then: types::int, else: types::float), '($a is string ? int : float)'];
+        yield [types::conditional(types::template('T'), if: types::string, then: types::int, else: types::float), '(T is string ? int : float)'];
     }
 
     #[DataProvider('typesAndTheirStringRepresentations')]

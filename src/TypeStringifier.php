@@ -370,8 +370,8 @@ final class TypeStringifier implements TypeVisitor
             '(%s%s is %s ? %s : %s)',
             $type->subject instanceof Type\Argument ? '$' : '',
             $type->subject->name,
-            $type->is->accept($this),
             $type->if->accept($this),
+            $type->then->accept($this),
             $type->else->accept($this),
         );
     }

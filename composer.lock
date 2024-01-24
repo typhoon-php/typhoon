@@ -12,12 +12,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/typhoon-php/type.git",
-                "reference": "7d0cec6f0251d0be3b316f4b3a73531e77798ae9"
+                "reference": "423387108f9294c327171a2ea4c024ca3f743f8a"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/typhoon-php/type/zipball/7d0cec6f0251d0be3b316f4b3a73531e77798ae9",
-                "reference": "7d0cec6f0251d0be3b316f4b3a73531e77798ae9",
+                "url": "https://api.github.com/repos/typhoon-php/type/zipball/423387108f9294c327171a2ea4c024ca3f743f8a",
+                "reference": "423387108f9294c327171a2ea4c024ca3f743f8a",
                 "shasum": ""
             },
             "require": {
@@ -52,7 +52,7 @@
                 "issues": "https://github.com/typhoon-php/type/issues",
                 "source": "https://github.com/typhoon-php/type/tree/0.3.x"
             },
-            "time": "2024-01-24T11:40:20+00:00"
+            "time": "2024-01-24T14:05:58+00:00"
         }
     ],
     "packages-dev": [
