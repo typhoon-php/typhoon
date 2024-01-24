@@ -41,4 +41,32 @@ final class TypesTest extends TestCase
         self::assertSame(0, $type->min);
         self::assertNull($type->max);
     }
+
+    public function testDefaultArrayReturnsSameInstance(): void
+    {
+        self::assertSame(types::array(), types::array());
+    }
+
+    public function testDefaultIterableReturnsSameInstance(): void
+    {
+        self::assertSame(types::iterable(), types::iterable());
+    }
+
+    public function testClassStringReturnsClassStringLiteralForString(): void
+    {
+        $class = \stdClass::class;
+
+        $type = types::classString($class);
+
+        self::assertEquals(new ClassStringLiteralType($class), $type);
+    }
+
+    public function testClassStringReturnsNamedClassStringForType(): void
+    {
+        $objectType = new NamedObjectType(\stdClass::class);
+
+        $type = types::classString($objectType);
+
+        self::assertEquals(new NamedClassStringType($objectType), $type);
+    }
 }

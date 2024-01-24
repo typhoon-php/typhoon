@@ -20,7 +20,7 @@ final class types
 
     /**
      * @psalm-suppress InvalidConstantAssignmentValue
-     * @var Type<positive-int>
+     * @var IntRangeType<positive-int>
      */
     public const positiveInt = __positiveInt;
 
@@ -156,10 +156,6 @@ final class types
      */
     public static function nonEmptyList(Type $valueType = self::mixed): NonEmptyListType
     {
-        if ($valueType === self::mixed) {
-            return __nonEmptyList;
-        }
-
         return new NonEmptyListType($valueType);
     }
 
@@ -171,10 +167,6 @@ final class types
      */
     public static function list(Type $valueType = self::mixed): ListType
     {
-        if ($valueType === self::mixed) {
-            return __list;
-        }
-
         return new ListType($valueType);
     }
 
@@ -216,10 +208,6 @@ final class types
      */
     public static function nonEmptyArray(Type $keyType = self::arrayKey, Type $valueType = self::mixed): NonEmptyArrayType
     {
-        if ($keyType === self::arrayKey && $valueType === self::mixed) {
-            return __nonEmptyArray;
-        }
-
         return new NonEmptyArrayType($keyType, $valueType);
     }
 
@@ -479,24 +467,6 @@ const __nonPositiveInt = new IntRangeType(max: 0);
  * @psalm-internal Typhoon\Type
  */
 const __nonNegativeInt = new IntRangeType(0);
-
-/**
- * @internal
- * @psalm-internal Typhoon\Type
- */
-const __nonEmptyList = new NonEmptyListType();
-
-/**
- * @internal
- * @psalm-internal Typhoon\Type
- */
-const __list = new ListType();
-
-/**
- * @internal
- * @psalm-internal Typhoon\Type
- */
-const __nonEmptyArray = new NonEmptyArrayType();
 
 /**
  * @internal
