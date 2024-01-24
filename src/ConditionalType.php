@@ -13,9 +13,9 @@ final class ConditionalType implements Type
 {
     public readonly Argument|TemplateType $subject;
 
-    public readonly Type $is;
-
     public readonly Type $if;
+
+    public readonly Type $then;
 
     public readonly Type $else;
 
@@ -25,13 +25,13 @@ final class ConditionalType implements Type
      */
     public function __construct(
         Argument|TemplateType $subject,
-        Type $is,
         Type $if,
+        Type $then,
         Type $else,
     ) {
         $this->subject = $subject;
-        $this->is = $is;
         $this->if = $if;
+        $this->then = $then;
         $this->else = $else;
     }
 

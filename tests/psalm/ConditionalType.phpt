@@ -5,9 +5,9 @@ namespace Typhoon\Type;
 
 $_type = PsalmTest::extractType(new ConditionalType(
     subject: new Argument('a'),
-    is: StringType::type,
-    if: StringType::type,
-    else: StringType::type,
+    if: TrueType::type,
+    then: StringType::type,
+    else: NullType::type,
 ));
 /** @psalm-check-type-exact $_type = mixed */
 
