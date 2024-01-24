@@ -22,7 +22,10 @@
     "autoload": {
         "psr-4": {
             "Typhoon\\Type\\": "src/"
-        }
+        },
+        "files": [
+            "src/types.php"
+        ]
     },
     "autoload-dev": {
         "psr-4": {
