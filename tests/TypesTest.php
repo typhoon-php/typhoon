@@ -69,4 +69,11 @@ final class TypesTest extends TestCase
 
         self::assertEquals(new NamedClassStringType($objectType), $type);
     }
+
+    public function testIntRangeReturnIntIfNoLimits(): void
+    {
+        $type = types::intRange();
+
+        self::assertSame(types::int, $type);
+    }
 }

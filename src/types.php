@@ -93,8 +93,12 @@ final class types
     /**
      * @psalm-pure
      */
-    public static function intRange(?int $min = null, ?int $max = null): IntRangeType
+    public static function intRange(?int $min = null, ?int $max = null): IntType|IntRangeType
     {
+        if ($min === null && $max === null) {
+            return IntType::type;
+        }
+
         return new IntRangeType($min, $max);
     }
 
