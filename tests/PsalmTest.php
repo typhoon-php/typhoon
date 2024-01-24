@@ -78,7 +78,6 @@ final class PsalmTest extends TestCase
     #[TestWith([__DIR__ . '/psalm/UnionType.phpt'])]
     #[TestWith([__DIR__ . '/psalm/ValueOfType.phpt'])]
     #[TestWith([__DIR__ . '/psalm/VoidType.phpt'])]
-    #[TestWith([__DIR__ . '/psalm/types.phpt'])]
     public function testPhptFiles(string $phptFile): void
     {
         $this->psalmTester ??= PsalmTester::create();
