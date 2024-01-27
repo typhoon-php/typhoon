@@ -4,7 +4,7 @@
 namespace Typhoon\Type;
 
 $_type = PsalmTest::extractType(new ArrayType());
-/** @psalm-check-type-exact $_type = array */
+/** @psalm-check-type-exact $_type = \array */
 
 new ArrayType(ObjectType::type, ObjectType::type);
 

@@ -15,7 +15,7 @@ final class X
  */
 function testItPreservesPassedType(Type $constantType): void
 {
-    /** @psalm-check-type-exact $_type = 1|2|4 */
+    /** @psalm-check-type-exact $_type = \1|2|4 */
     $_type = PsalmTest::extractType(new IntMaskOfType($constantType));
 }
 

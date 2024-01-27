@@ -4,6 +4,6 @@
 namespace Typhoon\Type;
 
 $_type = PsalmTest::extractType(BoolType::type);
-/** @psalm-check-type-exact $_type = bool */
+/** @psalm-check-type-exact $_type = \bool */
 
 --EXPECT--

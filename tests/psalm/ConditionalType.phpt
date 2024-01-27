@@ -9,6 +9,6 @@ $_type = PsalmTest::extractType(new ConditionalType(
     then: StringType::type,
     else: NullType::type,
 ));
-/** @psalm-check-type-exact $_type = mixed */
+/** @psalm-check-type-exact $_type = \mixed */
 
 --EXPECT--
