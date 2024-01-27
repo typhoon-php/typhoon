@@ -18,6 +18,7 @@
         "phpunit/phpunit": "^10.5.9",
         "phpyh/coding-standard": "^2.6.0",
         "phpyh/psalm-tester": "^0.1.0",
+        "typhoon/psalm-plugin": "^0.1.0",
         "vimeo/psalm": "^5@dev"
     },
     "autoload": {

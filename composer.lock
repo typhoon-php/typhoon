@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "bd718e92073f9fd491102c11dc662bff",
+    "content-hash": "f79d8b805aba5bf48023b1636fd4c6db",
     "packages": [],
     "packages-dev": [
         {
@@ -4772,6 +4772,62 @@
                 }
             ],
             "time": "2023-11-20T00:12:19+00:00"
+        },
+        {
+            "name": "typhoon/psalm-plugin",
+            "version": "0.1.0",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/typhoon-php/psalm-plugin.git",
+                "reference": "ef2031279149ff59dd815a8d52b8ff6cbe7c1835"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/typhoon-php/psalm-plugin/zipball/ef2031279149ff59dd815a8d52b8ff6cbe7c1835",
+                "reference": "ef2031279149ff59dd815a8d52b8ff6cbe7c1835",
+                "shasum": ""
+            },
+            "require": {
+                "ext-simplexml": "*",
+                "nikic/php-parser": "^4.18",
+                "php": "^8.1",
+                "typhoon/type": "^0.3@dev",
+                "vimeo/psalm": "^5@dev"
+            },
+            "require-dev": {
+                "ergebnis/composer-normalize": "^2.36.0",
+                "friendsofphp/php-cs-fixer": "^3.26.1",
+                "phpunit/phpunit": "^10.5",
+                "phpyh/coding-standard": "^2.5.0",
+                "phpyh/psalm-tester": "^0.1.0"
+            },
+            "type": "psalm-plugin",
+            "extra": {
+                "psalm": {
+                    "pluginClass": "Typhoon\\PsalmPlugin\\TyphoonPlugin"
+                }
+            },
+            "autoload": {
+                "psr-4": {
+                    "Typhoon\\PsalmPlugin\\": "src/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Valentin Udaltsov",
+                    "email": "udaltsov.valentin@gmail.com"
+                }
+            ],
+            "description": "Typhoon Psalm Plugin",
+            "support": {
+                "issues": "https://github.com/typhoon-php/psalm-plugin/issues",
+                "source": "https://github.com/typhoon-php/psalm-plugin/tree/0.1.0"
+            },
+            "time": "2024-01-27T22:15:48+00:00"
         },
         {
             "name": "vimeo/psalm",

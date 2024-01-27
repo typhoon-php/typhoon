@@ -55,4 +55,8 @@
         <classAndDescendants name="LogicException"/>
         <classAndDescendants name="RuntimeException"/>
     </ignoreExceptions>
+
+    <plugins>
+        <pluginClass class="Typhoon\PsalmPlugin\TyphoonPlugin"/>
+    </plugins>
 </psalm>
