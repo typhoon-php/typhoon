@@ -17,31 +17,10 @@ final class types
     public const bool = BoolType::type;
     public const literalInt = LiteralIntType::type;
     public const int = IntType::type;
-
-    /**
-     * @psalm-suppress InvalidConstantAssignmentValue
-     * @var IntRangeType<positive-int>
-     */
     public const positiveInt = __positiveInt;
-
-    /**
-     * @psalm-suppress InvalidConstantAssignmentValue
-     * @var IntRangeType<negative-int>
-     */
     public const negativeInt = __negativeInt;
-
-    /**
-     * @psalm-suppress InvalidConstantAssignmentValue
-     * @var IntRangeType<non-positive-int>
-     */
     public const nonPositiveInt = __nonPositiveInt;
-
-    /**
-     * @psalm-suppress InvalidConstantAssignmentValue
-     * @var IntRangeType<non-negative-int>
-     */
     public const nonNegativeInt = __nonNegativeInt;
-
     public const float = FloatType::type;
     public const literalString = LiteralStringType::type;
     public const numericString = NumericStringType::type;
