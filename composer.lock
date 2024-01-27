@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "9501f75761e9d8fe7b71b6fb325d4bef",
+    "content-hash": "51dbeebb85d530fb7a1ea92a33e63c12",
     "packages": [],
     "packages-dev": [
         {
@@ -2239,6 +2239,65 @@
                 "source": "https://github.com/phpyh/coding-standard/tree/2.6.0"
             },
             "time": "2024-01-18T23:30:39+00:00"
+        },
+        {
+            "name": "phpyh/psalm-tester",
+            "version": "0.1.0",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/phpyh/psalm-tester.git",
+                "reference": "cbe9f0718ae8ad0b1b98d86e8d906a18cf8d656a"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/phpyh/psalm-tester/zipball/cbe9f0718ae8ad0b1b98d86e8d906a18cf8d656a",
+                "reference": "cbe9f0718ae8ad0b1b98d86e8d906a18cf8d656a",
+                "shasum": ""
+            },
+            "require": {
+                "composer-runtime-api": "^2.1",
+                "php": "^8.1",
+                "phpunit/phpunit": "^9 || ^10"
+            },
+            "require-dev": {
+                "ergebnis/composer-normalize": "^2.41.1",
+                "friendsofphp/php-cs-fixer": "^3.48.0",
+                "icanhazstring/composer-unused": "^0.8.11",
+                "maglnet/composer-require-checker": "^4.7.1",
+                "phpyh/coding-standard": "^2.6.0",
+                "psalm/plugin-phpunit": "^0.18.4",
+                "rector/rector": "^0.19.2",
+                "vimeo/psalm": "^5.20.0"
+            },
+            "type": "library",
+            "autoload": {
+                "psr-4": {
+                    "PHPyh\\PsalmTester\\": "src/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Valentin Udaltsov",
+                    "email": "udaltsov.valentin@gmail.com"
+                }
+            ],
+            "description": "Test Psalm via phpt files!",
+            "keywords": [
+                "php",
+                "phpunit",
+                "psalm",
+                "static analysis",
+                "testing"
+            ],
+            "support": {
+                "issues": "https://github.com/phpyh/psalm-tester/issues",
+                "source": "https://github.com/phpyh/psalm-tester/tree/0.1.0"
+            },
+            "time": "2024-01-24T17:42:16+00:00"
         },
         {
             "name": "psr/container",

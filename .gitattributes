@@ -7,4 +7,3 @@
 /composer.lock           export-ignore
 /phpunit.xml.dist        export-ignore
 /psalm.xml.dist          export-ignore
-/static-analysis-tester/ export-ignore

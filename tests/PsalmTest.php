@@ -6,8 +6,8 @@ namespace Typhoon\Type;
 
 use PHPUnit\Framework\Attributes\TestWith;
 use PHPUnit\Framework\TestCase;
-use StaticAnalysisTester\PsalmTester;
-use StaticAnalysisTester\StaticAnalysisTest;
+use PHPyh\PsalmTester\PsalmTest as Test;
+use PHPyh\PsalmTester\PsalmTester;
 
 final class PsalmTest extends TestCase
 {
@@ -81,6 +81,6 @@ final class PsalmTest extends TestCase
     public function testPhptFiles(string $phptFile): void
     {
         $this->psalmTester ??= PsalmTester::create();
-        $this->psalmTester->test(StaticAnalysisTest::fromPhptFile($phptFile));
+        $this->psalmTester->test(Test::fromPhptFile($phptFile));
     }
 }

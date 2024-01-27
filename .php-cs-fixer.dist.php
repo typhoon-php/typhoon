@@ -9,7 +9,6 @@ use PHPyh\CodingStandard\PhpCsFixerCodingStandard;
 $finder = Finder::create()
     ->in([
         __DIR__ . '/src',
-        __DIR__ . '/static-analysis-tester',
         __DIR__ . '/tests',
     ])
     ->append([
