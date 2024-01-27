@@ -18,7 +18,7 @@
         "phpunit/phpunit": "^10.5",
         "phpyh/coding-standard": "^2.5.0",
         "phpyh/psalm-tester": "^0.1.0",
-        "vimeo/psalm": "^5.15.0"
+        "vimeo/psalm": "^5.15.0@dev"
     },
     "autoload": {
         "psr-4": {

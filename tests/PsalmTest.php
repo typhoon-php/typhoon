@@ -75,6 +75,7 @@ final class PsalmTest extends TestCase
     #[TestWith([__DIR__ . '/psalm/TraitStringType.phpt'])]
     #[TestWith([__DIR__ . '/psalm/TrueType.phpt'])]
     #[TestWith([__DIR__ . '/psalm/TruthyStringType.phpt'])]
+    #[TestWith([__DIR__ . '/psalm/types.phpt'])]
     #[TestWith([__DIR__ . '/psalm/UnionType.phpt'])]
     #[TestWith([__DIR__ . '/psalm/ValueOfType.phpt'])]
     #[TestWith([__DIR__ . '/psalm/VoidType.phpt'])]
