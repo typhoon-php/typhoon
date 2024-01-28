@@ -13,6 +13,11 @@ namespace Typhoon\Type;
 final class StaticType implements Type
 {
     /**
+     * @var class-string<TObject>
+     */
+    public readonly string $declaredAtClass;
+
+    /**
      * @var list<Type>
      */
     public readonly array $templateArguments;
@@ -21,11 +26,14 @@ final class StaticType implements Type
      * @internal
      * @psalm-internal Typhoon\Type
      * @no-named-arguments
+     * @param class-string<TObject> $declaredAtClass
      * @param list<Type> $templateArguments
      */
     public function __construct(
+        string $declaredAtClass,
         array $templateArguments = [],
     ) {
+        $this->declaredAtClass = $declaredAtClass;
         $this->templateArguments = $templateArguments;
     }
 

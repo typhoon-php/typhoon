@@ -265,10 +265,13 @@ final class types
     /**
      * @psalm-pure
      * @no-named-arguments
+     * @template TObject of object
+     * @param class-string<TObject> $declaredAtClass
+     * @return StaticType<TObject>
      */
-    public static function static(Type ...$templateArguments): StaticType
+    public static function static(string $declaredAtClass, Type ...$templateArguments): StaticType
     {
-        return new StaticType($templateArguments);
+        return new StaticType($declaredAtClass, $templateArguments);
     }
 
     /**
@@ -367,11 +370,39 @@ final class types
 
     /**
      * @psalm-pure
+     * @template TType
+     * @param non-empty-string $name
+     * @param Type<TType> $constraint
+     * @return TemplateType<TType>
+     */
+    public static function template(string $name, AtMethod|AtClass|AtFunction $declaredAt, Type $constraint = self::mixed): TemplateType
+    {
+        return new TemplateType($name, $declaredAt, $constraint);
+    }
+
+    /**
+     * @param callable-string $name
+     */
+    public static function atFunction(string $name): AtFunction
+    {
+        return new AtFunction($name);
+    }
+
+    /**
+     * @param class-string $name
+     */
+    public static function atClass(string $name): AtClass
+    {
+        return new AtClass($name);
+    }
+
+    /**
+     * @param class-string $class
      * @param non-empty-string $name
      */
-    public static function template(string $name): TemplateType
+    public static function atMethod(string $class, string $name): AtMethod
     {
-        return new TemplateType($name);
+        return new AtMethod($class, $name);
     }
 
     /**
