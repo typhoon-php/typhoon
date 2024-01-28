@@ -22,6 +22,7 @@ final class TypeStringifier implements TypeVisitor
     private function __construct() {}
 
     /**
+     * @psalm-pure
      * @return non-empty-string
      */
     public static function stringify(Type\Type $type): string
