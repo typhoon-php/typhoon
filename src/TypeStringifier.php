@@ -362,15 +362,18 @@ final class TypeStringifier implements TypeVisitor
 
     public function visitTemplate(Type\TemplateType $type): mixed
     {
-        return $type->name;
+        return sprintf('%s:%s', $type->name, match (true) {
+            $type->declaredAt instanceof Type\AtFunction => $type->declaredAt->name . '()',
+            $type->declaredAt instanceof Type\AtClass  => $type->declaredAt->name,
+            $type->declaredAt instanceof Type\AtMethod  => sprintf('%s::%s()', $type->declaredAt->class, $type->declaredAt->name),
+        });
     }
 
     public function visitConditional(Type\ConditionalType $type): mixed
     {
         return sprintf(
-            '(%s%s is %s ? %s : %s)',
-            $type->subject instanceof Type\Argument ? '$' : '',
-            $type->subject->name,
+            '(%s is %s ? %s : %s)',
+            $type->subject instanceof Type\Argument ? '$' . $type->subject->name : $type->subject->accept($this),
             $type->if->accept($this),
             $type->then->accept($this),
             $type->else->accept($this),
