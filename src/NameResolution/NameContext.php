@@ -35,6 +35,8 @@ final class NameContext
      */
     private array $classTemplateNamesMap = [];
 
+    private ?UnqualifiedName $method = null;
+
     /**
      * @var array<non-empty-string, true>
      */
@@ -105,10 +107,11 @@ final class NameContext
     /**
      * @param array<string> $templateNames
      */
-    public function enterMethod(array $templateNames = []): void
+    public function enterMethod(string $name, array $templateNames = []): void
     {
         $this->leaveMethod();
 
+        $this->method = new UnqualifiedName($name);
         $this->methodTemplateNamesMap = array_fill_keys(
             array_map(
                 /** @return non-empty-string */
@@ -121,6 +124,7 @@ final class NameContext
 
     public function leaveMethod(): void
     {
+        $this->method = null;
         $this->methodTemplateNamesMap = [];
     }
 
@@ -219,12 +223,12 @@ final class NameContext
                 return $resolver->static($this->resolveNameAsClass($this->self));
             }
 
-            if (isset($this->methodTemplateNamesMap[$nameAsString])) {
-                return $resolver->template($nameAsString);
+            if ($this->method !== null && isset($this->methodTemplateNamesMap[$nameAsString])) {
+                return $resolver->methodTemplate($this->resolveNameAsClass($this->self), $this->method->toString(), $nameAsString);
             }
 
             if (isset($this->classTemplateNamesMap[$nameAsString])) {
-                return $resolver->template($nameAsString);
+                return $resolver->classTemplate($this->resolveNameAsClass($this->self), $nameAsString);
             }
         }
 

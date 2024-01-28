@@ -31,7 +31,7 @@ final class NameAsTypeResolver implements NameResolver
 
     public function static(string $self): mixed
     {
-        return types::static(...$this->templateArguments);
+        return types::static($self, ...$this->templateArguments);
     }
 
     public function constant(string $name): mixed
@@ -39,9 +39,14 @@ final class NameAsTypeResolver implements NameResolver
         return types::constant($name);
     }
 
-    public function template(string $name): mixed
+    public function classTemplate(string $class, string $name): mixed
     {
-        return types::template($name);
+        return types::template($name, types::atClass($class)/** TODO constraint */);
+    }
+
+    public function methodTemplate(string $class, string $method, string $name): mixed
+    {
+        return types::template($name, types::atMethod($class, $method)/** TODO constraint */);
     }
 
     public function classOrConstants(string $classCandidate, array $constantCandidates): mixed

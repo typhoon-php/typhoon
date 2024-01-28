@@ -280,7 +280,7 @@ final class NativeReflectionReflector
                 throw new \LogicException('Cannot use type "static" outside of class scope.');
             }
 
-            return types::static();
+            return types::static($class);
         }
 
         $type = match ($name) {

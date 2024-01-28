@@ -67,7 +67,10 @@ final class NameContextVisitor extends NodeVisitorAbstract
         }
 
         if ($node instanceof Stmt\ClassMethod) {
-            $this->nameContext->enterMethod(PhpDocParsingVisitor::fromNode($node)->templateNames());
+            $this->nameContext->enterMethod(
+                name: $node->name->name,
+                templateNames: PhpDocParsingVisitor::fromNode($node)->templateNames(),
+            );
 
             return null;
         }
