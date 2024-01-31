@@ -52,7 +52,7 @@ jobs:
       - uses: ramsey/composer-install@v2
         with:
           composer-options: --optimize-autoloader
-      - run: composer fixcs -- --dry-run --diff --format=checkstyle --ansi | cs2pr
+      - run: composer fixcs -- --dry-run --format=checkstyle --ansi | cs2pr
 
   psalm:
     runs-on: ubuntu-latest
