@@ -10,7 +10,6 @@ use PHPStan\PhpDocParser\Ast\Type\IdentifierTypeNode;
 use PHPStan\PhpDocParser\Ast\Type\TypeNode;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
-use Typhoon\Reflection\TagPrioritizer;
 use Typhoon\Reflection\Variance;
 
 #[CoversClass(PhpDoc::class)]

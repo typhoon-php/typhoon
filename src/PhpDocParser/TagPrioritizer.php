@@ -2,9 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Typhoon\Reflection;
-
-use Typhoon\Reflection\TagPrioritizer\PHPStanOverPsalmOverOthersTagPrioritizer;
+namespace Typhoon\Reflection\PhpDocParser;
 
 /**
  * @api

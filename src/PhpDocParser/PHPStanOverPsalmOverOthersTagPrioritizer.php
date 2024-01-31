@@ -2,9 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Typhoon\Reflection\TagPrioritizer;
-
-use Typhoon\Reflection\TagPrioritizer;
+namespace Typhoon\Reflection\PhpDocParser;
 
 /**
  * This prioritizer tells to consider {@phpstan-*} tags first, then {@psalm-*} tags, and finally the others.

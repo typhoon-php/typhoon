@@ -10,13 +10,14 @@ use Typhoon\Reflection\ClassLoader\ComposerClassLoader;
 use Typhoon\Reflection\ClassLoader\NativeReflectionClassLoader;
 use Typhoon\Reflection\ClassLoader\PhpStormStubsClassLoader;
 use Typhoon\Reflection\PhpDocParser\PhpDocParser;
+use Typhoon\Reflection\PhpDocParser\PHPStanOverPsalmOverOthersTagPrioritizer;
+use Typhoon\Reflection\PhpDocParser\TagPrioritizer;
 use Typhoon\Reflection\PhpParser\PhpParser;
 use Typhoon\Reflection\Reflector\Cache\ChangeDetectingReflectionCache;
 use Typhoon\Reflection\Reflector\Cache\NullReflectionCache;
 use Typhoon\Reflection\Reflector\Cache\SimpleReflectionCache;
 use Typhoon\Reflection\Reflector\Context;
 use Typhoon\Reflection\Reflector\ReflectionCache;
-use Typhoon\Reflection\TagPrioritizer\PHPStanOverPsalmOverOthersTagPrioritizer;
 
 /**
  * @api

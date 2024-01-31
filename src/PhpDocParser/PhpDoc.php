@@ -15,7 +15,6 @@ use PHPStan\PhpDocParser\Ast\PhpDoc\TemplateTagValueNode;
 use PHPStan\PhpDocParser\Ast\PhpDoc\VarTagValueNode;
 use PHPStan\PhpDocParser\Ast\Type\GenericTypeNode;
 use PHPStan\PhpDocParser\Ast\Type\TypeNode;
-use Typhoon\Reflection\TagPrioritizer;
 use Typhoon\Reflection\Variance;
 
 /**
@@ -65,7 +64,7 @@ final class PhpDoc
     public static function empty(): self
     {
         return self::$empty ??= new self(
-            tagPrioritizer: new TagPrioritizer\PHPStanOverPsalmOverOthersTagPrioritizer(),
+            tagPrioritizer: new PHPStanOverPsalmOverOthersTagPrioritizer(),
             tags: [],
         );
     }
