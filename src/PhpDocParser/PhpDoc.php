@@ -24,6 +24,8 @@ use Typhoon\Reflection\Variance;
  */
 final class PhpDoc
 {
+    private const VARIANCE_ATTRIBUTE = 'variance';
+
     private static ?self $empty = null;
 
     private null|TypeNode|false $varType = false;
@@ -64,6 +66,13 @@ final class PhpDoc
             tagPrioritizer: new TagPrioritizer\PHPStanOverPsalmOverOthersTagPrioritizer(),
             tags: [],
         );
+    }
+
+    public static function templateTagVariance(TemplateTagValueNode $tag): Variance
+    {
+        $attribute = $tag->getAttribute(self::VARIANCE_ATTRIBUTE);
+
+        return $attribute instanceof Variance ? $attribute : Variance::INVARIANT;
     }
 
     public function isDeprecated(): bool
@@ -208,7 +217,7 @@ final class PhpDoc
 
         return $this->templates = array_map(
             static function (PhpDocTagNode $tag): TemplateTagValueNode {
-                $tag->value->setAttribute('variance', match (true) {
+                $tag->value->setAttribute(self::VARIANCE_ATTRIBUTE, match (true) {
                     str_ends_with($tag->name, 'covariant') => Variance::COVARIANT,
                     str_ends_with($tag->name, 'contravariant') => Variance::CONTRAVARIANT,
                     default => Variance::INVARIANT,
