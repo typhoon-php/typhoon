@@ -230,14 +230,6 @@ final class PhpDoc
     }
 
     /**
-     * @return list<non-empty-string>
-     */
-    public function templateNames(): array
-    {
-        return array_column($this->templates(), 'name');
-    }
-
-    /**
      * @return list<GenericTypeNode>
      */
     public function extendedTypes(): array

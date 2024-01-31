@@ -232,21 +232,6 @@ final class PhpDocParserTest extends TestCase
         self::assertEmpty($templates);
     }
 
-    public function testItReturnsEmptyTemplateNamesWhenNoTemplateTag(): void
-    {
-        $parser = new PhpDocParser();
-
-        $templateNames = $parser->parsePhpDoc(
-            <<<'PHP'
-                /**
-                 * @example
-                 */
-                PHP,
-        )->templateNames();
-
-        self::assertEmpty($templateNames);
-    }
-
     public function testItReturnsLatestPrioritizedTemplates(): void
     {
         $parser = new PhpDocParser();
@@ -271,26 +256,6 @@ final class PhpDocParserTest extends TestCase
             ],
             $templates,
         );
-    }
-
-    public function testItReturnsLatestPrioritizedTemplateNames(): void
-    {
-        $parser = new PhpDocParser();
-
-        $templateNames = $parser->parsePhpDoc(
-            <<<'PHP'
-                /**
-                 * @example
-                 * @template T of int
-                 * @template T2 of object
-                 * @template T2 of mixed
-                 * @psalm-template T of float
-                 * @psalm-template T of string
-                 */
-                PHP,
-        )->templateNames();
-
-        self::assertSame(['T', 'T2'], $templateNames);
     }
 
     public function testItAddsVarianceAttributeToTemplates(): void
