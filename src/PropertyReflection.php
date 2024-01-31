@@ -4,26 +4,20 @@ declare(strict_types=1);
 
 namespace Typhoon\Reflection;
 
-use Typhoon\Reflection\Reflector\ClassReflector;
-use Typhoon\Reflection\Reflector\ContextAwareReflection;
+use Typhoon\Reflection\Reflector\ClassReflectorAwareReflection;
 use Typhoon\Reflection\TypeResolver\StaticResolver;
 use Typhoon\Reflection\TypeResolver\TemplateResolver;
 
 /**
  * @api
  */
-final class PropertyReflection extends ContextAwareReflection
+final class PropertyReflection extends ClassReflectorAwareReflection
 {
     public const IS_PUBLIC = \ReflectionProperty::IS_PUBLIC;
     public const IS_PROTECTED = \ReflectionProperty::IS_PROTECTED;
     public const IS_PRIVATE = \ReflectionProperty::IS_PRIVATE;
     public const IS_STATIC = \ReflectionProperty::IS_STATIC;
     public const IS_READONLY = \ReflectionProperty::IS_READONLY;
-
-    /**
-     * @psalm-suppress PropertyNotSetInConstructor
-     */
-    private readonly ClassReflector $classReflector;
 
     /**
      * @internal
@@ -64,7 +58,7 @@ final class PropertyReflection extends ContextAwareReflection
 
     public function getDeclaringClass(): ClassReflection
     {
-        return $this->classReflector->reflectClass($this->class);
+        return $this->classReflector()->reflectClass($this->class);
     }
 
     public function getDefaultValue(): mixed
@@ -179,10 +173,7 @@ final class PropertyReflection extends ContextAwareReflection
 
     public function __serialize(): array
     {
-        return array_diff_key(get_object_vars($this), [
-            'classReflector' => null,
-            'nativeReflection' => null,
-        ]);
+        return array_diff_key(get_object_vars($this), ['nativeReflection' => null]);
     }
 
     public function __unserialize(array $data): void
@@ -210,11 +201,5 @@ final class PropertyReflection extends ContextAwareReflection
         $property->type = $this->type->resolve($typeResolver);
 
         return $property;
-    }
-
-    protected function setClassReflector(ClassReflector $classReflector): void
-    {
-        /** @psalm-suppress InaccessibleProperty */
-        $this->classReflector = $classReflector;
     }
 }

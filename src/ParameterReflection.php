@@ -4,21 +4,15 @@ declare(strict_types=1);
 
 namespace Typhoon\Reflection;
 
-use Typhoon\Reflection\Reflector\ClassReflector;
-use Typhoon\Reflection\Reflector\ContextAwareReflection;
+use Typhoon\Reflection\Reflector\ClassReflectorAwareReflection;
 use Typhoon\Reflection\TypeResolver\StaticResolver;
 use Typhoon\Reflection\TypeResolver\TemplateResolver;
 
 /**
  * @api
  */
-final class ParameterReflection extends ContextAwareReflection
+final class ParameterReflection extends ClassReflectorAwareReflection
 {
-    /**
-     * @psalm-suppress PropertyNotSetInConstructor
-     */
-    private readonly ClassReflector $classReflector;
-
     /**
      * @internal
      * @psalm-internal Typhoon\Reflection
@@ -65,7 +59,7 @@ final class ParameterReflection extends ContextAwareReflection
             return null;
         }
 
-        return $this->classReflector->reflectClass($this->class);
+        return $this->classReflector()->reflectClass($this->class);
     }
 
     public function getDeclaringFunction(): MethodReflection
@@ -74,7 +68,7 @@ final class ParameterReflection extends ContextAwareReflection
             throw new ReflectionException();
         }
 
-        return $this->classReflector->reflectClass($this->class)->getMethod($this->functionOrMethod);
+        return $this->classReflector()->reflectClass($this->class)->getMethod($this->functionOrMethod);
     }
 
     public function canBePassedByValue(): bool
@@ -140,10 +134,7 @@ final class ParameterReflection extends ContextAwareReflection
 
     public function __serialize(): array
     {
-        return array_diff_key(get_object_vars($this), [
-            'classReflector' => null,
-            'nativeReflection' => null,
-        ]);
+        return array_diff_key(get_object_vars($this), ['nativeReflection' => null]);
     }
 
     public function __unserialize(array $data): void
@@ -183,11 +174,5 @@ final class ParameterReflection extends ContextAwareReflection
         $parameter->type = $this->type->resolve($typeResolver);
 
         return $parameter;
-    }
-
-    protected function setClassReflector(ClassReflector $classReflector): void
-    {
-        /** @psalm-suppress InaccessibleProperty */
-        $this->classReflector = $classReflector;
     }
 }

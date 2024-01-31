@@ -5,14 +5,14 @@ declare(strict_types=1);
 namespace Typhoon\Reflection;
 
 use Typhoon\Reflection\Reflector\ClassReflector;
-use Typhoon\Reflection\Reflector\ContextAwareReflection;
+use Typhoon\Reflection\Reflector\ClassReflectorAwareReflection;
 use Typhoon\Reflection\TypeResolver\StaticResolver;
 use Typhoon\Reflection\TypeResolver\TemplateResolver;
 
 /**
  * @api
  */
-final class MethodReflection extends ContextAwareReflection
+final class MethodReflection extends ClassReflectorAwareReflection
 {
     public const IS_FINAL = \ReflectionMethod::IS_FINAL;
     public const IS_ABSTRACT = \ReflectionMethod::IS_ABSTRACT;
@@ -20,11 +20,6 @@ final class MethodReflection extends ContextAwareReflection
     public const IS_PROTECTED = \ReflectionMethod::IS_PROTECTED;
     public const IS_PRIVATE = \ReflectionMethod::IS_PRIVATE;
     public const IS_STATIC = \ReflectionMethod::IS_STATIC;
-
-    /**
-     * @psalm-suppress PropertyNotSetInConstructor
-     */
-    private readonly ClassReflector $classReflector;
 
     /**
      * @internal
@@ -90,7 +85,7 @@ final class MethodReflection extends ContextAwareReflection
 
     public function getDeclaringClass(): ClassReflection
     {
-        return $this->classReflector->reflectClass($this->class);
+        return $this->classReflector()->reflectClass($this->class);
     }
 
     /**
@@ -387,10 +382,7 @@ final class MethodReflection extends ContextAwareReflection
 
     public function __serialize(): array
     {
-        return array_diff_key(get_object_vars($this), [
-            'classReflector' => null,
-            'nativeReflection' => null,
-        ]);
+        return array_diff_key(get_object_vars($this), ['nativeReflection' => null]);
     }
 
     public function __unserialize(array $data): void
@@ -426,8 +418,7 @@ final class MethodReflection extends ContextAwareReflection
 
     protected function setClassReflector(ClassReflector $classReflector): void
     {
-        /** @psalm-suppress InaccessibleProperty */
-        $this->classReflector = $classReflector;
+        parent::setClassReflector($classReflector);
 
         foreach ($this->parameters as $parameter) {
             $parameter->setClassReflector($classReflector);

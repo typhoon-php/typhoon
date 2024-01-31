@@ -34,11 +34,6 @@ final class Context implements ParsingContext, ClassReflector, ClassExistenceChe
      */
     private array $reflections = [];
 
-    /**
-     * @var array<class-string, \ReflectionMethod>
-     */
-    private array $setClassReflectorMethods = [];
-
     public function __construct(
         private readonly ClassLoader $classLoader,
         private readonly PhpParser $phpParser,
@@ -167,7 +162,7 @@ final class Context implements ParsingContext, ClassReflector, ClassExistenceChe
         if (\is_callable($reflection)) {
             /** @var TReflection */
             $reflection = $reflection();
-            $this->setClassReflector($reflection);
+            $this->initialize($reflection);
             $this->cache->addReflection($reflection);
 
             return $this->reflections[$class][$name] = $reflection;
@@ -176,7 +171,7 @@ final class Context implements ParsingContext, ClassReflector, ClassExistenceChe
         $cachedReflection = $this->cache->getReflection($class, $name);
 
         if ($cachedReflection !== null) {
-            $this->setClassReflector($cachedReflection);
+            $this->initialize($cachedReflection);
 
             /** @var TReflection */
             return $this->reflections[$class][$name] = $cachedReflection;
@@ -196,7 +191,7 @@ final class Context implements ParsingContext, ClassReflector, ClassExistenceChe
         if (\is_callable($reflection)) {
             /** @var TReflection */
             $reflection = $reflection();
-            $this->setClassReflector($reflection);
+            $this->initialize($reflection);
             $this->cache->addReflection($reflection);
 
             return $this->reflections[$class][$name] = $reflection;
@@ -205,9 +200,11 @@ final class Context implements ParsingContext, ClassReflector, ClassExistenceChe
         return null;
     }
 
-    private function setClassReflector(RootReflection $reflection): void
+    private function initialize(RootReflection $reflection): void
     {
-        ($this->setClassReflectorMethods[$reflection::class] ??= (new \ReflectionMethod($reflection, 'setClassReflector')))->invoke($reflection, $this);
+        if ($reflection instanceof ClassReflection) {
+            $reflection->setClassReflector($this);
+        }
     }
 
     private function __clone() {}
