@@ -19,7 +19,7 @@
         "phpunit/phpunit": "^10.5.7",
         "phpyh/coding-standard": "^2.6.0",
         "psalm/plugin-phpunit": "^0.18.4",
-        "vimeo/psalm": "^5.20.0"
+        "vimeo/psalm": "^5.21"
     },
     "autoload": {
         "psr-4": {
@@ -38,7 +38,7 @@
         "sort-packages": true
     },
     "scripts": {
-        "fixcs": "PHP_CS_FIXER_IGNORE_ENV=1 vendor/bin/php-cs-fixer fix -v",
+        "fixcs": "vendor/bin/php-cs-fixer fix --diff --verbose",
         "pre-command-run": "mkdir -p var",
         "psalm": "psalm --show-info --no-diff",
         "test": "phpunit"

@@ -1,6 +1,6 @@
 /var/
 /vendor/
 /.php-cs-fixer.php
-/phpstan.neon
+/composer.lock
 /phpunit.xml
 /psalm.xml
