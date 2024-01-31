@@ -31,7 +31,7 @@
         "symfony/var-dumper": "^6.4.2",
         "typhoon/exporter": "^0.2@dev",
         "typhoon/opcache": "^0.2@dev",
-        "vimeo/psalm": "^5.20.0"
+        "vimeo/psalm": "^5.21"
     },
     "autoload": {
         "psr-4": {
