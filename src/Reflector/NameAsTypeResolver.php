@@ -2,8 +2,9 @@
 
 declare(strict_types=1);
 
-namespace Typhoon\Reflection\NameResolution;
+namespace Typhoon\Reflection\Reflector;
 
+use Typhoon\Reflection\NameResolution\NameResolver;
 use Typhoon\Reflection\ReflectionException;
 use Typhoon\Type\Type;
 use Typhoon\Type\types;
@@ -16,11 +17,10 @@ use Typhoon\Type\types;
 final class NameAsTypeResolver implements NameResolver
 {
     /**
-     * @param \Closure(non-empty-string): bool $classExists
      * @param list<Type> $templateArguments
      */
     public function __construct(
-        private \Closure $classExists,
+        private ClassExistenceChecker $classExistenceChecker,
         private readonly array $templateArguments = [],
     ) {}
 
@@ -51,7 +51,7 @@ final class NameAsTypeResolver implements NameResolver
 
     public function classOrConstants(string $classCandidate, array $constantCandidates): mixed
     {
-        if (($this->classExists)($classCandidate)) {
+        if ($this->classExistenceChecker->classExists($classCandidate)) {
             /** @var class-string $classCandidate */
             return types::object($classCandidate, ...$this->templateArguments);
         }

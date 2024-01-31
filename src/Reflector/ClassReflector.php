@@ -2,18 +2,16 @@
 
 declare(strict_types=1);
 
-namespace Typhoon\Reflection;
+namespace Typhoon\Reflection\Reflector;
+
+use Typhoon\Reflection\ClassReflection;
 
 /**
- * @api
+ * @internal
+ * @psalm-internal Typhoon\Reflection
  */
-interface ReflectionContext
+interface ClassReflector
 {
-    /**
-     * @psalm-assert-if-true class-string $name
-     */
-    public function classExists(string $name): bool;
-
     /**
      * @template T of object
      * @param string|class-string<T> $name

@@ -25,7 +25,6 @@ use PHPStan\PhpDocParser\Ast\Type\NullableTypeNode;
 use PHPStan\PhpDocParser\Ast\Type\ObjectShapeNode;
 use PHPStan\PhpDocParser\Ast\Type\TypeNode;
 use PHPStan\PhpDocParser\Ast\Type\UnionTypeNode;
-use Typhoon\Reflection\NameResolution\NameAsTypeResolver;
 use Typhoon\Reflection\NameResolution\NameContext;
 use Typhoon\Reflection\ReflectionException;
 use Typhoon\Type;
@@ -37,20 +36,14 @@ use Typhoon\Type\types;
  */
 final class PhpDocTypeReflector
 {
-    /**
-     * @param \Closure(non-empty-string): bool $classExists
-     */
     private function __construct(
         private readonly NameContext $nameContext,
-        private readonly \Closure $classExists,
+        private readonly ClassExistenceChecker $classExistenceChecker,
     ) {}
 
-    /**
-     * @param \Closure(non-empty-string): bool $classExists
-     */
-    public static function reflect(NameContext $nameContext, \Closure $classExists, TypeNode $typeNode): Type\Type
+    public static function reflect(NameContext $nameContext, ClassExistenceChecker $classExistenceChecker, TypeNode $typeNode): Type\Type
     {
-        return (new self($nameContext, $classExists))->doReflect($typeNode);
+        return (new self($nameContext, $classExistenceChecker))->doReflect($typeNode);
     }
 
     private function doReflect(TypeNode $node): Type\Type
@@ -195,7 +188,7 @@ final class PhpDocTypeReflector
     private function reflectName(string $name, array $genericTypes): Type\Type
     {
         $type = $this->nameContext->resolveName($name, new NameAsTypeResolver(
-            classExists: $this->classExists,
+            classExistenceChecker: $this->classExistenceChecker,
             templateArguments: array_map($this->doReflect(...), $genericTypes),
         ));
 

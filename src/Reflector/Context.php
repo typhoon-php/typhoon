@@ -12,7 +12,6 @@ use Typhoon\Reflection\NameResolution\NameContext;
 use Typhoon\Reflection\ParsingContext;
 use Typhoon\Reflection\PhpDocParser\PhpDocParser;
 use Typhoon\Reflection\PhpParser\PhpParser;
-use Typhoon\Reflection\ReflectionContext;
 use Typhoon\Reflection\ReflectionException;
 use Typhoon\Reflection\Reflector\Cache\NullReflectionCache;
 use function Typhoon\Reflection\Exceptionally\exceptionally;
@@ -21,7 +20,7 @@ use function Typhoon\Reflection\Exceptionally\exceptionally;
  * @internal
  * @psalm-internal Typhoon\Reflection
  */
-final class Context implements ParsingContext, ReflectionContext
+final class Context implements ParsingContext, ClassReflector, ClassExistenceChecker
 {
     /**
      * @var array<non-empty-string, bool>
@@ -36,7 +35,7 @@ final class Context implements ParsingContext, ReflectionContext
     /**
      * @var array<class-string, \ReflectionMethod>
      */
-    private array $setContextReflections = [];
+    private array $setClassReflectorMethods = [];
 
     public function __construct(
         private readonly ClassLoader $classLoader,
@@ -72,7 +71,8 @@ final class Context implements ParsingContext, ReflectionContext
             new PhpDocParsingVisitor($this->phpDocParser),
             new NameContextVisitor($nameContext),
             new DiscoveringVisitor(
-                context: $this,
+                parsingContext: $this,
+                classExistenceChecker: $this,
                 nameContext: $nameContext,
                 resource: $resource,
             ),
@@ -164,7 +164,7 @@ final class Context implements ParsingContext, ReflectionContext
         if (\is_callable($reflection)) {
             /** @var TReflection */
             $reflection = $reflection();
-            $this->setReflectionContext($reflection);
+            $this->setClassReflector($reflection);
             $this->cache->addReflection($reflection);
 
             return $this->reflections[$class][$name] = $reflection;
@@ -173,7 +173,7 @@ final class Context implements ParsingContext, ReflectionContext
         $cachedReflection = $this->cache->getReflection($class, $name);
 
         if ($cachedReflection !== null) {
-            $this->setReflectionContext($cachedReflection);
+            $this->setClassReflector($cachedReflection);
 
             /** @var TReflection */
             return $this->reflections[$class][$name] = $cachedReflection;
@@ -193,7 +193,7 @@ final class Context implements ParsingContext, ReflectionContext
         if (\is_callable($reflection)) {
             /** @var TReflection */
             $reflection = $reflection();
-            $this->setReflectionContext($reflection);
+            $this->setClassReflector($reflection);
             $this->cache->addReflection($reflection);
 
             return $this->reflections[$class][$name] = $reflection;
@@ -202,9 +202,9 @@ final class Context implements ParsingContext, ReflectionContext
         return null;
     }
 
-    private function setReflectionContext(RootReflection $reflection): void
+    private function setClassReflector(RootReflection $reflection): void
     {
-        ($this->setContextReflections[$reflection::class] ??= (new \ReflectionMethod($reflection, 'setContext')))->invoke($reflection, $this);
+        ($this->setClassReflectorMethods[$reflection::class] ??= (new \ReflectionMethod($reflection, 'setClassReflector')))->invoke($reflection, $this);
     }
 
     private function __clone() {}

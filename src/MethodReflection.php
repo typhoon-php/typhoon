@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Typhoon\Reflection;
 
+use Typhoon\Reflection\Reflector\ClassReflector;
 use Typhoon\Reflection\Reflector\ContextAwareReflection;
 use Typhoon\Reflection\TypeResolver\StaticResolver;
 use Typhoon\Reflection\TypeResolver\TemplateResolver;
@@ -23,7 +24,7 @@ final class MethodReflection extends ContextAwareReflection
     /**
      * @psalm-suppress PropertyNotSetInConstructor
      */
-    private readonly ReflectionContext $reflectionContext;
+    private readonly ClassReflector $classReflector;
 
     /**
      * @internal
@@ -89,7 +90,7 @@ final class MethodReflection extends ContextAwareReflection
 
     public function getDeclaringClass(): ClassReflection
     {
-        return $this->reflectionContext->reflectClass($this->class);
+        return $this->classReflector->reflectClass($this->class);
     }
 
     /**
@@ -387,7 +388,7 @@ final class MethodReflection extends ContextAwareReflection
     public function __serialize(): array
     {
         return array_diff_key(get_object_vars($this), [
-            'reflectionContext' => null,
+            'classReflector' => null,
             'nativeReflection' => null,
         ]);
     }
@@ -423,13 +424,13 @@ final class MethodReflection extends ContextAwareReflection
         return $method;
     }
 
-    protected function setContext(ReflectionContext $reflectionContext): void
+    protected function setClassReflector(ClassReflector $classReflector): void
     {
         /** @psalm-suppress InaccessibleProperty */
-        $this->reflectionContext = $reflectionContext;
+        $this->classReflector = $classReflector;
 
         foreach ($this->parameters as $parameter) {
-            $parameter->setContext($reflectionContext);
+            $parameter->setClassReflector($classReflector);
         }
     }
 }

@@ -170,9 +170,9 @@ final class PhpDocTypeReflectorTest extends TestCase
 
         try {
             $type = PhpDocTypeReflector::reflect(
-                new NameContext(),
-                static fn(string $class): bool => class_exists($class) || interface_exists($class),
-                $phpDocType,
+                nameContext: new NameContext(),
+                classExistenceChecker: new NativeClassExistenceChecker(),
+                typeNode: $phpDocType,
             );
         } catch (\Throwable $exception) {
             self::assertEquals($expectedTypeOrException, $exception);

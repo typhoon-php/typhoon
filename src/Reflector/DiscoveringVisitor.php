@@ -11,7 +11,6 @@ use Typhoon\Reflection\AnonymousClassName;
 use Typhoon\Reflection\ClassReflection;
 use Typhoon\Reflection\NameResolution\NameContext;
 use Typhoon\Reflection\ParsingContext;
-use Typhoon\Reflection\ReflectionContext;
 use Typhoon\Reflection\ReflectionException;
 
 /**
@@ -21,7 +20,8 @@ use Typhoon\Reflection\ReflectionException;
 final class DiscoveringVisitor extends NodeVisitorAbstract
 {
     public function __construct(
-        private readonly ParsingContext&ReflectionContext $context,
+        private readonly ParsingContext $parsingContext,
+        private readonly ClassExistenceChecker $classExistenceChecker,
         private readonly NameContext $nameContext,
         private readonly Resource $resource,
     ) {}
@@ -31,13 +31,15 @@ final class DiscoveringVisitor extends NodeVisitorAbstract
         if ($node instanceof Stmt\ClassLike) {
             $name = $this->resolveClassName($node);
             $nameContext = clone $this->nameContext;
-            $this->context->registerClassReflector(
+            $this->parsingContext->registerClassReflector(
                 name: $name,
-                reflector: fn(): ClassReflection => (new PhpParserReflector(
-                    reflectionContext: $this->context,
+                reflector: fn(): ClassReflection => PhpParserReflector::reflectClass(
+                    classExistenceChecker: $this->classExistenceChecker,
                     nameContext: $nameContext,
                     resource: $this->resource,
-                ))->reflectClass($node, $name),
+                    node: $node,
+                    name: $name,
+                ),
             );
         }
 

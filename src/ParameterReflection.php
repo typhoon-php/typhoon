@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Typhoon\Reflection;
 
+use Typhoon\Reflection\Reflector\ClassReflector;
 use Typhoon\Reflection\Reflector\ContextAwareReflection;
 use Typhoon\Reflection\TypeResolver\StaticResolver;
 use Typhoon\Reflection\TypeResolver\TemplateResolver;
@@ -16,7 +17,7 @@ final class ParameterReflection extends ContextAwareReflection
     /**
      * @psalm-suppress PropertyNotSetInConstructor
      */
-    private readonly ReflectionContext $reflectionContext;
+    private readonly ClassReflector $classReflector;
 
     /**
      * @internal
@@ -64,7 +65,7 @@ final class ParameterReflection extends ContextAwareReflection
             return null;
         }
 
-        return $this->reflectionContext->reflectClass($this->class);
+        return $this->classReflector->reflectClass($this->class);
     }
 
     public function getDeclaringFunction(): MethodReflection
@@ -73,7 +74,7 @@ final class ParameterReflection extends ContextAwareReflection
             throw new ReflectionException();
         }
 
-        return $this->reflectionContext->reflectClass($this->class)->getMethod($this->functionOrMethod);
+        return $this->classReflector->reflectClass($this->class)->getMethod($this->functionOrMethod);
     }
 
     public function canBePassedByValue(): bool
@@ -140,7 +141,7 @@ final class ParameterReflection extends ContextAwareReflection
     public function __serialize(): array
     {
         return array_diff_key(get_object_vars($this), [
-            'reflectionContext' => null,
+            'classReflector' => null,
             'nativeReflection' => null,
         ]);
     }
@@ -184,9 +185,9 @@ final class ParameterReflection extends ContextAwareReflection
         return $parameter;
     }
 
-    protected function setContext(ReflectionContext $reflectionContext): void
+    protected function setClassReflector(ClassReflector $classReflector): void
     {
         /** @psalm-suppress InaccessibleProperty */
-        $this->reflectionContext = $reflectionContext;
+        $this->classReflector = $classReflector;
     }
 }

@@ -19,7 +19,6 @@ use Typhoon\Reflection\NameResolution\NameContext;
 use Typhoon\Reflection\ParameterReflection;
 use Typhoon\Reflection\PhpDocParser\PhpDoc;
 use Typhoon\Reflection\PropertyReflection;
-use Typhoon\Reflection\ReflectionContext;
 use Typhoon\Reflection\ReflectionException;
 use Typhoon\Reflection\TemplateReflection;
 use Typhoon\Reflection\TypeReflection;
@@ -33,8 +32,8 @@ use Typhoon\Type\types;
  */
 final class PhpParserReflector
 {
-    public function __construct(
-        private readonly ReflectionContext $reflectionContext,
+    private function __construct(
+        private readonly ClassExistenceChecker $classExistenceChecker,
         private readonly NameContext $nameContext,
         private readonly Resource $resource,
     ) {}
@@ -42,7 +41,21 @@ final class PhpParserReflector
     /**
      * @param class-string $name
      */
-    public function reflectClass(Stmt\ClassLike $node, string $name): ClassReflection
+    public static function reflectClass(ClassExistenceChecker $classExistenceChecker, NameContext $nameContext, Resource $resource, Stmt\ClassLike $node, string $name): ClassReflection
+    {
+        $reflector = new self(
+            classExistenceChecker: $classExistenceChecker,
+            nameContext: $nameContext,
+            resource: $resource,
+        );
+
+        return $reflector->doReflectClass($node, $name);
+    }
+
+    /**
+     * @param class-string $name
+     */
+    private function doReflectClass(Stmt\ClassLike $node, string $name): ClassReflection
     {
         $phpDoc = PhpDocParsingVisitor::fromNode($node);
 
@@ -555,7 +568,7 @@ final class PhpParserReflector
         try {
             return PhpDocTypeReflector::reflect(
                 nameContext: $this->nameContext,
-                classExists: $this->reflectionContext->classExists(...),
+                classExistenceChecker: $this->classExistenceChecker,
                 typeNode: $node,
             );
         } catch (\Throwable) {

@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Typhoon\Reflection;
 
+use Typhoon\Reflection\Reflector\ClassReflector;
 use Typhoon\Reflection\Reflector\ContextAwareReflection;
 use Typhoon\Reflection\Reflector\RootReflection;
 use Typhoon\Reflection\TypeResolver\StaticResolver;
@@ -34,7 +35,7 @@ final class ClassReflection extends ContextAwareReflection implements RootReflec
     /**
      * @psalm-suppress PropertyNotSetInConstructor
      */
-    private readonly ReflectionContext $reflectionContext;
+    private readonly ClassReflector $classReflector;
 
     /**
      * @internal
@@ -329,7 +330,7 @@ final class ClassReflection extends ContextAwareReflection implements RootReflec
         $ancestors = [];
 
         foreach ($this->ownInterfaceTypes as $ownInterfaceType) {
-            $ownInterface = $this->reflectionContext->reflectClass($ownInterfaceType->class);
+            $ownInterface = $this->classReflector->reflectClass($ownInterfaceType->class);
             $interfaces[$ownInterface->name] = $ownInterface;
             $ancestors[] = $ownInterface;
         }
@@ -377,7 +378,7 @@ final class ClassReflection extends ContextAwareReflection implements RootReflec
             return null;
         }
 
-        return $this->reflectionContext->reflectClass($this->parentType->class);
+        return $this->classReflector->reflectClass($this->parentType->class);
     }
 
     /**
@@ -414,7 +415,7 @@ final class ClassReflection extends ContextAwareReflection implements RootReflec
     public function isSubclassOf(string|self $class): bool
     {
         if (\is_string($class)) {
-            $class = $this->reflectionContext->reflectClass($class);
+            $class = $this->classReflector->reflectClass($class);
         }
 
         if ($class->isInterface() && $this->implementsInterface($class)) {
@@ -631,7 +632,7 @@ final class ClassReflection extends ContextAwareReflection implements RootReflec
         return array_diff_key(get_object_vars($this), [
             'propertiesIndexedByName' => null,
             'methodsIndexedByName' => null,
-            'reflectionContext' => null,
+            'classReflector' => null,
             'nativeReflection' => null,
         ]);
     }
@@ -658,13 +659,13 @@ final class ClassReflection extends ContextAwareReflection implements RootReflec
         return $this->nativeReflection ??= new \ReflectionClass($this->name);
     }
 
-    protected function setContext(ReflectionContext $reflectionContext): void
+    protected function setClassReflector(ClassReflector $classReflector): void
     {
         /** @psalm-suppress InaccessibleProperty */
-        $this->reflectionContext = $reflectionContext;
+        $this->classReflector = $classReflector;
 
         foreach ([...$this->ownProperties, ...$this->ownMethods] as $reflection) {
-            $reflection->setContext($reflectionContext);
+            $reflection->setClassReflector($classReflector);
         }
     }
 
@@ -689,7 +690,7 @@ final class ClassReflection extends ContextAwareReflection implements RootReflec
     private function resolveInterface(string|self $interface): self
     {
         if (\is_string($interface)) {
-            $interface = $this->reflectionContext->reflectClass($interface);
+            $interface = $this->classReflector->reflectClass($interface);
         }
 
         if (!$interface->isInterface()) {
@@ -705,7 +706,7 @@ final class ClassReflection extends ContextAwareReflection implements RootReflec
             return null;
         }
 
-        return $this->reflectionContext
+        return $this->classReflector
             ->reflectClass($this->parentType->class)
             ->resolveTemplates($this->parentType->templateArguments);
     }
@@ -722,7 +723,7 @@ final class ClassReflection extends ContextAwareReflection implements RootReflec
         }
 
         foreach ($this->ownInterfaceTypes as $interfaceType) {
-            yield $this->reflectionContext
+            yield $this->classReflector
                 ->reflectClass($interfaceType->class)
                 ->resolveTemplates($interfaceType->templateArguments);
         }
