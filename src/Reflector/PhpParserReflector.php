@@ -28,7 +28,7 @@ use Typhoon\Type\types;
 /**
  * @internal
  * @psalm-internal Typhoon\Reflection
- * @psalm-import-type TemplateReflector from NameAsTypeResolver
+ * @psalm-import-type TemplateReflector from NameAsTypeResolution
  */
 final class PhpParserReflector
 {
@@ -570,7 +570,7 @@ final class PhpParserReflector
 
         try {
             return PhpDocTypeReflector::reflect(
-                nameContext: $this->nameContext,
+                nameResolver: $this->nameContext,
                 classExistenceChecker: $this->classExistenceChecker,
                 typeNode: $node,
             );

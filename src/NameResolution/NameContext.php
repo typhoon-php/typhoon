@@ -12,8 +12,9 @@ use Typhoon\Reflection\ReflectionException;
  * @internal
  * @psalm-internal Typhoon\Reflection
  * @template TTemplateMetadata
+ * @extends NameResolver<TTemplateMetadata>
  */
-final class NameContext
+final class NameContext extends NameResolver
 {
     private null|UnqualifiedName|QualifiedName $namespace = null;
 
@@ -142,14 +143,7 @@ final class NameContext
         $this->constantImportTable = [];
     }
 
-    /**
-     * @internal
-     * @psalm-internal Typhoon\Reflection
-     * @template TReturn
-     * @param NameResolver<TReturn, TTemplateMetadata> $resolver
-     * @return TReturn
-     */
-    public function resolveName(string|Name $name, NameResolver $resolver): mixed
+    public function resolveName(string|Name $name, NameResolution $resolution): mixed
     {
         if (\is_string($name)) {
             $name = Name::fromString($name);
@@ -161,20 +155,20 @@ final class NameContext
             $resolvedName = $name->resolveInNamespace($this->namespace);
 
             if ($lastSegmentIsSpecialClassType) {
-                return $resolver->constant($resolvedName->toString());
+                return $resolution->constant($resolvedName->toString());
             }
 
-            return $resolver->classOrConstants($resolvedName->toString(), [$resolvedName->toString()]);
+            return $resolution->classOrConstants($resolvedName->toString(), [$resolvedName->toString()]);
         }
 
         if ($name instanceof RelativeName) {
             $resolvedName = $name->resolveInNamespace($this->namespace);
 
             if ($lastSegmentIsSpecialClassType) {
-                return $resolver->constant($resolvedName->toString());
+                return $resolution->constant($resolvedName->toString());
             }
 
-            return $resolver->classOrConstants($resolvedName->toString(), [$resolvedName->toString()]);
+            return $resolution->classOrConstants($resolvedName->toString(), [$resolvedName->toString()]);
         }
 
         if ($name instanceof QualifiedName) {
@@ -187,10 +181,10 @@ final class NameContext
             }
 
             if ($lastSegmentIsSpecialClassType) {
-                return $resolver->constant($resolvedName->toString());
+                return $resolution->constant($resolvedName->toString());
             }
 
-            return $resolver->classOrConstants($resolvedName->toString(), [$resolvedName->toString()]);
+            return $resolution->classOrConstants($resolvedName->toString(), [$resolvedName->toString()]);
         }
 
         if (!$name instanceof UnqualifiedName) {
@@ -201,7 +195,7 @@ final class NameContext
 
         if ($this->self !== null) {
             if ($nameAsString === 'self') {
-                return $resolver->class($this->resolvedSelf());
+                return $resolution->class($this->resolvedSelf());
             }
 
             if ($nameAsString === 'parent') {
@@ -212,19 +206,19 @@ final class NameContext
                     ));
                 }
 
-                return $resolver->class($this->resolvedParent());
+                return $resolution->class($this->resolvedParent());
             }
 
             if ($nameAsString === 'static') {
-                return $resolver->static($this->resolvedSelf());
+                return $resolution->static($this->resolvedSelf());
             }
 
             if (isset($this->classTemplates[$nameAsString])) {
-                return $resolver->classTemplate($this->resolvedSelf(), $nameAsString, $this->classTemplates[$nameAsString]);
+                return $resolution->classTemplate($this->resolvedSelf(), $nameAsString, $this->classTemplates[$nameAsString]);
             }
 
             if ($this->method !== null && isset($this->methodTemplates[$nameAsString])) {
-                return $resolver->methodTemplate($this->resolvedSelf(), $this->method, $nameAsString, $this->methodTemplates[$nameAsString]);
+                return $resolution->methodTemplate($this->resolvedSelf(), $this->method, $nameAsString, $this->methodTemplates[$nameAsString]);
             }
         }
 
@@ -232,30 +226,20 @@ final class NameContext
             /** @var class-string */
             $class = $this->classImportTable[$nameAsString]->toString();
 
-            return $resolver->class($class);
+            return $resolution->class($class);
         }
 
         if (isset($this->constantImportTable[$nameAsString])) {
-            return $resolver->constant($this->constantImportTable[$nameAsString]->toString());
+            return $resolution->constant($this->constantImportTable[$nameAsString]->toString());
         }
 
         if ($this->namespace === null) {
-            return $resolver->classOrConstants($nameAsString, [$nameAsString]);
+            return $resolution->classOrConstants($nameAsString, [$nameAsString]);
         }
 
         $resolvedName = $name->resolveInNamespace($this->namespace);
 
-        return $resolver->classOrConstants($resolvedName->toString(), [$resolvedName->toString(), $nameAsString]);
-    }
-
-    /**
-     * @internal
-     * @psalm-internal Typhoon\Reflection
-     * @return class-string
-     */
-    public function resolveNameAsClass(string|Name $name): string
-    {
-        return $this->resolveName($name, new NameAsClassResolver());
+        return $resolution->classOrConstants($resolvedName->toString(), [$resolvedName->toString(), $nameAsString]);
     }
 
     /**

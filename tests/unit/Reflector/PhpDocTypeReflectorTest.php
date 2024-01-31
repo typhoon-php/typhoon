@@ -14,7 +14,7 @@ use Typhoon\Type\Type;
 use Typhoon\Type\types;
 
 /**
- * @psalm-import-type TemplateReflector from NameAsTypeResolver
+ * @psalm-import-type TemplateReflector from NameAsTypeResolution
  */
 #[CoversClass(PhpDocTypeReflector::class)]
 final class PhpDocTypeReflectorTest extends TestCase
@@ -175,7 +175,7 @@ final class PhpDocTypeReflectorTest extends TestCase
             /** @var NameContext<TemplateReflector> */
             $nameContext = new NameContext();
             $type = PhpDocTypeReflector::reflect(
-                nameContext: $nameContext,
+                nameResolver: $nameContext,
                 classExistenceChecker: new NativeClassExistenceChecker(),
                 typeNode: $phpDocType,
             );

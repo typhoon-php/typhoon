@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace Typhoon\Reflection;
 
 use PhpParser\Node\Stmt\Class_;
-use Typhoon\Reflection\NameResolution\NameContext;
+use Typhoon\Reflection\NameResolution\NameResolver;
 
 /**
  * @api
@@ -29,7 +29,7 @@ final class AnonymousClassName
     /**
      * @param non-empty-string $file
      */
-    public static function fromNode(string $file, Class_ $node, NameContext $nameContext): self
+    public static function fromNode(string $file, Class_ $node, NameResolver $nameResolver): self
     {
         $line = $node->getStartLine();
 
@@ -37,7 +37,7 @@ final class AnonymousClassName
             throw new ReflectionException();
         }
 
-        return new self(file: $file, line: $line, superType: self::resolveSuperType($node, $nameContext));
+        return new self(file: $file, line: $line, superType: self::resolveSuperType($node, $nameResolver));
     }
 
     /**
@@ -96,14 +96,14 @@ final class AnonymousClassName
     /**
      * @return ?class-string
      */
-    private static function resolveSuperType(Class_ $node, NameContext $nameContext): ?string
+    private static function resolveSuperType(Class_ $node, NameResolver $nameResolver): ?string
     {
         if ($node->extends !== null) {
-            return $nameContext->resolveNameAsClass($node->extends->toCodeString());
+            return $nameResolver->resolveNameAsClass($node->extends->toCodeString());
         }
 
         foreach ($node->implements as $interface) {
-            return $nameContext->resolveNameAsClass($interface->toCodeString());
+            return $nameResolver->resolveNameAsClass($interface->toCodeString());
         }
 
         return null;

@@ -10,9 +10,9 @@ use Typhoon\Reflection\ReflectionException;
  * @internal
  * @psalm-internal Typhoon\Reflection
  * @template TTemplateMetadata
- * @implements NameResolver<class-string, TTemplateMetadata>
+ * @implements NameResolution<class-string, TTemplateMetadata>
  */
-final class NameAsClassResolver implements NameResolver
+final class NameAsClassResolution implements NameResolution
 {
     public function class(string $name): mixed
     {

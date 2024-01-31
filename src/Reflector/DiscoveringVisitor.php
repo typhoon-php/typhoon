@@ -16,7 +16,7 @@ use Typhoon\Reflection\ReflectionException;
 /**
  * @internal
  * @psalm-internal Typhoon\Reflection
- * @psalm-import-type TemplateReflector from NameAsTypeResolver
+ * @psalm-import-type TemplateReflector from NameAsTypeResolution
  */
 final class DiscoveringVisitor extends NodeVisitorAbstract
 {
@@ -66,7 +66,7 @@ final class DiscoveringVisitor extends NodeVisitorAbstract
         $name = AnonymousClassName::fromNode(
             file: $this->resource->file,
             node: $node,
-            nameContext: $this->nameContext,
+            nameResolver: $this->nameContext,
         );
 
         return $name->toStringWithoutRtdKeyCounter();

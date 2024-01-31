@@ -19,7 +19,7 @@ use function Typhoon\Reflection\Exceptionally\exceptionally;
 /**
  * @internal
  * @psalm-internal Typhoon\Reflection
- * @psalm-import-type TemplateReflector from NameAsTypeResolver
+ * @psalm-import-type TemplateReflector from NameAsTypeResolution
  */
 final class Context implements ParsingContext, ClassReflector, ClassExistenceChecker
 {

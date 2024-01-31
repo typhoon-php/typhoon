@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Typhoon\Reflection\Reflector;
 
-use Typhoon\Reflection\NameResolution\NameResolver;
+use Typhoon\Reflection\NameResolution\NameResolution;
 use Typhoon\Reflection\ReflectionException;
 use Typhoon\Reflection\TemplateReflection;
 use Typhoon\Type\Type;
@@ -14,9 +14,9 @@ use Typhoon\Type\types;
  * @internal
  * @psalm-internal Typhoon\Reflection
  * @psalm-type TemplateReflector = \Closure(): TemplateReflection
- * @implements NameResolver<Type, TemplateReflector>
+ * @implements NameResolution<Type, TemplateReflector>
  */
-final class NameAsTypeResolver implements NameResolver
+final class NameAsTypeResolution implements NameResolution
 {
     public function __construct(
         private readonly ClassExistenceChecker $classExistenceChecker,
