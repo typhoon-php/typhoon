@@ -13,10 +13,35 @@ use PHPUnit\Framework\TestCase;
 use Typhoon\Reflection\TagPrioritizer;
 use Typhoon\Reflection\Variance;
 
-#[CoversClass(PhpDocParser::class)]
 #[CoversClass(PhpDoc::class)]
-final class PhpDocParserTest extends TestCase
+#[CoversClass(PhpDocParser::class)]
+final class PhpDocAndParserTest extends TestCase
 {
+    public function testPhpDocEmptyReturnsSame(): void
+    {
+        $phpDoc1 = PhpDoc::empty();
+        $phpDoc2 = PhpDoc::empty();
+
+        self::assertSame($phpDoc1, $phpDoc2);
+    }
+
+    public function testPhpDocTemplateTagVariance(): void
+    {
+        $parser = new PhpDocParser();
+        $templates = $parser->parsePhpDoc(
+            <<<'PHP'
+                /**
+                 * @template-covariant T
+                 */
+                PHP,
+        )->templates();
+        self::assertCount(1, $templates);
+
+        $actualVariance = PhpDoc::templateTagVariance($templates[0]);
+
+        self::assertSame(Variance::COVARIANT, $actualVariance);
+    }
+
     public function testIsDeprecatedReturnsFalseIfNoDeprecatedTag(): void
     {
         $parser = new PhpDocParser();
@@ -381,6 +406,36 @@ final class PhpDocParserTest extends TestCase
                  */
                 PHP,
         )->paramTypes();
+    }
+
+    public function testMethodsMemoized(): void
+    {
+        $phpDoc = (new PhpDocParser())->parsePhpDoc(
+            <<<'PHP'
+                /**
+                 * @template T
+                 * @implements Iterator
+                 * @extends stdClass
+                 * @var string
+                 * @param int $x
+                 * @param float $y
+                 * @return array
+                 */
+                PHP,
+        );
+        $tags = static fn(): array => [
+            $phpDoc->templates(),
+            $phpDoc->implementedTypes(),
+            $phpDoc->extendedTypes(),
+            $phpDoc->varType(),
+            $phpDoc->paramTypes(),
+            $phpDoc->returnType(),
+        ];
+
+        $first = $tags();
+        $second = $tags();
+
+        self::assertSame($first, $second);
     }
 
     private function createTemplateTagValueNode(string $name, ?TypeNode $bound, Variance $variance): TemplateTagValueNode

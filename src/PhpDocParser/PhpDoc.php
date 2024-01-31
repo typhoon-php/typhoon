@@ -53,6 +53,8 @@ final class PhpDoc
     private ?array $implementedTypes = null;
 
     /**
+     * @internal
+     * @psalm-internal Typhoon\Reflection\PhpDocParser
      * @param array<PhpDocTagNode> $tags
      */
     public function __construct(
