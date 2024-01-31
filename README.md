@@ -21,21 +21,21 @@ use Typhoon\Type\types;
 
 /**
  * array{
- *     non-empty-list,
+ *     a: non-empty-list,
  *     b?: int|float,
- *     Traversable<numeric-string, false>,
+ *     c: Traversable<numeric-string, false>,
  *     d: callable(PDO::*, TSend:Generator=, scalar...): void,
  *     ...
  * }
  */
 $type = types::arrayShape([
-    types::nonEmptyString,
-    'a' => types::optional(types::union(types::int, types::float)),
-    'b' => types::object(Traversable::class, types::numericString, types::false),
-    'c' => types::callable(
+    'a' => types::nonEmptyString,
+    'b' => types::arrayElement(types::union(types::int, types::float), optional: true),
+    'c' => types::object(Traversable::class, types::numericString, types::false),
+    'd' => types::callable(
         parameters: [
             types::classConstant(PDO::class, '*'),
-            types::param(types::classTemplate(Generator::class, 'TSend'), hasDefault: true),
+            types::param(types::template('TSend', types::atClass(Generator::class)), hasDefault: true),
             types::param(types::scalar, variadic: true),
         ],
         returnType: types::void,
