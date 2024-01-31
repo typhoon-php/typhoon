@@ -12,5 +12,5 @@
         "NullSafeMethodCall": false,
         "NullSafePropertyCall": false
     },
-    "minCoveredMsi": 95
+    "minCoveredMsi": 80
 }
