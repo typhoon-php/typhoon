@@ -15,12 +15,13 @@ use Typhoon\Reflection\PhpDocParser\PhpDocParser;
 use Typhoon\Reflection\PhpParser\PhpParser;
 use Typhoon\Reflection\ReflectionException;
 use Typhoon\Reflection\Reflector\Cache\NullReflectionCache;
+use Typhoon\Reflection\TypeContext\ClassExistenceChecker;
+use Typhoon\Reflection\TypeContext\TypeContext;
 use function Typhoon\Reflection\Exceptionally\exceptionally;
 
 /**
  * @internal
  * @psalm-internal Typhoon\Reflection
- * @psalm-import-type TemplateReflector from NameAsTypeResolution
  */
 final class Context implements ParsingContext, ClassReflector, ClassExistenceChecker
 {
@@ -63,15 +64,13 @@ final class Context implements ParsingContext, ClassReflector, ClassExistenceChe
             changeDetector: FileChangeDetector::fromContents($file, $code),
         );
 
-        /** @var NameContext<TemplateReflector> */
         $nameContext = new NameContext();
         $this->phpParser->parseAndTraverse($code, [
             new PhpDocParsingVisitor($this->phpDocParser),
             new NameContextVisitor($nameContext),
             new DiscoveringVisitor(
                 parsingContext: $this,
-                classExistenceChecker: $this,
-                nameContext: $nameContext,
+                typeContext: new TypeContext($nameContext, $this),
                 resource: $resource,
             ),
         ]);

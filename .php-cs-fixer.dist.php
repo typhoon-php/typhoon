@@ -15,6 +15,7 @@ $finder = Finder::create()
         __FILE__,
     ])
     ->exclude([
+        'unit/NameContext/functional',
         'unit/ReflectorCompatibility',
     ]);
 

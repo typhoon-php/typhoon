@@ -8,20 +8,29 @@ use Typhoon\Reflection\ReflectionException;
 
 /**
  * Inspired by PhpParser\NameContext.
+ * Designed according to https://www.php.net/manual/en/language.namespaces.rules.php.
  *
  * @internal
  * @psalm-internal Typhoon\Reflection
  * @template TTemplateMetadata
- * @extends NameResolver<TTemplateMetadata>
  */
-final class NameContext extends NameResolver
+final class NameContext implements NameResolver
 {
+    private const SELF = 'self';
+    private const PARENT = 'parent';
+    private const STATIC = 'static';
+    private const SPECIAL = [
+        self::SELF => true,
+        self::PARENT => true,
+        self::STATIC => true,
+    ];
+
     private null|UnqualifiedName|QualifiedName $namespace = null;
 
     /**
      * @var array<non-empty-string, UnqualifiedName|QualifiedName>
      */
-    private array $classImportTable = [];
+    private array $namespaceImportTable = [];
 
     /**
      * @var array<non-empty-string, UnqualifiedName|QualifiedName>
@@ -29,248 +38,157 @@ final class NameContext extends NameResolver
     private array $constantImportTable = [];
 
     /**
-     * @var null|Name|class-string
+     * @var array<non-empty-string, UnqualifiedName|QualifiedName>
      */
-    private null|Name|string $self = null;
+    private array $functionImportTable = [];
 
     /**
-     * @var null|Name|class-string
+     * @psalm-pure
      */
-    private null|Name|string $parent = null;
+    private static function parse(string $name): UnqualifiedName|QualifiedName|RelativeName|FullyQualifiedName
+    {
+        $segments = explode('\\', $name);
+
+        return match ($segments[0] ?? null) {
+            '' => new FullyQualifiedName(self::segmentsToName(\array_slice($segments, 1))),
+            'namespace' => new RelativeName(self::segmentsToName(\array_slice($segments, 1))),
+            default => self::segmentsToName($segments),
+        };
+    }
 
     /**
-     * @var array<non-empty-string, TTemplateMetadata>
+     * @psalm-pure
+     * @param list<string> $segments
      */
-    private array $classTemplates = [];
+    private static function segmentsToName(array $segments): UnqualifiedName|QualifiedName
+    {
+        if (\count($segments) === 0) {
+            throw new \InvalidArgumentException('Empty name.');
+        }
 
-    /**
-     * @var ?non-empty-string
-     */
-    private ?string $method = null;
+        if (\count($segments) === 1) {
+            return new UnqualifiedName($segments[0]);
+        }
 
-    /**
-     * @var array<non-empty-string, TTemplateMetadata>
-     */
-    private array $methodTemplates = [];
+        return new QualifiedName(array_map(
+            static fn(string $segment): UnqualifiedName => new UnqualifiedName($segment),
+            $segments,
+        ));
+    }
 
-    public function enterNamespace(?string $namespace): void
+    public function enterNamespace(?string $namespace = null): void
     {
         $this->leaveNamespace();
 
-        $this->namespace = Name::fromString($namespace)?->resolveInNamespace();
+        if ($namespace !== null) {
+            $this->namespace = self::parse($namespace)->resolve();
+        }
     }
 
-    public function addUse(string $name, string $alias, ?string $prefix = null): void
+    public function addUse(string $name, ?string $alias = null): void
     {
-        $alias = (new UnqualifiedName($alias))->toString();
+        $resolvedName = self::parse($name)->resolve();
+        $resolvedAlias = ($alias === null ? $resolvedName->lastSegment() : new UnqualifiedName($alias))->toString();
 
-        if (isset($this->classImportTable[$alias])) {
+        if (isset($this->namespaceImportTable[$resolvedAlias])) {
             throw new ReflectionException(sprintf(
                 'Cannot use %s as %s because the name is already in use.',
                 $name,
-                $alias,
+                $resolvedAlias,
             ));
         }
 
-        $this->classImportTable[$alias] = Name::concatenate(
-            Name::fromString($prefix)?->resolveInNamespace(),
-            Name::fromString($name)->resolveInNamespace(),
-        );
+        $this->namespaceImportTable[$resolvedAlias] = $resolvedName;
     }
 
-    public function addConstantUse(string $name, string $alias, ?string $prefix = null): void
+    public function addConstantUse(string $name, ?string $alias = null): void
     {
-        $alias = (new UnqualifiedName($alias))->toString();
+        $resolvedName = self::parse($name)->resolve();
+        $resolvedAlias = ($alias === null ? $resolvedName->lastSegment() : new UnqualifiedName($alias))->toString();
 
-        if (isset($this->constantImportTable[$alias])) {
+        if (isset($this->constantImportTable[$resolvedAlias])) {
             throw new ReflectionException(sprintf(
                 'Cannot use constant %s as %s because the name is already in use.',
                 $name,
-                $alias,
+                $resolvedAlias,
             ));
         }
 
-        $this->constantImportTable[$alias] = Name::concatenate(
-            Name::fromString($prefix)?->resolveInNamespace(),
-            Name::fromString($name)->resolveInNamespace(),
-        );
+        $this->constantImportTable[$resolvedAlias] = $resolvedName;
     }
 
-    /**
-     * @param array<non-empty-string, TTemplateMetadata> $templates
-     */
-    public function enterClass(string $name, ?string $parent = null, array $templates = []): void
+    public function addFunctionUse(string $name, ?string $alias = null): void
     {
-        $this->self = Name::fromString($name);
-        $this->parent = Name::fromString($parent);
-        $this->classTemplates = $templates;
-    }
+        $resolvedName = self::parse($name)->resolve();
+        $resolvedAlias = ($alias === null ? $resolvedName->lastSegment() : new UnqualifiedName($alias))->toString();
 
-    /**
-     * @param array<non-empty-string, TTemplateMetadata> $templates
-     */
-    public function enterMethod(string $name, array $templates = []): void
-    {
-        if ($this->self === null) {
-            throw new ReflectionException(sprintf('%s() must be called after enterClass().', __METHOD__));
+        if (isset($this->functionImportTable[$resolvedAlias])) {
+            throw new ReflectionException(sprintf(
+                'Cannot use constant %s as %s because the name is already in use.',
+                $name,
+                $resolvedAlias,
+            ));
         }
 
-        $this->method = (new UnqualifiedName($name))->toString();
-        $this->methodTemplates = $templates;
+        $this->functionImportTable[$resolvedAlias] = $resolvedName;
     }
 
-    public function leaveMethod(): void
+    public function enterClass(string $name, ?string $parent = null): void
     {
-        $this->method = null;
-        $this->methodTemplates = [];
+        $this->leaveClass();
+
+        $this->namespaceImportTable[self::SELF] = self::parse($name)->resolve($this->namespace, $this->namespaceImportTable);
+
+        if ($parent !== null) {
+            $this->namespaceImportTable[self::PARENT] = self::parse($parent)->resolve($this->namespace, $this->namespaceImportTable);
+        }
     }
 
     public function leaveClass(): void
     {
-        $this->leaveMethod();
-
-        $this->self = null;
-        $this->parent = null;
-        $this->classTemplates = [];
+        unset($this->namespaceImportTable[self::SELF], $this->namespaceImportTable[self::PARENT]);
     }
 
     public function leaveNamespace(): void
     {
-        $this->leaveClass();
-
         $this->namespace = null;
-        $this->classImportTable = [];
+        $this->namespaceImportTable = [];
         $this->constantImportTable = [];
+        $this->functionImportTable = [];
     }
 
-    public function resolveName(string|Name $name, NameResolution $resolution): mixed
+    public function resolveNameAsClass(string $name): string
     {
-        if (\is_string($name)) {
-            $name = Name::fromString($name);
+        if (!isset($this->namespaceImportTable[self::SELF]) && isset(self::SPECIAL[strtolower($name)])) {
+            throw new \InvalidArgumentException(sprintf('%s cannot be used outside of the class scope.', $name));
         }
 
-        $lastSegmentIsSpecialClassType = \in_array($name->lastSegment()->toString(), ['self', 'parent'], true);
+        /** @var class-string */
+        return self::parse($name)->resolve($this->namespace, $this->namespaceImportTable)->toString();
+    }
 
-        if ($name instanceof FullyQualifiedName) {
-            $resolvedName = $name->resolveInNamespace($this->namespace);
-
-            if ($lastSegmentIsSpecialClassType) {
-                return $resolution->constant($resolvedName->toString());
-            }
-
-            return $resolution->classOrConstants($resolvedName->toString(), [$resolvedName->toString()]);
+    public function resolveNameAsConstant(string $name): array
+    {
+        if (strtolower($name) === self::STATIC) {
+            throw new \InvalidArgumentException('static is not a valid constant name.');
         }
 
-        if ($name instanceof RelativeName) {
-            $resolvedName = $name->resolveInNamespace($this->namespace);
-
-            if ($lastSegmentIsSpecialClassType) {
-                return $resolution->constant($resolvedName->toString());
-            }
-
-            return $resolution->classOrConstants($resolvedName->toString(), [$resolvedName->toString()]);
-        }
-
-        if ($name instanceof QualifiedName) {
-            $firstSegmentAsString = $name->firstSegment()->toString();
-
-            if (isset($this->classImportTable[$firstSegmentAsString])) {
-                $resolvedName = $name->withFirstSegmentReplaced($this->classImportTable[$firstSegmentAsString]);
-            } else {
-                $resolvedName = $name->resolveInNamespace($this->namespace);
-            }
-
-            if ($lastSegmentIsSpecialClassType) {
-                return $resolution->constant($resolvedName->toString());
-            }
-
-            return $resolution->classOrConstants($resolvedName->toString(), [$resolvedName->toString()]);
-        }
+        $name = self::parse($name);
 
         if (!$name instanceof UnqualifiedName) {
-            throw new ReflectionException(sprintf('Name %s is not supported.', $name::class));
+            return [$name->resolve($this->namespace, $this->namespaceImportTable)->toString()];
         }
 
         $nameAsString = $name->toString();
 
-        if ($this->self !== null) {
-            if ($nameAsString === 'self') {
-                return $resolution->class($this->resolvedSelf());
-            }
-
-            if ($nameAsString === 'parent') {
-                if ($this->parent === null) {
-                    throw new ReflectionException(sprintf(
-                        'Failed to resolve type "parent": class %s does not have parent.',
-                        $this->resolvedSelf(),
-                    ));
-                }
-
-                return $resolution->class($this->resolvedParent());
-            }
-
-            if ($nameAsString === 'static') {
-                return $resolution->static($this->resolvedSelf());
-            }
-
-            if (isset($this->classTemplates[$nameAsString])) {
-                return $resolution->classTemplate($this->resolvedSelf(), $nameAsString, $this->classTemplates[$nameAsString]);
-            }
-
-            if ($this->method !== null && isset($this->methodTemplates[$nameAsString])) {
-                return $resolution->methodTemplate($this->resolvedSelf(), $this->method, $nameAsString, $this->methodTemplates[$nameAsString]);
-            }
-        }
-
-        if (isset($this->classImportTable[$nameAsString])) {
-            /** @var class-string */
-            $class = $this->classImportTable[$nameAsString]->toString();
-
-            return $resolution->class($class);
-        }
-
         if (isset($this->constantImportTable[$nameAsString])) {
-            return $resolution->constant($this->constantImportTable[$nameAsString]->toString());
+            return [$this->constantImportTable[$nameAsString]->toString()];
         }
 
         if ($this->namespace === null) {
-            return $resolution->classOrConstants($nameAsString, [$nameAsString]);
+            return [$nameAsString];
         }
 
-        $resolvedName = $name->resolveInNamespace($this->namespace);
-
-        return $resolution->classOrConstants($resolvedName->toString(), [$resolvedName->toString(), $nameAsString]);
-    }
-
-    /**
-     * @return class-string
-     */
-    private function resolvedSelf(): string
-    {
-        if (\is_string($this->self)) {
-            return $this->self;
-        }
-
-        if ($this->self === null) {
-            throw new \LogicException('This must never happen.');
-        }
-
-        return $this->self = $this->resolveNameAsClass($this->self);
-    }
-
-    /**
-     * @return class-string
-     */
-    private function resolvedParent(): string
-    {
-        if (\is_string($this->parent)) {
-            return $this->parent;
-        }
-
-        if ($this->parent === null) {
-            throw new \LogicException('This must never happen.');
-        }
-
-        return $this->parent = $this->resolveNameAsClass($this->parent);
+        return [$name->resolve($this->namespace)->toString(), $nameAsString];
     }
 }

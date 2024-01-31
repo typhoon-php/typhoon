@@ -17,15 +17,6 @@ final class QualifiedNameTest extends TestCase
         new QualifiedName([new UnqualifiedName('A')]);
     }
 
-    public function testItReturnsFirstSegment(): void
-    {
-        $qualifiedName = new QualifiedName([new UnqualifiedName('A'), new UnqualifiedName('B')]);
-
-        $firstSegment = $qualifiedName->firstSegment();
-
-        self::assertSame('A', $firstSegment->toString());
-    }
-
     public function testItReturnsLastSegment(): void
     {
         $qualifiedName = new QualifiedName([new UnqualifiedName('A'), new UnqualifiedName('B')]);
@@ -39,7 +30,7 @@ final class QualifiedNameTest extends TestCase
     {
         $qualifiedName = new QualifiedName([new UnqualifiedName('A'), new UnqualifiedName('B')]);
 
-        $resolved = $qualifiedName->resolveInNamespace();
+        $resolved = $qualifiedName->resolve();
 
         self::assertSame('A\\B', $resolved->toString());
     }
@@ -48,7 +39,7 @@ final class QualifiedNameTest extends TestCase
     {
         $qualifiedName = new QualifiedName([new UnqualifiedName('A'), new UnqualifiedName('B')]);
 
-        $resolved = $qualifiedName->resolveInNamespace(new UnqualifiedName('C'));
+        $resolved = $qualifiedName->resolve(new UnqualifiedName('C'));
 
         self::assertSame('C\\A\\B', $resolved->toString());
     }
@@ -61,9 +52,9 @@ final class QualifiedNameTest extends TestCase
             new UnqualifiedName('C'),
         ]);
 
-        $withFirstSegmentReplaced = $qualifiedName->withFirstSegmentReplaced(new UnqualifiedName('A1'));
+        $resolved = $qualifiedName->resolve(importTable: ['A' => new UnqualifiedName('A1')]);
 
-        self::assertSame('A1\\B\\C', $withFirstSegmentReplaced->toString());
+        self::assertSame('A1\\B\\C', $resolved->toString());
     }
 
     public function testItCorrectlyRepresentsItselfAsString(): void

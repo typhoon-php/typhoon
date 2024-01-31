@@ -9,24 +9,19 @@ use PhpParser\Node\Stmt;
 use PhpParser\NodeVisitorAbstract;
 use Typhoon\Reflection\AnonymousClassName;
 use Typhoon\Reflection\ClassReflection;
-use Typhoon\Reflection\NameContext\NameContext;
 use Typhoon\Reflection\ParsingContext;
 use Typhoon\Reflection\ReflectionException;
+use Typhoon\Reflection\TypeContext\TypeContext;
 
 /**
  * @internal
  * @psalm-internal Typhoon\Reflection
- * @psalm-import-type TemplateReflector from NameAsTypeResolution
  */
 final class DiscoveringVisitor extends NodeVisitorAbstract
 {
-    /**
-     * @param NameContext<TemplateReflector> $nameContext
-     */
     public function __construct(
         private readonly ParsingContext $parsingContext,
-        private readonly ClassExistenceChecker $classExistenceChecker,
-        private readonly NameContext $nameContext,
+        private readonly TypeContext $typeContext,
         private readonly Resource $resource,
     ) {}
 
@@ -34,12 +29,11 @@ final class DiscoveringVisitor extends NodeVisitorAbstract
     {
         if ($node instanceof Stmt\ClassLike) {
             $name = $this->resolveClassName($node);
-            $nameContext = clone $this->nameContext;
+            $typeContext = clone $this->typeContext;
             $this->parsingContext->registerClassReflector(
                 name: $name,
                 reflector: fn(): ClassReflection => PhpParserReflector::reflectClass(
-                    classExistenceChecker: $this->classExistenceChecker,
-                    nameContext: $nameContext,
+                    typeContext: $typeContext,
                     resource: $this->resource,
                     node: $node,
                     name: $name,
@@ -55,20 +49,20 @@ final class DiscoveringVisitor extends NodeVisitorAbstract
      */
     private function resolveClassName(Stmt\ClassLike $node): string
     {
-        if ($node->name !== null) {
-            return $this->nameContext->resolveNameAsClass($node->name->toString());
+        if ($node->name === null) {
+            if (!$node instanceof Stmt\Class_) {
+                throw new ReflectionException(sprintf('Unexpected %s with null name.', $node::class));
+            }
+
+            $name = AnonymousClassName::fromNode(
+                file: $this->resource->file,
+                node: $node,
+                nameResolver: $this->typeContext,
+            );
+
+            return $name->toStringWithoutRtdKeyCounter();
         }
 
-        if (!$node instanceof Stmt\Class_) {
-            throw new ReflectionException();
-        }
-
-        $name = AnonymousClassName::fromNode(
-            file: $this->resource->file,
-            node: $node,
-            nameResolver: $this->nameContext,
-        );
-
-        return $name->toStringWithoutRtdKeyCounter();
+        return $this->typeContext->resolveNameAsClass($node->name->toString());
     }
 }

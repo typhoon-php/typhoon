@@ -4,25 +4,15 @@ declare(strict_types=1);
 
 namespace Typhoon\Reflection\NameContext;
 
-/**
- * @internal
- * @psalm-internal Typhoon\Reflection
- * @template TTemplateMetadata
- */
-abstract class NameResolver
+interface NameResolver
 {
     /**
      * @return class-string
      */
-    final public function resolveNameAsClass(string|Name $name): string
-    {
-        return $this->resolveName($name, new NameAsClassResolution());
-    }
+    public function resolveNameAsClass(string $name): string;
 
     /**
-     * @template TReturn
-     * @param NameResolution<TReturn, TTemplateMetadata> $resolution
-     * @return TReturn
+     * @return array{0: non-empty-string, 1?: non-empty-string}
      */
-    abstract public function resolveName(string|Name $name, NameResolution $resolution): mixed;
+    public function resolveNameAsConstant(string $name): array;
 }

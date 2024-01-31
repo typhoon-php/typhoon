@@ -7,20 +7,16 @@ namespace Typhoon\Reflection\Reflector;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
-use Typhoon\Reflection\NameContext\NameContext;
 use Typhoon\Reflection\PhpDocParser\PhpDocParser;
 use Typhoon\Reflection\ReflectionException;
 use Typhoon\Type\Type;
 use Typhoon\Type\types;
 
-/**
- * @psalm-import-type TemplateReflector from NameAsTypeResolution
- */
 #[CoversClass(PhpDocTypeReflector::class)]
 final class PhpDocTypeReflectorTest extends TestCase
 {
     /**
-     * @return \Generator<int, array{string, Type|ReflectionException}>
+     * @return \Generator<int, array{string, Type|\Throwable}>
      */
     public static function validTypes(): \Generator
     {
@@ -130,8 +126,8 @@ final class PhpDocTypeReflectorTest extends TestCase
         yield ['\stdClass', types::object(\stdClass::class)];
         yield ['\Traversable', types::object(\Traversable::class)];
         yield ['\stdClass<int, string>', types::object(\stdClass::class, types::int, types::string)];
-        yield ['static', new ReflectionException('Neither class "static", nor constant "static" exist.')];
-        yield ['static<int, string>', new ReflectionException('Neither class "static", nor constant "static" exist.')];
+        yield ['static', new \InvalidArgumentException('static cannot be used outside of the class scope.')];
+        yield ['static<int, string>', new \InvalidArgumentException('static cannot be used outside of the class scope.')];
         yield ['object{}', types::objectShape()];
         yield ['object{a: int}', types::objectShape(['a' => types::int])];
         yield ['object{a?: int}', types::objectShape(['a' => types::prop(types::int, true)])];
@@ -163,7 +159,7 @@ final class PhpDocTypeReflectorTest extends TestCase
     }
 
     #[DataProvider('validTypes')]
-    public function testValidTypes(string $phpDocStringType, Type|ReflectionException $expectedTypeOrException): void
+    public function testValidTypes(string $phpDocStringType, Type|\Throwable $expectedTypeOrException): void
     {
         $parser = new PhpDocParser();
         $phpDocType = $parser->parsePhpDoc("/** @var {$phpDocStringType} */")->varType();
@@ -171,13 +167,7 @@ final class PhpDocTypeReflectorTest extends TestCase
         self::assertNotNull($phpDocType);
 
         try {
-            /** @var NameContext<TemplateReflector> */
-            $nameContext = new NameContext();
-            $type = PhpDocTypeReflector::reflect(
-                nameResolver: $nameContext,
-                classExistenceChecker: new NativeClassExistenceChecker(),
-                typeNode: $phpDocType,
-            );
+            $type = PhpDocTypeReflector::reflect($phpDocType);
         } catch (\Throwable $exception) {
             self::assertEquals($expectedTypeOrException, $exception);
 

@@ -25,8 +25,8 @@ use PHPStan\PhpDocParser\Ast\Type\NullableTypeNode;
 use PHPStan\PhpDocParser\Ast\Type\ObjectShapeNode;
 use PHPStan\PhpDocParser\Ast\Type\TypeNode;
 use PHPStan\PhpDocParser\Ast\Type\UnionTypeNode;
-use Typhoon\Reflection\NameContext\NameResolver;
 use Typhoon\Reflection\ReflectionException;
+use Typhoon\Reflection\TypeContext\TypeContext;
 use Typhoon\Type;
 use Typhoon\Type\types;
 use Typhoon\TypeStringifier\TypeStringifier;
@@ -34,27 +34,16 @@ use Typhoon\TypeStringifier\TypeStringifier;
 /**
  * @internal
  * @psalm-internal Typhoon\Reflection
- * @psalm-import-type TemplateReflector from NameAsTypeResolution
  */
 final class PhpDocTypeReflector
 {
-    /**
-     * @param NameResolver<TemplateReflector> $nameResolver
-     */
     private function __construct(
-        private readonly NameResolver $nameResolver,
-        private readonly ClassExistenceChecker $classExistenceChecker,
+        private readonly TypeContext $typeContext,
     ) {}
 
-    /**
-     * @param NameResolver<TemplateReflector> $nameResolver
-     */
-    public static function reflect(
-        NameResolver $nameResolver,
-        ClassExistenceChecker $classExistenceChecker,
-        TypeNode $typeNode,
-    ): Type\Type {
-        return (new self($nameResolver, $classExistenceChecker))->doReflect($typeNode);
+    public static function reflect(TypeNode $typeNode, TypeContext $typeContext = new TypeContext()): Type\Type
+    {
+        return (new self($typeContext))->doReflect($typeNode);
     }
 
     private function doReflect(TypeNode $node): Type\Type
@@ -198,7 +187,7 @@ final class PhpDocTypeReflector
      */
     private function reflectName(string $name, array $genericTypes): Type\Type
     {
-        $type = $this->nameResolver->resolveName($name, new NameAsTypeResolution($this->classExistenceChecker));
+        $type = $this->typeContext->resolveNameAsType($name);
 
         if ($genericTypes === []) {
             if ($type instanceof Type\NamedObjectType && $type->class === \Closure::class) {
@@ -452,7 +441,7 @@ final class PhpDocTypeReflector
                 return types::constant($exprNode->name);
             }
 
-            $class = $this->nameResolver->resolveNameAsClass($exprNode->className);
+            $class = $this->typeContext->resolveNameAsClass($exprNode->className);
 
             if ($exprNode->name === 'class') {
                 return types::classString($class);
@@ -473,7 +462,7 @@ final class PhpDocTypeReflector
             );
         }
 
-        if ($this->nameResolver->resolveNameAsClass($node->identifier->name) === \Closure::class) {
+        if ($this->typeContext->resolveNameAsClass($node->identifier->name) === \Closure::class) {
             return types::closure(
                 parameters: $this->reflectCallableParameters($node->parameters),
                 returnType: $this->doReflect($node->returnType),

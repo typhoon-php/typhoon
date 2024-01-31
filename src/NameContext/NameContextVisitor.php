@@ -5,19 +5,16 @@ declare(strict_types=1);
 namespace Typhoon\Reflection\NameContext;
 
 use PhpParser\Node;
+use PhpParser\Node\Name;
 use PhpParser\Node\Stmt;
 use PhpParser\NodeVisitorAbstract;
 
 /**
  * @internal
  * @psalm-internal Typhoon\Reflection
- * @template TTemplateMetadata
  */
 final class NameContextVisitor extends NodeVisitorAbstract
 {
-    /**
-     * @param NameContext<TTemplateMetadata> $nameContext
-     */
     public function __construct(
         private readonly NameContext $nameContext,
     ) {}
@@ -35,7 +32,7 @@ final class NameContextVisitor extends NodeVisitorAbstract
                 $this->addUse(
                     type: $node->type,
                     name: $use->name,
-                    alias: $use->getAlias(),
+                    alias: $use->alias,
                 );
             }
 
@@ -46,9 +43,8 @@ final class NameContextVisitor extends NodeVisitorAbstract
             foreach ($node->uses as $use) {
                 $this->addUse(
                     type: $node->type | $use->type,
-                    name: $use->name,
-                    alias: $use->getAlias(),
-                    prefix: $node->prefix,
+                    name: Name::concat($node->prefix, $use->name),
+                    alias: $use->alias,
                 );
             }
 
@@ -60,13 +56,10 @@ final class NameContextVisitor extends NodeVisitorAbstract
                 return null;
             }
 
-            $this->nameContext->enterClass($node->name->name, $node instanceof Stmt\Class_ ? $node->extends?->toCodeString() : null);
-
-            return null;
-        }
-
-        if ($node instanceof Stmt\ClassMethod) {
-            $this->nameContext->enterClass($node->name->name);
+            $this->nameContext->enterClass(
+                name: $node->name->name,
+                parent: $node instanceof Stmt\Class_ ? $node->extends?->toCodeString() : null,
+            );
 
             return null;
         }
@@ -92,25 +85,25 @@ final class NameContextVisitor extends NodeVisitorAbstract
             return null;
         }
 
-        if ($node instanceof Stmt\ClassMethod) {
-            $this->nameContext->leaveMethod();
-
-            return null;
-        }
-
         return null;
     }
 
-    private function addUse(int $type, Node\Name $name, Node\Identifier $alias, ?Node\Name $prefix = null): void
+    private function addUse(int $type, Name $name, ?Node\Identifier $alias): void
     {
         if ($type === Stmt\Use_::TYPE_NORMAL) {
-            $this->nameContext->addUse($name->toCodeString(), $alias->name, $prefix?->toCodeString());
+            $this->nameContext->addUse($name->toCodeString(), $alias?->name);
 
             return;
         }
 
         if ($type === Stmt\Use_::TYPE_CONSTANT) {
-            $this->nameContext->addConstantUse($name->toCodeString(), $alias->name, $prefix?->toCodeString());
+            $this->nameContext->addConstantUse($name->toCodeString(), $alias?->name);
+
+            return;
+        }
+
+        if ($type === Stmt\Use_::TYPE_FUNCTION) {
+            $this->nameContext->addFunctionUse($name->toCodeString(), $alias?->name);
 
             return;
         }

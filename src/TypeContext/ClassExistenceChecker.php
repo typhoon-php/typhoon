@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Typhoon\Reflection\Reflector;
+namespace Typhoon\Reflection\TypeContext;
 
 /**
  * @internal

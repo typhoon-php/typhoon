@@ -9,45 +9,49 @@ namespace Typhoon\Reflection\NameContext;
  * @psalm-internal Typhoon\Reflection
  * @psalm-immutable
  */
-final class QualifiedName extends Name
+final class QualifiedName
 {
     /**
      * @param non-empty-list<UnqualifiedName> $segments
      */
     public function __construct(
-        protected readonly array $segments,
+        public readonly array $segments,
     ) {
         if (\count($segments) < 2) {
             throw new \InvalidArgumentException(sprintf('Qualified name expects at least 2 segments, got %d.', \count($segments)));
         }
     }
 
-    public function firstSegment(): UnqualifiedName
-    {
-        return $this->segments[0];
-    }
-
-    public function withFirstSegmentReplaced(UnqualifiedName|self $name): self
-    {
-        /** @var self */
-        return self::concatenate($name, ...\array_slice($this->segments, 1));
-    }
-
     public function lastSegment(): UnqualifiedName
     {
-        return $this->segments[array_key_last($this->segments)];
+        return $this->segments[\count($this->segments) - 1];
     }
 
-    public function resolveInNamespace(null|UnqualifiedName|self $namespace = null): self
+    /**
+     * @param array<non-empty-string, UnqualifiedName|QualifiedName> $importTable
+     */
+    public function resolve(null|UnqualifiedName|self $namespace = null, array $importTable = []): UnqualifiedName|self
     {
-        if ($namespace === null) {
+        $firstSegment = $this->segments[0]->toString();
+        $segmentsToAppend = $this->segments;
+
+        if (isset($importTable[$firstSegment])) {
+            $namespace = $importTable[$firstSegment];
+            array_shift($segmentsToAppend);
+        } elseif ($namespace === null) {
             return $this;
         }
 
-        /** @var self */
-        return self::concatenate($namespace, $this);
+        if ($namespace instanceof self) {
+            return new self([...$namespace->segments, ...$segmentsToAppend]);
+        }
+
+        return new self([$namespace, ...$segmentsToAppend]);
     }
 
+    /**
+     * @return non-empty-string
+     */
     public function toString(): string
     {
         return implode('\\', array_map(

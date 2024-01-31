@@ -9,7 +9,7 @@ namespace Typhoon\Reflection\NameContext;
  * @psalm-internal Typhoon\Reflection
  * @psalm-immutable
  */
-final class UnqualifiedName extends Name
+final class UnqualifiedName
 {
     /**
      * @var non-empty-string
@@ -31,15 +31,29 @@ final class UnqualifiedName extends Name
         return $this;
     }
 
-    public function resolveInNamespace(null|self|QualifiedName $namespace = null): self|QualifiedName
+    /**
+     * @param array<non-empty-string, UnqualifiedName|QualifiedName> $importTable
+     */
+    public function resolve(null|self|QualifiedName $namespace = null, array $importTable = []): self|QualifiedName
     {
+        if (isset($importTable[$this->name])) {
+            return $importTable[$this->name];
+        }
+
         if ($namespace === null) {
             return $this;
         }
 
-        return self::concatenate($namespace, $this);
+        if ($namespace instanceof self) {
+            return new QualifiedName([$namespace, $this]);
+        }
+
+        return new QualifiedName([...$namespace->segments, $this]);
     }
 
+    /**
+     * @return non-empty-string
+     */
     public function toString(): string
     {
         return $this->name;

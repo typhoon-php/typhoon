@@ -35,21 +35,11 @@ final class UnqualifiedNameTest extends TestCase
     }
 
     #[DataProvider('validNames')]
-    public function testItIsCreatedFromValidNames(string $name): void
+    public function testItConstructorAcceptsValidNames(string $name): void
     {
         new UnqualifiedName($name);
 
         $this->expectNotToPerformAssertions();
-    }
-
-    #[DataProvider('validNames')]
-    public function testItReturnsSameNameAsString(string $name): void
-    {
-        $unqualifiedName = new UnqualifiedName($name);
-
-        $nameAsString = $unqualifiedName->toString();
-
-        self::assertSame($name, $nameAsString);
     }
 
     #[DataProvider('invalidNames')]
@@ -61,7 +51,17 @@ final class UnqualifiedNameTest extends TestCase
     }
 
     #[DataProvider('validNames')]
-    public function testItReturnsItselfAsLastSegment(string $name): void
+    public function testToStringReturnsSameName(string $name): void
+    {
+        $unqualifiedName = new UnqualifiedName($name);
+
+        $nameAsString = $unqualifiedName->toString();
+
+        self::assertSame($name, $nameAsString);
+    }
+
+    #[DataProvider('validNames')]
+    public function testLastSegmentReturnsThis(string $name): void
     {
         $unqualifiedName = new UnqualifiedName($name);
 
@@ -75,7 +75,7 @@ final class UnqualifiedNameTest extends TestCase
     {
         $unqualifiedName = new UnqualifiedName($name);
 
-        $resolved = $unqualifiedName->resolveInNamespace();
+        $resolved = $unqualifiedName->resolve();
 
         self::assertSame($name, $resolved->toString());
     }
@@ -85,7 +85,7 @@ final class UnqualifiedNameTest extends TestCase
     {
         $unqualifiedName = new UnqualifiedName($name);
 
-        $resolved = $unqualifiedName->resolveInNamespace(new UnqualifiedName('B'));
+        $resolved = $unqualifiedName->resolve(new UnqualifiedName('B'));
 
         self::assertSame('B\\' . $name, $resolved->toString());
     }
