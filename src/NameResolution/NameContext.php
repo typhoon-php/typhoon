@@ -11,6 +11,7 @@ use Typhoon\Reflection\ReflectionException;
  *
  * @internal
  * @psalm-internal Typhoon\Reflection
+ * @template TTemplateMetadata
  */
 final class NameContext
 {
@@ -37,9 +38,19 @@ final class NameContext
     private null|Name|string $parent = null;
 
     /**
-     * @var array<non-empty-string, true>
+     * @var array<non-empty-string, TTemplateMetadata>
      */
-    private array $templates = [];
+    private array $classTemplates = [];
+
+    /**
+     * @var ?non-empty-string
+     */
+    private ?string $method = null;
+
+    /**
+     * @var array<non-empty-string, TTemplateMetadata>
+     */
+    private array $methodTemplates = [];
 
     public function enterNamespace(?string $namespace): void
     {
@@ -84,44 +95,46 @@ final class NameContext
         );
     }
 
-    public function enterClass(string $name, ?string $parent = null): void
+    /**
+     * @param array<non-empty-string, TTemplateMetadata> $templates
+     */
+    public function enterClass(string $name, ?string $parent = null, array $templates = []): void
     {
-        // TODO: throw if in class
-
         $this->self = Name::fromString($name);
         $this->parent = Name::fromString($parent);
+        $this->classTemplates = $templates;
     }
 
     /**
-     * @param non-empty-string $name
+     * @param array<non-empty-string, TTemplateMetadata> $templates
      */
-    public function addTemplate(string $name): void
+    public function enterMethod(string $name, array $templates = []): void
     {
-        $this->templates[$name] = true;
+        if ($this->self === null) {
+            throw new ReflectionException(sprintf('%s() must be called after enterClass().', __METHOD__));
+        }
+
+        $this->method = (new UnqualifiedName($name))->toString();
+        $this->methodTemplates = $templates;
     }
 
-    /**
-     * @param non-empty-string $name
-     */
-    public function removeTemplate(string $name): void
+    public function leaveMethod(): void
     {
-        // TODO: throw if no template
-
-        unset($this->templates[$name]);
+        $this->method = null;
+        $this->methodTemplates = [];
     }
 
     public function leaveClass(): void
     {
-        // TODO: throw if not in class
+        $this->leaveMethod();
 
         $this->self = null;
         $this->parent = null;
+        $this->classTemplates = [];
     }
 
     public function leaveNamespace(): void
     {
-        // TODO: throw if in class
-        // TODO: throw if not in namespace
         $this->leaveClass();
 
         $this->namespace = null;
@@ -133,7 +146,7 @@ final class NameContext
      * @internal
      * @psalm-internal Typhoon\Reflection
      * @template TReturn
-     * @param NameResolver<TReturn> $resolver
+     * @param NameResolver<TReturn, TTemplateMetadata> $resolver
      * @return TReturn
      */
     public function resolveName(string|Name $name, NameResolver $resolver): mixed
@@ -205,10 +218,14 @@ final class NameContext
             if ($nameAsString === 'static') {
                 return $resolver->static($this->resolvedSelf());
             }
-        }
 
-        if (isset($this->templates[$nameAsString])) {
-            return $resolver->template($nameAsString);
+            if (isset($this->classTemplates[$nameAsString])) {
+                return $resolver->classTemplate($this->resolvedSelf(), $nameAsString, $this->classTemplates[$nameAsString]);
+            }
+
+            if ($this->method !== null && isset($this->methodTemplates[$nameAsString])) {
+                return $resolver->methodTemplate($this->resolvedSelf(), $this->method, $nameAsString, $this->methodTemplates[$nameAsString]);
+            }
         }
 
         if (isset($this->classImportTable[$nameAsString])) {

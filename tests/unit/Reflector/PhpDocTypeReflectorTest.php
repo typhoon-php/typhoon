@@ -13,6 +13,9 @@ use Typhoon\Reflection\ReflectionException;
 use Typhoon\Type\Type;
 use Typhoon\Type\types;
 
+/**
+ * @psalm-import-type TemplateReflector from NameAsTypeResolver
+ */
 #[CoversClass(PhpDocTypeReflector::class)]
 final class PhpDocTypeReflectorTest extends TestCase
 {
@@ -169,9 +172,11 @@ final class PhpDocTypeReflectorTest extends TestCase
         self::assertNotNull($phpDocType);
 
         try {
+            /** @var NameContext<TemplateReflector> */
+            $nameContext = new NameContext();
             $type = PhpDocTypeReflector::reflect(
-                nameContext: new NameContext(),
-                nameAsTypeResolver: new NameAsTypeResolver(new NativeClassExistenceChecker()),
+                nameContext: $nameContext,
+                classExistenceChecker: new NativeClassExistenceChecker(),
                 typeNode: $phpDocType,
             );
         } catch (\Throwable $exception) {

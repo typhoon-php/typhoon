@@ -16,9 +16,13 @@ use Typhoon\Reflection\ReflectionException;
 /**
  * @internal
  * @psalm-internal Typhoon\Reflection
+ * @psalm-import-type TemplateReflector from NameAsTypeResolver
  */
 final class DiscoveringVisitor extends NodeVisitorAbstract
 {
+    /**
+     * @param NameContext<TemplateReflector> $nameContext
+     */
     public function __construct(
         private readonly ParsingContext $parsingContext,
         private readonly ClassExistenceChecker $classExistenceChecker,

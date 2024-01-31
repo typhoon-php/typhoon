@@ -12,9 +12,13 @@ use Typhoon\Reflection\NameResolution\NameContext;
 /**
  * @internal
  * @psalm-internal Typhoon\Reflection
+ * @template TTemplateMetadata
  */
 final class NameContextVisitor extends NodeVisitorAbstract
 {
+    /**
+     * @param NameContext<TTemplateMetadata> $nameContext
+     */
     public function __construct(
         private readonly NameContext $nameContext,
     ) {}
@@ -57,10 +61,13 @@ final class NameContextVisitor extends NodeVisitorAbstract
                 return null;
             }
 
-            $this->nameContext->enterClass(
-                name: $node->name->name,
-                parent: $node instanceof Stmt\Class_ ? $node->extends?->toCodeString() : null,
-            );
+            $this->nameContext->enterClass($node->name->name, $node instanceof Stmt\Class_ ? $node->extends?->toCodeString() : null);
+
+            return null;
+        }
+
+        if ($node instanceof Stmt\ClassMethod) {
+            $this->nameContext->enterClass($node->name->name);
 
             return null;
         }
@@ -82,6 +89,12 @@ final class NameContextVisitor extends NodeVisitorAbstract
             }
 
             $this->nameContext->leaveClass();
+
+            return null;
+        }
+
+        if ($node instanceof Stmt\ClassMethod) {
+            $this->nameContext->leaveMethod();
 
             return null;
         }

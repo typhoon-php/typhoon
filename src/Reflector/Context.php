@@ -19,6 +19,7 @@ use function Typhoon\Reflection\Exceptionally\exceptionally;
 /**
  * @internal
  * @psalm-internal Typhoon\Reflection
+ * @psalm-import-type TemplateReflector from NameAsTypeResolver
  */
 final class Context implements ParsingContext, ClassReflector, ClassExistenceChecker
 {
@@ -66,6 +67,7 @@ final class Context implements ParsingContext, ClassReflector, ClassExistenceChe
             changeDetector: FileChangeDetector::fromContents($file, $code),
         );
 
+        /** @var NameContext<TemplateReflector> */
         $nameContext = new NameContext();
         $this->phpParser->parseAndTraverse($code, [
             new PhpDocParsingVisitor($this->phpDocParser),

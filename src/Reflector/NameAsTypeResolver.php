@@ -6,31 +6,21 @@ namespace Typhoon\Reflection\Reflector;
 
 use Typhoon\Reflection\NameResolution\NameResolver;
 use Typhoon\Reflection\ReflectionException;
-use Typhoon\Type\TemplateType;
+use Typhoon\Reflection\TemplateReflection;
 use Typhoon\Type\Type;
 use Typhoon\Type\types;
 
 /**
  * @internal
  * @psalm-internal Typhoon\Reflection
- * @implements NameResolver<Type>
+ * @psalm-type TemplateReflector = \Closure(): TemplateReflection
+ * @implements NameResolver<Type, TemplateReflector>
  */
 final class NameAsTypeResolver implements NameResolver
 {
-    /**
-     * @var array<non-empty-string, TemplateReflector>
-     */
-    private readonly array $templateReflectorsByName;
-
-    /**
-     * @param array<TemplateReflector> $templateReflectors
-     */
     public function __construct(
         private readonly ClassExistenceChecker $classExistenceChecker,
-        array $templateReflectors = [],
-    ) {
-        $this->templateReflectorsByName = array_column($templateReflectors, null, 'name');
-    }
+    ) {}
 
     public function class(string $name): mixed
     {
@@ -47,13 +37,22 @@ final class NameAsTypeResolver implements NameResolver
         return types::constant($name);
     }
 
-    public function template(string $name): TemplateType
+    public function classTemplate(string $class, string $name, mixed $metadata): mixed
     {
-        if (!isset($this->templateReflectorsByName[$name])) {
-            throw new ReflectionException();
-        }
+        return types::template(
+            name: $name,
+            declaredAt: types::atClass($class),
+            constraint: $metadata()->getConstraint(),
+        );
+    }
 
-        return $this->templateReflectorsByName[$name]->type();
+    public function methodTemplate(string $class, string $method, string $name, mixed $metadata): mixed
+    {
+        return types::template(
+            name: $name,
+            declaredAt: types::atMethod($class, $method),
+            constraint: $metadata()->getConstraint(),
+        );
     }
 
     public function classOrConstants(string $classCandidate, array $constantCandidates): mixed
@@ -74,16 +73,5 @@ final class NameAsTypeResolver implements NameResolver
             \count($constantCandidates) > 1 ? 's' : '',
             implode('", "', $constantCandidates),
         ));
-    }
-
-    /**
-     * @param array<TemplateReflector> $templateReflectors
-     */
-    public function withTemplateReflectors(array $templateReflectors): self
-    {
-        return new self($this->classExistenceChecker, [
-            ...$this->templateReflectorsByName,
-            ...array_column($templateReflectors, null, 'name'),
-        ]);
     }
 }

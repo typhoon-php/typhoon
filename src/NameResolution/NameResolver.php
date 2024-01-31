@@ -8,6 +8,7 @@ namespace Typhoon\Reflection\NameResolution;
  * @internal
  * @psalm-internal Typhoon\Reflection
  * @template-covariant TReturn
+ * @template TTemplateMetadata
  */
 interface NameResolver
 {
@@ -30,10 +31,21 @@ interface NameResolver
     public function constant(string $name): mixed;
 
     /**
+     * @param class-string $class
      * @param non-empty-string $name
+     * @param TTemplateMetadata $metadata
      * @return TReturn
      */
-    public function template(string $name): mixed;
+    public function classTemplate(string $class, string $name, mixed $metadata): mixed;
+
+    /**
+     * @param class-string $class
+     * @param non-empty-string $method
+     * @param non-empty-string $name
+     * @param TTemplateMetadata $metadata
+     * @return TReturn
+     */
+    public function methodTemplate(string $class, string $method, string $name, mixed $metadata): mixed;
 
     /**
      * @param non-empty-string $classCandidate

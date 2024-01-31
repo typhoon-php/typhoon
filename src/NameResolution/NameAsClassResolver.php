@@ -9,7 +9,8 @@ use Typhoon\Reflection\ReflectionException;
 /**
  * @internal
  * @psalm-internal Typhoon\Reflection
- * @implements NameResolver<class-string>
+ * @template TTemplateMetadata
+ * @implements NameResolver<class-string, TTemplateMetadata>
  */
 final class NameAsClassResolver implements NameResolver
 {
@@ -28,9 +29,14 @@ final class NameAsClassResolver implements NameResolver
         throw new ReflectionException(sprintf('Constant name "%s" cannot be resolved as class.', $name));
     }
 
-    public function template(string $name): mixed
+    public function classTemplate(string $class, string $name, mixed $metadata): mixed
     {
-        throw new ReflectionException(sprintf('Template name "%s" cannot be resolved as class.', $name));
+        throw new ReflectionException(sprintf('Class template name "%s" cannot be resolved as class.', $name));
+    }
+
+    public function methodTemplate(string $class, string $method, string $name, mixed $metadata): mixed
+    {
+        throw new ReflectionException(sprintf('Method template name "%s" cannot be resolved as class.', $name));
     }
 
     public function classOrConstants(string $classCandidate, array $constantCandidates): mixed
