@@ -21,7 +21,6 @@ final class PhpDocTypeReflectorTest extends TestCase
 {
     /**
      * @return \Generator<int, array{string, Type|ReflectionException}>
-     * @psalm-suppress MixedReturnTypeCoercion
      */
     public static function validTypes(): \Generator
     {

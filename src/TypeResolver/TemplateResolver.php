@@ -30,7 +30,6 @@ final class TemplateResolver implements TypeVisitor
 
     /**
      * @psalm-pure
-     * @psalm-suppress ImpurePropertyFetch
      * @param non-empty-array<TemplateReflection> $templates
      * @param array<Type\Type> $templateArguments
      */
@@ -210,11 +209,12 @@ final class TemplateResolver implements TypeVisitor
 
     public function visitArrayShape(Type\ArrayShapeType $type): mixed
     {
-        /** @psalm-suppress ImpureFunctionCall */
+        $visitor = $this;
+
         return types::arrayShape(
             array_map(
-                fn(Type\ArrayElement $element): Type\ArrayElement => types::arrayElement(
-                    $element->type->accept($this),
+                static fn(Type\ArrayElement $element): Type\ArrayElement => types::arrayElement(
+                    $element->type->accept($visitor),
                     $element->optional,
                 ),
                 $type->elements,
@@ -247,29 +247,32 @@ final class TemplateResolver implements TypeVisitor
 
     public function visitNamedObject(Type\NamedObjectType $type): mixed
     {
-        /** @psalm-suppress ImpureFunctionCall */
+        $visitor = $this;
+
         return types::object($type->class, ...array_map(
-            fn(Type\Type $templateArgument): Type\Type => $templateArgument->accept($this),
+            static fn(Type\Type $templateArgument): Type\Type => $templateArgument->accept($visitor),
             $type->templateArguments,
         ));
     }
 
     public function visitStatic(Type\StaticType $type): mixed
     {
-        /** @psalm-suppress ImpureFunctionCall */
+        $visitor = $this;
+
         return types::static($type->declaredAtClass, ...array_map(
-            fn(Type\Type $templateArgument): Type\Type => $templateArgument->accept($this),
+            static fn(Type\Type $templateArgument): Type\Type => $templateArgument->accept($visitor),
             $type->templateArguments,
         ));
     }
 
     public function visitObjectShape(ObjectShapeType $type): mixed
     {
-        /** @psalm-suppress ImpureFunctionCall */
+        $visitor = $this;
+
         return types::objectShape(
             array_map(
-                fn(Type\Property $property): Type\Property => types::prop(
-                    $property->type->accept($this),
+                static fn(Type\Property $property): Type\Property => types::prop(
+                    $property->type->accept($visitor),
                     $property->optional,
                 ),
                 $type->properties,
@@ -294,33 +297,35 @@ final class TemplateResolver implements TypeVisitor
 
     public function visitClosure(Type\ClosureType $type): mixed
     {
-        /** @psalm-suppress ImpureFunctionCall */
+        $visitor = $this;
+
         return types::closure(
             array_map(
-                fn(Type\Parameter $parameter): Type\Parameter => types::param(
-                    $parameter->type->accept($this),
+                static fn(Type\Parameter $parameter): Type\Parameter => types::param(
+                    $parameter->type->accept($visitor),
                     $parameter->hasDefault,
                     $parameter->variadic,
                 ),
                 $type->parameters,
             ),
-            $type->returnType?->accept($this),
+            $type->returnType?->accept($visitor),
         );
     }
 
     public function visitCallable(Type\CallableType $type): mixed
     {
-        /** @psalm-suppress ImpureFunctionCall */
+        $visitor = $this;
+
         return types::callable(
             array_map(
-                fn(Type\Parameter $parameter): Type\Parameter => types::param(
-                    $parameter->type->accept($this),
+                static fn(Type\Parameter $parameter): Type\Parameter => types::param(
+                    $parameter->type->accept($visitor),
                     $parameter->hasDefault,
                     $parameter->variadic,
                 ),
                 $type->parameters,
             ),
-            $type->returnType?->accept($this),
+            $type->returnType?->accept($visitor),
         );
     }
 
@@ -361,18 +366,20 @@ final class TemplateResolver implements TypeVisitor
 
     public function visitIntersection(Type\IntersectionType $type): mixed
     {
-        /** @psalm-suppress ImpureFunctionCall */
+        $visitor = $this;
+
         return types::intersection(...array_map(
-            fn(Type\Type $part): Type\Type => $part->accept($this),
+            static fn(Type\Type $part): Type\Type => $part->accept($visitor),
             $type->types,
         ));
     }
 
     public function visitUnion(Type\UnionType $type): mixed
     {
-        /** @psalm-suppress ImpureFunctionCall */
+        $visitor = $this;
+
         return types::union(...array_map(
-            fn(Type\Type $part): Type\Type => $part->accept($this),
+            static fn(Type\Type $part): Type\Type => $part->accept($visitor),
             $type->types,
         ));
     }
