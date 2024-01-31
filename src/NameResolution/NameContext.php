@@ -149,9 +149,9 @@ final class NameContext
     /**
      * @internal
      * @psalm-internal Typhoon\Reflection
-     * @template T
-     * @param NameResolver<T> $resolver
-     * @return T
+     * @template TReturn
+     * @param NameResolver<TReturn> $resolver
+     * @return TReturn
      */
     public function resolveName(string|Name $name, NameResolver $resolver): mixed
     {
