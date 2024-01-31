@@ -82,7 +82,8 @@ jobs:
         with:
           php-version: ${{ matrix.php }}
           tools: composer:v2
+          coverage: none
       - uses: ramsey/composer-install@v2
         with:
           composer-options: --optimize-autoloader
-      - run: composer test -- --colors=always --order-by=random --coverage-clover coverage.xml
+      - run: composer test -- --colors=always --order-by=random
