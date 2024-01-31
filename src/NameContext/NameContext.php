@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Typhoon\Reflection\NameResolution;
+namespace Typhoon\Reflection\NameContext;
 
 use Typhoon\Reflection\ReflectionException;
 

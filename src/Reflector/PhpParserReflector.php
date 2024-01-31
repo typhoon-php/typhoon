@@ -15,7 +15,7 @@ use PHPStan\PhpDocParser\Ast\Type\TypeNode;
 use Typhoon\Reflection\AttributeReflection;
 use Typhoon\Reflection\ClassReflection;
 use Typhoon\Reflection\MethodReflection;
-use Typhoon\Reflection\NameResolution\NameContext;
+use Typhoon\Reflection\NameContext\NameContext;
 use Typhoon\Reflection\ParameterReflection;
 use Typhoon\Reflection\PhpDocParser\PhpDoc;
 use Typhoon\Reflection\PropertyReflection;

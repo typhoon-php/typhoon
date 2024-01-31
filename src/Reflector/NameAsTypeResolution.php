@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Typhoon\Reflection\Reflector;
 
-use Typhoon\Reflection\NameResolution\NameResolution;
+use Typhoon\Reflection\NameContext\NameResolution;
 use Typhoon\Reflection\ReflectionException;
 use Typhoon\Reflection\TemplateReflection;
 use Typhoon\Type\Type;

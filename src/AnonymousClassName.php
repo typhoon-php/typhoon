@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace Typhoon\Reflection;
 
 use PhpParser\Node\Stmt\Class_;
-use Typhoon\Reflection\NameResolution\NameResolver;
+use Typhoon\Reflection\NameContext\NameResolver;
 
 /**
  * @api

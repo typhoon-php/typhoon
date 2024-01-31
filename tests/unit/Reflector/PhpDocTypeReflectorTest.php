@@ -7,7 +7,7 @@ namespace Typhoon\Reflection\Reflector;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
-use Typhoon\Reflection\NameResolution\NameContext;
+use Typhoon\Reflection\NameContext\NameContext;
 use Typhoon\Reflection\PhpDocParser\PhpDocParser;
 use Typhoon\Reflection\ReflectionException;
 use Typhoon\Type\Type;

@@ -2,26 +2,26 @@
 
 declare(strict_types=1);
 
-namespace Typhoon\Reflection\NameResolution;
+namespace Typhoon\Reflection\NameContext;
 
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 
-#[CoversClass(RelativeName::class)]
-final class RelativeNameTest extends TestCase
+#[CoversClass(FullyQualifiedName::class)]
+final class FullyQualifiedNameTest extends TestCase
 {
     public function testItCorrectlyRepresentsItSelfAsString(): void
     {
-        $relativeName = new RelativeName(new UnqualifiedName('A'));
+        $relativeName = new FullyQualifiedName(new UnqualifiedName('A'));
 
         $asString = $relativeName->toString();
 
-        self::assertSame('namespace\\A', $asString);
+        self::assertSame('\\A', $asString);
     }
 
     public function testItReturnsLastSegmentOfUnqualifiedName(): void
     {
-        $relativeName = new RelativeName(new UnqualifiedName('A'));
+        $relativeName = new FullyQualifiedName(new UnqualifiedName('A'));
 
         $lastSegment = $relativeName->lastSegment();
 
@@ -30,7 +30,7 @@ final class RelativeNameTest extends TestCase
 
     public function testItReturnsLastSegmentOfQualifiedName(): void
     {
-        $relativeName = new RelativeName(new QualifiedName([
+        $relativeName = new FullyQualifiedName(new QualifiedName([
             new UnqualifiedName('A'),
             new UnqualifiedName('B'),
         ]));
@@ -42,7 +42,7 @@ final class RelativeNameTest extends TestCase
 
     public function testItRemovesNamespacePrefixInGlobalNamespace(): void
     {
-        $relativeName = new RelativeName(new QualifiedName([
+        $relativeName = new FullyQualifiedName(new QualifiedName([
             new UnqualifiedName('A'),
             new UnqualifiedName('B'),
         ]));
@@ -52,15 +52,15 @@ final class RelativeNameTest extends TestCase
         self::assertSame('A\\B', $resolved->toString());
     }
 
-    public function testItPrependsNamespaceInNamespace(): void
+    public function testItDoesNotPrependNamespaceWhenResolving(): void
     {
-        $relativeName = new RelativeName(new QualifiedName([
+        $relativeName = new FullyQualifiedName(new QualifiedName([
             new UnqualifiedName('A'),
             new UnqualifiedName('B'),
         ]));
 
         $resolved = $relativeName->resolveInNamespace(new UnqualifiedName('NS'));
 
-        self::assertSame('NS\\A\\B', $resolved->toString());
+        self::assertSame('A\\B', $resolved->toString());
     }
 }

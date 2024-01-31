@@ -9,7 +9,7 @@ use PhpParser\Node\Stmt;
 use PhpParser\NodeVisitorAbstract;
 use Typhoon\Reflection\AnonymousClassName;
 use Typhoon\Reflection\ClassReflection;
-use Typhoon\Reflection\NameResolution\NameContext;
+use Typhoon\Reflection\NameContext\NameContext;
 use Typhoon\Reflection\ParsingContext;
 use Typhoon\Reflection\ReflectionException;
 

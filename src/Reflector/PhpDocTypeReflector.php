@@ -25,7 +25,7 @@ use PHPStan\PhpDocParser\Ast\Type\NullableTypeNode;
 use PHPStan\PhpDocParser\Ast\Type\ObjectShapeNode;
 use PHPStan\PhpDocParser\Ast\Type\TypeNode;
 use PHPStan\PhpDocParser\Ast\Type\UnionTypeNode;
-use Typhoon\Reflection\NameResolution\NameResolver;
+use Typhoon\Reflection\NameContext\NameResolver;
 use Typhoon\Reflection\ReflectionException;
 use Typhoon\Type;
 use Typhoon\Type\types;

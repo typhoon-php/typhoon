@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Typhoon\Reflection\NameResolution;
+namespace Typhoon\Reflection\NameContext;
 
 use PhpParser\Node;
 use PhpParser\Node\Stmt;
