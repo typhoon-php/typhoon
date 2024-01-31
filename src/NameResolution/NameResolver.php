@@ -30,19 +30,10 @@ interface NameResolver
     public function constant(string $name): mixed;
 
     /**
-     * @param class-string $class
      * @param non-empty-string $name
      * @return TReturn
      */
-    public function classTemplate(string $class, string $name): mixed;
-
-    /**
-     * @param class-string $class
-     * @param non-empty-string $method
-     * @param non-empty-string $name
-     * @return TReturn
-     */
-    public function methodTemplate(string $class, string $method, string $name): mixed;
+    public function template(string $name): mixed;
 
     /**
      * @param non-empty-string $classCandidate

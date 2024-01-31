@@ -6,6 +6,7 @@ namespace Typhoon\Reflection\Reflector;
 
 use Typhoon\Reflection\NameResolution\NameResolver;
 use Typhoon\Reflection\ReflectionException;
+use Typhoon\Type\TemplateType;
 use Typhoon\Type\Type;
 use Typhoon\Type\types;
 
@@ -17,21 +18,28 @@ use Typhoon\Type\types;
 final class NameAsTypeResolver implements NameResolver
 {
     /**
-     * @param list<Type> $templateArguments
+     * @var array<non-empty-string, TemplateReflector>
+     */
+    private readonly array $templateReflectorsByName;
+
+    /**
+     * @param array<TemplateReflector> $templateReflectors
      */
     public function __construct(
-        private ClassExistenceChecker $classExistenceChecker,
-        private readonly array $templateArguments = [],
-    ) {}
+        private readonly ClassExistenceChecker $classExistenceChecker,
+        array $templateReflectors = [],
+    ) {
+        $this->templateReflectorsByName = array_column($templateReflectors, null, 'name');
+    }
 
     public function class(string $name): mixed
     {
-        return types::object($name, ...$this->templateArguments);
+        return types::object($name);
     }
 
     public function static(string $self): mixed
     {
-        return types::static($self, ...$this->templateArguments);
+        return types::static($self);
     }
 
     public function constant(string $name): mixed
@@ -39,21 +47,19 @@ final class NameAsTypeResolver implements NameResolver
         return types::constant($name);
     }
 
-    public function classTemplate(string $class, string $name): mixed
+    public function template(string $name): TemplateType
     {
-        return types::template($name, types::atClass($class)/** TODO constraint */);
-    }
+        if (!isset($this->templateReflectorsByName[$name])) {
+            throw new ReflectionException();
+        }
 
-    public function methodTemplate(string $class, string $method, string $name): mixed
-    {
-        return types::template($name, types::atMethod($class, $method)/** TODO constraint */);
+        return $this->templateReflectorsByName[$name]->type();
     }
 
     public function classOrConstants(string $classCandidate, array $constantCandidates): mixed
     {
         if ($this->classExistenceChecker->classExists($classCandidate)) {
-            /** @var class-string $classCandidate */
-            return types::object($classCandidate, ...$this->templateArguments);
+            return types::object($classCandidate);
         }
 
         foreach ($constantCandidates as $constant) {
@@ -68,5 +74,16 @@ final class NameAsTypeResolver implements NameResolver
             \count($constantCandidates) > 1 ? 's' : '',
             implode('", "', $constantCandidates),
         ));
+    }
+
+    /**
+     * @param array<TemplateReflector> $templateReflectors
+     */
+    public function withTemplateReflectors(array $templateReflectors): self
+    {
+        return new self($this->classExistenceChecker, [
+            ...$this->templateReflectorsByName,
+            ...array_column($templateReflectors, null, 'name'),
+        ]);
     }
 }

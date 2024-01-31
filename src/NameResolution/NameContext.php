@@ -39,14 +39,7 @@ final class NameContext
     /**
      * @var array<non-empty-string, true>
      */
-    private array $classTemplateNamesMap = [];
-
-    private ?UnqualifiedName $method = null;
-
-    /**
-     * @var array<non-empty-string, true>
-     */
-    private array $methodTemplateNamesMap = [];
+    private array $templates = [];
 
     public function enterNamespace(?string $namespace): void
     {
@@ -91,60 +84,44 @@ final class NameContext
         );
     }
 
-    /**
-     * @param array<string> $templateNames
-     */
-    public function enterClass(string $name, ?string $parent = null, array $templateNames = []): void
+    public function enterClass(string $name, ?string $parent = null): void
     {
-        $this->leaveClass();
+        // TODO: throw if in class
 
         $this->self = Name::fromString($name);
         $this->parent = Name::fromString($parent);
-        $this->classTemplateNamesMap = array_fill_keys(
-            array_map(
-                /** @return non-empty-string */
-                static fn(string $templateName): string => (new UnqualifiedName($templateName))->toString(),
-                $templateNames,
-            ),
-            true,
-        );
     }
 
     /**
-     * @param array<string> $templateNames
+     * @param non-empty-string $name
      */
-    public function enterMethod(string $name, array $templateNames = []): void
+    public function addTemplate(string $name): void
     {
-        $this->leaveMethod();
-
-        $this->method = new UnqualifiedName($name);
-        $this->methodTemplateNamesMap = array_fill_keys(
-            array_map(
-                /** @return non-empty-string */
-                static fn(string $templateName): string => (new UnqualifiedName($templateName))->toString(),
-                $templateNames,
-            ),
-            true,
-        );
+        $this->templates[$name] = true;
     }
 
-    public function leaveMethod(): void
+    /**
+     * @param non-empty-string $name
+     */
+    public function removeTemplate(string $name): void
     {
-        $this->method = null;
-        $this->methodTemplateNamesMap = [];
+        // TODO: throw if no template
+
+        unset($this->templates[$name]);
     }
 
     public function leaveClass(): void
     {
-        $this->leaveMethod();
+        // TODO: throw if not in class
 
         $this->self = null;
         $this->parent = null;
-        $this->classTemplateNamesMap = [];
     }
 
     public function leaveNamespace(): void
     {
+        // TODO: throw if in class
+        // TODO: throw if not in namespace
         $this->leaveClass();
 
         $this->namespace = null;
@@ -228,14 +205,10 @@ final class NameContext
             if ($nameAsString === 'static') {
                 return $resolver->static($this->resolvedSelf());
             }
+        }
 
-            if ($this->method !== null && isset($this->methodTemplateNamesMap[$nameAsString])) {
-                return $resolver->methodTemplate($this->resolvedSelf(), $this->method->toString(), $nameAsString);
-            }
-
-            if (isset($this->classTemplateNamesMap[$nameAsString])) {
-                return $resolver->classTemplate($this->resolvedSelf(), $nameAsString);
-            }
+        if (isset($this->templates[$nameAsString])) {
+            return $resolver->template($nameAsString);
         }
 
         if (isset($this->classImportTable[$nameAsString])) {

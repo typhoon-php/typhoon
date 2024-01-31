@@ -60,16 +60,6 @@ final class NameContextVisitor extends NodeVisitorAbstract
             $this->nameContext->enterClass(
                 name: $node->name->name,
                 parent: $node instanceof Stmt\Class_ ? $node->extends?->toCodeString() : null,
-                templateNames: PhpDocParsingVisitor::fromNode($node)->templateNames(),
-            );
-
-            return null;
-        }
-
-        if ($node instanceof Stmt\ClassMethod) {
-            $this->nameContext->enterMethod(
-                name: $node->name->name,
-                templateNames: PhpDocParsingVisitor::fromNode($node)->templateNames(),
             );
 
             return null;
@@ -92,12 +82,6 @@ final class NameContextVisitor extends NodeVisitorAbstract
             }
 
             $this->nameContext->leaveClass();
-
-            return null;
-        }
-
-        if ($node instanceof Stmt\ClassMethod) {
-            $this->nameContext->leaveMethod();
 
             return null;
         }

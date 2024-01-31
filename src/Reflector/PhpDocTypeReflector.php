@@ -26,9 +26,11 @@ use PHPStan\PhpDocParser\Ast\Type\ObjectShapeNode;
 use PHPStan\PhpDocParser\Ast\Type\TypeNode;
 use PHPStan\PhpDocParser\Ast\Type\UnionTypeNode;
 use Typhoon\Reflection\NameResolution\NameContext;
+use Typhoon\Reflection\NameResolution\NameResolver;
 use Typhoon\Reflection\ReflectionException;
 use Typhoon\Type;
 use Typhoon\Type\types;
+use Typhoon\TypeStringifier\TypeStringifier;
 
 /**
  * @internal
@@ -36,14 +38,23 @@ use Typhoon\Type\types;
  */
 final class PhpDocTypeReflector
 {
+    /**
+     * @param NameResolver<Type\Type> $nameAsTypeResolver
+     */
     private function __construct(
         private readonly NameContext $nameContext,
-        private readonly ClassExistenceChecker $classExistenceChecker,
+        private readonly NameResolver $nameAsTypeResolver,
     ) {}
 
-    public static function reflect(NameContext $nameContext, ClassExistenceChecker $classExistenceChecker, TypeNode $typeNode): Type\Type
-    {
-        return (new self($nameContext, $classExistenceChecker))->doReflect($typeNode);
+    /**
+     * @param NameResolver<Type\Type> $nameAsTypeResolver
+     */
+    public static function reflect(
+        NameContext $nameContext,
+        NameResolver $nameAsTypeResolver,
+        TypeNode $typeNode,
+    ): Type\Type {
+        return (new self($nameContext, $nameAsTypeResolver))->doReflect($typeNode);
     }
 
     private function doReflect(TypeNode $node): Type\Type
@@ -187,16 +198,25 @@ final class PhpDocTypeReflector
      */
     private function reflectName(string $name, array $genericTypes): Type\Type
     {
-        $type = $this->nameContext->resolveName($name, new NameAsTypeResolver(
-            classExistenceChecker: $this->classExistenceChecker,
-            templateArguments: array_map($this->doReflect(...), $genericTypes),
-        ));
+        $type = $this->nameContext->resolveName($name, $this->nameAsTypeResolver);
 
-        if ($type instanceof Type\NamedObjectType && $type->class === \Closure::class) {
-            return types::closure();
+        if ($genericTypes === []) {
+            if ($type instanceof Type\NamedObjectType && $type->class === \Closure::class) {
+                return types::closure();
+            }
+
+            return $type;
         }
 
-        return $type;
+        if ($type instanceof Type\NamedObjectType) {
+            return types::object($type->class, ...array_map($this->doReflect(...), $genericTypes));
+        }
+
+        if ($type instanceof Type\StaticType) {
+            return types::static($type->declaredAtClass, ...array_map($this->doReflect(...), $genericTypes));
+        }
+
+        throw new ReflectionException(sprintf('Types %s does not support template arguments.', TypeStringifier::stringify($type)));
     }
 
     /**

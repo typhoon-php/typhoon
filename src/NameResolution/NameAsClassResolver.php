@@ -25,17 +25,12 @@ final class NameAsClassResolver implements NameResolver
 
     public function constant(string $name): mixed
     {
-        throw new ReflectionException(sprintf('Name "%s" cannot be resolved as class.', $name));
+        throw new ReflectionException(sprintf('Constant name "%s" cannot be resolved as class.', $name));
     }
 
-    public function classTemplate(string $class, string $name): mixed
+    public function template(string $name): mixed
     {
-        throw new ReflectionException(sprintf('Name "%s" cannot be resolved as class.', $class));
-    }
-
-    public function methodTemplate(string $class, string $method, string $name): mixed
-    {
-        throw new ReflectionException(sprintf('Name "%s" cannot be resolved as class.', $name));
+        throw new ReflectionException(sprintf('Template name "%s" cannot be resolved as class.', $name));
     }
 
     public function classOrConstants(string $classCandidate, array $constantCandidates): mixed
