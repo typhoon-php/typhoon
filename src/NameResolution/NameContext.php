@@ -26,9 +26,15 @@ final class NameContext
      */
     private array $constantImportTable = [];
 
-    private ?Name $self = null;
+    /**
+     * @var null|Name|class-string
+     */
+    private null|Name|string $self = null;
 
-    private ?Name $parent = null;
+    /**
+     * @var null|Name|class-string
+     */
+    private null|Name|string $parent = null;
 
     /**
      * @var array<non-empty-string, true>
@@ -205,30 +211,30 @@ final class NameContext
 
         if ($this->self !== null) {
             if ($nameAsString === 'self') {
-                return $resolver->class($this->resolveNameAsClass($this->self));
+                return $resolver->class($this->resolvedSelf());
             }
 
             if ($nameAsString === 'parent') {
                 if ($this->parent === null) {
                     throw new ReflectionException(sprintf(
                         'Failed to resolve type "parent": class %s does not have parent.',
-                        $this->resolveNameAsClass($this->self),
+                        $this->resolvedSelf(),
                     ));
                 }
 
-                return $resolver->class($this->resolveNameAsClass($this->parent));
+                return $resolver->class($this->resolvedParent());
             }
 
             if ($nameAsString === 'static') {
-                return $resolver->static($this->resolveNameAsClass($this->self));
+                return $resolver->static($this->resolvedSelf());
             }
 
             if ($this->method !== null && isset($this->methodTemplateNamesMap[$nameAsString])) {
-                return $resolver->methodTemplate($this->resolveNameAsClass($this->self), $this->method->toString(), $nameAsString);
+                return $resolver->methodTemplate($this->resolvedSelf(), $this->method->toString(), $nameAsString);
             }
 
             if (isset($this->classTemplateNamesMap[$nameAsString])) {
-                return $resolver->classTemplate($this->resolveNameAsClass($this->self), $nameAsString);
+                return $resolver->classTemplate($this->resolvedSelf(), $nameAsString);
             }
         }
 
@@ -260,5 +266,37 @@ final class NameContext
     public function resolveNameAsClass(string|Name $name): string
     {
         return $this->resolveName($name, new NameAsClassResolver());
+    }
+
+    /**
+     * @return class-string
+     */
+    private function resolvedSelf(): string
+    {
+        if (\is_string($this->self)) {
+            return $this->self;
+        }
+
+        if ($this->self === null) {
+            throw new \LogicException('This must never happen.');
+        }
+
+        return $this->self = $this->resolveNameAsClass($this->self);
+    }
+
+    /**
+     * @return class-string
+     */
+    private function resolvedParent(): string
+    {
+        if (\is_string($this->parent)) {
+            return $this->parent;
+        }
+
+        if ($this->parent === null) {
+            throw new \LogicException('This must never happen.');
+        }
+
+        return $this->parent = $this->resolveNameAsClass($this->parent);
     }
 }
