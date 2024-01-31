@@ -30,7 +30,7 @@ final class Context implements ParsingContext, ClassReflector, ClassExistenceChe
     private array $parsedFiles = [];
 
     /**
-     * @var array<class-string<RootReflection>, array<non-empty-string, false|RootReflection|callable(): RootReflection>>
+     * @var array<class-string<RootReflection>, array<non-empty-string, false|RootReflection|callable(): RootReflection>> false is used during parsing
      */
     private array $reflections = [];
 
@@ -132,7 +132,7 @@ final class Context implements ParsingContext, ClassReflector, ClassExistenceChe
             }
 
             $this->classLoader->loadClass($this, $name);
-        }) ?? throw new ReflectionException();
+        });
     }
 
     public function __serialize(): array
@@ -145,33 +145,24 @@ final class Context implements ParsingContext, ClassReflector, ClassExistenceChe
      * @param class-string<TReflection> $class
      * @param non-empty-string $name
      * @param \Closure(): void $parse
-     * @return ?TReflection
+     * @return TReflection
      */
-    private function resolveReflection(string $class, string $name, \Closure $parse): ?RootReflection
+    private function resolveReflection(string $class, string $name, \Closure $parse): RootReflection
     {
-        $reflection = $this->reflections[$class][$name] ?? null;
+        $reflection = $this->resolveMemoizedReflection($class, $name);
 
         if ($reflection === false) {
-            return null;
+            throw new ReflectionException('Loop');
         }
 
-        if ($reflection instanceof $class) {
+        if ($reflection !== null) {
             return $reflection;
-        }
-
-        if (\is_callable($reflection)) {
-            /** @var TReflection */
-            $reflection = $reflection();
-            $this->initialize($reflection);
-            $this->cache->addReflection($reflection);
-
-            return $this->reflections[$class][$name] = $reflection;
         }
 
         $cachedReflection = $this->cache->getReflection($class, $name);
 
         if ($cachedReflection !== null) {
-            $this->initialize($cachedReflection);
+            $this->initializeReflection($cachedReflection);
 
             /** @var TReflection */
             return $this->reflections[$class][$name] = $cachedReflection;
@@ -181,8 +172,28 @@ final class Context implements ParsingContext, ClassReflector, ClassExistenceChe
 
         $parse();
 
-        /** @var false|RootReflection|callable(): RootReflection */
-        $reflection = $this->reflections[$class][$name] ?? false;
+        $reflection = $this->resolveMemoizedReflection($class, $name) ?? false;
+
+        if ($reflection === false) {
+            throw new ReflectionException('Not found');
+        }
+
+        return $reflection;
+    }
+
+    /**
+     * @template TReflection of RootReflection
+     * @param class-string<TReflection> $class
+     * @param non-empty-string $name
+     * @return null|false|TReflection
+     */
+    private function resolveMemoizedReflection(string $class, string $name): null|false|RootReflection
+    {
+        if (!isset($this->reflections[$class][$name])) {
+            return null;
+        }
+
+        $reflection = $this->reflections[$class][$name];
 
         if ($reflection instanceof $class) {
             return $reflection;
@@ -191,16 +202,16 @@ final class Context implements ParsingContext, ClassReflector, ClassExistenceChe
         if (\is_callable($reflection)) {
             /** @var TReflection */
             $reflection = $reflection();
-            $this->initialize($reflection);
+            $this->initializeReflection($reflection);
             $this->cache->addReflection($reflection);
 
             return $this->reflections[$class][$name] = $reflection;
         }
 
-        return null;
+        return false;
     }
 
-    private function initialize(RootReflection $reflection): void
+    private function initializeReflection(RootReflection $reflection): void
     {
         if ($reflection instanceof ClassReflection) {
             $reflection->setClassReflector($this);
