@@ -2,12 +2,11 @@
 
 declare(strict_types=1);
 
-namespace Typhoon\Reflection\Reflector;
+namespace Typhoon\Reflection\NameResolution;
 
 use PhpParser\Node;
 use PhpParser\Node\Stmt;
 use PhpParser\NodeVisitorAbstract;
-use Typhoon\Reflection\NameResolution\NameContext;
 
 /**
  * @internal

@@ -9,6 +9,7 @@ use Typhoon\Reflection\ChangeDetector\FileChangeDetector;
 use Typhoon\Reflection\ClassLoader;
 use Typhoon\Reflection\ClassReflection;
 use Typhoon\Reflection\NameResolution\NameContext;
+use Typhoon\Reflection\NameResolution\NameContextVisitor;
 use Typhoon\Reflection\ParsingContext;
 use Typhoon\Reflection\PhpDocParser\PhpDocParser;
 use Typhoon\Reflection\PhpParser\PhpParser;
