@@ -98,13 +98,8 @@ final class Context implements ParsingContext, ClassReflector, ClassExistenceChe
             return $this->reflections[ClassReflection::class][$name] !== false;
         }
 
-        try {
-            $this->reflectClass($name);
-
-            return true;
-        } catch (ReflectionException) {
-            return false;
-        }
+        /** @var non-empty-string $name */
+        return $this->classLoader->loadClass($this, $name) && isset($this->reflections[ClassReflection::class][$name]);
     }
 
     /**
