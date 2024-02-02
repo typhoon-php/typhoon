@@ -86,6 +86,8 @@
         <file name="stubs/PHPStan/PhpDocParser/Ast/ConstExpr/ConstFetchNode.phpstub"/>
         <file name="stubs/PHPStan/PhpDocParser/Ast/PhpDoc/PhpDocTagNode.phpstub"/>
         <file name="stubs/PHPStan/PhpDocParser/Ast/PhpDoc/TemplateTagValueNode.phpstub"/>
+        <file name="stubs/PHPStan/PhpDocParser/Ast/PhpDoc/TypeAliasImportTagValueNode.phpstub"/>
+        <file name="stubs/PHPStan/PhpDocParser/Ast/PhpDoc/TypeAliasTagValueNode.phpstub"/>
         <file name="stubs/PHPStan/PhpDocParser/Ast/Type/CallableTypeNode.phpstub"/>
         <file name="stubs/PHPStan/PhpDocParser/Ast/Type/GenericTypeNode.phpstub"/>
         <file name="stubs/PHPStan/PhpDocParser/Ast/Type/IdentifierTypeNode.phpstub"/>

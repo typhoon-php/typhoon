@@ -8,16 +8,15 @@ use Typhoon\Reflection\NameContext\NameContext;
 use Typhoon\Reflection\NameContext\NameResolver;
 use Typhoon\Reflection\NameContext\UnqualifiedName;
 use Typhoon\Reflection\ReflectionException;
-use Typhoon\Type\TemplateType;
 use Typhoon\Type\Type;
 use Typhoon\Type\types;
 
 final class TypeContext implements NameResolver
 {
     /**
-     * @var array<non-empty-string, TemplateType|callable(): TemplateType>
+     * @var array<non-empty-string, Type|callable(): Type>
      */
-    private array $templateTypes = [];
+    private array $types = [];
 
     public function __construct(
         private NameResolver $nameResolver = new NameContext(),
@@ -27,18 +26,18 @@ final class TypeContext implements NameResolver
 
     /**
      * @template TReturn
-     * @param array<non-empty-string, TemplateType|callable(): TemplateType> $templateTypes
-     * @param \Closure(): TReturn $do
+     * @param \Closure(): TReturn $action
+     * @param array<non-empty-string, Type|callable(): Type> $types
      * @return TReturn
      */
-    public function inContextOfTemplates(array $templateTypes, \Closure $do): mixed
+    public function executeWithTypes(\Closure $action, array $types = []): mixed
     {
         try {
-            $this->addTemplates($templateTypes);
+            $this->addTypes($types);
 
-            return $do();
+            return $action();
         } finally {
-            $this->removeTemplates(array_keys($templateTypes));
+            $this->removeTypes(array_keys($types));
         }
     }
 
@@ -54,15 +53,15 @@ final class TypeContext implements NameResolver
 
     public function resolveNameAsType(string $name): Type
     {
-        if (isset($this->templateTypes[$name])) {
+        if (isset($this->types[$name])) {
             /** @var non-empty-string $name */
-            $templateType = $this->templateTypes[$name];
+            $type = $this->types[$name];
 
-            if ($templateType instanceof TemplateType) {
-                return $templateType;
+            if ($type instanceof Type) {
+                return $type;
             }
 
-            return $this->templateTypes[$name] = $templateType();
+            return $this->types[$name] = $type();
         }
 
         $class = $this->resolveNameAsClass($name);
@@ -90,26 +89,26 @@ final class TypeContext implements NameResolver
     }
 
     /**
-     * @param array<non-empty-string, TemplateType|callable(): TemplateType> $templateTypes
+     * @param array<non-empty-string, Type|callable(): Type> $types
      */
-    private function addTemplates(array $templateTypes): void
+    private function addTypes(array $types): void
     {
-        foreach ($templateTypes as $name => $templateType) {
-            if (isset($this->templateTypes[$name])) {
-                throw new ReflectionException();
+        foreach ($types as $name => $templateType) {
+            if (isset($this->types[$name])) {
+                throw new ReflectionException($name);
             }
 
-            $this->templateTypes[(new UnqualifiedName($name))->toString()] = $templateType;
+            $this->types[(new UnqualifiedName($name))->toString()] = $templateType;
         }
     }
 
     /**
      * @param array<non-empty-string> $names
      */
-    private function removeTemplates(array $names): void
+    private function removeTypes(array $names): void
     {
         foreach ($names as $name) {
-            unset($this->templateTypes[$name]);
+            unset($this->types[$name]);
         }
     }
 

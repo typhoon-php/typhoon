@@ -42,6 +42,7 @@ final class ClassReflection extends ClassReflectorAwareReflection implements Roo
      * @param ?positive-int $endLine
      * @param ?non-empty-string $docComment
      * @param list<AttributeReflection> $attributes
+     * @param array<non-empty-string, Type\Type> $typeAliases
      * @param list<TemplateReflection> $templates
      * @param int-mask-of<self::IS_*> $modifiers
      * @param list<Type\NamedObjectType> $ownInterfaceTypes
@@ -59,6 +60,7 @@ final class ClassReflection extends ClassReflectorAwareReflection implements Roo
         private readonly ?int $endLine,
         private readonly ?string $docComment,
         private readonly array $attributes,
+        private readonly array $typeAliases,
         private readonly array $templates,
         private readonly bool $interface,
         private readonly bool $enum,
@@ -173,6 +175,11 @@ final class ClassReflection extends ClassReflectorAwareReflection implements Roo
     public function getAttributes(): array
     {
         return $this->attributes;
+    }
+
+    public function getTypeAlias(string $name): Type\Type
+    {
+        return $this->typeAliases[$name] ?? throw new ReflectionException();
     }
 
     /**

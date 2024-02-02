@@ -12,6 +12,8 @@ use PHPStan\PhpDocParser\Ast\PhpDoc\PhpDocTagNode;
 use PHPStan\PhpDocParser\Ast\PhpDoc\PhpDocTagValueNode;
 use PHPStan\PhpDocParser\Ast\PhpDoc\ReturnTagValueNode;
 use PHPStan\PhpDocParser\Ast\PhpDoc\TemplateTagValueNode;
+use PHPStan\PhpDocParser\Ast\PhpDoc\TypeAliasImportTagValueNode;
+use PHPStan\PhpDocParser\Ast\PhpDoc\TypeAliasTagValueNode;
 use PHPStan\PhpDocParser\Ast\PhpDoc\VarTagValueNode;
 use PHPStan\PhpDocParser\Ast\Type\GenericTypeNode;
 use PHPStan\PhpDocParser\Ast\Type\TypeNode;
@@ -50,6 +52,16 @@ final class PhpDoc
      * @var ?list<GenericTypeNode>
      */
     private ?array $implementedTypes = null;
+
+    /**
+     * @var ?list<TypeAliasTagValueNode>
+     */
+    private ?array $typeAliases = null;
+
+    /**
+     * @var ?list<TypeAliasImportTagValueNode>
+     */
+    private ?array $typeAliasImports = null;
 
     /**
      * @internal
@@ -292,6 +304,62 @@ final class PhpDoc
             static fn(PhpDocTagNode $tag): GenericTypeNode => $tag->value->type,
             array_values($implementsTags),
         );
+    }
+
+    /**
+     * @return list<TypeAliasTagValueNode>
+     */
+    public function typeAliases(): array
+    {
+        if ($this->typeAliases !== null) {
+            return $this->typeAliases;
+        }
+
+        $typeAliasesByAlias = [];
+
+        foreach ($this->tags as $key => $tag) {
+            if (!$tag->value instanceof TypeAliasTagValueNode) {
+                continue;
+            }
+
+            /** @var PhpDocTagNode<TypeAliasTagValueNode> $tag */
+            if ($this->shouldReplaceTag($typeAliasesByAlias[$tag->value->alias] ?? null, $tag)) {
+                $typeAliasesByAlias[$tag->value->alias] = $tag;
+            }
+
+            unset($this->tags[$key]);
+        }
+
+        return $this->typeAliases = array_column($typeAliasesByAlias, 'value');
+    }
+
+    /**
+     * @return list<TypeAliasImportTagValueNode>
+     */
+    public function typeAliasImports(): array
+    {
+        if ($this->typeAliasImports !== null) {
+            return $this->typeAliasImports;
+        }
+
+        $typeAliasImportsByAlias = [];
+
+        foreach ($this->tags as $key => $tag) {
+            if (!$tag->value instanceof TypeAliasImportTagValueNode) {
+                continue;
+            }
+
+            /** @var PhpDocTagNode<TypeAliasImportTagValueNode> $tag */
+            $alias = $tag->value->importedAs ?? $tag->value->importedAlias;
+
+            if ($this->shouldReplaceTag($typeAliasImportsByAlias[$alias] ?? null, $tag)) {
+                $typeAliasImportsByAlias[$alias] = $tag;
+            }
+
+            unset($this->tags[$key]);
+        }
+
+        return $this->typeAliasImports = array_column($typeAliasImportsByAlias, 'value');
     }
 
     /**

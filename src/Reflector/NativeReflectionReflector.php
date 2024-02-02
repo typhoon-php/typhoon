@@ -40,6 +40,7 @@ final class NativeReflectionReflector
             endLine: $class->getEndLine() ?: null,
             docComment: $class->getDocComment() ?: null,
             attributes: $this->reflectAttributes($class->getAttributes(), [$class->name]),
+            typeAliases: [],
             templates: [],
             interface: $class->isInterface(),
             enum: $class->isEnum(),

@@ -69,6 +69,7 @@ final class Context implements ParsingContext, ClassReflector, ClassExistenceChe
             new PhpDocParsingVisitor($this->phpDocParser),
             new NameContextVisitor($nameContext),
             new DiscoveringVisitor(
+                classReflector: $this,
                 parsingContext: $this,
                 typeContext: new TypeContext($nameContext, $this),
                 resource: $resource,
@@ -98,7 +99,9 @@ final class Context implements ParsingContext, ClassReflector, ClassExistenceChe
         }
 
         /** @var non-empty-string $name */
-        return $this->classLoader->loadClass($this, $name) && isset($this->reflections[ClassReflection::class][$name]);
+        return $this->classLoader->loadClass($this, $name)
+            && isset($this->reflections[ClassReflection::class][$name])
+            && $this->reflections[ClassReflection::class][$name] !== false;
     }
 
     /**

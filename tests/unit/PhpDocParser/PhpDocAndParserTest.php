@@ -5,6 +5,8 @@ declare(strict_types=1);
 namespace Typhoon\Reflection\PhpDocParser;
 
 use PHPStan\PhpDocParser\Ast\PhpDoc\TemplateTagValueNode;
+use PHPStan\PhpDocParser\Ast\PhpDoc\TypeAliasImportTagValueNode;
+use PHPStan\PhpDocParser\Ast\PhpDoc\TypeAliasTagValueNode;
 use PHPStan\PhpDocParser\Ast\Type\GenericTypeNode;
 use PHPStan\PhpDocParser\Ast\Type\IdentifierTypeNode;
 use PHPStan\PhpDocParser\Ast\Type\TypeNode;
@@ -390,6 +392,91 @@ final class PhpDocAndParserTest extends TestCase
         );
     }
 
+    public function testItReturnsEmptyTypeAliasesWhenNoTypeTag(): void
+    {
+        $parser = new PhpDocParser();
+
+        $typeAliases = $parser->parsePhpDoc(
+            <<<'PHP'
+                /**
+                 * @example
+                 */
+                PHP,
+        )->typeAliases();
+
+        self::assertEmpty($typeAliases);
+    }
+
+    public function testItReturnsLatestPrioritizedTypeAliases(): void
+    {
+        $parser = new PhpDocParser();
+
+        $typeAliases = $parser->parsePhpDoc(
+            <<<'PHP'
+                /**
+                 * @example
+                 * 
+                 * @psalm-type A = string
+                 * @psalm-type B = object
+                 * @psalm-type B = mixed
+                 * @phpstan-type A int
+                 * @phpstan-type A float
+                 */
+                PHP,
+        )->typeAliases();
+
+        self::assertEquals(
+            [
+                new TypeAliasTagValueNode('A', new IdentifierTypeNode('float')),
+                new TypeAliasTagValueNode('B', new IdentifierTypeNode('mixed')),
+            ],
+            $typeAliases,
+        );
+    }
+
+    public function testItReturnsEmptyTypeAliasImportsWhenNoTypeTag(): void
+    {
+        $parser = new PhpDocParser();
+
+        $typeAliasImports = $parser->parsePhpDoc(
+            <<<'PHP'
+                /**
+                 * @example
+                 */
+                PHP,
+        )->typeAliasImports();
+
+        self::assertEmpty($typeAliasImports);
+    }
+
+    public function testItReturnsLatestPrioritizedTypeAliasImports(): void
+    {
+        $parser = new PhpDocParser();
+
+        $typeAliasImports = $parser->parsePhpDoc(
+            <<<'PHP'
+                /**
+                 * @example
+                 * 
+                 * @psalm-import-type A from string
+                 * @psalm-import-type B from object
+                 * @psalm-import-type B from mixed
+                 * @phpstan-import-type A from int
+                 * @phpstan-import-type A from float
+                 * @phpstan-import-type C from bool as A
+                 */
+                PHP,
+        )->typeAliasImports();
+
+        self::assertEquals(
+            [
+                new TypeAliasImportTagValueNode('C', new IdentifierTypeNode('bool'), 'A'),
+                new TypeAliasImportTagValueNode('B', new IdentifierTypeNode('mixed'), null),
+            ],
+            $typeAliasImports,
+        );
+    }
+
     public function testItCachesPriority(): void
     {
         $tagPrioritizer = $this->createMock(TagPrioritizer::class);
@@ -419,6 +506,8 @@ final class PhpDocAndParserTest extends TestCase
                  * @param int $x
                  * @param float $y
                  * @return array
+                 * @phpstan-type A int
+                 * @phpstan-import-type C from bool as A
                  */
                 PHP,
         );
@@ -429,6 +518,8 @@ final class PhpDocAndParserTest extends TestCase
             $phpDoc->varType(),
             $phpDoc->paramTypes(),
             $phpDoc->returnType(),
+            $phpDoc->typeAliases(),
+            $phpDoc->typeAliasImports(),
         ];
 
         $first = $tags();

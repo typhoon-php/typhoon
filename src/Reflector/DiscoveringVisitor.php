@@ -20,6 +20,7 @@ use Typhoon\Reflection\TypeContext\TypeContext;
 final class DiscoveringVisitor extends NodeVisitorAbstract
 {
     public function __construct(
+        private readonly ClassReflector $classReflector,
         private readonly ParsingContext $parsingContext,
         private readonly TypeContext $typeContext,
         private readonly Resource $resource,
@@ -33,6 +34,7 @@ final class DiscoveringVisitor extends NodeVisitorAbstract
             $this->parsingContext->registerClassReflector(
                 name: $name,
                 reflector: fn(): ClassReflection => PhpParserReflector::reflectClass(
+                    classReflector: $this->classReflector,
                     typeContext: $typeContext,
                     resource: $this->resource,
                     node: $node,
