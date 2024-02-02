@@ -17,20 +17,14 @@ use Typhoon\Reflection\Reflector\Cache\ChangeDetectingReflectionCache;
 use Typhoon\Reflection\Reflector\Cache\NullReflectionCache;
 use Typhoon\Reflection\Reflector\Cache\SimpleReflectionCache;
 use Typhoon\Reflection\Reflector\Context;
-use Typhoon\Reflection\Reflector\ReflectionCache;
 
 /**
  * @api
  */
 final class TyphoonReflector
 {
-    private ?Context $context = null;
-
     private function __construct(
-        private readonly ClassLoader $classLoader,
-        private readonly PhpParser $phpParser,
-        private readonly PhpDocParser $phpDocParser,
-        private readonly ReflectionCache $cache,
+        private readonly Context $context,
     ) {}
 
     /**
@@ -42,6 +36,8 @@ final class TyphoonReflector
         ?array $classLoaders = null,
         TagPrioritizer $tagPrioritizer = new PHPStanOverPsalmOverOthersTagPrioritizer(),
     ): self {
+        $classLoaders ??= self::defaultClassLoaders();
+
         if ($cache === null) {
             $reflectionCache = new NullReflectionCache();
         } else {
@@ -52,12 +48,12 @@ final class TyphoonReflector
             }
         }
 
-        return new self(
-            classLoader: new ClassLoaderChain($classLoaders ?? self::defaultClassLoaders()),
+        return new self(new Context(
+            classLoader: new ClassLoaderChain($classLoaders),
             phpParser: new PhpParser(),
             phpDocParser: new PhpDocParser($tagPrioritizer),
             cache: $reflectionCache,
-        );
+        ));
     }
 
     /**
@@ -85,7 +81,7 @@ final class TyphoonReflector
      */
     public function classExists(string $name): bool
     {
-        return $this->context()->classExists($name);
+        return $this->context->classExists($name);
     }
 
     /**
@@ -97,7 +93,7 @@ final class TyphoonReflector
     public function reflectClass(string $name): ClassReflection
     {
         /** @var ClassReflection<T> */
-        return $this->context()->reflectClass($name);
+        return $this->context->reflectClass($name);
     }
 
     /**
@@ -107,16 +103,6 @@ final class TyphoonReflector
      */
     public function reflectObject(object $object): ClassReflection
     {
-        return $this->context()->reflectClass($object::class);
-    }
-
-    private function context(): Context
-    {
-        return $this->context ??= new Context(
-            classLoader: $this->classLoader,
-            phpParser: $this->phpParser,
-            phpDocParser: $this->phpDocParser,
-            cache: $this->cache,
-        );
+        return $this->context->reflectClass($object::class);
     }
 }
