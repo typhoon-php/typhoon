@@ -161,7 +161,6 @@ final class Context implements ParsingContext, ClassReflector, ClassExistenceChe
         if ($cachedReflection !== null) {
             ClassReflectorSetter::set($cachedReflection, $this);
 
-            /** @var TReflection */
             return $this->reflections[$class][$name] = $cachedReflection;
         }
 

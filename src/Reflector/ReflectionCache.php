@@ -14,7 +14,7 @@ interface ReflectionCache
      * @template TReflection of RootReflection
      * @param class-string<TReflection> $class
      * @param non-empty-string $name
-     * @return ?RootReflection
+     * @return ?TReflection
      */
     public function getReflection(string $class, string $name): ?RootReflection;
 
