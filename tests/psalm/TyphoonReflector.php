@@ -12,16 +12,11 @@ function testReflectClassInfersClassReflectionGenericType(TyphoonReflector $refl
     /** @psalm-check-type-exact $_classReflection = \Typhoon\Reflection\ClassReflection<\stdClass> */
 }
 
-function testReflectClassAssertsThatStringIsAClass(TyphoonReflector $reflector, string $class): void
+function testReflectClassPreservesObjectType(TyphoonReflector $reflector): void
 {
-    $reflector->reflectClass($class);
-    /** @psalm-check-type-exact $class = \class-string */
-}
-
-function testReflectObjectInfersClassReflectionGenericType(TyphoonReflector $reflector): void
-{
-    $_classReflection = $reflector->reflectObject(new \stdClass());
-    /** @psalm-check-type-exact $_classReflection = \Typhoon\Reflection\ClassReflection<\stdClass> */
+    $object = new \stdClass();
+    $reflector->reflectClass($object);
+    /** @psalm-check-type-exact $object = \stdClass */
 }
 
 function testClassExistsAssertsThatStringIsClass(TyphoonReflector $reflector, string $class): void

@@ -4,14 +4,15 @@ declare(strict_types=1);
 
 namespace Typhoon\Reflection;
 
-use Typhoon\Reflection\Reflector\ClassReflector;
+use Typhoon\Reflection\ClassReflection\ClassReflector;
+use Typhoon\Reflection\ClassReflection\ClassReflectorAwareReflection;
 use Typhoon\Reflection\TypeResolver\StaticResolver;
 use Typhoon\Reflection\TypeResolver\TemplateResolver;
 
 /**
  * @api
  */
-final class MethodReflection
+final class MethodReflection extends ClassReflectorAwareReflection
 {
     public const IS_FINAL = \ReflectionMethod::IS_FINAL;
     public const IS_ABSTRACT = \ReflectionMethod::IS_ABSTRACT;
@@ -52,7 +53,6 @@ final class MethodReflection
         private array $parameters,
         /** @readonly */
         private TypeReflection $returnType,
-        private readonly ClassReflector $classReflector,
         private ?\ReflectionMethod $nativeReflection = null,
     ) {}
 
@@ -85,7 +85,7 @@ final class MethodReflection
 
     public function getDeclaringClass(): ClassReflection
     {
-        return $this->classReflector->reflectClass($this->class);
+        return $this->classReflector()->reflectClass($this->class);
     }
 
     /**
@@ -380,12 +380,26 @@ final class MethodReflection
         return $this->getNativeReflection()->getClosure($object);
     }
 
+    public function getNativeReflection(): \ReflectionMethod
+    {
+        return $this->nativeReflection ??= new \ReflectionMethod($this->class, $this->name);
+    }
+
+    public function resolveTypes(TemplateResolver|StaticResolver $typeResolver): self
+    {
+        $method = clone $this;
+        $method->parameters = array_map(
+            static fn(ParameterReflection $parameter): ParameterReflection => $parameter->resolveTypes($typeResolver),
+            $this->parameters,
+        );
+        $method->returnType = $method->returnType->resolve($typeResolver);
+
+        return $method;
+    }
+
     public function __serialize(): array
     {
-        return array_diff_key(get_object_vars($this), [
-            'classReflector' => null,
-            'nativeReflection' => null,
-        ]);
+        return array_diff_key(get_object_vars($this), ['nativeReflection' => null]);
     }
 
     public function __unserialize(array $data): void
@@ -402,20 +416,12 @@ final class MethodReflection
         }
     }
 
-    public function getNativeReflection(): \ReflectionMethod
+    protected function __initialize(ClassReflector $classReflector): void
     {
-        return $this->nativeReflection ??= new \ReflectionMethod($this->class, $this->name);
-    }
+        parent::__initialize($classReflector);
 
-    public function resolveTypes(TemplateResolver|StaticResolver $typeResolver): self
-    {
-        $method = clone $this;
-        $method->parameters = array_map(
-            static fn(ParameterReflection $parameter): ParameterReflection => $parameter->resolveTypes($typeResolver),
-            $this->parameters,
-        );
-        $method->returnType = $method->returnType->resolve($typeResolver);
-
-        return $method;
+        foreach ($this->parameters as $parameter) {
+            $parameter->__initialize($classReflector);
+        }
     }
 }

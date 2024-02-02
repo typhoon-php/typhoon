@@ -2,13 +2,13 @@
 
 declare(strict_types=1);
 
-namespace Typhoon\Reflection;
+namespace Typhoon\Reflection\NameContext;
 
-use PhpParser\Node\Stmt\Class_;
-use Typhoon\Reflection\NameContext\NameResolver;
+use Typhoon\Reflection\ReflectionException;
 
 /**
- * @api
+ * @internal
+ * @psalm-internal Typhoon\Reflection
  * @psalm-immutable
  */
 final class AnonymousClassName
@@ -27,17 +27,15 @@ final class AnonymousClassName
     ) {}
 
     /**
-     * @param non-empty-string $file
+     * @psalm-pure
+     * @template TName of string
+     * @param TName $name
+     * @return TName
      */
-    public static function fromNode(string $file, Class_ $node, NameResolver $nameResolver): self
+    public static function normalizeName(string $name): string
     {
-        $line = $node->getStartLine();
-
-        if ($line < 0) {
-            throw new ReflectionException();
-        }
-
-        return new self(file: $file, line: $line, superType: self::resolveSuperType($node, $nameResolver));
+        /** @var TName */
+        return self::tryFromString($name)?->toStringWithoutRtdKeyCounter() ?? $name;
     }
 
     /**
@@ -49,7 +47,7 @@ final class AnonymousClassName
             return null;
         }
 
-        if (preg_match('/^\\?(.+)@anonymous\x00(.+):(\d+)(?:\$(\w+))?$/', $name, $matches) !== 1) {
+        if (preg_match('/^\\\?(.+)@anonymous\x00(.+):(\d+)(?:\$(\w+))?$/', $name, $matches) !== 1) {
             return null;
         }
 
@@ -68,7 +66,7 @@ final class AnonymousClassName
     /**
      * @return list<self>
      */
-    public static function declared(?string $file = null, ?int $line = null): array
+    public static function findDeclared(?string $file = null, ?int $line = null): array
     {
         $names = [];
 
@@ -91,22 +89,6 @@ final class AnonymousClassName
         }
 
         return $names;
-    }
-
-    /**
-     * @return ?class-string
-     */
-    private static function resolveSuperType(Class_ $node, NameResolver $nameResolver): ?string
-    {
-        if ($node->extends !== null) {
-            return $nameResolver->resolveNameAsClass($node->extends->toCodeString());
-        }
-
-        foreach ($node->implements as $interface) {
-            return $nameResolver->resolveNameAsClass($interface->toCodeString());
-        }
-
-        return null;
     }
 
     /**

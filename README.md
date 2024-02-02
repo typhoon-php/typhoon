@@ -73,39 +73,34 @@ The main difference is in `getType` method.
 use Typhoon\Reflection\TyphoonReflector;
 
 $reflector = TyphoonReflector::build(
-    // toggle caching (might be useful in tests)
-    // cacheDirectory and detectChanges options have no effect when caching is disabled
-    cache: false,
-    // set custom cache directory
-    // defaults to system temp location according to XDG
-    cacheDirectory: '/path/to/cache',
+    cache: new SomePsr16Cache(),
     // optimize DX during development or performance in production
     detectChanges: $_ENV['mode'] !== 'prod',
 );
 ```
 
-## Class loaders
+## Class locators
 
-By default, reflector uses `ComposerClassLoader` if it detects composer autoloading, 
-`PhpStormStubsClassLoader` if `jetbrains/phpstorm-stubs` is installed 
-and `NativeReflectionClassLoader`.
-You can implement your own loaders and pass them to `build` method:
+By default, reflector uses:
+- `ComposerClassLocator` if composer autoloading is used, 
+- `PhpStormStubsClassLocator` if `jetbrains/phpstorm-stubs` is installed,
+- `AnonymousClassLocator`.
+
+You can implement your own locators and pass them to the `build` method:
 
 ```php
+use Typhoon\Reflection\ClassLocator;
 use Typhoon\Reflection\TyphoonReflector;
-use Typhoon\Reflection\ClassLoader;
 
-final class MyClassLoader implements ClassLoader
+final class MyClassLocator implements ClassLocator
 {
     // ...
 }
 
 $reflector = TyphoonReflector::build(
-    classLoaders: [
-        new MyClassLoader(),
-        new ClassLoader\ComposerClassLoader(),
-        new ClassLoader\PhpStormStubsClassLoader(),
-        new ClassLoader\NativeReflectionClassLoader(),
+    classLocators: [
+        new MyClassLocator(),
+        ...TyphoonReflector::defaultClassLocators(),
     ],
 );
 ```

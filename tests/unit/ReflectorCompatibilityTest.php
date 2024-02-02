@@ -8,9 +8,7 @@ use PHPUnit\Framework\Attributes\CoversNothing;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\RequiresPhp;
 use PHPUnit\Framework\TestCase;
-use Typhoon\Reflection\ClassLoader\ComposerClassLoader;
-use Typhoon\Reflection\ClassLoader\NativeReflectionClassLoader;
-use Typhoon\Reflection\ClassLoader\PhpStormStubsClassLoader;
+use Typhoon\Reflection\NameContext\AnonymousClassName;
 
 #[CoversNothing]
 final class ReflectorCompatibilityTest extends TestCase
@@ -19,42 +17,36 @@ final class ReflectorCompatibilityTest extends TestCase
     private const READONLY_CLASSES = __DIR__ . '/ReflectorCompatibility/readonly_classes.php';
 
     /**
-     * @return \Generator<string, list<ClassLoader>>
+     * @return \Generator<string, list<ClassLocator>>
      */
-    public static function classLoaders(): \Generator
+    public static function classLocators(): \Generator
     {
-        yield 'default class loader' => [
-            new ComposerClassLoader(),
-            new PhpStormStubsClassLoader(),
-            new NativeReflectionClassLoader(),
-        ];
-        yield 'NativeReflectionClassLoader' => [
-            new NativeReflectionClassLoader(),
-        ];
+        yield 'TyphoonReflector::defaultClassLocators()' => TyphoonReflector::defaultClassLocators();
+        yield 'No locators' => [];
     }
 
     /**
-     * @return \Generator<string, array{list<ClassLoader>, string}>
+     * @return \Generator<string, array{list<ClassLocator>, string}>
      */
     public static function classes(): \Generator
     {
         require_once self::CLASSES;
 
-        $anonymousClasses = AnonymousClassName::declared(file: self::CLASSES);
+        $anonymousNames = AnonymousClassName::findDeclared(file: self::CLASSES);
 
-        foreach (self::classLoaders() as $classLoadersName => $classLoaders) {
+        foreach (self::classLocators() as $classLocatorsName => $classLocators) {
             foreach (NameCollector::collect(self::CLASSES)->classes as $class) {
-                yield $class . ' using ' . $classLoadersName => [$classLoaders, $class];
+                yield $class . ' using ' . $classLocatorsName => [$classLocators, $class];
             }
 
-            foreach ($anonymousClasses as $anonymousClass) {
-                yield 'anonymous at line ' . $anonymousClass->line . ' using ' . $classLoadersName => [$classLoaders, $anonymousClass->toString()];
+            foreach ($anonymousNames as $anonymousName) {
+                yield 'anonymous at line ' . $anonymousName->line . ' using ' . $classLocatorsName => [$classLocators, $anonymousName->toString()];
             }
         }
     }
 
     /**
-     * @return \Generator<string, array{list<ClassLoader>, string}>
+     * @return \Generator<string, array{list<ClassLocator>, string}>
      */
     public static function readonlyClasses(): \Generator
     {
@@ -62,20 +54,20 @@ final class ReflectorCompatibilityTest extends TestCase
             require_once self::READONLY_CLASSES;
         }
 
-        foreach (self::classLoaders() as $classLoadersName => $classLoaders) {
+        foreach (self::classLocators() as $classLocatorsName => $classLocators) {
             foreach (NameCollector::collect(self::READONLY_CLASSES)->classes as $class) {
-                yield $class . ' using ' . $classLoadersName => [$classLoaders, $class];
+                yield $class . ' using ' . $classLocatorsName => [$classLocators, $class];
             }
         }
     }
 
     /**
-     * @param list<ClassLoader> $classLoaders
+     * @param list<ClassLocator> $classLocators
      */
     #[DataProvider('classes')]
-    public function testItReflectsClassesCompatibly(array $classLoaders, string $class): void
+    public function testItReflectsClassesCompatibly(array $classLocators, string $class): void
     {
-        $reflector = TyphoonReflector::build(classLoaders: $classLoaders);
+        $reflector = TyphoonReflector::build(classLocators: $classLocators);
         /** @psalm-suppress ArgumentTypeCoercion */
         $native = new \ReflectionClass($class);
 
@@ -85,13 +77,13 @@ final class ReflectorCompatibilityTest extends TestCase
     }
 
     /**
-     * @param ?list<ClassLoader> $classLoaders
+     * @param ?list<ClassLocator> $classLocators
      */
     #[RequiresPhp('>=8.2')]
     #[DataProvider('readonlyClasses')]
-    public function testItReflectsReadonlyClasses(?array $classLoaders, string $class): void
+    public function testItReflectsReadonlyClasses(?array $classLocators, string $class): void
     {
-        $reflector = TyphoonReflector::build(classLoaders: $classLoaders);
+        $reflector = TyphoonReflector::build(classLocators: $classLocators);
         /** @psalm-suppress ArgumentTypeCoercion */
         $native = new \ReflectionClass($class);
 
@@ -103,16 +95,9 @@ final class ReflectorCompatibilityTest extends TestCase
 
     private function assertClassEquals(\ReflectionClass $native, ClassReflection $typhoon): void
     {
-        if ($native->isAnonymous()) {
-            $this->assertAnonymousNameMatches($native->name, $typhoon->name, 'class.name');
-            $this->assertAnonymousNameMatches($native->getName(), $typhoon->getName(), 'class.getName()');
-            $this->assertAnonymousNameMatches($native->getShortName(), $typhoon->getShortName(), 'class.getShortName()');
-        } else {
-            self::assertSame($native->name, $typhoon->name, 'class.name');
-            self::assertSame($native->getName(), $typhoon->getName(), 'class.name');
-            self::assertSame($native->getShortName(), $typhoon->getShortName(), 'class.getShortName()');
-        }
-
+        self::assertSame($this->resolveNativeClassName($native->name), $typhoon->name, 'class.name');
+        self::assertSame($this->resolveNativeClassName($native->getName()), $typhoon->getName(), 'class.getName()');
+        self::assertSame($this->resolveNativeClassName($native->getShortName()), $typhoon->getShortName(), 'class.getShortName()');
         // self::assertSame($native->getAttributes(), $typhoon->getAttributes(), 'class.getAttributes()');
         // self::assertSame($native->getConstant(), $typhoon->getConstant(), 'class.getConstant()');
         // self::assertSame($native->getConstants(), $typhoon->getConstants(), 'class.getConstants()');
@@ -189,16 +174,16 @@ final class ReflectorCompatibilityTest extends TestCase
 
     private function assertPropertyEquals(\ReflectionProperty $native, PropertyReflection $typhoon, string $messagePrefix): void
     {
-        if ($native->getDeclaringClass()->isAnonymous()) {
-            $this->assertAnonymousNameMatches($native->class, $typhoon->class, $messagePrefix . '.class');
-        } else {
-            self::assertSame($native->class, $typhoon->class, $messagePrefix . '.class');
+        self::assertSame($this->resolveNativeClassName($native->class), $typhoon->class, $messagePrefix . '.class');
+
+        if (!$native->getDeclaringClass()->isAnonymous()) {
+            // TODO: cannot create native reflection for anonymous with customized name
             self::assertSame($native->getDefaultValue(), $typhoon->getDefaultValue(), $messagePrefix . '.getDefaultValue()');
         }
 
         self::assertSame($native->name, $typhoon->name, $messagePrefix . '.name');
         // self::assertSame($native->getAttributes(), $typhoon->getAttributes(), $messagePrefix . '.getAttributes()');
-        self::assertSame($native->getDeclaringClass()->name, $typhoon->getDeclaringClass()->name, $messagePrefix . '.getDeclaringClass()');
+        self::assertSame($this->resolveNativeClassName($native->getDeclaringClass()->name), $typhoon->getDeclaringClass()->name, $messagePrefix . '.getDeclaringClass()');
         self::assertSame($native->getDocComment() ?: null, $typhoon->getDocComment(), $messagePrefix . '.getDocComment()');
         self::assertSame($native->getModifiers(), $typhoon->getModifiers(), $messagePrefix . '.getModifiers()');
         self::assertSame($native->getName(), $typhoon->getName(), $messagePrefix . '.getName()');
@@ -217,12 +202,7 @@ final class ReflectorCompatibilityTest extends TestCase
 
     private function assertMethodEquals(\ReflectionMethod $native, MethodReflection $typhoon, string $messagePrefix): void
     {
-        if ($native->getDeclaringClass()->isAnonymous()) {
-            $this->assertAnonymousNameMatches($native->class, $typhoon->class, $messagePrefix . '.class');
-        } else {
-            self::assertSame($native->class, $typhoon->class, $messagePrefix . '.class');
-        }
-
+        self::assertSame($this->resolveNativeClassName($native->class), $typhoon->class, $messagePrefix . '.class');
         self::assertSame($native->name, $typhoon->name, $messagePrefix . '.name');
         // self::assertSame($native->getAttributes(), $typhoon->getAttributes(), $messagePrefix . '.getAttributes()');
         // self::assertSame($native->getClosure(), $typhoon->getClosure(), $messagePrefix . '.getClosure()');
@@ -230,7 +210,7 @@ final class ReflectorCompatibilityTest extends TestCase
         // self::assertSame($native->getClosureScopeClass(), $typhoon->getClosureScopeClass(), $messagePrefix . '.getClosureScopeClass()');
         // self::assertSame($native->getClosureThis(), $typhoon->getClosureThis(), $messagePrefix . '.getClosureThis()');
         // self::assertSame($native->getClosureUsedVariables(), $typhoon->getClosureUsedVariables(), $messagePrefix . '.getClosureUsedVariables()');
-        self::assertSame($native->getDeclaringClass()->name, $typhoon->getDeclaringClass()->name, $messagePrefix . '.getDeclaringClass()');
+        self::assertSame($this->resolveNativeClassName($native->getDeclaringClass()->name), $typhoon->getDeclaringClass()->name, $messagePrefix . '.getDeclaringClass()');
         self::assertSame($native->getDocComment() ?: null, $typhoon->getDocComment(), $messagePrefix . '.getDocComment()');
         // self::assertSame($native->getEndLine(), $typhoon->getEndLine(), $messagePrefix . '.getEndLine()');
         // self::assertSame($native->getExtension(), $typhoon->getExtension(), $messagePrefix . '.getExtension()');
@@ -281,7 +261,7 @@ final class ReflectorCompatibilityTest extends TestCase
         self::assertSame($native->name, $typhoon->name, $messagePrefix . '.name');
         self::assertSame($native->canBePassedByValue(), $typhoon->canBePassedByValue(), $messagePrefix . '.canBePassedByValue()');
         // self::assertSame($native->getAttributes(), $typhoon->getAttributes(), $messagePrefix . '.getAttributes()');
-        self::assertSame($native->getDeclaringClass()?->name, $typhoon->getDeclaringClass()?->name, $messagePrefix . '.getDeclaringClass()');
+        self::assertSame($this->resolveNativeClassName($native->getDeclaringClass()?->name), $typhoon->getDeclaringClass()?->name, $messagePrefix . '.getDeclaringClass()');
         self::assertSame($native->getDeclaringFunction()->name, $typhoon->getDeclaringFunction()->name, $messagePrefix . '.getDeclaringFunction()');
         // self::assertSame($native->getDefaultValueConstantName(), $typhoon->getDefaultValueConstantName(), $messagePrefix . '.getDefaultValueConstantName()');
         self::assertSame($native->getName(), $typhoon->getName(), $messagePrefix . '.getName()');
@@ -303,11 +283,22 @@ final class ReflectorCompatibilityTest extends TestCase
      */
     private function assertSameNames(array $nativeReflections, array $typhoonReflections, string $message): void
     {
-        self::assertSame(array_column($nativeReflections, 'name'), array_column($typhoonReflections, 'name'), $message);
+        self::assertSame(
+            array_map($this->resolveNativeClassName(...), array_column($nativeReflections, 'name')),
+            array_column($typhoonReflections, 'name'),
+            $message,
+        );
     }
 
-    private function assertAnonymousNameMatches(string $native, string $typhoon, string $message): void
+    /**
+     * @return ($name is null ? null : string)
+     */
+    private function resolveNativeClassName(?string $name): ?string
     {
-        self::assertSame(AnonymousClassName::tryFromString($native)?->toStringWithoutRtdKeyCounter(), $typhoon, $message);
+        if ($name === null) {
+            return null;
+        }
+
+        return AnonymousClassName::normalizeName($name);
     }
 }

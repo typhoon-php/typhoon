@@ -2,18 +2,17 @@
 
 declare(strict_types=1);
 
-namespace Typhoon\Reflection\Reflector;
+namespace Typhoon\Reflection\PhpDocParser;
 
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
-use Typhoon\Reflection\PhpDocParser\PhpDocParser;
 use Typhoon\Reflection\ReflectionException;
 use Typhoon\Type\Type;
 use Typhoon\Type\types;
 
-#[CoversClass(PhpDocTypeReflector::class)]
-final class PhpDocTypeReflectorTest extends TestCase
+#[CoversClass(ContextualPhpDocTypeReflector::class)]
+final class ContextualPhpDocTypeReflectorTest extends TestCase
 {
     /**
      * @return \Generator<int, array{string, Type|\Throwable}>
@@ -163,11 +162,10 @@ final class PhpDocTypeReflectorTest extends TestCase
     {
         $parser = new PhpDocParser();
         $phpDocType = $parser->parsePhpDoc("/** @var {$phpDocStringType} */")->varType();
-
-        self::assertNotNull($phpDocType);
+        \assert($phpDocType !== null);
 
         try {
-            $type = PhpDocTypeReflector::reflect($phpDocType);
+            $type = (new ContextualPhpDocTypeReflector())->reflect($phpDocType);
         } catch (\Throwable $exception) {
             self::assertEquals($expectedTypeOrException, $exception);
 

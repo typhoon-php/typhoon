@@ -4,14 +4,14 @@ declare(strict_types=1);
 
 namespace Typhoon\Reflection;
 
-use Typhoon\Reflection\Reflector\ClassReflector;
+use Typhoon\Reflection\ClassReflection\ClassReflectorAwareReflection;
 use Typhoon\Reflection\TypeResolver\StaticResolver;
 use Typhoon\Reflection\TypeResolver\TemplateResolver;
 
 /**
  * @api
  */
-final class ParameterReflection
+final class ParameterReflection extends ClassReflectorAwareReflection
 {
     /**
      * @internal
@@ -38,7 +38,6 @@ final class ParameterReflection
         private TypeReflection $type,
         private readonly ?int $startLine,
         private readonly ?int $endLine,
-        private readonly ClassReflector $classReflector,
         private ?\ReflectionParameter $nativeReflection = null,
     ) {}
 
@@ -60,7 +59,7 @@ final class ParameterReflection
             return null;
         }
 
-        return $this->classReflector->reflectClass($this->class);
+        return $this->classReflector()->reflectClass($this->class);
     }
 
     public function getDeclaringFunction(): MethodReflection
@@ -69,7 +68,7 @@ final class ParameterReflection
             throw new ReflectionException();
         }
 
-        return $this->classReflector->reflectClass($this->class)->getMethod($this->functionOrMethod);
+        return $this->classReflector()->reflectClass($this->class)->getMethod($this->functionOrMethod);
     }
 
     public function canBePassedByValue(): bool
@@ -133,21 +132,6 @@ final class ParameterReflection
         return $this->deprecated;
     }
 
-    public function __serialize(): array
-    {
-        return array_diff_key(get_object_vars($this), [
-            'classReflector' => null,
-            'nativeReflection' => null,
-        ]);
-    }
-
-    public function __unserialize(array $data): void
-    {
-        foreach ($data as $name => $value) {
-            $this->{$name} = $value;
-        }
-    }
-
     /**
      * @return ?positive-int
      */
@@ -178,5 +162,17 @@ final class ParameterReflection
         $parameter->type = $this->type->resolve($typeResolver);
 
         return $parameter;
+    }
+
+    public function __serialize(): array
+    {
+        return array_diff_key(get_object_vars($this), ['nativeReflection' => null]);
+    }
+
+    public function __unserialize(array $data): void
+    {
+        foreach ($data as $name => $value) {
+            $this->{$name} = $value;
+        }
     }
 }

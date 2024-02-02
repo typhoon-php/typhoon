@@ -2,34 +2,32 @@
 
 declare(strict_types=1);
 
-namespace Typhoon\Reflection\ClassLoader;
+namespace Typhoon\Reflection\ClassLocator;
 
 use Composer\Autoload\ClassLoader as Loader;
-use Typhoon\Reflection\ClassLoader;
-use Typhoon\Reflection\ParsingContext;
+use Typhoon\Reflection\ClassLocator;
+use Typhoon\Reflection\Resource;
 
 /**
  * @api
  */
-final class ComposerClassLoader implements ClassLoader
+final class ComposerClassLocator implements ClassLocator
 {
     public static function isSupported(): bool
     {
         return class_exists(Loader::class);
     }
 
-    public function loadClass(ParsingContext $parsingContext, string $name): bool
+    public function locateClass(string $name): null|Resource|\ReflectionClass
     {
         foreach (Loader::getRegisteredLoaders() as $loader) {
             $file = $loader->findFile($name);
 
             if ($file !== false) {
-                $parsingContext->parseFile($file);
-
-                return true;
+                return new Resource($file);
             }
         }
 
-        return false;
+        return null;
     }
 }

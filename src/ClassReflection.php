@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace Typhoon\Reflection;
 
-use Typhoon\Reflection\Reflector\ClassReflector;
-use Typhoon\Reflection\Reflector\RootReflection;
+use Typhoon\Reflection\ClassReflection\ClassReflector;
+use Typhoon\Reflection\ClassReflection\ClassReflectorAwareReflection;
 use Typhoon\Reflection\TypeResolver\StaticResolver;
 use Typhoon\Reflection\TypeResolver\TemplateResolver;
 use Typhoon\Type;
@@ -14,12 +14,17 @@ use Typhoon\Type;
  * @api
  * @template-covariant T of object
  */
-final class ClassReflection implements RootReflection
+final class ClassReflection extends ClassReflectorAwareReflection
 {
     public const IS_IMPLICIT_ABSTRACT = \ReflectionClass::IS_IMPLICIT_ABSTRACT;
     public const IS_EXPLICIT_ABSTRACT = \ReflectionClass::IS_EXPLICIT_ABSTRACT;
     public const IS_FINAL = \ReflectionClass::IS_FINAL;
     public const IS_READONLY = 65536;
+
+    /**
+     * @var class-string<T>
+     */
+    public readonly string $name;
 
     /**
      * @var ?array<non-empty-string, PropertyReflection>
@@ -50,8 +55,7 @@ final class ClassReflection implements RootReflection
      * @param ?\ReflectionClass<T> $nativeReflection
      */
     public function __construct(
-        public readonly string $name,
-        private readonly ChangeDetector $changeDetector,
+        string $name,
         private readonly bool $internal,
         private readonly ?string $extensionName,
         private readonly ?string $file,
@@ -71,9 +75,10 @@ final class ClassReflection implements RootReflection
         private readonly array $ownInterfaceTypes,
         private readonly array $ownProperties,
         private readonly array $ownMethods,
-        private readonly ClassReflector $classReflector,
         private ?\ReflectionClass $nativeReflection = null,
-    ) {}
+    ) {
+        $this->name = $name;
+    }
 
     /**
      * @return class-string<T>
@@ -112,11 +117,6 @@ final class ClassReflection implements RootReflection
         }
 
         return substr($this->name, 0, $lastSlashPosition);
-    }
-
-    public function getChangeDetector(): ChangeDetector
-    {
-        return $this->changeDetector;
     }
 
     /**
@@ -332,7 +332,7 @@ final class ClassReflection implements RootReflection
         $ancestors = [];
 
         foreach ($this->ownInterfaceTypes as $ownInterfaceType) {
-            $ownInterface = $this->classReflector->reflectClass($ownInterfaceType->class);
+            $ownInterface = $this->classReflector()->reflectClass($ownInterfaceType->class);
             $interfaces[$ownInterface->name] = $ownInterface;
             $ancestors[] = $ownInterface;
         }
@@ -380,7 +380,7 @@ final class ClassReflection implements RootReflection
             return null;
         }
 
-        return $this->classReflector->reflectClass($this->parentType->class);
+        return $this->classReflector()->reflectClass($this->parentType->class);
     }
 
     /**
@@ -417,7 +417,7 @@ final class ClassReflection implements RootReflection
     public function isSubclassOf(string|self $class): bool
     {
         if (\is_string($class)) {
-            $class = $this->classReflector->reflectClass($class);
+            $class = $this->classReflector()->reflectClass($class);
         }
 
         if ($class->isInterface() && $this->implementsInterface($class)) {
@@ -629,12 +629,32 @@ final class ClassReflection implements RootReflection
         return $this->getNativeReflection()->newInstanceWithoutConstructor();
     }
 
+    /**
+     * @return \ReflectionClass<T>
+     */
+    public function getNativeReflection(): \ReflectionClass
+    {
+        return $this->nativeReflection ??= new \ReflectionClass($this->name);
+    }
+
+    /**
+     * @internal
+     * @psalm-internal Typhoon\Reflection
+     */
+    public function __initialize(ClassReflector $classReflector): void
+    {
+        parent::__initialize($classReflector);
+
+        foreach ([...$this->ownProperties, ...$this->ownMethods] as $reflection) {
+            $reflection->__initialize($classReflector);
+        }
+    }
+
     public function __serialize(): array
     {
         return array_diff_key(get_object_vars($this), [
             'propertiesIndexedByName' => null,
             'methodsIndexedByName' => null,
-            'classReflector' => null,
             'nativeReflection' => null,
         ]);
     }
@@ -651,14 +671,6 @@ final class ClassReflection implements RootReflection
         if ((debug_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS, 2)[1]['class'] ?? null) !== self::class) {
             throw new ReflectionException();
         }
-    }
-
-    /**
-     * @return \ReflectionClass<T>
-     */
-    public function getNativeReflection(): \ReflectionClass
-    {
-        return $this->nativeReflection ??= new \ReflectionClass($this->name);
     }
 
     private function resolvedTypes(TemplateResolver|StaticResolver $typeResolver): self
@@ -682,7 +694,7 @@ final class ClassReflection implements RootReflection
     private function resolveInterface(string|self $interface): self
     {
         if (\is_string($interface)) {
-            $interface = $this->classReflector->reflectClass($interface);
+            $interface = $this->classReflector()->reflectClass($interface);
         }
 
         if (!$interface->isInterface()) {
@@ -698,7 +710,7 @@ final class ClassReflection implements RootReflection
             return null;
         }
 
-        return $this->classReflector
+        return $this->classReflector()
             ->reflectClass($this->parentType->class)
             ->resolveTemplates($this->parentType->templateArguments);
     }
@@ -715,7 +727,7 @@ final class ClassReflection implements RootReflection
         }
 
         foreach ($this->ownInterfaceTypes as $interfaceType) {
-            yield $this->classReflector
+            yield $this->classReflector()
                 ->reflectClass($interfaceType->class)
                 ->resolveTemplates($interfaceType->templateArguments);
         }

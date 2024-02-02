@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Typhoon\Reflection\Reflector;
+namespace Typhoon\Reflection\PhpParserReflector;
 
 use PhpParser\Node;
 use PhpParser\Node\Expr;
@@ -14,11 +14,16 @@ use PhpParser\NodeVisitorAbstract;
 use PHPStan\PhpDocParser\Ast\Type\TypeNode;
 use Typhoon\Reflection\AttributeReflection;
 use Typhoon\Reflection\ClassReflection;
+use Typhoon\Reflection\ClassReflection\ClassReflector;
 use Typhoon\Reflection\MethodReflection;
+use Typhoon\Reflection\NameContext\AnonymousClassName;
 use Typhoon\Reflection\ParameterReflection;
+use Typhoon\Reflection\PhpDocParser\ContextualPhpDocTypeReflector;
 use Typhoon\Reflection\PhpDocParser\PhpDoc;
+use Typhoon\Reflection\PhpDocParser\PhpDocParser;
 use Typhoon\Reflection\PropertyReflection;
 use Typhoon\Reflection\ReflectionException;
+use Typhoon\Reflection\Resource;
 use Typhoon\Reflection\TemplateReflection;
 use Typhoon\Reflection\TypeContext\TypeContext;
 use Typhoon\Reflection\TypeReflection;
@@ -27,124 +32,59 @@ use Typhoon\Type\types;
 
 /**
  * @internal
- * @psalm-internal Typhoon\Reflection
+ * @psalm-internal Typhoon\Reflection\PhpParserReflector
  */
-final class PhpParserReflector
+final class ContextualPhpParserReflector
 {
-    private function __construct(
+    private ContextualPhpDocTypeReflector $phpDocTypeReflector;
+
+    public function __construct(
+        private readonly PhpDocParser $phpDocParser,
         private readonly ClassReflector $classReflector,
-        private readonly TypeContext $typeContext,
+        private TypeContext $typeContext,
         private readonly Resource $resource,
-    ) {}
-
-    /**
-     * @param class-string $name
-     */
-    public static function reflectClass(
-        ClassReflector $classReflector,
-        TypeContext $typeContext,
-        Resource $resource,
-        Stmt\ClassLike $node,
-        string $name,
-    ): ClassReflection {
-        return (new self($classReflector, $typeContext, $resource))->doReflectClass($node, $name);
+    ) {
+        $this->phpDocTypeReflector = new ContextualPhpDocTypeReflector($typeContext);
     }
 
     /**
-     * @return list<TemplateReflection>
+     * @return class-string
      */
-    private function reflectTemplatesFromContext(PhpDoc $phpDoc): array
+    public function resolveClassName(Stmt\ClassLike $node): string
     {
-        $reflections = [];
-
-        foreach ($phpDoc->templates() as $position => $node) {
-            $templateType = $this->typeContext->resolveNameAsType($node->name);
-            \assert($templateType instanceof Type\TemplateType);
-            $reflections[] = new TemplateReflection(
-                position: $position,
-                name: $node->name,
-                constraint: $templateType->constraint,
-                variance: PhpDoc::templateTagVariance($node),
-            );
+        if ($node->name !== null) {
+            return $this->typeContext->resolveNameAsClass($node->name->toString());
         }
 
-        return $reflections;
+        if (!$node instanceof Stmt\Class_) {
+            throw new ReflectionException(sprintf('Unexpected %s with null name.', $node::class));
+        }
+
+        $line = $node->getLine();
+
+        if ($line < 0) {
+            throw new ReflectionException(sprintf('Unexpected non-positive line %d for anonymous class node.', $line));
+        }
+
+        $name = new AnonymousClassName(
+            file: $this->resource->file,
+            line: $line,
+            superType: $this->resolveAnonymousClassSuperType($node),
+        );
+
+        return $name->toStringWithoutRtdKeyCounter();
     }
 
     /**
-     * @return array<non-empty-string, Type\Type>
+     * @param ?class-string $name
      */
-    private function reflectTypeAliasesFromContext(PhpDoc $phpDoc): array
+    public function reflectClass(Stmt\ClassLike $node, ?string $name = null): ClassReflection
     {
-        $typeAliases = [];
-
-        foreach ($phpDoc->typeAliases() as $typeAlias) {
-            $typeAliases[$typeAlias->alias] = $this->typeContext->resolveNameAsType($typeAlias->alias);
-        }
-
-        foreach ($phpDoc->typeAliasImports() as $typeImport) {
-            $alias = $typeImport->importedAs ?? $typeImport->importedAlias;
-            $typeAliases[$alias] = $this->typeContext->resolveNameAsType($alias);
-        }
-
-        return $typeAliases;
-    }
-
-    /**
-     * @template TReturn
-     * @param \Closure(): TReturn $action
-     * @return TReturn
-     */
-    private function executeWithTypes(Type\AtClass|Type\AtMethod $declaredAt, PhpDoc $phpDoc, \Closure $action): mixed
-    {
-        $class = match (true) {
-            $declaredAt instanceof Type\AtClass => $declaredAt->name,
-            $declaredAt instanceof Type\AtMethod => $declaredAt->class,
-            default => null,
-        };
-        $types = [];
-
-        foreach ($phpDoc->typeAliases() as $typeAlias) {
-            $types[$typeAlias->alias] = fn(): Type\Type => $this->safelyReflectPhpDocType($typeAlias->type) ?? types::mixed;
-        }
-
-        foreach ($phpDoc->typeAliasImports() as $typeImport) {
-            $alias = $typeImport->importedAs ?? $typeImport->importedAlias;
-            $types[$alias] = function () use ($class, $typeImport): Type\Type {
-                $fromClass = $this->typeContext->resolveNameAsClass($typeImport->importedFrom->name);
-
-                if ($fromClass === $class) {
-                    return $this->typeContext->resolveNameAsType($typeImport->importedAlias);
-                }
-
-                return $this
-                    ->classReflector
-                    ->reflectClass($fromClass)
-                    ->getTypeAlias($typeImport->importedAlias);
-            };
-        }
-
-        foreach ($phpDoc->templates() as $template) {
-            $types[$template->name] = fn(): Type\TemplateType => types::template(
-                name: $template->name,
-                declaredAt: $declaredAt,
-                constraint: $this->safelyReflectPhpDocType($template->bound) ?? types::mixed,
-            );
-        }
-
-        return $this->typeContext->executeWithTypes($action, $types);
-    }
-
-    /**
-     * @param class-string $name
-     */
-    private function doReflectClass(Stmt\ClassLike $node, string $name): ClassReflection
-    {
-        $phpDoc = PhpDocParsingVisitor::fromNode($node);
+        $name ??= $this->resolveClassName($node);
+        $phpDoc = $this->parsePhpDoc($node);
 
         return $this->executeWithTypes(types::atClass($name), $phpDoc, fn(): ClassReflection => new ClassReflection(
             name: $name,
-            changeDetector: $this->resource->changeDetector,
             internal: $this->resource->isInternal(),
             extensionName: $this->resource->extension,
             file: $this->resource->file,
@@ -164,8 +104,29 @@ final class PhpParserReflector
             ownInterfaceTypes: $this->reflectOwnInterfaceTypes($node, $phpDoc),
             ownProperties: $this->reflectOwnProperties(class: $name, classNode: $node),
             ownMethods: $this->reflectOwnMethods(class: $name, classNode: $node),
-            classReflector: $this->classReflector,
         ));
+    }
+
+    public function __clone()
+    {
+        $this->typeContext = clone $this->typeContext;
+        $this->phpDocTypeReflector = new ContextualPhpDocTypeReflector($this->typeContext);
+    }
+
+    /**
+     * @return ?class-string
+     */
+    private function resolveAnonymousClassSuperType(Stmt\Class_ $node): ?string
+    {
+        if ($node->extends !== null) {
+            return $this->typeContext->resolveNameAsClass($node->extends->toCodeString());
+        }
+
+        foreach ($node->implements as $interface) {
+            return $this->typeContext->resolveNameAsClass($interface->toCodeString());
+        }
+
+        return null;
     }
 
     /**
@@ -184,7 +145,6 @@ final class PhpParserReflector
             type: TypeReflection::create(native: types::string, phpDoc: types::nonEmptyString),
             startLine: null,
             endLine: null,
-            classReflector: $this->classReflector,
         );
     }
 
@@ -329,7 +289,7 @@ final class PhpParserReflector
         }
 
         foreach ($classNode->getProperties() as $node) {
-            $phpDoc = PhpDocParsingVisitor::fromNode($node);
+            $phpDoc = $this->parsePhpDoc($node);
             $type = $this->reflectType($node->type, $phpDoc->varType());
 
             foreach ($node->props as $property) {
@@ -344,7 +304,6 @@ final class PhpParserReflector
                     type: $type,
                     startLine: $node->getStartLine() > 0 ? $node->getStartLine() : null,
                     endLine: $node->getEndLine() > 0 ? $node->getEndLine() : null,
-                    classReflector: $this->classReflector,
                 );
             }
         }
@@ -355,7 +314,7 @@ final class PhpParserReflector
             return $properties;
         }
 
-        $phpDoc = PhpDocParsingVisitor::fromNode($constructorNode);
+        $phpDoc = $this->parsePhpDoc($constructorNode);
 
         foreach ($constructorNode->params as $node) {
             $modifiers = $this->reflectPromotedPropertyModifiers($node, $classReadOnly);
@@ -377,7 +336,6 @@ final class PhpParserReflector
                 type: $this->reflectType($node->type, $phpDoc->paramTypes()[$name] ?? null),
                 startLine: $node->getStartLine() > 0 ? $node->getStartLine() : null,
                 endLine: $node->getEndLine() > 0 ? $node->getEndLine() : null,
-                classReflector: $this->classReflector,
             );
         }
 
@@ -431,7 +389,7 @@ final class PhpParserReflector
 
         foreach ($classNode->getMethods() as $node) {
             $name = $node->name->name;
-            $phpDoc = PhpDocParsingVisitor::fromNode($node);
+            $phpDoc = $this->parsePhpDoc($node);
             $declaredAt = types::atMethod($class, $name);
             $methods[] = $this->executeWithTypes($declaredAt, $phpDoc, fn(): MethodReflection => new MethodReflection(
                 class: $class,
@@ -449,7 +407,6 @@ final class PhpParserReflector
                 deprecated: $phpDoc->isDeprecated(),
                 parameters: $this->reflectParameters($class, $name, $node->params, $phpDoc),
                 returnType: $this->reflectType($node->returnType, $phpDoc->returnType()),
-                classReflector: $this->classReflector,
             ));
         }
 
@@ -516,7 +473,7 @@ final class PhpParserReflector
         foreach (array_values($nodes) as $position => $node) {
             \assert($node->var instanceof Expr\Variable && \is_string($node->var->name));
             $name = $node->var->name;
-            $phpDoc = PhpDocParsingVisitor::fromNode($node);
+            $phpDoc = $this->parsePhpDoc($node);
             $isOptional = $isOptional || $node->default !== null || $node->variadic;
             $parameters[] = new ParameterReflection(
                 position: $position,
@@ -532,7 +489,6 @@ final class PhpParserReflector
                 type: $this->reflectType($node->type, $methodPhpDoc->paramTypes()[$name] ?? null),
                 startLine: $node->getStartLine() > 0 ? $node->getStartLine() : null,
                 endLine: $node->getEndLine() > 0 ? $node->getEndLine() : null,
-                classReflector: $this->classReflector,
             );
         }
 
@@ -547,15 +503,12 @@ final class PhpParserReflector
         );
     }
 
+    /**
+     * @todo Add try/catch + logging.
+     */
     private function safelyReflectNativeType(?Node $node): ?Type\Type
     {
-        try {
-            return $this->reflectNativeType($node);
-        } catch (ReflectionException) {
-            // TODO logging
-
-            return null;
-        }
+        return $this->reflectNativeType($node);
     }
 
     /**
@@ -623,19 +576,16 @@ final class PhpParserReflector
         throw new ReflectionException(sprintf('%s is not supported.', $node::class));
     }
 
+    /**
+     * @todo Add try/catch + logging.
+     */
     private function safelyReflectPhpDocType(?TypeNode $node): ?Type\Type
     {
         if ($node === null) {
             return null;
         }
 
-        try {
-            return PhpDocTypeReflector::reflect($node, $this->typeContext);
-        } catch (\Throwable) {
-            // TODO logging
-
-            return null;
-        }
+        return $this->phpDocTypeReflector->reflect($node);
     }
 
     private function isParameterPromoted(Node\Param $node): bool
@@ -661,7 +611,6 @@ final class PhpParserReflector
             type: $this->reflectType($scalarType, null),
             startLine: null,
             endLine: null,
-            classReflector: $this->classReflector,
         );
     }
 
@@ -686,7 +635,6 @@ final class PhpParserReflector
             deprecated: false,
             parameters: [],
             returnType: TypeReflection::create(types::array(), types::list(types::object($class))),
-            classReflector: $this->classReflector,
         );
     }
 
@@ -728,11 +676,9 @@ final class PhpParserReflector
                         type: $valueType,
                         startLine: null,
                         endLine: null,
-                        classReflector: $this->classReflector,
                     ),
                 ],
                 returnType: TypeReflection::create(types::array(), types::list(types::object($class))),
-                classReflector: $this->classReflector,
             ),
             new MethodReflection(
                 class: $class,
@@ -763,15 +709,109 @@ final class PhpParserReflector
                         type: $valueType,
                         startLine: null,
                         endLine: null,
-                        classReflector: $this->classReflector,
                     ),
                 ],
                 returnType: TypeReflection::create(
                     types::nullable(types::array()),
                     types::nullable(types::list(types::object($class))),
                 ),
-                classReflector: $this->classReflector,
             ),
         ];
+    }
+
+    /**
+     * @return list<TemplateReflection>
+     */
+    private function reflectTemplatesFromContext(PhpDoc $phpDoc): array
+    {
+        $reflections = [];
+
+        foreach ($phpDoc->templates() as $position => $node) {
+            $templateType = $this->typeContext->resolveNameAsType($node->name);
+            \assert($templateType instanceof Type\TemplateType);
+            $reflections[] = new TemplateReflection(
+                position: $position,
+                name: $node->name,
+                constraint: $templateType->constraint,
+                variance: PhpDoc::templateTagVariance($node),
+            );
+        }
+
+        return $reflections;
+    }
+
+    /**
+     * @return array<non-empty-string, Type\Type>
+     */
+    private function reflectTypeAliasesFromContext(PhpDoc $phpDoc): array
+    {
+        $typeAliases = [];
+
+        foreach ($phpDoc->typeAliases() as $typeAlias) {
+            $typeAliases[$typeAlias->alias] = $this->typeContext->resolveNameAsType($typeAlias->alias);
+        }
+
+        foreach ($phpDoc->typeAliasImports() as $typeImport) {
+            $alias = $typeImport->importedAs ?? $typeImport->importedAlias;
+            $typeAliases[$alias] = $this->typeContext->resolveNameAsType($alias);
+        }
+
+        return $typeAliases;
+    }
+
+    /**
+     * @template TReturn
+     * @param \Closure(): TReturn $action
+     * @return TReturn
+     */
+    private function executeWithTypes(Type\AtClass|Type\AtMethod $declaredAt, PhpDoc $phpDoc, \Closure $action): mixed
+    {
+        $class = match (true) {
+            $declaredAt instanceof Type\AtClass => $declaredAt->name,
+            $declaredAt instanceof Type\AtMethod => $declaredAt->class,
+            default => null,
+        };
+        $types = [];
+
+        foreach ($phpDoc->typeAliases() as $typeAlias) {
+            $types[$typeAlias->alias] = fn(): Type\Type => $this->safelyReflectPhpDocType($typeAlias->type) ?? types::mixed;
+        }
+
+        foreach ($phpDoc->typeAliasImports() as $typeImport) {
+            $alias = $typeImport->importedAs ?? $typeImport->importedAlias;
+            $types[$alias] = function () use ($class, $typeImport): Type\Type {
+                $fromClass = $this->typeContext->resolveNameAsClass($typeImport->importedFrom->name);
+
+                if ($fromClass === $class) {
+                    return $this->typeContext->resolveNameAsType($typeImport->importedAlias);
+                }
+
+                return $this
+                    ->classReflector
+                    ->reflectClass($fromClass)
+                    ->getTypeAlias($typeImport->importedAlias);
+            };
+        }
+
+        foreach ($phpDoc->templates() as $template) {
+            $types[$template->name] = fn(): Type\TemplateType => types::template(
+                name: $template->name,
+                declaredAt: $declaredAt,
+                constraint: $this->safelyReflectPhpDocType($template->bound) ?? types::mixed,
+            );
+        }
+
+        return $this->typeContext->executeWithTypes($action, $types);
+    }
+
+    private function parsePhpDoc(Node $node): PhpDoc
+    {
+        $text = $node->getDocComment()?->getText();
+
+        if (!$text) {
+            return PhpDoc::empty();
+        }
+
+        return $this->phpDocParser->parsePhpDoc($text);
     }
 }

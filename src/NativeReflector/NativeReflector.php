@@ -2,12 +2,9 @@
 
 declare(strict_types=1);
 
-namespace Typhoon\Reflection\Reflector;
+namespace Typhoon\Reflection\NativeReflector;
 
 use Typhoon\Reflection\AttributeReflection;
-use Typhoon\Reflection\ChangeDetector;
-use Typhoon\Reflection\ChangeDetector\FileChangeDetector;
-use Typhoon\Reflection\ChangeDetector\PhpVersionChangeDetector;
 use Typhoon\Reflection\ClassReflection;
 use Typhoon\Reflection\MethodReflection;
 use Typhoon\Reflection\ParameterReflection;
@@ -21,18 +18,17 @@ use Typhoon\Type\types;
  * @internal
  * @psalm-internal Typhoon\Reflection
  */
-final class NativeReflectionReflector
+final class NativeReflector
 {
     /**
      * @template T of object
      * @param \ReflectionClass<T> $class
      * @return ClassReflection<T>
      */
-    public function reflectClass(\ReflectionClass $class, ClassReflector $classReflector): ClassReflection
+    public function reflectClass(\ReflectionClass $class): ClassReflection
     {
         return new ClassReflection(
             name: $class->name,
-            changeDetector: $this->reflectChangeDetector($class),
             internal: $class->isInternal(),
             extensionName: $class->getExtensionName() ?: null,
             file: $class->getFileName() ?: null,
@@ -53,26 +49,10 @@ final class NativeReflectionReflector
                 static fn(string $interface): Type\NamedObjectType => types::object($interface),
                 $class->getInterfaceNames(),
             ),
-            ownProperties: $this->reflectOwnProperties($class, $classReflector),
-            ownMethods: $this->reflectOwnMethods($class, $classReflector),
-            classReflector: $classReflector,
+            ownProperties: $this->reflectOwnProperties($class),
+            ownMethods: $this->reflectOwnMethods($class),
             nativeReflection: $class,
         );
-    }
-
-    private function reflectChangeDetector(\ReflectionClass $class): ChangeDetector
-    {
-        $file = $class->getFileName();
-
-        if ($file) {
-            return FileChangeDetector::fromFile($file);
-        }
-
-        if ($class->isInternal()) {
-            return PhpVersionChangeDetector::fromExtension($class->getExtensionName() ?: null);
-        }
-
-        throw new ReflectionException();
     }
 
     private function reflectParent(\ReflectionClass $class): ?Type\NamedObjectType
@@ -89,7 +69,7 @@ final class NativeReflectionReflector
     /**
      * @return list<PropertyReflection>
      */
-    private function reflectOwnProperties(\ReflectionClass $class, ClassReflector $classReflector): array
+    private function reflectOwnProperties(\ReflectionClass $class): array
     {
         $properties = [];
 
@@ -110,7 +90,6 @@ final class NativeReflectionReflector
                     type: $this->reflectType($property->getType(), $class->name),
                     startLine: null,
                     endLine: null,
-                    classReflector: $classReflector,
                     nativeReflection: $property,
                 );
             }
@@ -122,7 +101,7 @@ final class NativeReflectionReflector
     /**
      * @return list<MethodReflection>
      */
-    private function reflectOwnMethods(\ReflectionClass $class, ClassReflector $classReflector): array
+    private function reflectOwnMethods(\ReflectionClass $class): array
     {
         $methods = [];
 
@@ -144,9 +123,8 @@ final class NativeReflectionReflector
                     returnsReference: $method->returnsReference(),
                     generator: $method->isGenerator(),
                     deprecated: $method->isDeprecated(),
-                    parameters: $this->reflectParameters($method, $class->name, $classReflector),
+                    parameters: $this->reflectParameters($method, $class->name),
                     returnType: $this->reflectType($method->getReturnType(), $class->name),
-                    classReflector: $classReflector,
                     nativeReflection: $method,
                 );
             }
@@ -159,7 +137,7 @@ final class NativeReflectionReflector
      * @param ?class-string $class
      * @return list<ParameterReflection>
      */
-    private function reflectParameters(\ReflectionFunctionAbstract $function, ?string $class, ClassReflector $classReflector): array
+    private function reflectParameters(\ReflectionFunctionAbstract $function, ?string $class): array
     {
         $parameters = [];
 
@@ -182,7 +160,6 @@ final class NativeReflectionReflector
                 type: $this->reflectType($parameter->getType(), $class),
                 startLine: null,
                 endLine: null,
-                classReflector: $classReflector,
                 nativeReflection: $parameter,
             );
         }

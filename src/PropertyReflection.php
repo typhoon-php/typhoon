@@ -4,14 +4,14 @@ declare(strict_types=1);
 
 namespace Typhoon\Reflection;
 
-use Typhoon\Reflection\Reflector\ClassReflector;
+use Typhoon\Reflection\ClassReflection\ClassReflectorAwareReflection;
 use Typhoon\Reflection\TypeResolver\StaticResolver;
 use Typhoon\Reflection\TypeResolver\TemplateResolver;
 
 /**
  * @api
  */
-final class PropertyReflection
+final class PropertyReflection extends ClassReflectorAwareReflection
 {
     public const IS_PUBLIC = \ReflectionProperty::IS_PUBLIC;
     public const IS_PROTECTED = \ReflectionProperty::IS_PROTECTED;
@@ -41,7 +41,6 @@ final class PropertyReflection
         private TypeReflection $type,
         private readonly ?int $startLine,
         private readonly ?int $endLine,
-        private readonly ClassReflector $classReflector,
         private ?\ReflectionProperty $nativeReflection = null,
     ) {}
 
@@ -59,7 +58,7 @@ final class PropertyReflection
 
     public function getDeclaringClass(): ClassReflection
     {
-        return $this->classReflector->reflectClass($this->class);
+        return $this->classReflector()->reflectClass($this->class);
     }
 
     public function getDefaultValue(): mixed
@@ -172,12 +171,22 @@ final class PropertyReflection
         return $this->endLine;
     }
 
+    public function getNativeReflection(): \ReflectionProperty
+    {
+        return $this->nativeReflection ??= new \ReflectionProperty($this->class, $this->name);
+    }
+
+    public function resolveTypes(TemplateResolver|StaticResolver $typeResolver): self
+    {
+        $property = clone $this;
+        $property->type = $this->type->resolve($typeResolver);
+
+        return $property;
+    }
+
     public function __serialize(): array
     {
-        return array_diff_key(get_object_vars($this), [
-            'classReflector' => null,
-            'nativeReflection' => null,
-        ]);
+        return array_diff_key(get_object_vars($this), ['nativeReflection' => null]);
     }
 
     public function __unserialize(array $data): void
@@ -192,18 +201,5 @@ final class PropertyReflection
         if ((debug_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS, 2)[1]['class'] ?? null) !== self::class) {
             throw new ReflectionException();
         }
-    }
-
-    public function getNativeReflection(): \ReflectionProperty
-    {
-        return $this->nativeReflection ??= new \ReflectionProperty($this->class, $this->name);
-    }
-
-    public function resolveTypes(TemplateResolver|StaticResolver $typeResolver): self
-    {
-        $property = clone $this;
-        $property->type = $this->type->resolve($typeResolver);
-
-        return $property;
     }
 }

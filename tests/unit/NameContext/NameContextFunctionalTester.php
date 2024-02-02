@@ -5,8 +5,9 @@ declare(strict_types=1);
 namespace Typhoon\Reflection\NameContext;
 
 use PhpParser\Node;
+use PhpParser\NodeTraverser;
 use PhpParser\NodeVisitorAbstract;
-use Typhoon\Reflection\PhpParser\PhpParser;
+use PhpParser\ParserFactory;
 use function PHPUnit\Framework\assertEmpty;
 use function PHPUnit\Framework\assertSame;
 
@@ -44,10 +45,11 @@ final class NameContextFunctionalTester extends NodeVisitorAbstract
             self::$instance = null;
         }
 
-        (new PhpParser())->parseAndTraverse(file_get_contents($file), [
-            new NameContextVisitor($nameContext),
-            $visitor,
-        ]);
+        $phpParser = (new ParserFactory())->createForHostVersion();
+        $traverser = new NodeTraverser();
+        $traverser->addVisitor(new NameContextVisitor($nameContext));
+        $traverser->addVisitor($visitor);
+        $traverser->traverse($phpParser->parse(file_get_contents($file)) ?? throw new \LogicException());
 
         assertEmpty($visitor->expectedValues);
     }

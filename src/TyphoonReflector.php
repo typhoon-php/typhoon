@@ -4,76 +4,80 @@ declare(strict_types=1);
 
 namespace Typhoon\Reflection;
 
+use PhpParser\Parser as PhpParser;
+use PhpParser\ParserFactory;
 use Psr\SimpleCache\CacheInterface;
-use Typhoon\Reflection\ClassLoader\ClassLoaderChain;
-use Typhoon\Reflection\ClassLoader\ComposerClassLoader;
-use Typhoon\Reflection\ClassLoader\NativeReflectionClassLoader;
-use Typhoon\Reflection\ClassLoader\PhpStormStubsClassLoader;
+use Typhoon\Reflection\ClassLocator\AnonymousClassLocator;
+use Typhoon\Reflection\ClassLocator\ClassLocatorChain;
+use Typhoon\Reflection\ClassLocator\ComposerClassLocator;
+use Typhoon\Reflection\ClassLocator\NativeReflectionLocator;
+use Typhoon\Reflection\ClassLocator\PhpStormStubsClassLocator;
+use Typhoon\Reflection\ClassReflection\ClassReflector;
+use Typhoon\Reflection\NativeReflector\NativeReflector;
 use Typhoon\Reflection\PhpDocParser\PhpDocParser;
 use Typhoon\Reflection\PhpDocParser\PHPStanOverPsalmOverOthersTagPrioritizer;
 use Typhoon\Reflection\PhpDocParser\TagPrioritizer;
-use Typhoon\Reflection\PhpParser\PhpParser;
-use Typhoon\Reflection\Reflector\Cache\ChangeDetectingReflectionCache;
-use Typhoon\Reflection\Reflector\Cache\NullReflectionCache;
-use Typhoon\Reflection\Reflector\Cache\SimpleReflectionCache;
-use Typhoon\Reflection\Reflector\Context;
+use Typhoon\Reflection\PhpParserReflector\PhpParserReflector;
+use Typhoon\Reflection\ReflectionStorage\ChangeDetector;
+use Typhoon\Reflection\ReflectionStorage\ReflectionStorage;
 
 /**
  * @api
  */
-final class TyphoonReflector
+final class TyphoonReflector implements ClassReflector
 {
+    /**
+     * @var array<non-empty-string, true>
+     */
+    private array $reflectedResources = [];
+
     private function __construct(
-        private readonly Context $context,
+        private readonly ReflectionStorage $reflectionStorage,
+        private readonly PhpParserReflector $phpParserReflector,
+        private readonly NativeReflector $nativeReflector,
+        private readonly ClassLocator $classLocator,
     ) {}
 
     /**
-     * @param ?array<ClassLoader> $classLoaders
+     * @param ?array<ClassLocator> $classLocators
      */
     public static function build(
         ?CacheInterface $cache = null,
         bool $detectChanges = true,
-        ?array $classLoaders = null,
+        ?array $classLocators = null,
         TagPrioritizer $tagPrioritizer = new PHPStanOverPsalmOverOthersTagPrioritizer(),
+        ?PhpParser $phpParser = null,
     ): self {
-        $classLoaders ??= self::defaultClassLoaders();
-
-        if ($cache === null) {
-            $reflectionCache = new NullReflectionCache();
-        } else {
-            $reflectionCache = new SimpleReflectionCache($cache);
-
-            if ($detectChanges) {
-                $reflectionCache = new ChangeDetectingReflectionCache($reflectionCache);
-            }
-        }
-
-        return new self(new Context(
-            classLoader: new ClassLoaderChain($classLoaders),
-            phpParser: new PhpParser(),
-            phpDocParser: new PhpDocParser($tagPrioritizer),
-            cache: $reflectionCache,
-        ));
+        return new self(
+            reflectionStorage: new ReflectionStorage($cache, $detectChanges),
+            phpParserReflector: new PhpParserReflector(
+                phpParser: $phpParser ?? (new ParserFactory())->createForNewestSupportedVersion(),
+                phpDocParser: new PhpDocParser($tagPrioritizer),
+            ),
+            nativeReflector: new NativeReflector(),
+            classLocator: new ClassLocatorChain($classLocators ?? self::defaultClassLocators()),
+        );
     }
 
     /**
-     * @return list<ClassLoader>
+     * @return non-empty-list<ClassLocator>
      */
-    public static function defaultClassLoaders(): array
+    public static function defaultClassLocators(): array
     {
-        $classLoaders = [];
+        $classLocators = [];
 
-        if (ComposerClassLoader::isSupported()) {
-            $classLoaders[] = new ComposerClassLoader();
+        if (ComposerClassLocator::isSupported()) {
+            $classLocators[] = new ComposerClassLocator();
         }
 
-        if (PhpStormStubsClassLoader::isSupported()) {
-            $classLoaders[] = new PhpStormStubsClassLoader();
+        if (PhpStormStubsClassLocator::isSupported()) {
+            $classLocators[] = new PhpStormStubsClassLocator();
         }
 
-        $classLoaders[] = new NativeReflectionClassLoader();
+        $classLocators[] = new AnonymousClassLocator();
+        $classLocators[] = new NativeReflectionLocator();
 
-        return $classLoaders;
+        return $classLocators;
     }
 
     /**
@@ -81,28 +85,72 @@ final class TyphoonReflector
      */
     public function classExists(string $name): bool
     {
-        return $this->context->classExists($name);
+        if ($name === '') {
+            return false;
+        }
+
+        if (class_exists($name, false) || interface_exists($name, false) || trait_exists($name, false)) {
+            return true;
+        }
+
+        /** @var non-empty-string $name */
+        return $this->reflectionStorage->exists(
+            class: ClassReflection::class,
+            name: $name,
+            loader: function () use ($name): void { $this->loadClass($name); },
+        );
     }
 
     /**
-     * @template T of object
-     * @param string|class-string<T> $name
-     * @psalm-assert class-string $name
-     * @return ClassReflection<T>
+     * @psalm-suppress InvalidReturnType, InvalidReturnStatement
      */
-    public function reflectClass(string $name): ClassReflection
+    public function reflectClass(string|object $nameOrObject): ClassReflection
     {
-        /** @var ClassReflection<T> */
-        return $this->context->reflectClass($name);
+        if (\is_object($nameOrObject)) {
+            $name = $nameOrObject::class;
+        } else {
+            \assert($nameOrObject !== '');
+            $name = $nameOrObject;
+        }
+
+        $reflection = $this->reflectionStorage->get(
+            class: ClassReflection::class,
+            name: $name,
+            loader: function () use ($name): void { $this->loadClass($name); },
+        );
+        $reflection->__initialize($this);
+
+        return $reflection;
     }
 
     /**
-     * @template T of object
-     * @param T $object
-     * @return ClassReflection<T>
+     * @param non-empty-string $name
      */
-    public function reflectObject(object $object): ClassReflection
+    private function loadClass(string $name): void
     {
-        return $this->context->reflectClass($object::class);
+        $location = $this->classLocator->locateClass($name);
+
+        if ($location instanceof Resource) {
+            $this->reflectResource($location);
+
+            return;
+        }
+
+        if ($location instanceof \ReflectionClass) {
+            $this->reflectionStorage->setReflector(
+                class: ClassReflection::class,
+                name: $name,
+                reflector: fn(): ClassReflection => $this->nativeReflector->reflectClass($location),
+                changeDetector: ChangeDetector::fromReflection($location),
+            );
+        }
+    }
+
+    private function reflectResource(Resource $resource): void
+    {
+        if (!isset($this->reflectedResources[$resource->file])) {
+            $this->phpParserReflector->reflectResource($resource, $this->reflectionStorage, $this);
+            $this->reflectedResources[$resource->file] = true;
+        }
     }
 }
