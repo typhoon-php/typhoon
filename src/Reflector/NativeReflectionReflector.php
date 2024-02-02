@@ -28,7 +28,7 @@ final class NativeReflectionReflector
      * @param \ReflectionClass<T> $class
      * @return ClassReflection<T>
      */
-    public function reflectClass(\ReflectionClass $class): ClassReflection
+    public function reflectClass(\ReflectionClass $class, ClassReflector $classReflector): ClassReflection
     {
         return new ClassReflection(
             name: $class->name,
@@ -53,8 +53,9 @@ final class NativeReflectionReflector
                 static fn(string $interface): Type\NamedObjectType => types::object($interface),
                 $class->getInterfaceNames(),
             ),
-            ownProperties: $this->reflectOwnProperties($class),
-            ownMethods: $this->reflectOwnMethods($class),
+            ownProperties: $this->reflectOwnProperties($class, $classReflector),
+            ownMethods: $this->reflectOwnMethods($class, $classReflector),
+            classReflector: $classReflector,
             nativeReflection: $class,
         );
     }
@@ -88,7 +89,7 @@ final class NativeReflectionReflector
     /**
      * @return list<PropertyReflection>
      */
-    private function reflectOwnProperties(\ReflectionClass $class): array
+    private function reflectOwnProperties(\ReflectionClass $class, ClassReflector $classReflector): array
     {
         $properties = [];
 
@@ -109,6 +110,7 @@ final class NativeReflectionReflector
                     type: $this->reflectType($property->getType(), $class->name),
                     startLine: null,
                     endLine: null,
+                    classReflector: $classReflector,
                     nativeReflection: $property,
                 );
             }
@@ -120,7 +122,7 @@ final class NativeReflectionReflector
     /**
      * @return list<MethodReflection>
      */
-    private function reflectOwnMethods(\ReflectionClass $class): array
+    private function reflectOwnMethods(\ReflectionClass $class, ClassReflector $classReflector): array
     {
         $methods = [];
 
@@ -142,8 +144,9 @@ final class NativeReflectionReflector
                     returnsReference: $method->returnsReference(),
                     generator: $method->isGenerator(),
                     deprecated: $method->isDeprecated(),
-                    parameters: $this->reflectParameters($method, $class->name),
+                    parameters: $this->reflectParameters($method, $class->name, $classReflector),
                     returnType: $this->reflectType($method->getReturnType(), $class->name),
+                    classReflector: $classReflector,
                     nativeReflection: $method,
                 );
             }
@@ -156,7 +159,7 @@ final class NativeReflectionReflector
      * @param ?class-string $class
      * @return list<ParameterReflection>
      */
-    private function reflectParameters(\ReflectionFunctionAbstract $function, ?string $class): array
+    private function reflectParameters(\ReflectionFunctionAbstract $function, ?string $class, ClassReflector $classReflector): array
     {
         $parameters = [];
 
@@ -179,6 +182,7 @@ final class NativeReflectionReflector
                 type: $this->reflectType($parameter->getType(), $class),
                 startLine: null,
                 endLine: null,
+                classReflector: $classReflector,
                 nativeReflection: $parameter,
             );
         }

@@ -5,14 +5,13 @@ declare(strict_types=1);
 namespace Typhoon\Reflection;
 
 use Typhoon\Reflection\Reflector\ClassReflector;
-use Typhoon\Reflection\Reflector\ClassReflectorAwareReflection;
 use Typhoon\Reflection\TypeResolver\StaticResolver;
 use Typhoon\Reflection\TypeResolver\TemplateResolver;
 
 /**
  * @api
  */
-final class MethodReflection extends ClassReflectorAwareReflection
+final class MethodReflection
 {
     public const IS_FINAL = \ReflectionMethod::IS_FINAL;
     public const IS_ABSTRACT = \ReflectionMethod::IS_ABSTRACT;
@@ -53,6 +52,7 @@ final class MethodReflection extends ClassReflectorAwareReflection
         private array $parameters,
         /** @readonly */
         private TypeReflection $returnType,
+        private readonly ClassReflector $classReflector,
         private ?\ReflectionMethod $nativeReflection = null,
     ) {}
 
@@ -85,7 +85,7 @@ final class MethodReflection extends ClassReflectorAwareReflection
 
     public function getDeclaringClass(): ClassReflection
     {
-        return $this->classReflector()->reflectClass($this->class);
+        return $this->classReflector->reflectClass($this->class);
     }
 
     /**
@@ -382,7 +382,10 @@ final class MethodReflection extends ClassReflectorAwareReflection
 
     public function __serialize(): array
     {
-        return array_diff_key(get_object_vars($this), ['nativeReflection' => null]);
+        return array_diff_key(get_object_vars($this), [
+            'classReflector' => null,
+            'nativeReflection' => null,
+        ]);
     }
 
     public function __unserialize(array $data): void
@@ -414,14 +417,5 @@ final class MethodReflection extends ClassReflectorAwareReflection
         $method->returnType = $method->returnType->resolve($typeResolver);
 
         return $method;
-    }
-
-    protected function setClassReflector(ClassReflector $classReflector): void
-    {
-        parent::setClassReflector($classReflector);
-
-        foreach ($this->parameters as $parameter) {
-            $parameter->setClassReflector($classReflector);
-        }
     }
 }

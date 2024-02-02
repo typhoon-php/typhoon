@@ -14,6 +14,7 @@ use Typhoon\Reflection\ParsingContext;
 use Typhoon\Reflection\PhpDocParser\PhpDocParser;
 use Typhoon\Reflection\PhpParser\PhpParser;
 use Typhoon\Reflection\ReflectionException;
+use Typhoon\Reflection\Reflector\Cache\ClassReflectorSetter;
 use Typhoon\Reflection\Reflector\Cache\NullReflectionCache;
 use Typhoon\Reflection\TypeContext\ClassExistenceChecker;
 use Typhoon\Reflection\TypeContext\TypeContext;
@@ -31,7 +32,7 @@ final class Context implements ParsingContext, ClassReflector, ClassExistenceChe
     private array $parsedFiles = [];
 
     /**
-     * @var array<class-string<RootReflection>, array<non-empty-string, false|RootReflection|callable(): RootReflection>> false is used during parsing
+     * @var array<class-string<RootReflection>, array<non-empty-string, false|RootReflection|callable(ClassReflector): RootReflection>> false is used during parsing
      */
     private array $reflections = [];
 
@@ -69,7 +70,6 @@ final class Context implements ParsingContext, ClassReflector, ClassExistenceChe
             new PhpDocParsingVisitor($this->phpDocParser),
             new NameContextVisitor($nameContext),
             new DiscoveringVisitor(
-                classReflector: $this,
                 parsingContext: $this,
                 typeContext: new TypeContext($nameContext, $this),
                 resource: $resource,
@@ -159,7 +159,7 @@ final class Context implements ParsingContext, ClassReflector, ClassExistenceChe
         $cachedReflection = $this->cache->getReflection($class, $name);
 
         if ($cachedReflection !== null) {
-            $this->initializeReflection($cachedReflection);
+            ClassReflectorSetter::set($cachedReflection, $this);
 
             /** @var TReflection */
             return $this->reflections[$class][$name] = $cachedReflection;
@@ -198,21 +198,13 @@ final class Context implements ParsingContext, ClassReflector, ClassExistenceChe
 
         if (\is_callable($reflection)) {
             /** @var TReflection */
-            $reflection = $reflection();
-            $this->initializeReflection($reflection);
+            $reflection = $reflection($this);
             $this->cache->addReflection($reflection);
 
             return $this->reflections[$class][$name] = $reflection;
         }
 
         return false;
-    }
-
-    private function initializeReflection(RootReflection $reflection): void
-    {
-        if ($reflection instanceof ClassReflection) {
-            $reflection->setClassReflector($this);
-        }
     }
 
     private function __clone() {}

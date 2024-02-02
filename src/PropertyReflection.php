@@ -4,14 +4,14 @@ declare(strict_types=1);
 
 namespace Typhoon\Reflection;
 
-use Typhoon\Reflection\Reflector\ClassReflectorAwareReflection;
+use Typhoon\Reflection\Reflector\ClassReflector;
 use Typhoon\Reflection\TypeResolver\StaticResolver;
 use Typhoon\Reflection\TypeResolver\TemplateResolver;
 
 /**
  * @api
  */
-final class PropertyReflection extends ClassReflectorAwareReflection
+final class PropertyReflection
 {
     public const IS_PUBLIC = \ReflectionProperty::IS_PUBLIC;
     public const IS_PROTECTED = \ReflectionProperty::IS_PROTECTED;
@@ -41,6 +41,7 @@ final class PropertyReflection extends ClassReflectorAwareReflection
         private TypeReflection $type,
         private readonly ?int $startLine,
         private readonly ?int $endLine,
+        private readonly ClassReflector $classReflector,
         private ?\ReflectionProperty $nativeReflection = null,
     ) {}
 
@@ -58,7 +59,7 @@ final class PropertyReflection extends ClassReflectorAwareReflection
 
     public function getDeclaringClass(): ClassReflection
     {
-        return $this->classReflector()->reflectClass($this->class);
+        return $this->classReflector->reflectClass($this->class);
     }
 
     public function getDefaultValue(): mixed
@@ -173,7 +174,10 @@ final class PropertyReflection extends ClassReflectorAwareReflection
 
     public function __serialize(): array
     {
-        return array_diff_key(get_object_vars($this), ['nativeReflection' => null]);
+        return array_diff_key(get_object_vars($this), [
+            'classReflector' => null,
+            'nativeReflection' => null,
+        ]);
     }
 
     public function __unserialize(array $data): void

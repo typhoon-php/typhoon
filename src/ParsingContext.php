@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace Typhoon\Reflection;
 
+use Typhoon\Reflection\Reflector\ClassReflector;
+
 /**
  * @api
  */
@@ -13,7 +15,7 @@ interface ParsingContext
 
     /**
      * @param non-empty-string $name
-     * @param callable(): ClassReflection $reflector
+     * @param callable(ClassReflector): ClassReflection $reflector
      */
     public function registerClassReflector(string $name, callable $reflector): void;
 }

@@ -164,6 +164,7 @@ final class PhpParserReflector
             ownInterfaceTypes: $this->reflectOwnInterfaceTypes($node, $phpDoc),
             ownProperties: $this->reflectOwnProperties(class: $name, classNode: $node),
             ownMethods: $this->reflectOwnMethods(class: $name, classNode: $node),
+            classReflector: $this->classReflector,
         ));
     }
 
@@ -183,6 +184,7 @@ final class PhpParserReflector
             type: TypeReflection::create(native: types::string, phpDoc: types::nonEmptyString),
             startLine: null,
             endLine: null,
+            classReflector: $this->classReflector,
         );
     }
 
@@ -342,6 +344,7 @@ final class PhpParserReflector
                     type: $type,
                     startLine: $node->getStartLine() > 0 ? $node->getStartLine() : null,
                     endLine: $node->getEndLine() > 0 ? $node->getEndLine() : null,
+                    classReflector: $this->classReflector,
                 );
             }
         }
@@ -374,6 +377,7 @@ final class PhpParserReflector
                 type: $this->reflectType($node->type, $phpDoc->paramTypes()[$name] ?? null),
                 startLine: $node->getStartLine() > 0 ? $node->getStartLine() : null,
                 endLine: $node->getEndLine() > 0 ? $node->getEndLine() : null,
+                classReflector: $this->classReflector,
             );
         }
 
@@ -445,6 +449,7 @@ final class PhpParserReflector
                 deprecated: $phpDoc->isDeprecated(),
                 parameters: $this->reflectParameters($class, $name, $node->params, $phpDoc),
                 returnType: $this->reflectType($node->returnType, $phpDoc->returnType()),
+                classReflector: $this->classReflector,
             ));
         }
 
@@ -527,6 +532,7 @@ final class PhpParserReflector
                 type: $this->reflectType($node->type, $methodPhpDoc->paramTypes()[$name] ?? null),
                 startLine: $node->getStartLine() > 0 ? $node->getStartLine() : null,
                 endLine: $node->getEndLine() > 0 ? $node->getEndLine() : null,
+                classReflector: $this->classReflector,
             );
         }
 
@@ -655,6 +661,7 @@ final class PhpParserReflector
             type: $this->reflectType($scalarType, null),
             startLine: null,
             endLine: null,
+            classReflector: $this->classReflector,
         );
     }
 
@@ -679,6 +686,7 @@ final class PhpParserReflector
             deprecated: false,
             parameters: [],
             returnType: TypeReflection::create(types::array(), types::list(types::object($class))),
+            classReflector: $this->classReflector,
         );
     }
 
@@ -720,9 +728,11 @@ final class PhpParserReflector
                         type: $valueType,
                         startLine: null,
                         endLine: null,
+                        classReflector: $this->classReflector,
                     ),
                 ],
                 returnType: TypeReflection::create(types::array(), types::list(types::object($class))),
+                classReflector: $this->classReflector,
             ),
             new MethodReflection(
                 class: $class,
@@ -753,12 +763,14 @@ final class PhpParserReflector
                         type: $valueType,
                         startLine: null,
                         endLine: null,
+                        classReflector: $this->classReflector,
                     ),
                 ],
                 returnType: TypeReflection::create(
                     types::nullable(types::array()),
                     types::nullable(types::list(types::object($class))),
                 ),
+                classReflector: $this->classReflector,
             ),
         ];
     }
