@@ -27,9 +27,4 @@ final class Resource
         $this->extension = $extension;
         $this->file = $file;
     }
-
-    public function isInternal(): bool
-    {
-        return $this->extension !== null;
-    }
 }

@@ -7,7 +7,9 @@ namespace Typhoon\Reflection\PhpParserReflector;
 use PhpParser\NodeTraverser;
 use PhpParser\NodeVisitor;
 use PhpParser\Parser as PhpParser;
+use Typhoon\Reflection\ClassReflection;
 use Typhoon\Reflection\ClassReflection\ClassReflector;
+use Typhoon\Reflection\NameContext\AnonymousClassName;
 use Typhoon\Reflection\NameContext\NameContext;
 use Typhoon\Reflection\NameContext\NameContextVisitor;
 use Typhoon\Reflection\PhpDocParser\PhpDocParser;
@@ -38,16 +40,34 @@ final class PhpParserReflector
             phpDocParser: $this->phpDocParser,
             classReflector: $classReflector,
             typeContext: $typeContext,
-            resource: $resource,
+            file: $resource->file,
+            extension: $resource->extension,
         );
         $this->parseAndTraverse($contents, [
             new NameContextVisitor($nameContext),
-            new ReflectResourceVisitor(
+            new ResourceVisitor(
                 reflectionStorage: $reflectionStorage,
                 reflector: $reflector,
                 changeDetector: ChangeDetector::fromFile($resource->file, $contents),
             ),
         ]);
+    }
+
+    public function reflectAnonymousClass(AnonymousClassName $name, ClassReflector $classReflector): ClassReflection
+    {
+        $contents = exceptionally(static fn(): string|false => file_get_contents($name->file));
+        $nameContext = new NameContext();
+        $visitor = new FindAnonymousClassVisitor($name);
+        $this->parseAndTraverse($contents, [new NameContextVisitor($nameContext), $visitor]);
+        $node = $visitor->node();
+        $reflector = new ContextualPhpParserReflector(
+            phpDocParser: $this->phpDocParser,
+            classReflector: $classReflector,
+            typeContext: new TypeContext($nameContext),
+            file: $name->file,
+        );
+
+        return $reflector->reflectClass($node, $name->name);
     }
 
     /**

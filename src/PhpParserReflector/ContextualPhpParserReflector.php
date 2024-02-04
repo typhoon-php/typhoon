@@ -16,14 +16,12 @@ use Typhoon\Reflection\AttributeReflection;
 use Typhoon\Reflection\ClassReflection;
 use Typhoon\Reflection\ClassReflection\ClassReflector;
 use Typhoon\Reflection\MethodReflection;
-use Typhoon\Reflection\NameContext\AnonymousClassName;
 use Typhoon\Reflection\ParameterReflection;
 use Typhoon\Reflection\PhpDocParser\ContextualPhpDocTypeReflector;
 use Typhoon\Reflection\PhpDocParser\PhpDoc;
 use Typhoon\Reflection\PhpDocParser\PhpDocParser;
 use Typhoon\Reflection\PropertyReflection;
 use Typhoon\Reflection\ReflectionException;
-use Typhoon\Reflection\Resource;
 use Typhoon\Reflection\TemplateReflection;
 use Typhoon\Reflection\TypeContext\TypeContext;
 use Typhoon\Reflection\TypeReflection;
@@ -38,56 +36,45 @@ final class ContextualPhpParserReflector
 {
     private ContextualPhpDocTypeReflector $phpDocTypeReflector;
 
+    private bool $internal;
+
+    /**
+     * @param non-empty-string $file
+     * @param ?non-empty-string $extension
+     */
     public function __construct(
         private readonly PhpDocParser $phpDocParser,
         private readonly ClassReflector $classReflector,
         private TypeContext $typeContext,
-        private readonly Resource $resource,
+        private readonly string $file,
+        private readonly ?string $extension = null,
     ) {
         $this->phpDocTypeReflector = new ContextualPhpDocTypeReflector($typeContext);
+        $this->internal = $extension !== null;
     }
 
     /**
      * @return class-string
      */
-    public function resolveClassName(Stmt\ClassLike $node): string
+    public function resolveClassName(Node\Identifier $name): string
     {
-        if ($node->name !== null) {
-            return $this->typeContext->resolveNameAsClass($node->name->toString());
-        }
-
-        if (!$node instanceof Stmt\Class_) {
-            throw new ReflectionException(sprintf('Unexpected %s with null name.', $node::class));
-        }
-
-        $line = $node->getLine();
-
-        if ($line < 0) {
-            throw new ReflectionException(sprintf('Unexpected non-positive line %d for anonymous class node.', $line));
-        }
-
-        $name = new AnonymousClassName(
-            file: $this->resource->file,
-            line: $line,
-            superType: $this->resolveAnonymousClassSuperType($node),
-        );
-
-        return $name->toStringWithoutRtdKeyCounter();
+        return $this->typeContext->resolveNameAsClass($name->name);
     }
 
     /**
-     * @param ?class-string $name
+     * @template TObject of object
+     * @param class-string<TObject> $name
+     * @return ClassReflection<TObject>
      */
-    public function reflectClass(Stmt\ClassLike $node, ?string $name = null): ClassReflection
+    public function reflectClass(Stmt\ClassLike $node, string $name): ClassReflection
     {
-        $name ??= $this->resolveClassName($node);
         $phpDoc = $this->parsePhpDoc($node);
 
         return $this->executeWithTypes(types::atClass($name), $phpDoc, fn(): ClassReflection => new ClassReflection(
             name: $name,
-            internal: $this->resource->isInternal(),
-            extensionName: $this->resource->extension,
-            file: $this->resource->file,
+            internal: $this->internal,
+            extensionName: $this->extension,
+            file: $this->file,
             startLine: $node->getStartLine() > 0 ? $node->getStartLine() : null,
             endLine: $node->getEndLine() > 0 ? $node->getEndLine() : null,
             docComment: $this->reflectDocComment($node),
@@ -111,22 +98,6 @@ final class ContextualPhpParserReflector
     {
         $this->typeContext = clone $this->typeContext;
         $this->phpDocTypeReflector = new ContextualPhpDocTypeReflector($this->typeContext);
-    }
-
-    /**
-     * @return ?class-string
-     */
-    private function resolveAnonymousClassSuperType(Stmt\Class_ $node): ?string
-    {
-        if ($node->extends !== null) {
-            return $this->typeContext->resolveNameAsClass($node->extends->toCodeString());
-        }
-
-        foreach ($node->implements as $interface) {
-            return $this->typeContext->resolveNameAsClass($interface->toCodeString());
-        }
-
-        return null;
     }
 
     /**
@@ -397,9 +368,9 @@ final class ContextualPhpParserReflector
                 templates: $this->reflectTemplatesFromContext($phpDoc),
                 modifiers: $this->reflectMethodModifiers($node, $interface),
                 docComment: $this->reflectDocComment($node),
-                internal: $this->resource->isInternal(),
-                extensionName: $this->resource->extension,
-                file: $this->resource->file,
+                internal: $this->internal,
+                extensionName: $this->extension,
+                file: $this->file,
                 startLine: $node->getStartLine() > 0 ? $node->getStartLine() : null,
                 endLine: $node->getEndLine() > 0 ? $node->getEndLine() : null,
                 returnsReference: $node->byRef,
@@ -426,7 +397,7 @@ final class ContextualPhpParserReflector
      */
     private function reflectDocComment(Node $node): ?string
     {
-        if ($this->resource->isInternal()) {
+        if ($this->internal) {
             return null;
         }
 

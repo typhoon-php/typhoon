@@ -7,12 +7,12 @@ namespace Typhoon\Reflection;
 use PhpParser\Parser as PhpParser;
 use PhpParser\ParserFactory;
 use Psr\SimpleCache\CacheInterface;
-use Typhoon\Reflection\ClassLocator\AnonymousClassLocator;
 use Typhoon\Reflection\ClassLocator\ClassLocatorChain;
 use Typhoon\Reflection\ClassLocator\ComposerClassLocator;
 use Typhoon\Reflection\ClassLocator\NativeReflectionLocator;
 use Typhoon\Reflection\ClassLocator\PhpStormStubsClassLocator;
 use Typhoon\Reflection\ClassReflection\ClassReflector;
+use Typhoon\Reflection\NameContext\AnonymousClassName;
 use Typhoon\Reflection\NativeReflector\NativeReflector;
 use Typhoon\Reflection\PhpDocParser\PhpDocParser;
 use Typhoon\Reflection\PhpDocParser\PHPStanOverPsalmOverOthersTagPrioritizer;
@@ -74,7 +74,6 @@ final class TyphoonReflector implements ClassReflector
             $classLocators[] = new PhpStormStubsClassLocator();
         }
 
-        $classLocators[] = new AnonymousClassLocator();
         $classLocators[] = new NativeReflectionLocator();
 
         return $classLocators;
@@ -91,6 +90,10 @@ final class TyphoonReflector implements ClassReflector
 
         if (class_exists($name, false) || interface_exists($name, false) || trait_exists($name, false)) {
             return true;
+        }
+
+        if (str_contains($name, '@')) {
+            return false;
         }
 
         /** @var non-empty-string $name */
@@ -111,6 +114,15 @@ final class TyphoonReflector implements ClassReflector
         } else {
             \assert($nameOrObject !== '');
             $name = $nameOrObject;
+        }
+
+        $anonymousName = AnonymousClassName::tryFromString($name);
+
+        if ($anonymousName !== null) {
+            $reflection = $this->phpParserReflector->reflectAnonymousClass($anonymousName, $this);
+            $reflection->__initialize($this);
+
+            return $reflection;
         }
 
         $reflection = $this->reflectionStorage->get(

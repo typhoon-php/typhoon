@@ -15,7 +15,7 @@ use Typhoon\Reflection\ReflectionStorage\ReflectionStorage;
  * @internal
  * @psalm-internal Typhoon\Reflection\PhpParserReflector
  */
-final class ReflectResourceVisitor extends NodeVisitorAbstract
+final class ResourceVisitor extends NodeVisitorAbstract
 {
     public function __construct(
         private readonly ReflectionStorage $reflectionStorage,
@@ -25,8 +25,8 @@ final class ReflectResourceVisitor extends NodeVisitorAbstract
 
     public function enterNode(Node $node): ?int
     {
-        if ($node instanceof ClassLike) {
-            $name = $this->reflector->resolveClassName($node);
+        if ($node instanceof ClassLike && $node->name !== null) {
+            $name = $this->reflector->resolveClassName($node->name);
             $reflector = clone $this->reflector;
             $this->reflectionStorage->setReflector(
                 class: ClassReflection::class,

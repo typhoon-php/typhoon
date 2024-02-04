@@ -4,42 +4,34 @@ declare(strict_types=1);
 
 namespace Typhoon\Reflection\NameContext;
 
-use Typhoon\Reflection\ReflectionException;
-
 /**
  * @internal
  * @psalm-internal Typhoon\Reflection
  * @psalm-immutable
+ * @template TObject of object
+ * @psalm-suppress PossiblyUnusedProperty
  */
 final class AnonymousClassName
 {
     /**
+     * @param class-string<TObject> $name
      * @param non-empty-string $file
      * @param int<0, max> $line
      * @param ?class-string $superType
-     * @param ?int<0, max> $rtdKeyCounter
+     * @param int<0, max> $rtdKeyCounter
      */
-    public function __construct(
+    private function __construct(
+        public readonly string $name,
         public readonly string $file,
         public readonly int $line,
-        public readonly ?string $superType = null,
-        public readonly ?int $rtdKeyCounter = null,
+        public readonly ?string $superType,
+        public readonly int $rtdKeyCounter,
     ) {}
 
     /**
-     * @psalm-pure
-     * @template TName of string
-     * @param TName $name
-     * @return TName
-     */
-    public static function normalizeName(string $name): string
-    {
-        /** @var TName */
-        return self::tryFromString($name)?->toStringWithoutRtdKeyCounter() ?? $name;
-    }
-
-    /**
-     * @psalm-pure
+     * @template TNewObject of object
+     * @param string|class-string<TNewObject> $name
+     * @return ($name is class-string ? null|self<TNewObject> : null|self)
      */
     public static function tryFromString(string $name): ?self
     {
@@ -47,7 +39,7 @@ final class AnonymousClassName
             return null;
         }
 
-        if (preg_match('/^\\\?(.+)@anonymous\x00(.+):(\d+)(?:\$(\w+))?$/', $name, $matches) !== 1) {
+        if (preg_match('/^\\\?(.+)@anonymous\x00(.+):(\d+)\$(\w+)$/', $name, $matches) !== 1) {
             return null;
         }
 
@@ -57,10 +49,11 @@ final class AnonymousClassName
         $file = $matches[2];
         /** @var int<0, max> */
         $line = (int) $matches[3];
-        /** @var ?int<0, max> */
-        $rtdKeyCounter = isset($matches[4]) ? hexdec($matches[4]) : null;
+        /** @var int<0, max> */
+        $rtdKeyCounter = hexdec($matches[4]);
 
-        return new self(file: $file, line: $line, superType: $superType, rtdKeyCounter: $rtdKeyCounter);
+        /** @var class-string $name */
+        return new self($name, $file, $line, $superType, $rtdKeyCounter);
     }
 
     /**
@@ -89,27 +82,5 @@ final class AnonymousClassName
         }
 
         return $names;
-    }
-
-    /**
-     * @return class-string this is not actually true, but it's easier to put it that way
-     */
-    public function toStringWithoutRtdKeyCounter(): string
-    {
-        /** @var class-string */
-        return sprintf("%s@anonymous\x00%s:%d", $this->superType ?? 'class', $this->file, $this->line);
-    }
-
-    /**
-     * @return class-string
-     */
-    public function toString(): string
-    {
-        if ($this->rtdKeyCounter === null) {
-            throw new ReflectionException();
-        }
-
-        /** @var class-string */
-        return $this->toStringWithoutRtdKeyCounter() . '$' . dechex($this->rtdKeyCounter);
     }
 }

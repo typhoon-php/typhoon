@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace Typhoon\Reflection\ReflectionStorage;
 
 use Psr\SimpleCache\CacheInterface;
-use Typhoon\Reflection\NameContext\AnonymousClassName;
 use Typhoon\Reflection\ReflectionException;
 
 /**
@@ -154,6 +153,6 @@ final class ReflectionStorage
      */
     private function key(string $class, string $name): string
     {
-        return hash('xxh128', $class . '#' . AnonymousClassName::normalizeName($name));
+        return hash('xxh128', $class . '#' . $name);
     }
 }
