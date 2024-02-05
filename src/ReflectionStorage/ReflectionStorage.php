@@ -23,6 +23,11 @@ final class ReflectionStorage
         private readonly bool $detectChanges = true,
     ) {}
 
+    private static function throwingLoader(): never
+    {
+        throw new \LogicException('Reflection loader must not be called twice.');
+    }
+
     /**
      * @param class-string $class
      * @param non-empty-string $name
@@ -87,7 +92,7 @@ final class ReflectionStorage
 
         $loader();
 
-        return $this->get($class, $name, static fn(): never => throw new ReflectionException(sprintf('%s with name %s not found.', $class, $name)));
+        return $this->get($class, $name, self::throwingLoader(...));
     }
 
     /**
