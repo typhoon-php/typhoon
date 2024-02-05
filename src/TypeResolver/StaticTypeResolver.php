@@ -5,20 +5,16 @@ declare(strict_types=1);
 namespace Typhoon\Reflection\TypeResolver;
 
 use Typhoon\Type;
-use Typhoon\Type\ClassStringLiteralType;
-use Typhoon\Type\IntMaskOfType;
-use Typhoon\Type\IntMaskType;
-use Typhoon\Type\ObjectShapeType;
 use Typhoon\Type\types;
-use Typhoon\Type\TypeVisitor;
 
 /**
  * @internal
  * @psalm-internal Typhoon\Reflection
  * @psalm-immutable
- * @implements TypeVisitor<Type\Type>
+ * @implements Type\TypeVisitor<Type\Type>
+ * @psalm-suppress UnusedClass
  */
-final class StaticResolver implements TypeVisitor
+final class StaticTypeResolver implements Type\TypeVisitor
 {
     /**
      * @param class-string $class
@@ -72,12 +68,12 @@ final class StaticResolver implements TypeVisitor
         return $type;
     }
 
-    public function visitIntMask(IntMaskType $type): mixed
+    public function visitIntMask(Type\IntMaskType $type): mixed
     {
         return $type;
     }
 
-    public function visitIntMaskOf(IntMaskOfType $type): mixed
+    public function visitIntMaskOf(Type\IntMaskOfType $type): mixed
     {
         return $type;
     }
@@ -112,7 +108,7 @@ final class StaticResolver implements TypeVisitor
         return $type;
     }
 
-    public function visitClassStringLiteral(ClassStringLiteralType $type): mixed
+    public function visitClassStringLiteral(Type\ClassStringLiteralType $type): mixed
     {
         return $type;
     }
@@ -246,7 +242,7 @@ final class StaticResolver implements TypeVisitor
         ));
     }
 
-    public function visitObjectShape(ObjectShapeType $type): mixed
+    public function visitObjectShape(Type\ObjectShapeType $type): mixed
     {
         $visitor = $this;
 

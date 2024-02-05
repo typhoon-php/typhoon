@@ -6,20 +6,15 @@ namespace Typhoon\Reflection\TypeResolver;
 
 use Typhoon\Reflection\TemplateReflection;
 use Typhoon\Type;
-use Typhoon\Type\ClassStringLiteralType;
-use Typhoon\Type\ConditionalType;
-use Typhoon\Type\IntMaskOfType;
-use Typhoon\Type\IntMaskType;
-use Typhoon\Type\ObjectShapeType;
 use Typhoon\Type\types;
-use Typhoon\Type\TypeVisitor;
 
 /**
- * @api
+ * @internal
+ * @psalm-internal Typhoon\Reflection
  * @psalm-immutable
- * @implements TypeVisitor<Type\Type>
+ * @implements Type\TypeVisitor<Type\Type>
  */
-final class TemplateResolver implements TypeVisitor
+final class TemplateTypeResolver implements Type\TypeVisitor
 {
     /**
      * @param non-empty-array<non-empty-string, Type\Type> $templateArguments
@@ -30,11 +25,16 @@ final class TemplateResolver implements TypeVisitor
 
     /**
      * @psalm-pure
-     * @param non-empty-array<TemplateReflection> $templates
+     * @param array<TemplateReflection> $templates
      * @param array<Type\Type> $templateArguments
+     * @return Type\TypeVisitor<Type\Type>
      */
-    public static function create(array $templates, array $templateArguments): self
+    public static function create(array $templates, array $templateArguments): Type\TypeVisitor
     {
+        if ($templates === []) {
+            return new IdentityTypeResolver();
+        }
+
         $resolvedTemplateArguments = [];
 
         foreach ($templates as $template) {
@@ -91,12 +91,12 @@ final class TemplateResolver implements TypeVisitor
         return $type;
     }
 
-    public function visitIntMask(IntMaskType $type): mixed
+    public function visitIntMask(Type\IntMaskType $type): mixed
     {
         return $type;
     }
 
-    public function visitIntMaskOf(IntMaskOfType $type): mixed
+    public function visitIntMaskOf(Type\IntMaskOfType $type): mixed
     {
         return $type;
     }
@@ -131,7 +131,7 @@ final class TemplateResolver implements TypeVisitor
         return $type;
     }
 
-    public function visitClassStringLiteral(ClassStringLiteralType $type): mixed
+    public function visitClassStringLiteral(Type\ClassStringLiteralType $type): mixed
     {
         return $type;
     }
@@ -265,7 +265,7 @@ final class TemplateResolver implements TypeVisitor
         ));
     }
 
-    public function visitObjectShape(ObjectShapeType $type): mixed
+    public function visitObjectShape(Type\ObjectShapeType $type): mixed
     {
         $visitor = $this;
 
@@ -354,7 +354,7 @@ final class TemplateResolver implements TypeVisitor
         return $this->templateArguments[$type->name] ?? $type;
     }
 
-    public function visitConditional(ConditionalType $type): mixed
+    public function visitConditional(Type\ConditionalType $type): mixed
     {
         return types::conditional(
             $type->subject,

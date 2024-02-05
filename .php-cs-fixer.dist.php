@@ -23,6 +23,9 @@ $config = (new Config())
     ->setFinder($finder)
     ->setCacheFile(__DIR__ . '/var/.php-cs-fixer.cache');
 
-(new PhpCsFixerCodingStandard())->applyTo($config);
+(new PhpCsFixerCodingStandard())->applyTo($config, [
+    /** @see TypeInheritanceResolver::equal() */
+    'strict_comparison' => false,
+]);
 
 return $config;

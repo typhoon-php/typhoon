@@ -6,8 +6,8 @@ namespace Typhoon\Reflection;
 
 use Typhoon\Reflection\ClassReflection\ClassReflector;
 use Typhoon\Reflection\ClassReflection\ClassReflectorAwareReflection;
-use Typhoon\Reflection\TypeResolver\StaticResolver;
-use Typhoon\Reflection\TypeResolver\TemplateResolver;
+use Typhoon\Reflection\Inheritance\MethodsInheritanceResolver;
+use Typhoon\Reflection\Inheritance\PropertiesInheritanceResolver;
 use Typhoon\Type;
 
 /**
@@ -50,6 +50,7 @@ final class ClassReflection extends ClassReflectorAwareReflection
      * @param list<TemplateReflection> $templates
      * @param int-mask-of<self::IS_*> $modifiers
      * @param list<Type\NamedObjectType> $ownInterfaceTypes
+     * @param list<Type\NamedObjectType> $ownTraitTypes
      * @param list<PropertyReflection> $ownProperties
      * @param list<MethodReflection> $ownMethods
      * @param ?\ReflectionClass<T> $nativeReflection
@@ -76,6 +77,7 @@ final class ClassReflection extends ClassReflectorAwareReflection
         private readonly array $ownProperties,
         private readonly array $ownMethods,
         private ?\ReflectionClass $nativeReflection = null,
+        private readonly array $ownTraitTypes = [],
     ) {
         $this->name = $name;
     }
@@ -357,7 +359,13 @@ final class ClassReflection extends ClassReflectorAwareReflection
      */
     public function implementsInterface(string|self $interface): bool
     {
-        $interface = $this->resolveInterface($interface);
+        if (\is_string($interface)) {
+            $interface = $this->classReflector()->reflectClass($interface);
+        }
+
+        if (!$interface->isInterface()) {
+            throw new ReflectionException();
+        }
 
         if ($this->name === $interface->name) {
             return true;
@@ -461,34 +469,6 @@ final class ClassReflection extends ClassReflectorAwareReflection
     }
 
     /**
-     * @return array<non-empty-string, PropertyReflection>
-     */
-    public function getPropertiesIndexedByName(): array
-    {
-        if ($this->propertiesIndexedByName !== null) {
-            return $this->propertiesIndexedByName;
-        }
-
-        $propertiesIndexedByName = array_column($this->ownProperties, null, 'name');
-
-        foreach ($this->parentWithResolvedAncestors()?->getPropertiesIndexedByName() ?? [] as $name => $parentProperty) {
-            if ($parentProperty->isPrivate()) {
-                continue;
-            }
-
-            if (!isset($propertiesIndexedByName[$name])) {
-                $propertiesIndexedByName[$name] = $parentProperty;
-
-                continue;
-            }
-
-            $propertiesIndexedByName[$name] = PropertyReflection::fromPrototype($parentProperty, $propertiesIndexedByName[$name]);
-        }
-
-        return $this->propertiesIndexedByName = $propertiesIndexedByName;
-    }
-
-    /**
      * @psalm-assert non-empty-string $name
      */
     public function getProperty(string $name): PropertyReflection
@@ -521,36 +501,6 @@ final class ClassReflection extends ClassReflectorAwareReflection
     }
 
     /**
-     * @return array<non-empty-string, MethodReflection>
-     */
-    public function getMethodsIndexedByName(): array
-    {
-        if ($this->methodsIndexedByName !== null) {
-            return $this->methodsIndexedByName;
-        }
-
-        $methodsIndexedByName = array_column($this->ownMethods, null, 'name');
-
-        foreach ($this->ownAncestorsWithResolvedTemplates() as $ancestor) {
-            foreach ($ancestor->getMethodsIndexedByName() as $name => $parentMethod) {
-                if ($parentMethod->isPrivate()) {
-                    continue;
-                }
-
-                if (!isset($methodsIndexedByName[$name])) {
-                    $methodsIndexedByName[$name] = $parentMethod;
-
-                    continue;
-                }
-
-                $methodsIndexedByName[$name] = MethodReflection::fromPrototype($parentMethod, $methodsIndexedByName[$name]);
-            }
-        }
-
-        return $this->methodsIndexedByName = $methodsIndexedByName;
-    }
-
-    /**
      * @psalm-assert non-empty-string $name
      */
     public function getMethod(string $name): MethodReflection
@@ -561,48 +511,6 @@ final class ClassReflection extends ClassReflectorAwareReflection
     public function getConstructor(): ?MethodReflection
     {
         return $this->getMethodsIndexedByName()['__construct'] ?? null;
-    }
-
-    /**
-     * @param array<Type\Type> $templateArguments
-     * @return self<T>
-     */
-    public function resolveTemplates(array $templateArguments = []): self
-    {
-        if ($this->templates === []) {
-            return $this;
-        }
-
-        /** @var self<T> */
-        return $this->resolvedTypes(TemplateResolver::create($this->templates, $templateArguments));
-    }
-
-    /**
-     * @deprecated in favor of resolveTemplates()
-     * @param array<Type\Type> $templateArguments
-     * @return self<T>
-     */
-    public function withResolvedTemplates(array $templateArguments = []): self
-    {
-        return $this->resolveTemplates($templateArguments);
-    }
-
-    /**
-     * @return self<T>
-     */
-    public function resolveStatic(): self
-    {
-        /** @var self<T> */
-        return $this->resolvedTypes(new StaticResolver($this->name));
-    }
-
-    /**
-     * @deprecated in favor of resolveStatic()
-     * @return self<T>
-     */
-    public function withResolvedStatic(): self
-    {
-        return $this->resolveStatic();
     }
 
     /**
@@ -673,63 +581,44 @@ final class ClassReflection extends ClassReflectorAwareReflection
         }
     }
 
-    private function resolvedTypes(TemplateResolver|StaticResolver $typeResolver): self
+    /**
+     * @return array<non-empty-string, PropertyReflection>
+     */
+    private function getPropertiesIndexedByName(): array
     {
-        $class = clone $this;
-        $class->propertiesIndexedByName = array_map(
-            static fn(PropertyReflection $property): PropertyReflection => $property->resolveTypes($typeResolver),
-            $this->getPropertiesIndexedByName(),
-        );
-        $class->methodsIndexedByName = array_map(
-            static fn(MethodReflection $method): MethodReflection => $method->resolveTypes($typeResolver),
-            $this->getMethodsIndexedByName(),
-        );
+        if ($this->propertiesIndexedByName !== null) {
+            return $this->propertiesIndexedByName;
+        }
 
-        return $class;
+        $resolver = new PropertiesInheritanceResolver($this->classReflector());
+        $resolver->setOwn($this->ownProperties);
+        $resolver->addInherited(...$this->ownTraitTypes);
+
+        if ($this->parentType !== null) {
+            $resolver->addInherited($this->parentType);
+        }
+
+        return $this->propertiesIndexedByName = $resolver->resolve();
     }
 
     /**
-     * @param interface-string|self $interface
+     * @return array<non-empty-string, MethodReflection>
      */
-    private function resolveInterface(string|self $interface): self
+    private function getMethodsIndexedByName(): array
     {
-        if (\is_string($interface)) {
-            $interface = $this->classReflector()->reflectClass($interface);
+        if ($this->methodsIndexedByName !== null) {
+            return $this->methodsIndexedByName;
         }
 
-        if (!$interface->isInterface()) {
-            throw new ReflectionException();
+        $resolver = new MethodsInheritanceResolver($this->classReflector());
+        $resolver->setOwn($this->ownMethods);
+        $resolver->addInherited(...$this->ownInterfaceTypes);
+        $resolver->addInherited(...$this->ownTraitTypes);
+
+        if ($this->parentType !== null) {
+            $resolver->addInherited($this->parentType);
         }
 
-        return $interface;
-    }
-
-    private function parentWithResolvedAncestors(): ?self
-    {
-        if ($this->parentType === null) {
-            return null;
-        }
-
-        return $this->classReflector()
-            ->reflectClass($this->parentType->class)
-            ->resolveTemplates($this->parentType->templateArguments);
-    }
-
-    /**
-     * @return \Generator<self>
-     */
-    private function ownAncestorsWithResolvedTemplates(): \Generator
-    {
-        $parentWithResolvedAncestors = $this->parentWithResolvedAncestors();
-
-        if ($parentWithResolvedAncestors !== null) {
-            yield $parentWithResolvedAncestors;
-        }
-
-        foreach ($this->ownInterfaceTypes as $interfaceType) {
-            yield $this->classReflector()
-                ->reflectClass($interfaceType->class)
-                ->resolveTemplates($interfaceType->templateArguments);
-        }
+        return $this->methodsIndexedByName = $resolver->resolve();
     }
 }

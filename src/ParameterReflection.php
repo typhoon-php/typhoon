@@ -5,8 +5,6 @@ declare(strict_types=1);
 namespace Typhoon\Reflection;
 
 use Typhoon\Reflection\ClassReflection\ClassReflectorAwareReflection;
-use Typhoon\Reflection\TypeResolver\StaticResolver;
-use Typhoon\Reflection\TypeResolver\TemplateResolver;
 
 /**
  * @api
@@ -40,18 +38,6 @@ final class ParameterReflection extends ClassReflectorAwareReflection
         private readonly ?int $endLine,
         private ?\ReflectionParameter $nativeReflection = null,
     ) {}
-
-    /**
-     * @internal
-     * @psalm-internal Typhoon\Reflection
-     */
-    public static function fromPrototype(self $prototype, self $child): self
-    {
-        $new = clone $child;
-        $new->type = TypeReflection::fromPrototype($prototype->type, $child->type);
-
-        return $new;
-    }
 
     public function getDeclaringClass(): ?ClassReflection
     {
@@ -156,14 +142,6 @@ final class ParameterReflection extends ClassReflectorAwareReflection
         );
     }
 
-    public function resolveTypes(TemplateResolver|StaticResolver $typeResolver): self
-    {
-        $parameter = clone $this;
-        $parameter->type = $this->type->resolve($typeResolver);
-
-        return $parameter;
-    }
-
     public function __serialize(): array
     {
         return array_diff_key(get_object_vars($this), ['nativeReflection' => null]);
@@ -174,5 +152,24 @@ final class ParameterReflection extends ClassReflectorAwareReflection
         foreach ($data as $name => $value) {
             $this->{$name} = $value;
         }
+    }
+
+    public function __clone()
+    {
+        if ((debug_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS, 2)[1]['class'] ?? null) !== self::class) {
+            throw new ReflectionException();
+        }
+    }
+
+    /**
+     * @internal
+     * @psalm-internal Typhoon\Reflection
+     */
+    public function withType(TypeReflection $type): self
+    {
+        $property = clone $this;
+        $property->type = $type;
+
+        return $property;
     }
 }

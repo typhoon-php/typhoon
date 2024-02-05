@@ -6,8 +6,6 @@ namespace Typhoon\Reflection;
 
 use Typhoon\Reflection\ClassReflection\ClassReflector;
 use Typhoon\Reflection\ClassReflection\ClassReflectorAwareReflection;
-use Typhoon\Reflection\TypeResolver\StaticResolver;
-use Typhoon\Reflection\TypeResolver\TemplateResolver;
 
 /**
  * @api
@@ -55,25 +53,6 @@ final class MethodReflection extends ClassReflectorAwareReflection
         private TypeReflection $returnType,
         private ?\ReflectionMethod $nativeReflection = null,
     ) {}
-
-    /**
-     * @internal
-     * @psalm-internal Typhoon\Reflection
-     */
-    public static function fromPrototype(self $prototype, self $child): self
-    {
-        $new = clone $child;
-        /** @psalm-suppress DocblockTypeContradiction */
-        $new->parameters = array_map(
-            static fn(ParameterReflection $childParameter): ParameterReflection => $prototype->hasParameterWithPosition($childParameter->getPosition())
-                ? ParameterReflection::fromPrototype($prototype->getParameterByPosition($childParameter->getPosition()), $childParameter)
-                : $childParameter,
-            $child->parameters,
-        );
-        $new->returnType = TypeReflection::fromPrototype($prototype->returnType, $child->returnType);
-
-        return $new;
-    }
 
     /**
      * @return non-empty-string
@@ -385,18 +364,6 @@ final class MethodReflection extends ClassReflectorAwareReflection
         return $this->nativeReflection ??= new \ReflectionMethod($this->class, $this->name);
     }
 
-    public function resolveTypes(TemplateResolver|StaticResolver $typeResolver): self
-    {
-        $method = clone $this;
-        $method->parameters = array_map(
-            static fn(ParameterReflection $parameter): ParameterReflection => $parameter->resolveTypes($typeResolver),
-            $this->parameters,
-        );
-        $method->returnType = $method->returnType->resolve($typeResolver);
-
-        return $method;
-    }
-
     public function __serialize(): array
     {
         return array_diff_key(get_object_vars($this), ['nativeReflection' => null]);
@@ -414,6 +381,26 @@ final class MethodReflection extends ClassReflectorAwareReflection
         if ((debug_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS, 2)[1]['class'] ?? null) !== self::class) {
             throw new ReflectionException();
         }
+    }
+
+    /**
+     * @internal
+     * @psalm-internal Typhoon\Reflection
+     * @param array<non-empty-string, TypeReflection> $parameterTypes
+     */
+    public function withTypes(array $parameterTypes, TypeReflection $returnType): self
+    {
+        $method = clone $this;
+        $parameters = array_column($this->parameters, null, 'name');
+
+        foreach ($parameterTypes as $name => $parameterType) {
+            $parameters[$name] = $parameters[$name]->withType($parameterType);
+        }
+
+        $method->parameters = array_values($parameters);
+        $method->returnType = $returnType;
+
+        return $method;
     }
 
     protected function __initialize(ClassReflector $classReflector): void
