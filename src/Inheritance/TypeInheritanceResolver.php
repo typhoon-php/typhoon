@@ -29,17 +29,17 @@ final class TypeInheritanceResolver
         return $a == $b;
     }
 
-    public function setOwn(TypeReflection $reflection): void
+    public function setOwn(TypeReflection $type): void
     {
-        $this->own = $reflection;
+        $this->own = $type;
     }
 
     /**
      * @param TypeVisitor<Type> $templateResolver
      */
-    public function addInherited(TypeReflection $reflection, TypeVisitor $templateResolver): void
+    public function addInherited(TypeReflection $type, TypeVisitor $templateResolver): void
     {
-        $this->inherited[] = [$reflection, $templateResolver];
+        $this->inherited[] = [$type, $templateResolver];
     }
 
     public function resolve(): TypeReflection
@@ -55,20 +55,20 @@ final class TypeInheritanceResolver
 
             $ownNativeType = $this->own->getNative();
 
-            foreach ($this->inherited as [$reflection, $templateResolver]) {
+            foreach ($this->inherited as [$type, $templateResolver]) {
                 // If own type is different (weakened parameter type or strengthened return type), we want to keep it.
                 // This should be compared according to variance with a proper type comparator,
                 // but for now simple inequality check should do the job 90% of the time.
-                if (!self::typesEqual($reflection->getNative(), $ownNativeType)) {
+                if (!self::typesEqual($type->getNative(), $ownNativeType)) {
                     continue;
                 }
 
                 // If inherited type resolves to same native type, we should continue to look for something more interesting.
-                if (self::typesEqual($reflection->getResolved(), $ownNativeType)) {
+                if (self::typesEqual($type->getResolved(), $ownNativeType)) {
                     continue;
                 }
 
-                return $this->own->withResolved($reflection->getResolved()->accept($templateResolver));
+                return $this->own->withResolved($type->getResolved()->accept($templateResolver));
             }
 
             return $this->own;
@@ -77,16 +77,16 @@ final class TypeInheritanceResolver
         \assert($this->inherited !== []);
 
         if (\count($this->inherited) !== 1) {
-            foreach ($this->inherited as [$reflection, $templateResolver]) {
+            foreach ($this->inherited as [$type, $templateResolver]) {
                 // If inherited type resolves to its native type, we should continue to look for something more interesting.
-                if (!self::typesEqual($reflection->getResolved(), $reflection->getNative())) {
-                    return $reflection->withResolved($reflection->getResolved()->accept($templateResolver));
+                if (!self::typesEqual($type->getResolved(), $type->getNative())) {
+                    return $type->withResolved($type->getResolved()->accept($templateResolver));
                 }
             }
         }
 
-        [$reflection, $templateResolver] = $this->inherited[0];
+        [$type, $templateResolver] = $this->inherited[0];
 
-        return $reflection->withResolved($reflection->getResolved()->accept($templateResolver));
+        return $type->withResolved($type->getResolved()->accept($templateResolver));
     }
 }
