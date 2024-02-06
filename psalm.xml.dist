@@ -12,6 +12,7 @@
     findUnusedVariablesAndParams="true"
     memoizeMethodCallResults="true"
     reportMixedIssues="true"
+    sealAllProperties="true"
     sealAllMethods="true"
     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
     xmlns="https://getpsalm.org/schema/config"
@@ -38,6 +39,7 @@
     </projectFiles>
 
     <ignoreExceptions>
+        <classAndDescendants name="ReflectionException"/>
         <classAndDescendants name="LogicException"/>
         <classAndDescendants name="RuntimeException"/>
         <classAndDescendants name="Psr\SimpleCache\InvalidArgumentException"/>
@@ -49,19 +51,6 @@
                 <directory name="tests"/>
             </errorLevel>
         </MissingThrowsDocblock>
-        <MixedAssignment errorLevel="suppress"/>
-        <PossiblyUnusedMethod>
-            <errorLevel type="suppress">
-                <directory name="tests"/>
-            </errorLevel>
-        </PossiblyUnusedMethod>
-        <RiskyTruthyFalsyComparison errorLevel="suppress"/>
-        <UnusedMethodCall>
-            <errorLevel type="suppress">
-                <directory name="tests"/>
-            </errorLevel>
-        </UnusedMethodCall>
-        <UnresolvableInclude errorLevel="suppress"/>
     </issueHandlers>
 
     <forbiddenFunctions>

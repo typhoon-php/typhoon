@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace Typhoon\Reflection;
 
 use Typhoon\Type\Type;
-use Typhoon\Type\types;
 
 /**
  * @api
@@ -14,17 +13,29 @@ use Typhoon\Type\types;
 final class TemplateReflection
 {
     /**
+     * @var non-empty-string
+     */
+    public readonly string $name;
+
+    /**
      * @internal
      * @psalm-internal Typhoon\Reflection
-     * @param int<0, max> $position
+     * @param non-negative-int $position
      * @param non-empty-string $name
      */
     public function __construct(
+        string $name,
         private readonly int $position,
-        public readonly string $name,
-        private readonly Type $constraint = types::mixed,
-        private readonly Variance $variance = Variance::INVARIANT,
-    ) {}
+        private readonly Type $constraint,
+        private readonly Variance $variance,
+    ) {
+        $this->name = $name;
+    }
+
+    public function getConstraint(): Type
+    {
+        return $this->constraint;
+    }
 
     /**
      * @return non-empty-string
@@ -42,19 +53,9 @@ final class TemplateReflection
         return $this->position;
     }
 
-    public function getConstraint(): Type
-    {
-        return $this->constraint;
-    }
-
     public function getVariance(): Variance
     {
         return $this->variance;
-    }
-
-    public function __serialize(): array
-    {
-        return get_object_vars($this);
     }
 
     private function __clone() {}

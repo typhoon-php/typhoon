@@ -6,7 +6,7 @@ namespace Typhoon\Reflection\ClassLocator;
 
 use Composer\Autoload\ClassLoader as Loader;
 use Typhoon\Reflection\ClassLocator;
-use Typhoon\Reflection\Resource;
+use Typhoon\Reflection\FileResource;
 
 /**
  * @api
@@ -18,13 +18,13 @@ final class ComposerClassLocator implements ClassLocator
         return class_exists(Loader::class);
     }
 
-    public function locateClass(string $name): null|Resource|\ReflectionClass
+    public function locateClass(string $name): null|FileResource|\ReflectionClass
     {
         foreach (Loader::getRegisteredLoaders() as $loader) {
             $file = $loader->findFile($name);
 
             if ($file !== false) {
-                return new Resource($file);
+                return new FileResource($file);
             }
         }
 

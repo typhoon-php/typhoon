@@ -5,11 +5,14 @@ declare(strict_types=1);
 namespace Typhoon\Reflection\ClassLocator;
 
 use Typhoon\Reflection\ClassLocator;
-use Typhoon\Reflection\Resource;
+use Typhoon\Reflection\FileResource;
 
+/**
+ * @api
+ */
 final class NativeReflectionLocator implements ClassLocator
 {
-    public function locateClass(string $name): null|Resource|\ReflectionClass
+    public function locateClass(string $name): null|FileResource|\ReflectionClass
     {
         try {
             /** @psalm-suppress ArgumentTypeCoercion */
@@ -21,7 +24,7 @@ final class NativeReflectionLocator implements ClassLocator
         $file = $nativeReflection->getFileName();
 
         if ($file !== false) {
-            return new Resource($file, $nativeReflection->getExtensionName() ?: null);
+            return new FileResource($file, $nativeReflection->getExtensionName());
         }
 
         return $nativeReflection;

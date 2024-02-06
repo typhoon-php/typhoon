@@ -6,7 +6,7 @@ namespace Typhoon\Reflection\ClassLocator;
 
 use JetBrains\PHPStormStub\PhpStormStubsMap;
 use Typhoon\Reflection\ClassLocator;
-use Typhoon\Reflection\Resource;
+use Typhoon\Reflection\FileResource;
 
 /**
  * @api
@@ -26,14 +26,14 @@ final class PhpStormStubsClassLocator implements ClassLocator
         return class_exists(PhpStormStubsMap::class);
     }
 
-    public function locateClass(string $name): null|Resource|\ReflectionClass
+    public function locateClass(string $name): null|FileResource|\ReflectionClass
     {
         if (isset(PhpStormStubsMap::CLASSES[$name])) {
             $file = PhpStormStubsMap::CLASSES[$name];
 
-            return new Resource(
+            return new FileResource(
                 file: $this->directory . '/' . $file,
-                extension: substr($file, 0, strpos($file, '/') ?: 0) ?: null,
+                extension: \dirname($file),
             );
         }
 

@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Typhoon\Reflection\Inheritance;
 
-use Typhoon\Reflection\PropertyReflection;
+use Typhoon\Reflection\Metadata\PropertyMetadata;
 use Typhoon\Type\Type;
 use Typhoon\Type\TypeVisitor;
 
@@ -14,7 +14,7 @@ use Typhoon\Type\TypeVisitor;
  */
 final class PropertyInheritanceResolver
 {
-    private ?PropertyReflection $property = null;
+    private ?PropertyMetadata $property = null;
 
     private TypeInheritanceResolver $type;
 
@@ -23,24 +23,30 @@ final class PropertyInheritanceResolver
         $this->type = new TypeInheritanceResolver();
     }
 
-    public function setOwn(PropertyReflection $property): void
+    public function setOwn(PropertyMetadata $property): void
     {
         $this->property = $property;
-        $this->type->setOwn($property->getType());
+        $this->type->setOwn($property->type);
     }
 
     /**
      * @param TypeVisitor<Type> $templateResolver
      */
-    public function addInherited(PropertyReflection $property, TypeVisitor $templateResolver): void
+    public function addInherited(PropertyMetadata $property, TypeVisitor $templateResolver): void
     {
+        if ($property->modifiers & \ReflectionProperty::IS_PRIVATE) {
+            return;
+        }
+
         $this->property ??= $property;
-        $this->type->addInherited($property->getType(), $templateResolver);
+        $this->type->addInherited($property->type, $templateResolver);
     }
 
-    public function resolve(): PropertyReflection
+    public function resolve(): ?PropertyMetadata
     {
-        \assert($this->property !== null);
+        if ($this->property === null) {
+            return null;
+        }
 
         return $this->property->withType($this->type->resolve());
     }

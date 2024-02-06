@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace Typhoon\Reflection\Inheritance;
 
 use Typhoon\Reflection\ClassReflection\ClassReflector;
-use Typhoon\Reflection\PropertyReflection;
+use Typhoon\Reflection\Metadata\PropertyMetadata;
 use Typhoon\Reflection\TypeResolver\TemplateTypeResolver;
 use Typhoon\Type\NamedObjectType;
 
@@ -25,7 +25,7 @@ final class PropertiesInheritanceResolver
     ) {}
 
     /**
-     * @param iterable<PropertyReflection> $properties
+     * @param iterable<PropertyMetadata> $properties
      */
     public function setOwn(iterable $properties): void
     {
@@ -41,19 +41,21 @@ final class PropertiesInheritanceResolver
             $templateResolver = TemplateTypeResolver::create($class->getTemplates(), $type->templateArguments);
 
             foreach ($class->getProperties() as $property) {
-                $this->property($property->name)->addInherited($property, $templateResolver);
+                $this->property($property->name)->addInherited($property->__metadata(), $templateResolver);
             }
         }
     }
 
     /**
-     * @return array<non-empty-string, PropertyReflection>
+     * @return array<non-empty-string, PropertyMetadata>
      */
     public function resolve(): array
     {
-        return array_map(
-            static fn(PropertyInheritanceResolver $resolver): PropertyReflection => $resolver->resolve(),
-            $this->properties,
+        return array_filter(
+            array_map(
+                static fn(PropertyInheritanceResolver $resolver): ?PropertyMetadata => $resolver->resolve(),
+                $this->properties,
+            ),
         );
     }
 

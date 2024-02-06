@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace Typhoon\Reflection\Inheritance;
 
-use Typhoon\Reflection\MethodReflection;
-use Typhoon\Reflection\TypeReflection;
+use Typhoon\Reflection\Metadata\MethodMetadata;
+use Typhoon\Reflection\Metadata\TypeMetadata;
 use Typhoon\Type\Type;
 use Typhoon\Type\TypeVisitor;
 
@@ -15,7 +15,14 @@ use Typhoon\Type\TypeVisitor;
  */
 final class MethodInheritanceResolver
 {
-    private ?MethodReflection $method = null;
+    private ?MethodMetadata $method = null;
+
+    private bool $own = false;
+
+    /**
+     * @var ?array{class-string, non-empty-string}
+     */
+    private ?array $prototype = null;
 
     /**
      * @var array<non-empty-string, TypeInheritanceResolver>
@@ -29,55 +36,74 @@ final class MethodInheritanceResolver
         $this->returnType = new TypeInheritanceResolver();
     }
 
-    public function setOwn(MethodReflection $method): void
+    public function setOwn(MethodMetadata $method): void
     {
         $this->method = $method;
+        $this->own = true;
 
-        foreach ($method->getParameters() as $parameter) {
+        foreach ($method->parameters as $parameter) {
             $this->parameterTypes[$parameter->name] = new TypeInheritanceResolver();
-            $this->parameterTypes[$parameter->name]->setOwn($parameter->getType());
+            $this->parameterTypes[$parameter->name]->setOwn($parameter->type);
         }
 
-        $this->returnType->setOwn($method->getReturnType());
+        $this->returnType->setOwn($method->returnType);
     }
 
     /**
      * @param TypeVisitor<Type> $templateResolver
      */
-    public function addInherited(MethodReflection $method, TypeVisitor $templateResolver): void
+    public function addInherited(MethodMetadata $method, TypeVisitor $templateResolver): void
     {
+        if ($method->modifiers & \ReflectionMethod::IS_PRIVATE) {
+            return;
+        }
+
         if ($this->method !== null) {
+            if ($this->own) {
+                $this->prototype ??= $method->prototype ?? [$method->class, $method->name];
+            }
+
+            $inheritedMethodParameters = array_column($method->parameters, null, 'name');
+
             foreach ($this->parameterTypes as $name => $parameter) {
-                if ($method->hasParameterWithName($name)) {
-                    $parameter->addInherited($method->getParameterByName($name)->getType(), $templateResolver);
+                if (isset($inheritedMethodParameters[$name])) {
+                    $parameter->addInherited($inheritedMethodParameters[$name]->type, $templateResolver);
                 }
             }
 
-            $this->returnType->addInherited($method->getReturnType(), $templateResolver);
+            $this->returnType->addInherited($method->returnType, $templateResolver);
 
             return;
         }
 
         $this->method = $method;
 
-        foreach ($method->getParameters() as $parameter) {
+        foreach ($method->parameters as $parameter) {
             $this->parameterTypes[$parameter->name] = new TypeInheritanceResolver();
-            $this->parameterTypes[$parameter->name]->addInherited($parameter->getType(), $templateResolver);
+            $this->parameterTypes[$parameter->name]->addInherited($parameter->type, $templateResolver);
         }
 
-        $this->returnType->addInherited($method->getReturnType(), $templateResolver);
+        $this->returnType->addInherited($method->returnType, $templateResolver);
     }
 
-    public function resolve(): MethodReflection
+    public function resolve(): ?MethodMetadata
     {
-        \assert($this->method !== null);
+        if ($this->method === null) {
+            return null;
+        }
 
-        return $this->method->withTypes(
+        $method = $this->method->withTypes(
             array_map(
-                static fn(TypeInheritanceResolver $resolver): TypeReflection => $resolver->resolve(),
+                static fn(TypeInheritanceResolver $resolver): TypeMetadata => $resolver->resolve(),
                 $this->parameterTypes,
             ),
             $this->returnType->resolve(),
         );
+
+        if ($this->prototype !== null) {
+            return $method->withPrototype($this->prototype);
+        }
+
+        return $method;
     }
 }

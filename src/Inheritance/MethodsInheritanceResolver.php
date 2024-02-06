@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace Typhoon\Reflection\Inheritance;
 
 use Typhoon\Reflection\ClassReflection\ClassReflector;
-use Typhoon\Reflection\MethodReflection;
+use Typhoon\Reflection\Metadata\MethodMetadata;
 use Typhoon\Reflection\TypeResolver\TemplateTypeResolver;
 use Typhoon\Type\NamedObjectType;
 
@@ -25,7 +25,7 @@ final class MethodsInheritanceResolver
     ) {}
 
     /**
-     * @param iterable<MethodReflection> $methods
+     * @param iterable<MethodMetadata> $methods
      */
     public function setOwn(iterable $methods): void
     {
@@ -41,19 +41,21 @@ final class MethodsInheritanceResolver
             $templateResolver = TemplateTypeResolver::create($class->getTemplates(), $type->templateArguments);
 
             foreach ($class->getMethods() as $method) {
-                $this->method($method->name)->addInherited($method, $templateResolver);
+                $this->method($method->name)->addInherited($method->__metadata(), $templateResolver);
             }
         }
     }
 
     /**
-     * @return array<non-empty-string, MethodReflection>
+     * @return array<non-empty-string, MethodMetadata>
      */
     public function resolve(): array
     {
-        return array_map(
-            static fn(MethodInheritanceResolver $resolver): MethodReflection => $resolver->resolve(),
-            $this->methods,
+        return array_filter(
+            array_map(
+                static fn(MethodInheritanceResolver $resolver): ?MethodMetadata => $resolver->resolve(),
+                $this->methods,
+            ),
         );
     }
 

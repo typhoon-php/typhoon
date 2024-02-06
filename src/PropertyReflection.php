@@ -4,149 +4,99 @@ declare(strict_types=1);
 
 namespace Typhoon\Reflection;
 
-use Typhoon\Reflection\ClassReflection\ClassReflectorAwareReflection;
+use Typhoon\Reflection\Attributes\AttributeReflections;
+use Typhoon\Reflection\ClassReflection\ClassReflector;
+use Typhoon\Reflection\Metadata\PropertyMetadata;
+use Typhoon\Type\Type;
 
 /**
  * @api
+ * @property-read non-empty-string $name
+ * @property-read class-string $class
+ * @psalm-suppress PropertyNotSetInConstructor, MissingImmutableAnnotation
  */
-final class PropertyReflection extends ClassReflectorAwareReflection
+final class PropertyReflection extends \ReflectionProperty
 {
-    public const IS_PUBLIC = \ReflectionProperty::IS_PUBLIC;
-    public const IS_PROTECTED = \ReflectionProperty::IS_PROTECTED;
-    public const IS_PRIVATE = \ReflectionProperty::IS_PRIVATE;
-    public const IS_STATIC = \ReflectionProperty::IS_STATIC;
-    public const IS_READONLY = \ReflectionProperty::IS_READONLY;
+    private ?AttributeReflections $attributes = null;
+
+    private bool $nativeLoaded = false;
 
     /**
      * @internal
      * @psalm-internal Typhoon\Reflection
-     * @param non-empty-string $name
-     * @param ?non-empty-string $docComment
-     * @param int-mask-of<self::IS_*> $modifiers
-     * @param class-string $class
-     * @param ?positive-int $startLine
-     * @param ?positive-int $endLine
      */
     public function __construct(
-        public readonly string $name,
-        public readonly string $class,
-        private readonly ?string $docComment,
-        private readonly bool $hasDefaultValue,
-        private readonly bool $promoted,
-        private readonly int $modifiers,
-        private readonly bool $deprecated,
-        /** @readonly */
-        private TypeReflection $type,
-        private readonly ?int $startLine,
-        private readonly ?int $endLine,
-        private ?\ReflectionProperty $nativeReflection = null,
-    ) {}
+        private readonly ClassReflector $classReflector,
+        private readonly PropertyMetadata $metadata,
+    ) {
+        unset($this->name, $this->class);
+    }
+
+    public function __get(string $name)
+    {
+        return match ($name) {
+            'name' => $this->metadata->name,
+            'class' => $this->metadata->class,
+            default => new \OutOfBoundsException(sprintf('Property %s::$%s does not exist.', self::class, $name)),
+        };
+    }
+
+    public function __isset(string $name): bool
+    {
+        return $name === 'name' || $name === 'class';
+    }
+
+    /**
+     * @internal
+     * @psalm-internal Typhoon\Reflection
+     */
+    public function __metadata(): PropertyMetadata
+    {
+        return $this->metadata;
+    }
+
+    public function __toString(): string
+    {
+        $this->loadNative();
+
+        return parent::__toString();
+    }
+
+    /**
+     * @template TClass as object
+     * @param class-string<TClass>|null $name
+     * @return ($name is null ? list<AttributeReflection<object>> : list<AttributeReflection<TClass>>)
+     */
+    public function getAttributes(?string $name = null, int $flags = 0): array
+    {
+        if ($this->attributes === null) {
+            $class = $this->metadata->class;
+            $property = $this->metadata->name;
+            $this->attributes = new AttributeReflections(
+                $this->classReflector,
+                $this->metadata->attributes,
+                static fn(): array => (new \ReflectionProperty($class, $property))->getAttributes(),
+            );
+        }
+
+        return $this->attributes->get($name, $flags);
+    }
 
     public function getDeclaringClass(): ClassReflection
     {
-        return $this->classReflector()->reflectClass($this->class);
+        return $this->classReflector->reflectClass($this->metadata->class);
     }
 
     public function getDefaultValue(): mixed
     {
-        return $this->getNativeReflection()->getDefaultValue();
+        $this->loadNative();
+
+        return parent::getDefaultValue();
     }
 
-    /**
-     * @return ?non-empty-string
-     */
-    public function getDocComment(): ?string
+    public function getDocComment(): string|false
     {
-        return $this->docComment;
-    }
-
-    /**
-     * @return non-empty-string
-     */
-    public function getName(): string
-    {
-        return $this->name;
-    }
-
-    public function getType(): TypeReflection
-    {
-        return $this->type;
-    }
-
-    public function getValue(?object $object = null): mixed
-    {
-        return $this->getNativeReflection()->getValue($object);
-    }
-
-    public function hasDefaultValue(): bool
-    {
-        return $this->hasDefaultValue;
-    }
-
-    public function isInitialized(?object $object = null): bool
-    {
-        /** @var bool */
-        return $this->getNativeReflection()->isInitialized($object);
-    }
-
-    /**
-     * @return int-mask-of<self::IS_*>
-     */
-    public function getModifiers(): int
-    {
-        return $this->modifiers;
-    }
-
-    public function isStatic(): bool
-    {
-        return ($this->modifiers & self::IS_STATIC) !== 0;
-    }
-
-    public function isPublic(): bool
-    {
-        return ($this->modifiers & self::IS_PUBLIC) === \ReflectionProperty::IS_PUBLIC;
-    }
-
-    public function isProtected(): bool
-    {
-        return ($this->modifiers & self::IS_PROTECTED) !== 0;
-    }
-
-    public function isPrivate(): bool
-    {
-        return ($this->modifiers & self::IS_PRIVATE) !== 0;
-    }
-
-    public function isReadOnly(): bool
-    {
-        return ($this->modifiers & self::IS_READONLY) !== 0;
-    }
-
-    public function isPromoted(): bool
-    {
-        return $this->promoted;
-    }
-
-    public function isDeprecated(): bool
-    {
-        return $this->deprecated;
-    }
-
-    public function setValue(?object $object, mixed $value): void
-    {
-        if ($this->isStatic()) {
-            $this->getNativeReflection()->setValue($value);
-        } else {
-            $this->getNativeReflection()->setValue($object, $value);
-        }
-    }
-
-    /**
-     * @return ?positive-int
-     */
-    public function getStartLine(): ?int
-    {
-        return $this->startLine;
+        return $this->metadata->docComment;
     }
 
     /**
@@ -154,38 +104,129 @@ final class PropertyReflection extends ClassReflectorAwareReflection
      */
     public function getEndLine(): ?int
     {
-        return $this->endLine;
+        return $this->metadata->endLine;
     }
 
-    public function getNativeReflection(): \ReflectionProperty
+    public function getModifiers(): int
     {
-        return $this->nativeReflection ??= new \ReflectionProperty($this->class, $this->name);
+        return $this->metadata->modifiers;
     }
 
-    public function __serialize(): array
+    public function getName(): string
     {
-        return array_diff_key(get_object_vars($this), ['nativeReflection' => null]);
+        return $this->metadata->name;
     }
 
-    public function __unserialize(array $data): void
+    /**
+     * @return ?positive-int
+     */
+    public function getStartLine(): ?int
     {
-        foreach ($data as $name => $value) {
-            $this->{$name} = $value;
+        return $this->metadata->startLine;
+    }
+
+    public function getType(): ?\ReflectionType
+    {
+        $this->loadNative();
+
+        return parent::getType();
+    }
+
+    /**
+     * @return ($origin is Origin::Resolved ? Type : null|Type)
+     */
+    public function getTyphoonType(Origin $origin = Origin::Resolved): ?Type
+    {
+        return $this->metadata->type->get($origin);
+    }
+
+    public function getValue(?object $object = null): mixed
+    {
+        $this->loadNative();
+
+        return parent::getValue($object);
+    }
+
+    public function hasDefaultValue(): bool
+    {
+        return $this->metadata->hasDefaultValue;
+    }
+
+    public function hasType(): bool
+    {
+        return $this->metadata->type->native !== null;
+    }
+
+    public function isDefault(): bool
+    {
+        return true;
+    }
+
+    public function isDeprecated(): bool
+    {
+        return $this->metadata->deprecated;
+    }
+
+    public function isInitialized(?object $object = null): bool
+    {
+        $this->loadNative();
+
+        return parent::isInitialized($object);
+    }
+
+    public function isPrivate(): bool
+    {
+        return ($this->metadata->modifiers & self::IS_PRIVATE) !== 0;
+    }
+
+    public function isPromoted(): bool
+    {
+        return $this->metadata->promoted;
+    }
+
+    public function isProtected(): bool
+    {
+        return ($this->metadata->modifiers & self::IS_PROTECTED) !== 0;
+    }
+
+    public function isPublic(): bool
+    {
+        return ($this->metadata->modifiers & self::IS_PUBLIC) === \ReflectionProperty::IS_PUBLIC;
+    }
+
+    public function isReadOnly(): bool
+    {
+        return ($this->metadata->modifiers & self::IS_READONLY) !== 0;
+    }
+
+    public function isStatic(): bool
+    {
+        return ($this->metadata->modifiers & self::IS_STATIC) !== 0;
+    }
+
+    public function setAccessible(bool $accessible): void {}
+
+    /**
+     * @psalm-suppress MethodSignatureMismatch
+     */
+    public function setValue(mixed $objectOrValue, mixed $value = null): void
+    {
+        $this->loadNative();
+
+        if (\func_num_args() === 1) {
+            parent::setValue($objectOrValue);
         }
+
+        \assert(\is_object($objectOrValue));
+
+        parent::setValue($objectOrValue, $value);
     }
 
-    public function __clone()
+    private function loadNative(): void
     {
-        if ((debug_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS, 2)[1]['class'] ?? null) !== self::class) {
-            throw new ReflectionException();
+        if (!$this->nativeLoaded) {
+            parent::__construct($this->metadata->class, $this->metadata->name);
+            $this->nativeLoaded = true;
         }
-    }
-
-    public function withType(TypeReflection $type): self
-    {
-        $property = clone $this;
-        $property->type = $type;
-
-        return $property;
     }
 }

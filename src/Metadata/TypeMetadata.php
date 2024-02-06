@@ -2,20 +2,22 @@
 
 declare(strict_types=1);
 
-namespace Typhoon\Reflection;
+namespace Typhoon\Reflection\Metadata;
 
+use Typhoon\Reflection\Origin;
 use Typhoon\Type\Type;
 use Typhoon\Type\types;
 
 /**
- * @api
+ * @internal
+ * @psalm-internal Typhoon\Reflection
  */
-final class TypeReflection
+final class TypeMetadata
 {
     private function __construct(
-        private readonly ?Type $native,
-        private readonly ?Type $phpDoc,
-        private readonly Type $resolved,
+        public readonly ?Type $native,
+        public readonly ?Type $phpDoc,
+        public readonly Type $resolved,
     ) {}
 
     /**
@@ -31,25 +33,15 @@ final class TypeReflection
         );
     }
 
-    public function getNative(): ?Type
+    public function get(Origin $origin = Origin::Resolved): ?Type
     {
-        return $this->native;
+        return match ($origin) {
+            Origin::Native => $this->native,
+            Origin::PhpDoc => $this->phpDoc,
+            Origin::Resolved => $this->resolved,
+        };
     }
 
-    public function getPhpDoc(): ?Type
-    {
-        return $this->phpDoc;
-    }
-
-    public function getResolved(): Type
-    {
-        return $this->resolved;
-    }
-
-    /**
-     * @internal
-     * @psalm-internal Typhoon\Reflection
-     */
     public function withResolved(Type $type): self
     {
         return new self(
@@ -58,6 +50,4 @@ final class TypeReflection
             resolved: $type,
         );
     }
-
-    private function __clone() {}
 }

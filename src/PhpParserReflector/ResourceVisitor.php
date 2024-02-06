@@ -7,9 +7,8 @@ namespace Typhoon\Reflection\PhpParserReflector;
 use PhpParser\Node;
 use PhpParser\Node\Stmt\ClassLike;
 use PhpParser\NodeVisitorAbstract;
-use Typhoon\Reflection\ClassReflection;
-use Typhoon\Reflection\ReflectionStorage\ChangeDetector;
-use Typhoon\Reflection\ReflectionStorage\ReflectionStorage;
+use Typhoon\Reflection\Metadata\ClassMetadata;
+use Typhoon\Reflection\Metadata\MetadataLazyCollection;
 
 /**
  * @internal
@@ -18,9 +17,8 @@ use Typhoon\Reflection\ReflectionStorage\ReflectionStorage;
 final class ResourceVisitor extends NodeVisitorAbstract
 {
     public function __construct(
-        private readonly ReflectionStorage $reflectionStorage,
         private readonly ContextualPhpParserReflector $reflector,
-        private readonly ChangeDetector $changeDetector,
+        private readonly MetadataLazyCollection $metadata,
     ) {}
 
     public function enterNode(Node $node): ?int
@@ -28,11 +26,10 @@ final class ResourceVisitor extends NodeVisitorAbstract
         if ($node instanceof ClassLike && $node->name !== null) {
             $name = $this->reflector->resolveClassName($node->name);
             $reflector = clone $this->reflector;
-            $this->reflectionStorage->setReflector(
-                class: ClassReflection::class,
+            $this->metadata->set(
+                class: ClassMetadata::class,
                 name: $name,
-                reflector: static fn(): ClassReflection => $reflector->reflectClass($node, $name),
-                changeDetector: $this->changeDetector,
+                factory: static fn(): ClassMetadata => $reflector->reflectClass($node, $name),
             );
         }
 

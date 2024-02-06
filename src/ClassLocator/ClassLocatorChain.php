@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace Typhoon\Reflection\ClassLocator;
 
 use Typhoon\Reflection\ClassLocator;
-use Typhoon\Reflection\Resource;
+use Typhoon\Reflection\FileResource;
 
 /**
  * @api
@@ -19,7 +19,7 @@ final class ClassLocatorChain implements ClassLocator
         private readonly iterable $classLocators,
     ) {}
 
-    public function locateClass(string $name): null|Resource|\ReflectionClass
+    public function locateClass(string $name): null|FileResource|\ReflectionClass
     {
         foreach ($this->classLocators as $classLocator) {
             $file = $classLocator->locateClass($name);

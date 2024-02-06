@@ -83,6 +83,7 @@ final class PhpDoc
 
     public static function templateTagVariance(TemplateTagValueNode $tag): Variance
     {
+        /** @psalm-suppress MixedAssignment */
         $attribute = $tag->getAttribute(self::VARIANCE_ATTRIBUTE);
 
         return $attribute instanceof Variance ? $attribute : Variance::INVARIANT;
@@ -379,6 +380,7 @@ final class PhpDoc
      */
     private function priorityOf(PhpDocTagNode $tag): int
     {
+        /** @psalm-suppress MixedAssignment */
         $priority = $tag->getAttribute('priority');
 
         if (!\is_int($priority)) {

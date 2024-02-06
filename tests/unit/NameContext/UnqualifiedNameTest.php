@@ -12,6 +12,7 @@ use PHPUnit\Framework\TestCase;
 final class UnqualifiedNameTest extends TestCase
 {
     /**
+     * @psalm-suppress PossiblyUnusedMethod
      * @return \Generator<int, array{string}>
      */
     public static function validNames(): \Generator
@@ -25,6 +26,7 @@ final class UnqualifiedNameTest extends TestCase
     }
 
     /**
+     * @psalm-suppress PossiblyUnusedMethod
      * @return \Generator<int, array{string}>
      */
     public static function invalidNames(): \Generator

@@ -7,18 +7,16 @@ namespace Typhoon\Reflection\PhpParserReflector;
 use PhpParser\NodeTraverser;
 use PhpParser\NodeVisitor;
 use PhpParser\Parser as PhpParser;
-use Typhoon\Reflection\ClassReflection;
-use Typhoon\Reflection\ClassReflection\ClassReflector;
+use Typhoon\Reflection\FileResource;
+use Typhoon\Reflection\Metadata\ClassMetadata;
+use Typhoon\Reflection\Metadata\MetadataLazyCollection;
 use Typhoon\Reflection\NameContext\AnonymousClassName;
 use Typhoon\Reflection\NameContext\NameContext;
 use Typhoon\Reflection\NameContext\NameContextVisitor;
 use Typhoon\Reflection\PhpDocParser\PhpDocParser;
 use Typhoon\Reflection\ReflectionException;
-use Typhoon\Reflection\ReflectionStorage\ChangeDetector;
-use Typhoon\Reflection\ReflectionStorage\ReflectionStorage;
-use Typhoon\Reflection\Resource;
+use Typhoon\Reflection\TypeContext\ClassExistenceChecker;
 use Typhoon\Reflection\TypeContext\TypeContext;
-use function Typhoon\Reflection\Exceptionally\exceptionally;
 
 /**
  * @internal
@@ -31,40 +29,32 @@ final class PhpParserReflector
         private readonly PhpDocParser $phpDocParser,
     ) {}
 
-    public function reflectResource(Resource $resource, ReflectionStorage $reflectionStorage, ClassReflector $classReflector): void
+    public function reflectFile(FileResource $file, MetadataLazyCollection $storage, ClassExistenceChecker $classExistenceChecker): void
     {
-        $contents = exceptionally(static fn(): string|false => file_get_contents($resource->file));
         $nameContext = new NameContext();
-        $typeContext = new TypeContext($nameContext, $classReflector);
+        $typeContext = new TypeContext($nameContext, $classExistenceChecker);
         $reflector = new ContextualPhpParserReflector(
             phpDocParser: $this->phpDocParser,
-            classReflector: $classReflector,
             typeContext: $typeContext,
-            file: $resource->file,
-            extension: $resource->extension,
+            file: $file,
         );
-        $this->parseAndTraverse($contents, [
+        $this->parseAndTraverse($file->contents(), [
             new NameContextVisitor($nameContext),
-            new ResourceVisitor(
-                reflectionStorage: $reflectionStorage,
-                reflector: $reflector,
-                changeDetector: ChangeDetector::fromFile($resource->file, $contents),
-            ),
+            new ResourceVisitor($reflector, $storage),
         ]);
     }
 
-    public function reflectAnonymousClass(AnonymousClassName $name, ClassReflector $classReflector): ClassReflection
+    public function reflectAnonymousClass(AnonymousClassName $name): ClassMetadata
     {
-        $contents = exceptionally(static fn(): string|false => file_get_contents($name->file));
+        $file = new FileResource($name->file);
         $nameContext = new NameContext();
         $visitor = new FindAnonymousClassVisitor($name);
-        $this->parseAndTraverse($contents, [new NameContextVisitor($nameContext), $visitor]);
+        $this->parseAndTraverse($file->contents(), [new NameContextVisitor($nameContext), $visitor]);
         $node = $visitor->node();
         $reflector = new ContextualPhpParserReflector(
             phpDocParser: $this->phpDocParser,
-            classReflector: $classReflector,
             typeContext: new TypeContext($nameContext),
-            file: $name->file,
+            file: $file,
         );
 
         return $reflector->reflectClass($node, $name->name);
@@ -76,6 +66,7 @@ final class PhpParserReflector
     private function parseAndTraverse(string $code, array $visitors): void
     {
         $traverser = new NodeTraverser();
+        $traverser->addVisitor(new CorrectClassStartLineVisitor($code));
         foreach ($visitors as $visitor) {
             $traverser->addVisitor($visitor);
         }

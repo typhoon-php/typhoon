@@ -93,12 +93,12 @@ final class TypeContext implements NameResolver
      */
     private function addTypes(array $types): void
     {
-        foreach ($types as $name => $templateType) {
+        foreach ($types as $name => $type) {
             if (isset($this->types[$name])) {
                 throw new ReflectionException($name);
             }
 
-            $this->types[(new UnqualifiedName($name))->toString()] = $templateType;
+            $this->types[(new UnqualifiedName($name))->toString()] = $type;
         }
     }
 

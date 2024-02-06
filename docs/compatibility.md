@@ -1,193 +1,177 @@
-# Compatibility with native PHP Reflection
+# Compatibility with native reflection
 
-## ClassReflection
+| `ReflectionClass`                 | `Typhoon\Reflection\ClassReflection` |
+|-----------------------------------|--------------------------------------|
+| `IS_READONLY`                     | ✅ Defined for PHP 8.1                |
+| `$name`                           | ✅                                    |
+| `__construct()`                   | ❌ `@internal`                        |
+| `__toString()`                    | ✅ Via native reflection              |
+| `getAttributes()`                 | ✅                                    |
+| `getConstant()`                   | ✅ Via native reflection              |
+| `getConstants()`                  | ✅ Via native reflection. TODO        |
+| `getConstructor()`                | ✅                                    |
+| `getDefaultProperties()`          | ✅ Via native reflection              |
+| `getDocComment()`                 | ✅️                                   |
+| `getEndLine()`                    | ✅                                    |
+| `getExtension()`                  | ✅ Via native reflection              |
+| `getExtensionName()`              | ✅                                    |
+| `getFileName()`                   | ✅                                    |
+| `getInterfaceNames()`             | ✅                                    |
+| `getInterfaces()`                 | ✅                                    |
+| `getMethods()`                    | ✅                                    |
+| `getMethod()`                     | ✅                                    |
+| `getModifiers()`                  | ✅                                    |
+| `getName()`                       | ✅                                    |
+| `getNamespaceName()`              | ✅                                    |
+| `getParentClass()`                | ✅                                    |
+| `getProperties()`                 | ✅                                    |
+| `getProperty()`                   | ✅                                    |
+| `getReflectionConstant()`         | ✅ Via native reflection. TODO        |
+| `getReflectionConstants()`        | ✅ Via native reflection. TODO        |
+| `getShortName()`                  | ✅                                    |
+| `getStartLine()`                  | ✅️                                   |
+| `getStaticProperties()`           | ✅ Via native reflection              |
+| `getStaticPropertyValue()`        | ✅ Via native reflection              |
+| `getTraitAliases()`               | ✅ Via native reflection. TODO        |
+| `getTraitNames()`                 | ✅ Via native reflection. TODO        |
+| `getTraits()`                     | ✅ Via native reflection. TODO        |
+| `hasConstant()`                   | ✅ Via native reflection. TODO        |
+| `hasMethod()`                     | ✅                                    |
+| `hasProperty()`                   | ✅                                    |
+| `implementsInterface()`           | ✅                                    |
+| `inNamespace()`                   | ✅                                    |
+| `isAbstract()`                    | ✅                                    |
+| `isAnonymous()`                   | ✅                                    |
+| `isCloneable()`                   | ✅                                    |
+| `isEnum()`                        | ✅                                    |
+| `isFinal()`                       | ✅                                    |
+| `isInstance()`                    | ✅                                    |
+| `isInstantiable()`                | ✅                                    |
+| `isInterface()`                   | ✅                                    |
+| `isInternal()`                    | ✅                                    |
+| `isIterable()`                    | ✅                                    |
+| `isIterateable()`                 | ✅                                    |
+| `isReadOnly()`                    | ✅                                    |
+| `isSubclassOf()`                  | ✅                                    |
+| `isTrait()`                       | ✅                                    |
+| `isUserDefined()`                 | ✅                                    |
+| `newInstance()`                   | ✅ Via native reflection              |
+| `newInstanceArgs()`               | ✅ Via native reflection              |
+| `newInstanceWithoutConstructor()` | ✅ Via native reflection              |
+| `setStaticPropertyValue()`        | ✅ Via native reflection              | 
 
-| ReflectionClass                   | ClassReflection                                                  |
-|-----------------------------------|------------------------------------------------------------------|
-| `IS_EXPLICIT_ABSTRACT`            | ✅                                                                |
-| `IS_FINAL`                        | ✅                                                                |
-| `IS_IMPLICIT_ABSTRACT`            | ✅                                                                |
-| `IS_READONLY`                     | ✅                                                                |
-| `$name`                           | ✅                                                                |
-| `__clone()`                       | ✅ Cloning is forbidden                                           |
-| `__construct()`                   | ❌ `@internal`                                                    |
-| `__toString()`                    | ❌ Not going to implement                                         |
-| `getAttributes()`                 | ✅                                                                |
-| `getConstant()`                   | ❌ TODO                                                           |
-| `getConstants()`                  | ❌ TODO                                                           |
-| `getConstructor()`                | ✅                                                                |
-| `getDefaultProperties()`          | ❌ Not going to implement                                         |
-| `getDocComment()`                 | ✅️ Returns `?non-empty-string`                                   |
-| `getEndLine()`                    | ✅ Returns `?positive-int`                                        |
-| `getExtension()`                  | ❌ Not going to implement                                         |
-| `getExtensionName()`              | ✅                                                                |
-| `getFileName()`                   | ✅ Returns `?non-empty-string`                                    |
-| `getInterfaceNames()`             | ✅                                                                |
-| `getInterfaces()`                 | ✅                                                                |
-| `getMethod()`                     | ✅                                                                |
-| `getMethods()`                    | ✅                                                                |
-| `getModifiers()`                  | ✅                                                                |
-| `getName()`                       | ✅                                                                |
-| `getNamespaceName()`              | ✅                                                                |
-| `getParentClass()`                | ✅ Returns `?ClassReflection`                                     |
-| `getProperties()`                 | ✅                                                                |
-| `getProperty()`                   | ✅                                                                |
-| `getReflectionConstant()`         | ❌ TODO                                                           |
-| `getReflectionConstants()`        | ❌ TODO                                                           |
-| `getShortName()`                  | ✅                                                                |
-| `getStartLine()`                  | ✅️ Returns `?positive-int`                                       |
-| `getStaticProperties()`           | ❌ Not going to implement: use `ClassReflection::getProperties()` |
-| `getStaticPropertyValue()`        | ❌ Not going to implement: use `PropertyReflection::setValue()`   |
-| `getTraitAliases()`               | ❌ TODO                                                           |
-| `getTraitNames()`                 | ❌ TODO                                                           |
-| `getTraits()`                     | ❌ TODO                                                           |
-| `hasConstant()`                   | ❌ TODO                                                           |
-| `hasMethod()`                     | ✅                                                                |
-| `hasProperty()`                   | ✅                                                                |
-| `implementsInterface()`           | ✅                                                                |
-| `inNamespace()`                   | ✅                                                                |
-| `isAbstract()`                    | ✅                                                                |
-| `isAnonymous()`                   | ✅                                                                |
-| `isCloneable()`                   | ✅                                                                |
-| `isEnum()`                        | ✅                                                                |
-| `isFinal()`                       | ✅                                                                |
-| `isInstance()`                    | ✅                                                                |
-| `isInstantiable()`                | ✅                                                                |
-| `isInterface()`                   | ✅                                                                |
-| `isInternal()`                    | ✅                                                                |
-| `isIterable()`                    | ✅                                                                |
-| `isIterateable()`                 | ❌ Not going to implement: use `ClassReflection::isIterable()`    |
-| `isReadOnly()`                    | ✅                                                                |
-| `isSubclassOf()`                  | ✅                                                                |
-| `isTrait()`                       | ✅                                                                |
-| `isUserDefined()`                 | ✅                                                                |
-| `newInstance()`                   | ✅ Via native reflection                                          |
-| `newInstanceArgs()`               | ✅ Via native reflection                                          |
-| `newInstanceWithoutConstructor()` | ✅ Via native reflection                                          |
-| `setStaticPropertyValue()`        | ❌ Not going to implement: use `PropertyReflection::setValue()`   | 
+| `ReflectionProperty`  | `Typhoon\Reflection\PropertyReflection` |
+|-----------------------|-----------------------------------------|
+| `$class`              | ✅                                       |
+| `$name`               | ✅                                       |
+| `__construct()`       | ❌ `@internal`                           |
+| `__toString()`        | ✅ Via native reflection                 |
+| `getAttributes()`     | ✅                                       |
+| `getDeclaringClass()` | ✅                                       |
+| `getDefaultValue()`   | ✅ Via native reflection                 |
+| `getDocComment()`     | ✅️                                      |
+| `getModifiers()`      | ✅                                       |
+| `getName()`           | ✅                                       |
+| `getType()`           | ✅ Via native reflection                 |
+| `getValue()`          | ✅ Via native reflection                 |
+| `hasDefaultValue()`   | ✅                                       |
+| `hasType()`           | ✅                                       |
+| `isDefault()`         | ✅                                       |
+| `isInitialized()`     | ✅ Via native reflection                 |
+| `isPrivate()`         | ✅                                       |
+| `isPromoted()`        | ✅                                       |
+| `isProtected()`       | ✅                                       |
+| `isPublic()`          | ✅                                       |
+| `isReadOnly()`        | ✅                                       |
+| `isStatic()`          | ✅                                       |
+| `setAccessible()`     | ✅                                       |
+| `setValue()`          | ✅ Via native reflection                 |
 
-## PropertyReflection
+| `ReflectionMethod`                       | `Typhoon\Reflection\MethodReflection` |
+|------------------------------------------|---------------------------------------|
+| `$class`                                 | ✅                                     |
+| `$name`                                  | ✅                                     |
+| `__construct()`                          | ❌ `@internal`                         |
+| `__toString()`                           | ✅                                     |
+| `createFromMethodName()`                 | ❌                                     |
+| `getAttributes()`                        | ✅                                     |
+| `getClosure()`                           | ✅ Via native reflection               |
+| `getClosureCalledClass()`                | ✅                                     |
+| `getClosureScopeClass()`                 | ✅                                     |
+| `getClosureThis()`                       | ✅                                     |
+| `getClosureUsedVariables()`              | ✅                                     |
+| `getDeclaringClass()`                    | ✅                                     |
+| `getDocComment()`                        | ✅️                                    |
+| `getEndLine()`                           | ✅                                     |
+| `getExtension()`                         | ✅ Via native reflection               |
+| `getExtensionName()`                     | ✅                                     |
+| `getFileName()`                          | ✅️                                    |
+| `getModifiers()`                         | ✅                                     |
+| `getName()`                              | ✅                                     |
+| `getNamespaceName()`                     | ✅                                     |
+| `getNumberOfParameters()`                | ✅                                     |
+| `getNumberOfRequiredParameters()`        | ✅                                     |
+| `getParameters()`                        | ✅                                     |
+| `getPrototype()`                         | ✅                                     |
+| `getReturnType()`                        | ✅ Via native reflection               |
+| `getShortName()`                         | ✅                                     |
+| `getStartLine()`                         | ✅️                                    |
+| `getStaticVariables()`                   | ✅️ Via native reflection              |
+| `getTentativeReturnType()`               | ✅ Via native reflection               |
+| `hasPrototype()`                         | ✅                                     |
+| `hasReturnType()`                        | ✅                                     |
+| `hasTentativeReturnType()`               | ✅ Via native reflection               |
+| `inNamespace()`                          | ✅                                     |
+| `invoke()`                               | ✅ Via native reflection               |
+| `invokeArgs()`                           | ✅ Via native reflection               |
+| `isAbstract()`                           | ✅                                     |
+| `isClosure()`                            | ✅                                     |
+| `isConstructor()`                        | ✅                                     |
+| `isDeprecated()`                         | ✅                                     |
+| `isDestructor()`                         | ✅                                     |
+| `isFinal()`                              | ✅                                     |
+| `isGenerator()`                          | ✅                                     |
+| `isInternal()`                           | ✅                                     |
+| `isPrivate()`                            | ✅                                     |
+| `isProtected()`                          | ✅                                     |
+| `isPublic()`                             | ✅                                     |
+| `isStatic()`                             | ✅                                     |
+| `isUserDefined()`                        | ✅                                     |
+| `isVariadic()`                           | ✅                                     |
+| `returnsReference()`                     | ✅                                     |
+| `setAccessible()`                        | ✅                                     |
 
-| ReflectionProperty    | PropertyReflection                                                 |
-|-----------------------|--------------------------------------------------------------------|
-| `IS_PRIVATE`          | ✅                                                                  |
-| `IS_PROTECTED`        | ✅                                                                  |
-| `IS_PUBLIC`           | ✅                                                                  |
-| `IS_READONLY`         | ✅                                                                  |
-| `IS_STATIC`           | ✅                                                                  |
-| `$class`              | ✅                                                                  |
-| `$name`               | ✅                                                                  |
-| `__clone()`           | ✅ Cloning is forbidden                                             |
-| `__construct()`       | ❌ `@internal`                                                      |
-| `__toString()`        | ❌ Not going to implement                                           |
-| `getAttributes()`     | ❌ TODO                                                             |
-| `getDeclaringClass()` | ✅                                                                  |
-| `getDefaultValue()`   | ✅ Via native reflection                                            |
-| `getDocComment()`     | ✅️ Returns `?non-empty-string`                                     |
-| `getModifiers()`      | ✅                                                                  |
-| `getName()`           | ✅                                                                  |
-| `getType()`           | ⚠️ Returns `TypeReflection`                                        |
-| `getValue()`          | ✅ Via native reflection                                            |
-| `hasDefaultValue()`   | ✅                                                                  |
-| `hasType()`           | ❌ Not going to implement: use `getType()`                          |
-| `isDefault()`         | ❌ Not going to implement: does not make sense in static reflection |
-| `isInitialized()`     | ✅ Via native reflection                                            |
-| `isPrivate()`         | ✅                                                                  |
-| `isPromoted()`        | ✅                                                                  |
-| `isProtected()`       | ✅                                                                  |
-| `isPublic()`          | ✅                                                                  |
-| `isReadOnly()`        | ✅                                                                  |
-| `isStatic()`          | ✅                                                                  |
-| `setAccessible()`     | ❌ Not going to implement: has no effect since 8.1                  |
-| `setValue()`          | ✅ Via native reflection                                            |
+| `ReflectionParameter`           | `Typhoon\Reflection\ParameterReflection` |
+|---------------------------------|------------------------------------------|
+| `$name`                         | ✅                                        |
+| `__construct()`                 | ❌ `@internal`                            |
+| `__toString()`                  | ✅ Via native reflection                  |
+| `allowsNull()`                  | ✅                                        |
+| `canBePassedByValue()`          | ✅                                        |
+| `getAttributes()`               | ✅                                        |
+| `getClass()`                    | ✅                                        |
+| `getDeclaringClass()`           | ✅                                        |
+| `getDeclaringFunction()`        | ✅                                        |
+| `getDefaultValue()`             | ✅ Via native reflection                  |
+| `getDefaultValueConstantName()` | ✅ Via native reflection                  |
+| `getName()`                     | ✅                                        |
+| `getPosition()`                 | ✅                                        |
+| `getType()`                     | ✅ Via native reflection                  |
+| `hasType()`                     | ✅                                        |
+| `isArray()`                     | ✅                                        |
+| `isCallable()`                  | ✅                                        |
+| `isDefaultValueAvailable()`     | ✅                                        |
+| `isDefaultValueConstant()`      | ✅ Via native reflection                  |
+| `isOptional()`                  | ✅                                        |
+| `isPassedByReference()`         | ✅                                        |
+| `isPromoted()`                  | ✅                                        |
+| `isVariadic()`                  | ✅                                        |
 
-## MethodReflection
-
-| ReflectionMethod                  | MethodReflection                                  |
-|-----------------------------------|---------------------------------------------------|
-| `IS_ABSTRACT`                     | ✅                                                 |
-| `IS_FINAL`                        | ✅                                                 |
-| `IS_PRIVATE`                      | ✅                                                 |
-| `IS_PROTECTED`                    | ✅                                                 |
-| `IS_PUBLIC`                       | ✅                                                 |
-| `IS_STATIC`                       | ✅                                                 |
-| `$class`                          | ✅                                                 |
-| `$name`                           | ✅                                                 |
-| `__clone()`                       | ✅ Cloning is forbidden                            |
-| `__construct()`                   | ❌ `@internal`                                     |
-| `__toString()`                    | ❌ Not going to implement                          |
-| `getAttributes()`                 | ❌ TODO                                            |
-| `getClosure()`                    | ✅ Via native reflection                           |
-| `getClosureCalledClass()`         | ❌ TODO                                            |
-| `getClosureScopeClass()`          | ❌ TODO                                            |
-| `getClosureThis()`                | ❌ TODO                                            |
-| `getClosureUsedVariables()`       | ❌ TODO                                            |
-| `getDeclaringClass()`             | ✅                                                 |
-| `getDocComment()`                 | ✅️ Returns `?non-empty-string`                    |
-| `getEndLine()`                    | ✅ Returns `?positive-int`                         |
-| `getExtension()`                  | ❌ Not going to implement                          |
-| `getExtensionName()`              | ✅                                                 |
-| `getFileName()`                   | ✅️ Returns `?non-empty-string`                    |
-| `getModifiers()`                  | ✅                                                 |
-| `getName()`                       | ✅                                                 |
-| `getNamespaceName()`              | ✅                                                 |
-| `getNumberOfParameters()`         | ✅                                                 |
-| `getNumberOfRequiredParameters()` | ✅                                                 |
-| `getParameters()`                 | ✅                                                 |
-| `getPrototype()`                  | ❌ TODO                                            |
-| `getReturnType()`                 | ⚠️ Returns `TypeReflection`                       |
-| `getShortName()`                  | ✅                                                 |
-| `getStartLine()`                  | ✅️ Returns `?positive-int`                        |
-| `getStaticVariables()`            | ❌ TODO                                            |
-| `getTentativeReturnType()`        | ❌ Not going to implement: use `getReturnType()`   |
-| `hasPrototype()`                  | ❌ TODO                                            |
-| `hasReturnType()`                 | ❌ Not going to implement: use `getReturnType()`   |
-| `hasTentativeReturnType()`        | ❌ Not going to implement: use `getReturnType()`   |
-| `inNamespace()`                   | ✅                                                 |
-| `invoke()`                        | ✅ Via native reflection                           |
-| `invokeArgs()`                    | ✅ Via native reflection                           |
-| `isAbstract()`                    | ✅                                                 |
-| `isClosure()`                     | ✅                                                 |
-| `isConstructor()`                 | ✅                                                 |
-| `isDeprecated()`                  | ✅                                                 |
-| `isDestructor()`                  | ✅                                                 |
-| `isFinal()`                       | ✅                                                 |
-| `isGenerator()`                   | ✅                                                 |
-| `isInternal()`                    | ✅                                                 |
-| `isPrivate()`                     | ✅                                                 |
-| `isProtected()`                   | ✅                                                 |
-| `isPublic()`                      | ✅                                                 |
-| `isStatic()`                      | ✅                                                 |
-| `isUserDefined()`                 | ✅                                                 |
-| `isVariadic()`                    | ✅                                                 |
-| `returnsReference()`              | ✅                                                 |
-| `setAccessible()`                 | ❌ Not going to implement: has no effect since 8.1 |
-
-## ParameterReflection
-
-| ReflectionParameter             | ParameterReflection                        |
-|---------------------------------|--------------------------------------------|
-| `$name`                         | ✅                                          |
-| `__clone()`                     | ✅ Cloning is forbidden                     |
-| `__construct()`                 | ❌ `@internal`                              |
-| `__toString()`                  | ❌ Not going to implement                   |
-| `allowsNull()`                  | ❌ Not going to implement: use `getType()`  |
-| `canBePassedByValue()`          | ✅                                          |
-| `getAttributes()`               | ❌ TODO                                     |
-| `getClass()`                    | ❌ Not going to implement: use `getType()`  |
-| `getDeclaringClass()`           | ✅                                          |
-| `getDeclaringFunction()`        | ✅                                          |
-| `getDefaultValue()`             | ✅ Via native reflection                    |
-| `getDefaultValueConstantName()` | ❌ TODO                                     |
-| `getName()`                     | ✅                                          |
-| `getPosition()`                 | ✅                                          |
-| `getType()`                     | ⚠️ Returns `TypeReflection`                |
-| `hasType()`                     | ❌️ Not going to implement: use `getType()` |
-| `isArray()`                     | ❌ Not going to implement: use `getType()`  |
-| `isCallable()`                  | ❌ Not going to implement: use `getType()`  |
-| `isDefaultValueAvailable()`     | ✅                                          |
-| `isDefaultValueConstant()`      | ❌ TODO                                     |
-| `isOptional()`                  | ✅                                          |
-| `isPassedByReference()`         | ✅                                          |
-| `isPromoted()`                  | ✅                                          |
-| `isVariadic()`                  | ✅                                          |
+| `ReflectionAttribute` | `Typhoon\Reflection\AttributeReflection` |
+|-----------------------|------------------------------------------|
+| `__toString()`        | ✅ Via native reflection                  |
+| `getArguments()`      | ✅ Via native reflection                  |
+| `getName()`           | ✅                                        |
+| `getTarget()`         | ✅                                        |
+| `isRepeated()`        | ✅                                        |
+| `newInstance()`       | ✅ Via native reflection                  |

@@ -40,6 +40,7 @@ final class NameContextFunctionalTester extends NodeVisitorAbstract
 
         try {
             self::$instance = $visitor;
+            /** @psalm-suppress UnresolvableInclude */
             include $file;
         } finally {
             self::$instance = null;

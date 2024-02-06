@@ -12,19 +12,21 @@ use PhpParser\Node\Stmt;
 use PhpParser\NodeTraverser;
 use PhpParser\NodeVisitorAbstract;
 use PHPStan\PhpDocParser\Ast\Type\TypeNode;
-use Typhoon\Reflection\AttributeReflection;
 use Typhoon\Reflection\ClassReflection;
-use Typhoon\Reflection\ClassReflection\ClassReflector;
-use Typhoon\Reflection\MethodReflection;
-use Typhoon\Reflection\ParameterReflection;
+use Typhoon\Reflection\FileResource;
+use Typhoon\Reflection\Metadata\AttributeMetadata;
+use Typhoon\Reflection\Metadata\ClassMetadata;
+use Typhoon\Reflection\Metadata\MethodMetadata;
+use Typhoon\Reflection\Metadata\ParameterMetadata;
+use Typhoon\Reflection\Metadata\PropertyMetadata;
+use Typhoon\Reflection\Metadata\TypeMetadata;
 use Typhoon\Reflection\PhpDocParser\ContextualPhpDocTypeReflector;
 use Typhoon\Reflection\PhpDocParser\PhpDoc;
 use Typhoon\Reflection\PhpDocParser\PhpDocParser;
-use Typhoon\Reflection\PropertyReflection;
 use Typhoon\Reflection\ReflectionException;
 use Typhoon\Reflection\TemplateReflection;
+use Typhoon\Reflection\TypeAlias\ImportedTypeAlias;
 use Typhoon\Reflection\TypeContext\TypeContext;
-use Typhoon\Reflection\TypeReflection;
 use Typhoon\Type;
 use Typhoon\Type\types;
 
@@ -36,21 +38,12 @@ final class ContextualPhpParserReflector
 {
     private ContextualPhpDocTypeReflector $phpDocTypeReflector;
 
-    private bool $internal;
-
-    /**
-     * @param non-empty-string $file
-     * @param ?non-empty-string $extension
-     */
     public function __construct(
         private readonly PhpDocParser $phpDocParser,
-        private readonly ClassReflector $classReflector,
         private TypeContext $typeContext,
-        private readonly string $file,
-        private readonly ?string $extension = null,
+        private readonly FileResource $file,
     ) {
         $this->phpDocTypeReflector = new ContextualPhpDocTypeReflector($typeContext);
-        $this->internal = $extension !== null;
     }
 
     /**
@@ -64,21 +57,23 @@ final class ContextualPhpParserReflector
     /**
      * @template TObject of object
      * @param class-string<TObject> $name
-     * @return ClassReflection<TObject>
+     * @return ClassMetadata<TObject>
      */
-    public function reflectClass(Stmt\ClassLike $node, string $name): ClassReflection
+    public function reflectClass(Stmt\ClassLike $node, string $name): ClassMetadata
     {
         $phpDoc = $this->parsePhpDoc($node);
+        $startLine = CorrectClassStartLineVisitor::getStartLine($node);
 
-        return $this->executeWithTypes(types::atClass($name), $phpDoc, fn(): ClassReflection => new ClassReflection(
+        return $this->executeWithTypes(types::atClass($name), $phpDoc, fn(): ClassMetadata => new ClassMetadata(
+            changeDetector: $this->file->changeDetector(),
             name: $name,
-            internal: $this->internal,
-            extensionName: $this->extension,
-            file: $this->file,
-            startLine: $node->getStartLine() > 0 ? $node->getStartLine() : null,
+            internal: $this->file->isInternal(),
+            extensionName: $this->file->extension,
+            file: $this->file->file,
+            startLine: $startLine > 0 ? $startLine : null,
             endLine: $node->getEndLine() > 0 ? $node->getEndLine() : null,
             docComment: $this->reflectDocComment($node),
-            attributes: $this->reflectAttributes($node, [$name]),
+            attributes: $this->reflectAttributes($node->attrGroups, \Attribute::TARGET_CLASS),
             typeAliases: $this->reflectTypeAliasesFromContext($phpDoc),
             templates: $this->reflectTemplatesFromContext($phpDoc),
             interface: $node instanceof Stmt\Interface_,
@@ -103,51 +98,62 @@ final class ContextualPhpParserReflector
     /**
      * @param class-string $class
      */
-    private function reflectEnumNameProperty(string $class): PropertyReflection
+    private function reflectEnumNameProperty(string $class): PropertyMetadata
     {
-        return new PropertyReflection(
+        return new PropertyMetadata(
             name: 'name',
             class: $class,
-            docComment: null,
+            docComment: false,
             hasDefaultValue: false,
             promoted: false,
-            modifiers: PropertyReflection::IS_PUBLIC + PropertyReflection::IS_READONLY,
+            modifiers: \ReflectionProperty::IS_PUBLIC + \ReflectionProperty::IS_READONLY,
             deprecated: false,
-            type: TypeReflection::create(native: types::string, phpDoc: types::nonEmptyString),
+            type: TypeMetadata::create(native: types::string, phpDoc: types::nonEmptyString),
             startLine: null,
             endLine: null,
+            attributes: [],
         );
     }
 
     /**
-     * @param non-empty-list $nativeOwnerArguments
-     * @return list<AttributeReflection>
+     * @param array<Node\AttributeGroup> $attrGroups
+     * @param \Attribute::TARGET_* $target
+     * @return list<AttributeMetadata>
      */
-    private function reflectAttributes(Stmt\ClassLike $node, array $nativeOwnerArguments): array
+    private function reflectAttributes(array $attrGroups, int $target): array
     {
-        $counters = [];
+        /** @var list<class-string> */
+        $names = [];
+        /** @var array<class-string, bool> */
+        $repeated = [];
 
-        foreach ($node->attrGroups as $attrGroup) {
+        foreach ($attrGroups as $attrGroup) {
             foreach ($attrGroup->attrs as $attr) {
-                $counters[$attr->name->toString()] ??= 0;
-                ++$counters[$attr->name->toString()];
+                $name = $this->typeContext->resolveNameAsClass($attr->name->toCodeString());
+
+                if (str_starts_with($name, 'JetBrains\PhpStorm\Internal')) {
+                    continue;
+                }
+
+                $names[] = $name;
+
+                if (isset($repeated[$name])) {
+                    $repeated[$name] = true;
+                } else {
+                    $repeated[$name] = false;
+                }
             }
         }
 
         $attributes = [];
-        $position = 0;
 
-        foreach ($node->attrGroups as $attrGroup) {
-            foreach ($attrGroup->attrs as $attr) {
-                $attributes[] = new AttributeReflection(
-                    name: $this->typeContext->resolveNameAsClass($attr->name->toCodeString()),
-                    position: $position,
-                    target: AttributeReflection::TARGET_CLASS,
-                    repeated: $counters[$attr->name->toString()] > 1,
-                    nativeOwnerArguments: $nativeOwnerArguments,
-                );
-                ++$position;
-            }
+        foreach ($names as $position => $name) {
+            $attributes[] = new AttributeMetadata(
+                name: $name,
+                position: $position,
+                target: $target,
+                repeated: $repeated[$name],
+            );
         }
 
         return $attributes;
@@ -244,7 +250,7 @@ final class ContextualPhpParserReflector
 
     /**
      * @param class-string $class
-     * @return list<PropertyReflection>
+     * @return list<PropertyMetadata>
      */
     private function reflectOwnProperties(string $class, Stmt\ClassLike $classNode): array
     {
@@ -264,7 +270,7 @@ final class ContextualPhpParserReflector
             $type = $this->reflectType($node->type, $phpDoc->varType());
 
             foreach ($node->props as $property) {
-                $properties[] = new PropertyReflection(
+                $properties[] = new PropertyMetadata(
                     name: $property->name->name,
                     class: $class,
                     docComment: $this->reflectDocComment($node),
@@ -275,6 +281,7 @@ final class ContextualPhpParserReflector
                     type: $type,
                     startLine: $node->getStartLine() > 0 ? $node->getStartLine() : null,
                     endLine: $node->getEndLine() > 0 ? $node->getEndLine() : null,
+                    attributes: $this->reflectAttributes($node->attrGroups, \Attribute::TARGET_PROPERTY),
                 );
             }
         }
@@ -296,7 +303,7 @@ final class ContextualPhpParserReflector
 
             \assert($node->var instanceof Expr\Variable && \is_string($node->var->name));
             $name = $node->var->name;
-            $properties[] = new PropertyReflection(
+            $properties[] = new PropertyMetadata(
                 name: $name,
                 class: $class,
                 docComment: $this->reflectDocComment($node),
@@ -307,6 +314,7 @@ final class ContextualPhpParserReflector
                 type: $this->reflectType($node->type, $phpDoc->paramTypes()[$name] ?? null),
                 startLine: $node->getStartLine() > 0 ? $node->getStartLine() : null,
                 endLine: $node->getEndLine() > 0 ? $node->getEndLine() : null,
+                attributes: $this->reflectAttributes($node->attrGroups, \Attribute::TARGET_PROPERTY),
             );
         }
 
@@ -314,44 +322,44 @@ final class ContextualPhpParserReflector
     }
 
     /**
-     * @return int-mask-of<PropertyReflection::IS_*>
+     * @return int-mask-of<\ReflectionProperty::IS_*>
      */
     private function reflectPropertyModifiers(Stmt\Property $node, bool $classReadOnly): int
     {
-        return ($node->isStatic() ? PropertyReflection::IS_STATIC : 0)
-            + ($node->isPublic() ? PropertyReflection::IS_PUBLIC : 0)
-            + ($node->isProtected() ? PropertyReflection::IS_PROTECTED : 0)
-            + ($node->isPrivate() ? PropertyReflection::IS_PRIVATE : 0)
-            + ($classReadOnly || $node->isReadonly() ? PropertyReflection::IS_READONLY : 0);
+        return ($node->isStatic() ? \ReflectionProperty::IS_STATIC : 0)
+            + ($node->isPublic() ? \ReflectionProperty::IS_PUBLIC : 0)
+            + ($node->isProtected() ? \ReflectionProperty::IS_PROTECTED : 0)
+            + ($node->isPrivate() ? \ReflectionProperty::IS_PRIVATE : 0)
+            + ($classReadOnly || $node->isReadonly() ? \ReflectionProperty::IS_READONLY : 0);
     }
 
     /**
-     * @return int-mask-of<PropertyReflection::IS_*>
+     * @return int-mask-of<\ReflectionProperty::IS_*>
      */
     private function reflectPromotedPropertyModifiers(Node\Param $node, bool $classReadOnly): int
     {
-        return (($node->flags & Stmt\Class_::MODIFIER_PUBLIC) !== 0 ? PropertyReflection::IS_PUBLIC : 0)
-            + (($node->flags & Stmt\Class_::MODIFIER_PROTECTED) !== 0 ? PropertyReflection::IS_PROTECTED : 0)
-            + (($node->flags & Stmt\Class_::MODIFIER_PRIVATE) !== 0 ? PropertyReflection::IS_PRIVATE : 0)
-            + (($classReadOnly || ($node->flags & Stmt\Class_::MODIFIER_READONLY) !== 0) ? PropertyReflection::IS_READONLY : 0);
+        return (($node->flags & Stmt\Class_::MODIFIER_PUBLIC) !== 0 ? \ReflectionProperty::IS_PUBLIC : 0)
+            + (($node->flags & Stmt\Class_::MODIFIER_PROTECTED) !== 0 ? \ReflectionProperty::IS_PROTECTED : 0)
+            + (($node->flags & Stmt\Class_::MODIFIER_PRIVATE) !== 0 ? \ReflectionProperty::IS_PRIVATE : 0)
+            + (($classReadOnly || ($node->flags & Stmt\Class_::MODIFIER_READONLY) !== 0) ? \ReflectionProperty::IS_READONLY : 0);
     }
 
     /**
-     * @return int-mask-of<MethodReflection::IS_*>
+     * @return int-mask-of<\ReflectionMethod::IS_*>
      */
     private function reflectMethodModifiers(Stmt\ClassMethod $node, bool $interface): int
     {
-        return ($node->isStatic() ? MethodReflection::IS_STATIC : 0)
-            + ($node->isPublic() ? MethodReflection::IS_PUBLIC : 0)
-            + ($node->isProtected() ? MethodReflection::IS_PROTECTED : 0)
-            + ($node->isPrivate() ? MethodReflection::IS_PRIVATE : 0)
-            + (($interface || $node->isAbstract()) ? MethodReflection::IS_ABSTRACT : 0)
-            + ($node->isFinal() ? MethodReflection::IS_FINAL : 0);
+        return ($node->isStatic() ? \ReflectionMethod::IS_STATIC : 0)
+            + ($node->isPublic() ? \ReflectionMethod::IS_PUBLIC : 0)
+            + ($node->isProtected() ? \ReflectionMethod::IS_PROTECTED : 0)
+            + ($node->isPrivate() ? \ReflectionMethod::IS_PRIVATE : 0)
+            + (($interface || $node->isAbstract()) ? \ReflectionMethod::IS_ABSTRACT : 0)
+            + ($node->isFinal() ? \ReflectionMethod::IS_FINAL : 0);
     }
 
     /**
      * @param class-string $class
-     * @return list<MethodReflection>
+     * @return list<MethodMetadata>
      */
     private function reflectOwnMethods(string $class, Stmt\ClassLike $classNode): array
     {
@@ -362,22 +370,23 @@ final class ContextualPhpParserReflector
             $name = $node->name->name;
             $phpDoc = $this->parsePhpDoc($node);
             $declaredAt = types::atMethod($class, $name);
-            $methods[] = $this->executeWithTypes($declaredAt, $phpDoc, fn(): MethodReflection => new MethodReflection(
-                class: $class,
+            $methods[] = $this->executeWithTypes($declaredAt, $phpDoc, fn(): MethodMetadata => new MethodMetadata(
                 name: $name,
+                class: $class,
                 templates: $this->reflectTemplatesFromContext($phpDoc),
                 modifiers: $this->reflectMethodModifiers($node, $interface),
                 docComment: $this->reflectDocComment($node),
-                internal: $this->internal,
-                extensionName: $this->extension,
-                file: $this->file,
+                internal: $this->file->isInternal(),
+                extensionName: $this->file->extension,
+                file: $this->file->file,
                 startLine: $node->getStartLine() > 0 ? $node->getStartLine() : null,
                 endLine: $node->getEndLine() > 0 ? $node->getEndLine() : null,
                 returnsReference: $node->byRef,
                 generator: $this->reflectIsGenerator($node),
                 deprecated: $phpDoc->isDeprecated(),
-                parameters: $this->reflectParameters($class, $name, $node->params, $phpDoc),
+                parameters: $this->reflectParameters($node->params, $phpDoc, $class, $name),
                 returnType: $this->reflectType($node->returnType, $phpDoc->returnType()),
+                attributes: $this->reflectAttributes($node->attrGroups, \Attribute::TARGET_METHOD),
             ));
         }
 
@@ -393,15 +402,17 @@ final class ContextualPhpParserReflector
     }
 
     /**
-     * @return ?non-empty-string
+     * @return non-empty-string|false
      */
-    private function reflectDocComment(Node $node): ?string
+    private function reflectDocComment(Node $node): string|false
     {
-        if ($this->internal) {
-            return null;
+        if ($this->file->isInternal()) {
+            return false;
         }
 
-        return $node->getDocComment()?->getText() ?: null;
+        $text = $node->getDocComment()?->getText() ?? '';
+
+        return $text ?: false;
     }
 
     private function reflectIsGenerator(Stmt\ClassMethod $node): bool
@@ -431,12 +442,12 @@ final class ContextualPhpParserReflector
     }
 
     /**
-     * @param ?class-string $class
-     * @param non-empty-string $functionOrMethod
      * @param array<Node\Param> $nodes
-     * @return list<ParameterReflection>
+     * @param class-string $class
+     * @param non-empty-string $functionOrMethod
+     * @return list<ParameterMetadata>
      */
-    private function reflectParameters(?string $class, string $functionOrMethod, array $nodes, PhpDoc $methodPhpDoc): array
+    private function reflectParameters(array $nodes, PhpDoc $methodPhpDoc, string $class, string $functionOrMethod): array
     {
         $parameters = [];
         $isOptional = false;
@@ -446,7 +457,7 @@ final class ContextualPhpParserReflector
             $name = $node->var->name;
             $phpDoc = $this->parsePhpDoc($node);
             $isOptional = $isOptional || $node->default !== null || $node->variadic;
-            $parameters[] = new ParameterReflection(
+            $parameters[] = new ParameterMetadata(
                 position: $position,
                 name: $name,
                 class: $class,
@@ -457,19 +468,20 @@ final class ContextualPhpParserReflector
                 variadic: $node->variadic,
                 promoted: $this->isParameterPromoted($node),
                 deprecated: $phpDoc->isDeprecated(),
-                type: $this->reflectType($node->type, $methodPhpDoc->paramTypes()[$name] ?? null),
+                type: $this->reflectType($node->type, $methodPhpDoc->paramTypes()[$name] ?? null, $this->isParamDefaultNull($node)),
                 startLine: $node->getStartLine() > 0 ? $node->getStartLine() : null,
                 endLine: $node->getEndLine() > 0 ? $node->getEndLine() : null,
+                attributes: $this->reflectAttributes($node->attrGroups, \Attribute::TARGET_PARAMETER),
             );
         }
 
         return $parameters;
     }
 
-    private function reflectType(?Node $native, ?TypeNode $phpDoc): TypeReflection
+    private function reflectType(?Node $native, ?TypeNode $phpDoc, bool $implicitlySupportsNull = false): TypeMetadata
     {
-        return TypeReflection::create(
-            native: $this->safelyReflectNativeType($native),
+        return TypeMetadata::create(
+            native: $this->safelyReflectNativeType($native, $implicitlySupportsNull),
             phpDoc: $this->safelyReflectPhpDocType($phpDoc),
         );
     }
@@ -477,15 +489,15 @@ final class ContextualPhpParserReflector
     /**
      * @todo Add try/catch + logging.
      */
-    private function safelyReflectNativeType(?Node $node): ?Type\Type
+    private function safelyReflectNativeType(?Node $node, bool $implicitlySupportsNull = false): ?Type\Type
     {
-        return $this->reflectNativeType($node);
+        return $this->reflectNativeType($node, $implicitlySupportsNull);
     }
 
     /**
      * @return ($node is null ? null : Type\Type)
      */
-    private function reflectNativeType(?Node $node): ?Type\Type
+    private function reflectNativeType(?Node $node, bool $implicitlySupportsNull = false): ?Type\Type
     {
         if ($node === null) {
             return null;
@@ -493,6 +505,10 @@ final class ContextualPhpParserReflector
 
         if ($node instanceof Node\NullableType) {
             return types::nullable($this->reflectNativeType($node->type));
+        }
+
+        if ($implicitlySupportsNull) {
+            return types::nullable($this->reflectNativeType($node));
         }
 
         if ($node instanceof Node\UnionType) {
@@ -566,74 +582,81 @@ final class ContextualPhpParserReflector
             || ($node->flags & Stmt\Class_::MODIFIER_PRIVATE) !== 0;
     }
 
+    private function isParamDefaultNull(Node\Param $param): bool
+    {
+        return $param->default instanceof Expr\ConstFetch && $param->default->name->toCodeString() === 'null';
+    }
+
     /**
      * @param class-string $class
      */
-    private function reflectBackedEnumValueProperty(string $class, Node\Identifier $scalarType): PropertyReflection
+    private function reflectBackedEnumValueProperty(string $class, Node\Identifier $scalarType): PropertyMetadata
     {
-        return new PropertyReflection(
+        return new PropertyMetadata(
             name: 'value',
             class: $class,
-            docComment: null,
+            docComment: false,
             hasDefaultValue: false,
             promoted: false,
-            modifiers: PropertyReflection::IS_PUBLIC + PropertyReflection::IS_READONLY,
+            modifiers: \ReflectionProperty::IS_PUBLIC + \ReflectionProperty::IS_READONLY,
             deprecated: false,
             type: $this->reflectType($scalarType, null),
             startLine: null,
             endLine: null,
+            attributes: [],
         );
     }
 
     /**
      * @param class-string $class
      */
-    private function reflectEnumCasesMethod(string $class): MethodReflection
+    private function reflectEnumCasesMethod(string $class): MethodMetadata
     {
-        return new MethodReflection(
-            class: $class,
+        return new MethodMetadata(
             name: 'cases',
+            class: $class,
             templates: [],
-            modifiers: MethodReflection::IS_STATIC + MethodReflection::IS_PUBLIC,
-            docComment: null,
+            modifiers: \ReflectionMethod::IS_STATIC + \ReflectionMethod::IS_PUBLIC,
+            docComment: false,
             internal: true,
-            extensionName: null,
-            file: null,
+            extensionName: false,
+            file: false,
             startLine: null,
             endLine: null,
             returnsReference: false,
             generator: false,
             deprecated: false,
             parameters: [],
-            returnType: TypeReflection::create(types::array(), types::list(types::object($class))),
+            returnType: TypeMetadata::create(types::array(), types::list(types::object($class))),
+            attributes: [],
         );
     }
 
     /**
      * @param class-string $class
-     * @return list<MethodReflection>
+     * @return list<MethodMetadata>
      */
     private function reflectBackedEnumMethods(string $class, Node\Identifier $scalarType): array
     {
         $valueType = $this->reflectType($scalarType, null);
 
         return [
-            new MethodReflection(
-                class: $class,
+            new MethodMetadata(
                 name: 'from',
+                class: $class,
                 templates: [],
-                modifiers: MethodReflection::IS_STATIC + MethodReflection::IS_PUBLIC,
-                docComment: null,
+                modifiers: \ReflectionMethod::IS_STATIC + \ReflectionMethod::IS_PUBLIC,
+                docComment: false,
                 internal: true,
-                extensionName: null,
-                file: null,
+                extensionName: false,
+                file: false,
                 startLine: null,
                 endLine: null,
                 returnsReference: false,
                 generator: false,
                 deprecated: false,
                 parameters: [
-                    new ParameterReflection(
+                    new ParameterMetadata(
                         position: 0,
                         name: 'value',
                         class: $class,
@@ -647,26 +670,28 @@ final class ContextualPhpParserReflector
                         type: $valueType,
                         startLine: null,
                         endLine: null,
+                        attributes: [],
                     ),
                 ],
-                returnType: TypeReflection::create(types::array(), types::list(types::object($class))),
+                returnType: TypeMetadata::create(types::array(), types::list(types::object($class))),
+                attributes: [],
             ),
-            new MethodReflection(
-                class: $class,
+            new MethodMetadata(
                 name: 'tryFrom',
+                class: $class,
                 templates: [],
-                modifiers: MethodReflection::IS_STATIC + MethodReflection::IS_PUBLIC,
-                docComment: null,
+                modifiers: \ReflectionMethod::IS_STATIC + \ReflectionMethod::IS_PUBLIC,
+                docComment: false,
                 internal: true,
-                extensionName: null,
-                file: null,
+                extensionName: false,
+                file: false,
                 startLine: null,
                 endLine: null,
                 returnsReference: false,
                 generator: false,
                 deprecated: false,
                 parameters: [
-                    new ParameterReflection(
+                    new ParameterMetadata(
                         position: 0,
                         name: 'value',
                         class: $class,
@@ -680,12 +705,14 @@ final class ContextualPhpParserReflector
                         type: $valueType,
                         startLine: null,
                         endLine: null,
+                        attributes: [],
                     ),
                 ],
-                returnType: TypeReflection::create(
+                returnType: TypeMetadata::create(
                     types::nullable(types::array()),
                     types::nullable(types::list(types::object($class))),
                 ),
+                attributes: [],
             ),
         ];
     }
@@ -701,8 +728,8 @@ final class ContextualPhpParserReflector
             $templateType = $this->typeContext->resolveNameAsType($node->name);
             \assert($templateType instanceof Type\TemplateType);
             $reflections[] = new TemplateReflection(
-                position: $position,
                 name: $node->name,
+                position: $position,
                 constraint: $templateType->constraint,
                 variance: PhpDoc::templateTagVariance($node),
             );
@@ -757,10 +784,7 @@ final class ContextualPhpParserReflector
                     return $this->typeContext->resolveNameAsType($typeImport->importedAlias);
                 }
 
-                return $this
-                    ->classReflector
-                    ->reflectClass($fromClass)
-                    ->getTypeAlias($typeImport->importedAlias);
+                return new ImportedTypeAlias($fromClass, $typeImport->importedAlias);
             };
         }
 
@@ -779,7 +803,7 @@ final class ContextualPhpParserReflector
     {
         $text = $node->getDocComment()?->getText();
 
-        if (!$text) {
+        if ($text === null || $text === '') {
             return PhpDoc::empty();
         }
 

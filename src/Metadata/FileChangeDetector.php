@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Typhoon\Reflection\ReflectionStorage;
+namespace Typhoon\Reflection\Metadata;
 
 use function Typhoon\Reflection\Exceptionally\exceptionally;
 

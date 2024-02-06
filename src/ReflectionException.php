@@ -7,7 +7,7 @@ namespace Typhoon\Reflection;
 /**
  * @api
  */
-final class ReflectionException extends \LogicException
+final class ReflectionException extends \ReflectionException
 {
     public function __construct(string $message = '', int $code = 0, ?\Throwable $previous = null)
     {

@@ -26,13 +26,10 @@
         "phpunit/phpunit": "^10.5.8",
         "phpyh/coding-standard": "^2.6.0",
         "psalm/plugin-phpunit": "^0.18.4",
-        "symfony/filesystem": "^6.4",
-        "symfony/finder": "^6.4",
-        "symfony/var-dumper": "^6.4.2",
-        "typhoon/exporter": "^0.2@dev",
+        "symfony/var-dumper": "^6.4.2 || ^7",
         "typhoon/opcache": "^0.2@dev",
         "typhoon/psalm-plugin": "^0.1.0",
-        "vimeo/psalm": "^5.21"
+        "vimeo/psalm": "^5@dev"
     },
     "autoload": {
         "psr-4": {
@@ -55,7 +52,12 @@
         "sort-packages": true
     },
     "scripts": {
-        "fixcs": "PHP_CS_FIXER_IGNORE_ENV=1 vendor/bin/php-cs-fixer fix -v",
+        "fixcs": [
+            "vendor/bin/php-cs-fixer fix -v",
+            "vendor/bin/php-cs-fixer fix --config=.RecursiveTypeReplacer.php-cs-fixer.dist.php -v",
+            "vendor/bin/php-cs-fixer fix --config=.Reflection.php-cs-fixer.dist.php -v",
+            "vendor/bin/php-cs-fixer fix --config=.TypeInheritanceResolver.php-cs-fixer.dist.php -v"
+        ],
         "infection": "infection --threads=max --only-covered --show-mutations",
         "pre-command-run": "mkdir -p var",
         "psalm": "psalm --show-info=true --no-diff",

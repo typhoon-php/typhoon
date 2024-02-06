@@ -15,6 +15,7 @@ use Typhoon\Type\types;
 final class ContextualPhpDocTypeReflectorTest extends TestCase
 {
     /**
+     * @psalm-suppress PossiblyUnusedMethod
      * @return \Generator<int, array{string, Type|\Throwable}>
      */
     public static function validTypes(): \Generator

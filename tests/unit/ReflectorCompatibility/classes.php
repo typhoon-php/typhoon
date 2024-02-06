@@ -191,7 +191,6 @@ namespace ComplexMethodOrder
 
 namespace Anonymous
 {
-
     use Simple\JustClass;
     use Simple\JustInterface;
 
@@ -211,4 +210,78 @@ namespace Anonymous
             new class {};
         }
     };
+}
+
+namespace Attributes
+{
+    #[\Attribute(\Attribute::TARGET_ALL|\Attribute::IS_REPEATABLE)]
+    final class Attr
+    {
+        public function __construct(public readonly string $value) {}
+    }
+
+    #[Attr('class')]
+    #[Attr('class2')]
+    final class ClassWithAttributes
+    {
+        #[Attr('constant')]
+        #[Attr('constant2')]
+        public const C = 1;
+
+        #[Attr('property')]
+        #[Attr('property2')]
+        public string $prop;
+
+        #[Attr('method')]
+        #[Attr('method2')]
+        public function __construct(
+            #[Attr('param')]
+            #[Attr('param2')]
+            array $param,
+            #[Attr('promoted')]
+            #[Attr('promoted2')]
+            public string $promoted,
+        ){}
+    }
+}
+
+namespace ParameterTypes
+{
+    final class Y {}
+
+    final class X
+    {
+        public const A = 1;
+
+        public function method(
+            array $array,
+            callable $callable,
+            \Closure $closure,
+            $noType,
+            self $self,
+            Y $y,
+            null|int|float $nullIntFloat,
+            mixed $mixed,
+            float $implicitlyNullable = null,
+            int $defaultConstant = self::A,
+        ) {}
+    }
+}
+
+namespace Inheritance
+{
+    abstract class Base
+    {
+        private string $private;
+        protected string $protected;
+        public string $public;
+
+        private function private(): void {}
+        protected function protected(): void {}
+        public function public(): void {}
+    }
+
+    final class Child extends Base
+    {
+    }
 }

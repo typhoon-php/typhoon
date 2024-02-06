@@ -4,13 +4,14 @@ declare(strict_types=1);
 
 namespace Typhoon\Reflection\NativeReflector;
 
-use Typhoon\Reflection\AttributeReflection;
-use Typhoon\Reflection\ClassReflection;
-use Typhoon\Reflection\MethodReflection;
-use Typhoon\Reflection\ParameterReflection;
-use Typhoon\Reflection\PropertyReflection;
+use Typhoon\Reflection\Metadata\AttributeMetadata;
+use Typhoon\Reflection\Metadata\ChangeDetector;
+use Typhoon\Reflection\Metadata\ClassMetadata;
+use Typhoon\Reflection\Metadata\MethodMetadata;
+use Typhoon\Reflection\Metadata\ParameterMetadata;
+use Typhoon\Reflection\Metadata\PropertyMetadata;
+use Typhoon\Reflection\Metadata\TypeMetadata;
 use Typhoon\Reflection\ReflectionException;
-use Typhoon\Reflection\TypeReflection;
 use Typhoon\Type;
 use Typhoon\Type\types;
 
@@ -23,19 +24,20 @@ final class NativeReflector
     /**
      * @template T of object
      * @param \ReflectionClass<T> $class
-     * @return ClassReflection<T>
+     * @return ClassMetadata<T>
      */
-    public function reflectClass(\ReflectionClass $class): ClassReflection
+    public function reflectClass(\ReflectionClass $class): ClassMetadata
     {
-        return new ClassReflection(
+        return new ClassMetadata(
+            changeDetector: ChangeDetector::fromReflection($class),
             name: $class->name,
             internal: $class->isInternal(),
-            extensionName: $class->getExtensionName() ?: null,
-            file: $class->getFileName() ?: null,
+            extensionName: $class->getExtensionName(),
+            file: $class->getFileName(),
             startLine: $class->getStartLine() ?: null,
             endLine: $class->getEndLine() ?: null,
-            docComment: $class->getDocComment() ?: null,
-            attributes: $this->reflectAttributes($class->getAttributes(), [$class->name]),
+            docComment: $class->getDocComment(),
+            attributes: $this->reflectAttributes($class->getAttributes()),
             typeAliases: [],
             templates: [],
             interface: $class->isInterface(),
@@ -51,7 +53,6 @@ final class NativeReflector
             ),
             ownProperties: $this->reflectOwnProperties($class),
             ownMethods: $this->reflectOwnMethods($class),
-            nativeReflection: $class,
         );
     }
 
@@ -67,7 +68,7 @@ final class NativeReflector
     }
 
     /**
-     * @return list<PropertyReflection>
+     * @return list<PropertyMetadata>
      */
     private function reflectOwnProperties(\ReflectionClass $class): array
     {
@@ -77,12 +78,12 @@ final class NativeReflector
             if ($property->class === $class->name) {
                 /** @var non-empty-string */
                 $name = $property->name;
-                /** @var int-mask-of<PropertyReflection::IS_*> */
+                /** @var int-mask-of<\ReflectionProperty::IS_*> */
                 $modifiers = $property->getModifiers();
-                $properties[] = new PropertyReflection(
+                $properties[] = new PropertyMetadata(
                     name: $name,
-                    class: $class->name,
-                    docComment: $property->getDocComment() ?: null,
+                    class: $property->class,
+                    docComment: $property->getDocComment(),
                     hasDefaultValue: $property->hasDefaultValue(),
                     promoted: $property->isPromoted(),
                     modifiers: $modifiers,
@@ -90,7 +91,7 @@ final class NativeReflector
                     type: $this->reflectType($property->getType(), $class->name),
                     startLine: null,
                     endLine: null,
-                    nativeReflection: $property,
+                    attributes: $this->reflectAttributes($property->getAttributes()),
                 );
             }
         }
@@ -99,7 +100,7 @@ final class NativeReflector
     }
 
     /**
-     * @return list<MethodReflection>
+     * @return list<MethodMetadata>
      */
     private function reflectOwnMethods(\ReflectionClass $class): array
     {
@@ -107,17 +108,15 @@ final class NativeReflector
 
         foreach ($class->getMethods() as $method) {
             if ($method->class === $class->name) {
-                /** @var non-empty-string */
-                $name = $method->name;
-                $methods[] = new MethodReflection(
-                    class: $class->name,
-                    name: $name,
+                $methods[] = new MethodMetadata(
+                    name: $method->name,
+                    class: $method->class,
                     templates: [],
                     modifiers: $method->getModifiers(),
-                    docComment: $method->getDocComment() ?: null,
+                    docComment: $method->getDocComment(),
                     internal: $method->isInternal(),
-                    extensionName: $method->getExtensionName() ?: null,
-                    file: $method->getFileName() ?: null,
+                    extensionName: $method->getExtensionName(),
+                    file: $method->getFileName(),
                     startLine: $method->getStartLine() ?: null,
                     endLine: $method->getEndLine() ?: null,
                     returnsReference: $method->returnsReference(),
@@ -125,7 +124,7 @@ final class NativeReflector
                     deprecated: $method->isDeprecated(),
                     parameters: $this->reflectParameters($method, $class->name),
                     returnType: $this->reflectType($method->getReturnType(), $class->name),
-                    nativeReflection: $method,
+                    attributes: $this->reflectAttributes($method->getAttributes()),
                 );
             }
         }
@@ -135,21 +134,19 @@ final class NativeReflector
 
     /**
      * @param ?class-string $class
-     * @return list<ParameterReflection>
+     * @return list<ParameterMetadata>
      */
     private function reflectParameters(\ReflectionFunctionAbstract $function, ?string $class): array
     {
         $parameters = [];
+        /** @var non-empty-string */
+        $functionOrMethod = $function->name;
 
         foreach ($function->getParameters() as $parameter) {
-            /** @var int<0, max> */
-            $position = $parameter->getPosition();
-            /** @var non-empty-string */
-            $functionOrMethod = $function->name;
-            $parameters[] = new ParameterReflection(
-                position: $position,
+            $parameters[] = new ParameterMetadata(
+                position: $parameter->getPosition(),
                 name: $parameter->name,
-                class: $class,
+                class: $parameter->getDeclaringClass()?->name,
                 functionOrMethod: $functionOrMethod,
                 passedByReference: $parameter->isPassedByReference(),
                 defaultValueAvailable: $parameter->isDefaultValueAvailable(),
@@ -160,7 +157,7 @@ final class NativeReflector
                 type: $this->reflectType($parameter->getType(), $class),
                 startLine: null,
                 endLine: null,
-                nativeReflection: $parameter,
+                attributes: $this->reflectAttributes($parameter->getAttributes()),
             );
         }
 
@@ -168,26 +165,21 @@ final class NativeReflector
     }
 
     /**
-     * @param list<\ReflectionAttribute> $reflectionAttributes
-     * @param non-empty-list $nativeOwnerArguments
-     * @return list<AttributeReflection>
+     * @param array<\ReflectionAttribute> $reflectionAttributes
+     * @return list<AttributeMetadata>
      */
-    private function reflectAttributes(array $reflectionAttributes, array $nativeOwnerArguments): array
+    private function reflectAttributes(array $reflectionAttributes): array
     {
         $attributes = [];
 
-        foreach ($reflectionAttributes as $position => $attribute) {
-            /** @var AttributeReflection::TARGET_* */
-            $target = $attribute->getTarget();
+        foreach (array_values($reflectionAttributes) as $position => $attribute) {
             /** @var class-string */
             $name = $attribute->getName();
-            $attributes[] = new AttributeReflection(
+            $attributes[] = new AttributeMetadata(
                 name: $name,
                 position: $position,
-                target: $target,
+                target: $attribute->getTarget(),
                 repeated: $attribute->isRepeated(),
-                nativeOwnerArguments: $nativeOwnerArguments,
-                nativeReflection: $attribute,
             );
         }
 
@@ -197,9 +189,9 @@ final class NativeReflector
     /**
      * @param ?class-string $class
      */
-    private function reflectType(?\ReflectionType $type, ?string $class): TypeReflection
+    private function reflectType(?\ReflectionType $type, ?string $class): TypeMetadata
     {
-        return TypeReflection::create(
+        return TypeMetadata::create(
             native: $this->reflectNativeType($type, $class),
             phpDoc: null,
         );

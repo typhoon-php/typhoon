@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Typhoon\Reflection\ReflectionStorage;
+namespace Typhoon\Reflection\Metadata;
 
 use function Typhoon\Reflection\Exceptionally\exceptionally;
 
@@ -15,7 +15,7 @@ abstract class ChangeDetector
     /**
      * @param non-empty-string $file
      */
-    final public static function fromFile(string $file, ?string $contents = null): self
+    final public static function fromFileContents(string $file, ?string $contents = null): self
     {
         if ($contents === null) {
             $hash = exceptionally(static fn(): string|false => md5_file($file));
@@ -31,7 +31,7 @@ abstract class ChangeDetector
         $file = $reflection->getFileName();
 
         if ($file !== false) {
-            return self::fromFile($file);
+            return self::fromFileContents($file);
         }
 
         $extension = $reflection->getExtensionName();
