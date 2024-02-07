@@ -20,7 +20,6 @@ final class UnionType implements Type
     /**
      * @internal
      * @psalm-internal Typhoon\Type
-     * @no-named-arguments
      * @param non-empty-list<Type<TType>> $types
      */
     public function __construct(

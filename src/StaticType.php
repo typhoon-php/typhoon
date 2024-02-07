@@ -25,7 +25,6 @@ final class StaticType implements Type
     /**
      * @internal
      * @psalm-internal Typhoon\Type
-     * @no-named-arguments
      * @param class-string<TObject> $declaredAtClass
      * @param list<Type> $templateArguments
      */
