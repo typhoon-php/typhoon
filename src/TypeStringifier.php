@@ -65,7 +65,7 @@ final class TypeStringifier implements TypeVisitor
         return (string) $type->value;
     }
 
-    public function visitLiteralInt(Type\LiteralIntType $type): mixed
+    public function visitAnyLiteralInt(Type\AnyLiteralIntType $type): mixed
     {
         return 'literal-int';
     }
@@ -109,7 +109,7 @@ final class TypeStringifier implements TypeVisitor
         return $this->escapeStringLiteral($type->value);
     }
 
-    public function visitLiteralString(Type\LiteralStringType $type): mixed
+    public function visitAnyLiteralString(Type\AnyLiteralStringType $type): mixed
     {
         return 'literal-string';
     }
