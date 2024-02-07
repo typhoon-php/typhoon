@@ -5,6 +5,9 @@ on:
   push:
     branches: ['main', '*.x']
 
+env:
+  COMPOSER_ROOT_VERSION: 0.3-dev
+
 jobs:
   composer-validate:
     runs-on: ubuntu-latest
