@@ -15,14 +15,14 @@ final class types
     public const false = FalseType::type;
     public const true = TrueType::type;
     public const bool = BoolType::type;
-    public const literalInt = LiteralIntType::type;
+    public const literalInt = AnyLiteralIntType::type;
     public const int = IntType::type;
     public const positiveInt = __positiveInt;
     public const negativeInt = __negativeInt;
     public const nonPositiveInt = __nonPositiveInt;
     public const nonNegativeInt = __nonNegativeInt;
     public const float = FloatType::type;
-    public const literalString = LiteralStringType::type;
+    public const literalString = AnyLiteralStringType::type;
     public const numericString = NumericStringType::type;
     public const classString = ClassStringType::type;
     public const callableString = CallableStringType::type;

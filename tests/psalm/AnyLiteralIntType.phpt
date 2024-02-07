@@ -3,7 +3,7 @@
 
 namespace Typhoon\Type;
 
-$_type = PsalmTest::extractType(LiteralIntType::type);
+$_type = PsalmTest::extractType(AnyLiteralIntType::type);
 /** @psalm-check-type-exact $_type = \literal-int */
 
 --EXPECT--

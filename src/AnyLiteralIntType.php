@@ -9,7 +9,7 @@ namespace Typhoon\Type;
  * @psalm-immutable
  * @implements Type<literal-int>
  */
-enum LiteralIntType implements Type
+enum AnyLiteralIntType implements Type
 {
     /**
      * @internal
@@ -19,6 +19,6 @@ enum LiteralIntType implements Type
 
     public function accept(TypeVisitor $visitor): mixed
     {
-        return $visitor->visitLiteralInt($this);
+        return $visitor->visitAnyLiteralInt($this);
     }
 }

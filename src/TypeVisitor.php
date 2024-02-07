@@ -33,7 +33,7 @@ interface TypeVisitor
     public function visitIntLiteral(IntLiteralType $type): mixed;
 
     /** @return TReturn */
-    public function visitLiteralInt(LiteralIntType $type): mixed;
+    public function visitAnyLiteralInt(AnyLiteralIntType $type): mixed;
 
     /** @return TReturn */
     public function visitIntRange(IntRangeType $type): mixed;
@@ -57,7 +57,7 @@ interface TypeVisitor
     public function visitStringLiteral(StringLiteralType $type): mixed;
 
     /** @return TReturn */
-    public function visitLiteralString(LiteralStringType $type): mixed;
+    public function visitAnyLiteralString(AnyLiteralStringType $type): mixed;
 
     /** @return TReturn */
     public function visitNumericString(NumericStringType $type): mixed;

@@ -24,6 +24,8 @@ final class PsalmTest extends TestCase
         return null;
     }
 
+    #[TestWith([__DIR__ . '/psalm/AnyLiteralIntType.phpt'])]
+    #[TestWith([__DIR__ . '/psalm/AnyLiteralStringType.phpt'])]
     #[TestWith([__DIR__ . '/psalm/ArrayKeyType.phpt'])]
     #[TestWith([__DIR__ . '/psalm/ArrayShapeType.phpt'])]
     #[TestWith([__DIR__ . '/psalm/ArrayType.phpt'])]
@@ -52,8 +54,6 @@ final class PsalmTest extends TestCase
     #[TestWith([__DIR__ . '/psalm/IterableType.phpt'])]
     #[TestWith([__DIR__ . '/psalm/KeyOfType.phpt'])]
     #[TestWith([__DIR__ . '/psalm/ListType.phpt'])]
-    #[TestWith([__DIR__ . '/psalm/LiteralIntType.phpt'])]
-    #[TestWith([__DIR__ . '/psalm/LiteralStringType.phpt'])]
     #[TestWith([__DIR__ . '/psalm/MixedType.phpt'])]
     #[TestWith([__DIR__ . '/psalm/NamedClassStringType.phpt'])]
     #[TestWith([__DIR__ . '/psalm/NamedObjectType.phpt'])]
