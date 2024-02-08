@@ -16,8 +16,8 @@ final class ParameterMetadata
      * @param non-empty-string $functionOrMethod
      * @param int<0, max> $position
      * @param non-empty-string $name
-     * @param ?positive-int $startLine
-     * @param ?positive-int $endLine
+     * @param positive-int|false $startLine
+     * @param positive-int|false $endLine
      * @param list<AttributeMetadata> $attributes
      */
     public function __construct(
@@ -32,8 +32,8 @@ final class ParameterMetadata
         public readonly bool $promoted,
         public readonly bool $deprecated,
         public TypeMetadata $type,
-        public readonly ?int $startLine,
-        public readonly ?int $endLine,
+        public readonly int|false $startLine,
+        public readonly int|false $endLine,
         public readonly array $attributes,
     ) {}
 

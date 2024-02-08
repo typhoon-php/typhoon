@@ -45,6 +45,8 @@ final class ReflectorCompatibilityTest extends TestCase
         $anonymousNames = AnonymousClassName::findDeclared(file: self::CLASSES);
 
         foreach (self::classLocators() as $classLocatorsName => $classLocators) {
+            yield \Iterator::class . ' using ' . $classLocatorsName => [$classLocators, \Iterator::class];
+
             foreach (NameCollector::collect(self::CLASSES)->classes as $class) {
                 yield $class . ' using ' . $classLocatorsName => [$classLocators, $class];
             }
@@ -224,7 +226,7 @@ final class ReflectorCompatibilityTest extends TestCase
 
         self::assertSame($native->class, $typhoon->class, $messagePrefix . '.class');
         self::assertSame($native->name, $typhoon->name, $messagePrefix . '.name');
-        // self::assertSame($native->__toString(), $typhoon->__toString(), $messagePrefix . '.__toString()');
+        // TODO: self::assertSame($native->__toString(), $typhoon->__toString(), $messagePrefix . '.__toString()');
         self::assertAttributesEqual($native->getAttributes(), $typhoon->getAttributes(), $messagePrefix . 'getAttributes()');
         if ($native->isStatic()) {
             $this->assertMethodClosureEquals($native->getClosure(), $typhoon->getClosure(), $messagePrefix . '.getClosure()');
@@ -238,7 +240,7 @@ final class ReflectorCompatibilityTest extends TestCase
         self::assertSame($native->getClosureUsedVariables(), $typhoon->getClosureUsedVariables(), $messagePrefix . '.getClosureUsedVariables()');
         self::assertSame($native->getDeclaringClass()->name, $typhoon->getDeclaringClass()->name, $messagePrefix . '.getDeclaringClass()');
         self::assertSame($native->getDocComment(), $typhoon->getDocComment(), $messagePrefix . '.getDocComment()');
-        // self::assertSame($native->getEndLine(), $typhoon->getEndLine(), $messagePrefix . '.getEndLine()');
+        self::assertSame($native->getEndLine(), $typhoon->getEndLine(), $messagePrefix . '.getEndLine()');
         self::assertEquals($native->getExtension(), $typhoon->getExtension(), $messagePrefix . '.getExtension()');
         self::assertSame($native->getExtensionName(), $typhoon->getExtensionName(), $messagePrefix . '.getExtensionName()');
         self::assertSame($native->getFileName(), $typhoon->getFileName(), $messagePrefix . '.getFileName()');

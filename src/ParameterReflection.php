@@ -130,9 +130,9 @@ final class ParameterReflection extends \ReflectionParameter
     }
 
     /**
-     * @return ?positive-int
+     * @return positive-int|false
      */
-    public function getEndLine(): ?int
+    public function getEndLine(): int|false
     {
         return $this->metadata->endLine;
     }
@@ -148,9 +148,9 @@ final class ParameterReflection extends \ReflectionParameter
     }
 
     /**
-     * @return ?positive-int
+     * @return positive-int|false
      */
-    public function getStartLine(): ?int
+    public function getStartLine(): int|false
     {
         return $this->metadata->startLine;
     }

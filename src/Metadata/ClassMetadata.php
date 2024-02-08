@@ -19,10 +19,10 @@ final class ClassMetadata extends RootMetadata
 {
     /**
      * @param class-string<T> $name
-     * @param non-empty-string|false $extensionName
+     * @param non-empty-string|false $extension
      * @param non-empty-string|false $file
-     * @param ?positive-int $startLine
-     * @param ?positive-int $endLine
+     * @param positive-int|false $startLine
+     * @param positive-int|false $endLine
      * @param non-empty-string|false $docComment
      * @param list<AttributeMetadata> $attributes
      * @param array<non-empty-string, Type> $typeAliases
@@ -37,10 +37,10 @@ final class ClassMetadata extends RootMetadata
         ChangeDetector $changeDetector,
         string $name,
         public readonly bool $internal,
-        public readonly string|false $extensionName,
+        public readonly string|false $extension,
         public readonly string|false $file,
-        public readonly ?int $startLine,
-        public readonly ?int $endLine,
+        public readonly int|false $startLine,
+        public readonly int|false $endLine,
         public readonly string|false $docComment,
         public readonly array $attributes,
         public readonly array $typeAliases,

@@ -68,10 +68,10 @@ final class ContextualPhpParserReflector
             changeDetector: $this->file->changeDetector(),
             name: $name,
             internal: $this->file->isInternal(),
-            extensionName: $this->file->extension,
+            extension: $this->file->extension,
             file: $this->file->isInternal() ? false : $this->file->file,
-            startLine: $startLine > 0 ? $startLine : null,
-            endLine: $node->getEndLine() > 0 ? $node->getEndLine() : null,
+            startLine: $this->reflectLine($startLine),
+            endLine: $this->reflectLine($node->getEndLine()),
             docComment: $this->reflectDocComment($node),
             attributes: $this->reflectAttributes($node->attrGroups, \Attribute::TARGET_CLASS),
             typeAliases: $this->reflectTypeAliasesFromContext($phpDoc),
@@ -109,8 +109,8 @@ final class ContextualPhpParserReflector
             modifiers: \ReflectionProperty::IS_PUBLIC + \ReflectionProperty::IS_READONLY,
             deprecated: false,
             type: TypeMetadata::create(native: types::string, phpDoc: types::nonEmptyString),
-            startLine: null,
-            endLine: null,
+            startLine: false,
+            endLine: false,
             attributes: [],
         );
     }
@@ -279,8 +279,8 @@ final class ContextualPhpParserReflector
                     modifiers: $this->reflectPropertyModifiers($node, $classReadOnly),
                     deprecated: $phpDoc->isDeprecated(),
                     type: $type,
-                    startLine: $node->getStartLine() > 0 ? $node->getStartLine() : null,
-                    endLine: $node->getEndLine() > 0 ? $node->getEndLine() : null,
+                    startLine: $this->reflectLine($node->getStartLine()),
+                    endLine: $this->reflectLine($node->getEndLine()),
                     attributes: $this->reflectAttributes($node->attrGroups, \Attribute::TARGET_PROPERTY),
                 );
             }
@@ -312,8 +312,8 @@ final class ContextualPhpParserReflector
                 modifiers: $modifiers,
                 deprecated: $phpDoc->isDeprecated(),
                 type: $this->reflectType($node->type, $phpDoc->paramTypes()[$name] ?? null),
-                startLine: $node->getStartLine() > 0 ? $node->getStartLine() : null,
-                endLine: $node->getEndLine() > 0 ? $node->getEndLine() : null,
+                startLine: $this->reflectLine($node->getStartLine()),
+                endLine: $this->reflectLine($node->getEndLine()),
                 attributes: $this->reflectAttributes($node->attrGroups, \Attribute::TARGET_PROPERTY),
             );
         }
@@ -377,10 +377,10 @@ final class ContextualPhpParserReflector
                 modifiers: $this->reflectMethodModifiers($node, $interface),
                 docComment: $this->reflectDocComment($node),
                 internal: $this->file->isInternal(),
-                extensionName: $this->file->extension,
+                extension: $this->file->extension,
                 file: $this->file->isInternal() ? false : $this->file->file,
-                startLine: $node->getStartLine() > 0 ? $node->getStartLine() : null,
-                endLine: $node->getEndLine() > 0 ? $node->getEndLine() : null,
+                startLine: $this->reflectLine($node->getStartLine()),
+                endLine: $this->reflectLine($node->getEndLine()),
                 returnsReference: $node->byRef,
                 generator: $this->reflectIsGenerator($node),
                 deprecated: $phpDoc->isDeprecated(),
@@ -469,13 +469,25 @@ final class ContextualPhpParserReflector
                 promoted: $this->isParameterPromoted($node),
                 deprecated: $phpDoc->isDeprecated(),
                 type: $this->reflectType($node->type, $methodPhpDoc->paramTypes()[$name] ?? null, $this->isParamDefaultNull($node)),
-                startLine: $node->getStartLine() > 0 ? $node->getStartLine() : null,
-                endLine: $node->getEndLine() > 0 ? $node->getEndLine() : null,
+                startLine: $this->reflectLine($node->getStartLine()),
+                endLine: $this->reflectLine($node->getEndLine()),
                 attributes: $this->reflectAttributes($node->attrGroups, \Attribute::TARGET_PARAMETER),
             );
         }
 
         return $parameters;
+    }
+
+    /**
+     * @return positive-int|false
+     */
+    private function reflectLine(int $line): int|false
+    {
+        if ($this->file->isInternal()) {
+            return false;
+        }
+
+        return $line > 0 ? $line : false;
     }
 
     private function reflectType(?Node $native, ?TypeNode $phpDoc, bool $implicitlySupportsNull = false): TypeMetadata
@@ -601,8 +613,8 @@ final class ContextualPhpParserReflector
             modifiers: \ReflectionProperty::IS_PUBLIC + \ReflectionProperty::IS_READONLY,
             deprecated: false,
             type: $this->reflectType($scalarType, null),
-            startLine: null,
-            endLine: null,
+            startLine: false,
+            endLine: false,
             attributes: [],
         );
     }
@@ -619,10 +631,10 @@ final class ContextualPhpParserReflector
             modifiers: \ReflectionMethod::IS_STATIC + \ReflectionMethod::IS_PUBLIC,
             docComment: false,
             internal: true,
-            extensionName: false,
+            extension: false,
             file: false,
-            startLine: null,
-            endLine: null,
+            startLine: false,
+            endLine: false,
             returnsReference: false,
             generator: false,
             deprecated: false,
@@ -648,10 +660,10 @@ final class ContextualPhpParserReflector
                 modifiers: \ReflectionMethod::IS_STATIC + \ReflectionMethod::IS_PUBLIC,
                 docComment: false,
                 internal: true,
-                extensionName: false,
+                extension: false,
                 file: false,
-                startLine: null,
-                endLine: null,
+                startLine: false,
+                endLine: false,
                 returnsReference: false,
                 generator: false,
                 deprecated: false,
@@ -668,8 +680,8 @@ final class ContextualPhpParserReflector
                         promoted: false,
                         deprecated: false,
                         type: $valueType,
-                        startLine: null,
-                        endLine: null,
+                        startLine: false,
+                        endLine: false,
                         attributes: [],
                     ),
                 ],
@@ -683,10 +695,10 @@ final class ContextualPhpParserReflector
                 modifiers: \ReflectionMethod::IS_STATIC + \ReflectionMethod::IS_PUBLIC,
                 docComment: false,
                 internal: true,
-                extensionName: false,
+                extension: false,
                 file: false,
-                startLine: null,
-                endLine: null,
+                startLine: false,
+                endLine: false,
                 returnsReference: false,
                 generator: false,
                 deprecated: false,
@@ -703,8 +715,8 @@ final class ContextualPhpParserReflector
                         promoted: false,
                         deprecated: false,
                         type: $valueType,
-                        startLine: null,
-                        endLine: null,
+                        startLine: false,
+                        endLine: false,
                         attributes: [],
                     ),
                 ],

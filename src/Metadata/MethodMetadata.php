@@ -25,10 +25,10 @@ final class MethodMetadata
      * @param list<TemplateReflection> $templates
      * @param list<ParameterMetadata> $parameters
      * @param non-empty-string|false $docComment
-     * @param non-empty-string|false $extensionName
+     * @param non-empty-string|false $extension
      * @param non-empty-string|false $file
-     * @param ?positive-int $startLine
-     * @param ?positive-int $endLine
+     * @param positive-int|false $startLine
+     * @param positive-int|false $endLine
      * @param int-mask-of<\ReflectionMethod::IS_*> $modifiers
      * @param list<AttributeMetadata> $attributes
      */
@@ -39,10 +39,10 @@ final class MethodMetadata
         public readonly int $modifiers,
         public readonly string|false $docComment,
         public readonly bool $internal,
-        public readonly string|false $extensionName,
+        public readonly string|false $extension,
         public readonly string|false $file,
-        public readonly ?int $startLine,
-        public readonly ?int $endLine,
+        public readonly int|false $startLine,
+        public readonly int|false $endLine,
         public readonly bool $returnsReference,
         public readonly bool $generator,
         public readonly bool $deprecated,

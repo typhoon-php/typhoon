@@ -122,21 +122,21 @@ final class ClassReflection extends \ReflectionClass
 
     public function getEndLine(): int|false
     {
-        return $this->metadata->endLine ?? false;
+        return $this->metadata->endLine;
     }
 
     public function getExtension(): ?\ReflectionExtension
     {
-        if ($this->metadata->extensionName === false) {
+        if ($this->metadata->extension === false) {
             return null;
         }
 
-        return new \ReflectionExtension($this->metadata->extensionName);
+        return new \ReflectionExtension($this->metadata->extension);
     }
 
     public function getExtensionName(): string|false
     {
-        return $this->metadata->extensionName;
+        return $this->metadata->extension;
     }
 
     public function getFileName(): string|false
@@ -304,7 +304,7 @@ final class ClassReflection extends \ReflectionClass
 
     public function getStartLine(): int|false
     {
-        return $this->metadata->startLine ?? false;
+        return $this->metadata->startLine;
     }
 
     public function getStaticProperties(): array

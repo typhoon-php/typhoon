@@ -18,8 +18,8 @@ final class PropertyMetadata
      * @param class-string $class
      * @param non-empty-string|false $docComment
      * @param int-mask-of<\ReflectionProperty::IS_*> $modifiers
-     * @param ?positive-int $startLine
-     * @param ?positive-int $endLine
+     * @param positive-int|false $startLine
+     * @param positive-int|false $endLine
      * @param list<AttributeMetadata> $attributes
      */
     public function __construct(
@@ -31,8 +31,8 @@ final class PropertyMetadata
         public readonly int $modifiers,
         public readonly bool $deprecated,
         public TypeMetadata $type,
-        public readonly ?int $startLine,
-        public readonly ?int $endLine,
+        public readonly int|false $startLine,
+        public readonly int|false $endLine,
         public readonly array $attributes,
     ) {}
 
