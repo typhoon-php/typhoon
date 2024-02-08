@@ -9,7 +9,7 @@ use PhpParser\NodeVisitorAbstract;
 
 final class FixNodeStartLineVisitor extends NodeVisitorAbstract
 {
-    private const ATTRIBUTE = 'class_correct_line';
+    private const START_LINE_ATTRIBUTE = 'startLine';
 
     /**
      * @param string|array<\PhpToken> $code
@@ -18,18 +18,10 @@ final class FixNodeStartLineVisitor extends NodeVisitorAbstract
         private string|array $code,
     ) {}
 
-    public static function resolveStartLine(Node $node): int
-    {
-        /** @psalm-suppress MixedAssignment */
-        $line = $node->getAttribute(self::ATTRIBUTE, $node->getStartLine());
-
-        return \is_int($line) ? $line : $node->getStartLine();
-    }
-
     public function enterNode(Node $node): ?int
     {
         if ($node instanceof Node\Stmt\ClassLike && $node->attrGroups !== []) {
-            $node->setAttribute(self::ATTRIBUTE, $this->findFirstTokenLine(
+            $node->setAttribute(self::START_LINE_ATTRIBUTE, $this->findFirstTokenLine(
                 end($node->attrGroups)->getEndFilePos(),
                 [T_FINAL, T_READONLY, T_ABSTRACT, T_CLASS, T_INTERFACE, T_TRAIT, T_ENUM],
             ));
@@ -38,7 +30,7 @@ final class FixNodeStartLineVisitor extends NodeVisitorAbstract
         }
 
         if ($node instanceof Node\Stmt\ClassMethod && $node->attrGroups !== []) {
-            $node->setAttribute(self::ATTRIBUTE, $this->findFirstTokenLine(
+            $node->setAttribute(self::START_LINE_ATTRIBUTE, $this->findFirstTokenLine(
                 end($node->attrGroups)->getEndFilePos(),
                 [T_FINAL, T_ABSTRACT, T_STATIC, T_FUNCTION],
             ));
