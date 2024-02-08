@@ -19,14 +19,15 @@
         "typhoon/type-stringifier": "^0.3@dev"
     },
     "require-dev": {
-        "ergebnis/composer-normalize": "^2.41.1",
-        "friendsofphp/php-cs-fixer": "^3.47.1",
+        "ergebnis/composer-normalize": "^2.42.0",
+        "friendsofphp/php-cs-fixer": "^3.49.0",
         "infection/infection": "^0.27.9",
         "jetbrains/phpstorm-stubs": "^2023.3",
-        "phpunit/phpunit": "^10.5.8",
+        "mockery/mockery": "^1.6.7",
+        "phpunit/phpunit": "^10.5.10",
         "phpyh/coding-standard": "^2.6.0",
         "psalm/plugin-phpunit": "^0.18.4",
-        "symfony/var-dumper": "^6.4.2 || ^7",
+        "symfony/var-dumper": "^6.4.2 || ^7.0.3",
         "typhoon/opcache": "^0.2@dev",
         "typhoon/psalm-plugin": "^0.1.0",
         "vimeo/psalm": "^5@dev"

@@ -4,17 +4,27 @@ declare(strict_types=1);
 
 namespace Typhoon\Reflection;
 
+use Mockery\Loader\RequireLoader;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\RequiresPhp;
 use PHPUnit\Framework\TestCase;
 use Typhoon\Reflection\NameContext\AnonymousClassName;
 
+#[CoversClass(AttributeReflection::class)]
 #[CoversClass(ClassReflection::class)]
+#[CoversClass(MethodReflection::class)]
+#[CoversClass(ParameterReflection::class)]
+#[CoversClass(PropertyReflection::class)]
 final class ReflectorCompatibilityTest extends TestCase
 {
     private const CLASSES = __DIR__ . '/ReflectorCompatibility/classes.php';
     private const READONLY_CLASSES = __DIR__ . '/ReflectorCompatibility/readonly_classes.php';
+
+    public static function setUpBeforeClass(): void
+    {
+        \Mockery::setLoader(new RequireLoader(__DIR__ . '/../../var/mockery'));
+    }
 
     /**
      * @return \Generator<string, list<ClassLocator>>
@@ -150,7 +160,9 @@ final class ReflectorCompatibilityTest extends TestCase
         self::assertSame($native->isCloneable(), $typhoon->isCloneable(), 'class.isCloneable()');
         self::assertSame($native->isEnum(), $typhoon->isEnum(), 'class.isEnum()');
         self::assertSame($native->isFinal(), $typhoon->isFinal(), 'class.isFinal()');
-        // TODO isInstance
+        if ($this->canCreateMockObject($native)) {
+            self::assertSame($native->isInstance($this->createMockObject($native)), $typhoon->isInstance($this->createMockObject($native)), 'class.isInstance()');
+        }
         self::assertSame($native->isInstantiable(), $typhoon->isInstantiable(), 'class.isInstantiable()');
         self::assertSame($native->isInterface(), $typhoon->isInterface(), 'class.isInterface()');
         self::assertSame($native->isInternal(), $typhoon->isInternal(), 'class.isInternal()');
@@ -222,16 +234,14 @@ final class ReflectorCompatibilityTest extends TestCase
 
     private function assertMethodEquals(\ReflectionMethod $native, MethodReflection $typhoon, string $messagePrefix): void
     {
-        $declaringClass = $native->getDeclaringClass();
-
         self::assertSame($native->class, $typhoon->class, $messagePrefix . '.class');
         self::assertSame($native->name, $typhoon->name, $messagePrefix . '.name');
         // TODO: self::assertSame($native->__toString(), $typhoon->__toString(), $messagePrefix . '.__toString()');
         self::assertAttributesEqual($native->getAttributes(), $typhoon->getAttributes(), $messagePrefix . 'getAttributes()');
         if ($native->isStatic()) {
             $this->assertMethodClosureEquals($native->getClosure(), $typhoon->getClosure(), $messagePrefix . '.getClosure()');
-        } elseif (!($declaringClass->isTrait() || $declaringClass instanceof \ReflectionEnum && $declaringClass->getCases() === [])) {
-            $object = $this->createMockObject($native->class);
+        } elseif ($this->canCreateMockObject($native->getDeclaringClass())) {
+            $object = $this->createMockObject($native->getDeclaringClass());
             $this->assertMethodClosureEquals($native->getClosure($object), $typhoon->getClosure($object), $messagePrefix . '.getClosure($object)');
         }
         self::assertSame($native->getClosureCalledClass(), $typhoon->getClosureCalledClass(), $messagePrefix . '.getClosureCalledClass()');
@@ -310,7 +320,7 @@ final class ReflectorCompatibilityTest extends TestCase
         $native->isDefaultValueAvailable() && self::assertSame($native->getDefaultValueConstantName(), $typhoon->getDefaultValueConstantName(), $messagePrefix . '.getDefaultValueConstantName()');
         self::assertSame($native->getName(), $typhoon->getName(), $messagePrefix . '.getName()');
         self::assertSame($native->getPosition(), $typhoon->getPosition(), $messagePrefix . '.getPosition()');
-        // TODO getType()
+        self::assertEquals($native->getType(), $typhoon->getType(), $messagePrefix . '.getType()');
         self::assertSame($native->hasType(), $typhoon->hasType(), $messagePrefix . '.hasType()');
         self::assertSame($native->isArray(), $typhoon->isArray(), $messagePrefix . '.isArray()');
         self::assertSame($native->isCallable(), $typhoon->isCallable(), $messagePrefix . '.isCallable()');
@@ -364,33 +374,46 @@ final class ReflectorCompatibilityTest extends TestCase
         self::assertSame(array_column($nativeReflections, 'name'), array_column($typhoonReflections, 'name'), $message);
     }
 
-    /**
-     * @template T of object
-     * @param class-string<T> $class
-     * @return T
-     */
-    private function createMockObject(string $class): object
+    private function canCreateMockObject(\ReflectionClass $class): bool
     {
-        $reflection = new \ReflectionClass($class);
-
-        if ($reflection->isAbstract() || $reflection->isInterface()) {
-            return $this->createMock($class);
+        if ($class->isTrait()) {
+            return false;
         }
 
-        if (enum_exists($class)) {
+        if ($class->isEnum()) {
+            /** @psalm-suppress MixedMethodCall */
+            return $class->name::cases() !== [];
+        }
+
+        return true;
+    }
+
+    /**
+     * @template T of object
+     * @param \ReflectionClass<T> $class
+     * @return T
+     */
+    private function createMockObject(\ReflectionClass $class): object
+    {
+        if ($class->isAbstract() || $class->isInterface()) {
+            /** @var T */
+            return \Mockery::mock($class->name);
+        }
+
+        if ($class->isEnum()) {
             /**
              * @var list<T>
              * @psalm-suppress MixedMethodCall
              */
-            $cases = $class::cases();
+            $cases = $class->name::cases();
 
             if ($cases === []) {
-                throw new \LogicException(sprintf('Enum %s has no cases.', $class));
+                throw new \LogicException(sprintf('Enum %s has no cases.', $class->name));
             }
 
             return $cases[0];
         }
 
-        return $reflection->newInstanceWithoutConstructor();
+        return $class->newInstanceWithoutConstructor();
     }
 }

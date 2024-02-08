@@ -43,7 +43,7 @@ final class FileResource
         $contents = file_get_contents($this->file);
 
         if ($contents === false) {
-            throw new \RuntimeException();
+            throw new \RuntimeException(sprintf('Failed to read file %s.', $this->file));
         }
 
         return $this->contents = $contents;
