@@ -175,10 +175,10 @@ final class ContextualPhpParserReflector
         $modifiers = ($node->isAbstract() ? ClassReflection::IS_EXPLICIT_ABSTRACT : 0)
             + ($node->isFinal() ? ClassReflection::IS_FINAL : 0);
 
-        if (\defined(\ReflectionClass::class . '::IS_READONLY') && $node->isReadonly()) {
+        if (\PHP_VERSION_ID >= 80200 && $node->isReadonly()) {
             /**
              * @var int-mask-of<\ReflectionClass::IS_*>
-             * @psalm-suppress MixedOperand, UnusedPsalmSuppress
+             * @psalm-suppress MixedOperand, UndefinedConstant, UnusedPsalmSuppress
              */
             $modifiers += \ReflectionClass::IS_READONLY;
         }
