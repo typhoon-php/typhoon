@@ -467,7 +467,7 @@ final class ClassReflection extends \ReflectionClass
 
     public function isInstance(object $object): bool
     {
-        return $object instanceof $this->metadata->name;
+        return $this->reflectClass($object::class)->isSubclassOf($this);
     }
 
     public function isInstantiable(): bool
