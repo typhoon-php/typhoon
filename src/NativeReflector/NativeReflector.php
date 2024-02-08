@@ -31,6 +31,7 @@ final class NativeReflector
         return new ClassMetadata(
             changeDetector: ChangeDetector::fromReflection($class),
             name: $class->name,
+            modifiers: $class->getModifiers(),
             internal: $class->isInternal(),
             extension: $class->getExtensionName(),
             file: $class->getFileName(),
@@ -38,14 +39,10 @@ final class NativeReflector
             endLine: $class->getEndLine(),
             docComment: $class->getDocComment(),
             attributes: $this->reflectAttributes($class->getAttributes()),
-            typeAliases: [],
-            templates: [],
             interface: $class->isInterface(),
             enum: $class->isEnum(),
             trait: $class->isTrait(),
-            modifiers: $class->getModifiers(),
             anonymous: $class->isAnonymous(),
-            deprecated: false,
             parentType: $this->reflectParent($class),
             ownInterfaceTypes: array_map(
                 static fn(string $interface): Type\NamedObjectType => types::object($interface),
@@ -83,14 +80,11 @@ final class NativeReflector
                 $properties[] = new PropertyMetadata(
                     name: $name,
                     class: $property->class,
+                    modifiers: $modifiers,
+                    type: $this->reflectType($property->getType(), $class->name),
                     docComment: $property->getDocComment(),
                     hasDefaultValue: $property->hasDefaultValue(),
                     promoted: $property->isPromoted(),
-                    modifiers: $modifiers,
-                    deprecated: false,
-                    type: $this->reflectType($property->getType(), $class->name),
-                    startLine: false,
-                    endLine: false,
                     attributes: $this->reflectAttributes($property->getAttributes()),
                 );
             }
@@ -111,8 +105,9 @@ final class NativeReflector
                 $methods[] = new MethodMetadata(
                     name: $method->name,
                     class: $method->class,
-                    templates: [],
                     modifiers: $method->getModifiers(),
+                    parameters: $this->reflectParameters($method, $class->name),
+                    returnType: $this->reflectType($method->getReturnType(), $class->name),
                     docComment: $method->getDocComment(),
                     internal: $method->isInternal(),
                     extension: $method->getExtensionName(),
@@ -122,8 +117,6 @@ final class NativeReflector
                     returnsReference: $method->returnsReference(),
                     generator: $method->isGenerator(),
                     deprecated: $method->isDeprecated(),
-                    parameters: $this->reflectParameters($method, $class->name),
-                    returnType: $this->reflectType($method->getReturnType(), $class->name),
                     attributes: $this->reflectAttributes($method->getAttributes()),
                 );
             }
@@ -148,15 +141,12 @@ final class NativeReflector
                 name: $parameter->name,
                 class: $parameter->getDeclaringClass()?->name,
                 functionOrMethod: $functionOrMethod,
+                type: $this->reflectType($parameter->getType(), $class),
                 passedByReference: $parameter->isPassedByReference(),
                 defaultValueAvailable: $parameter->isDefaultValueAvailable(),
                 optional: $parameter->isOptional(),
                 variadic: $parameter->isVariadic(),
                 promoted: $parameter->isPromoted(),
-                deprecated: false,
-                type: $this->reflectType($parameter->getType(), $class),
-                startLine: false,
-                endLine: false,
                 attributes: $this->reflectAttributes($parameter->getAttributes()),
             );
         }
@@ -191,22 +181,14 @@ final class NativeReflector
      */
     private function reflectType(?\ReflectionType $type, ?string $class): TypeMetadata
     {
-        return TypeMetadata::create(
-            native: $this->reflectNativeType($type, $class),
-            phpDoc: null,
-        );
+        return TypeMetadata::create(native: $type === null ? null : $this->reflectNativeType($type, $class));
     }
 
     /**
      * @param ?class-string $class
-     * @return ($reflectionType is null ? null : Type\Type)
      */
-    private function reflectNativeType(?\ReflectionType $reflectionType, ?string $class): ?Type\Type
+    private function reflectNativeType(\ReflectionType $reflectionType, ?string $class): Type\Type
     {
-        if ($reflectionType === null) {
-            return null;
-        }
-
         if ($reflectionType instanceof \ReflectionUnionType) {
             return types::union(...array_map(
                 fn(\ReflectionType $child): Type\Type => $this->reflectNativeType($child, $class),

@@ -24,7 +24,7 @@ final class TypeMetadata
      * @internal
      * @psalm-internal Typhoon\Reflection
      */
-    public static function create(?Type $native, ?Type $phpDoc): self
+    public static function create(?Type $native = null, ?Type $phpDoc = null): self
     {
         return new self(
             native: $native,

@@ -25,15 +25,15 @@ final class PropertyMetadata
     public function __construct(
         public readonly string $name,
         public readonly string $class,
-        public readonly string|false $docComment,
-        public readonly bool $hasDefaultValue,
-        public readonly bool $promoted,
         public readonly int $modifiers,
-        public readonly bool $deprecated,
         public TypeMetadata $type,
-        public readonly int|false $startLine,
-        public readonly int|false $endLine,
-        public readonly array $attributes,
+        public readonly string|false $docComment = false,
+        public readonly bool $hasDefaultValue = false,
+        public readonly bool $promoted = false,
+        public readonly bool $deprecated = false,
+        public readonly int|false $startLine = false,
+        public readonly int|false $endLine = false,
+        public readonly array $attributes = [],
     ) {}
 
     public function withType(TypeMetadata $type): self
