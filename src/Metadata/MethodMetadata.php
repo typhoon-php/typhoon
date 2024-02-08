@@ -34,7 +34,7 @@ final class MethodMetadata
      */
     public function __construct(
         public readonly string $name,
-        public readonly string $class,
+        public string $class,
         public readonly int $modifiers,
         public array $parameters,
         public TypeMetadata $returnType,
@@ -50,6 +50,17 @@ final class MethodMetadata
         public readonly bool $deprecated = false,
         public readonly array $attributes = [],
     ) {}
+
+    /**
+     * @param class-string $class
+     */
+    public function withClass(string $class): self
+    {
+        $metadata = clone $this;
+        $metadata->class = $class;
+
+        return $metadata;
+    }
 
     /**
      * @param array{class-string, non-empty-string} $prototype

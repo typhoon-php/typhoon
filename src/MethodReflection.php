@@ -35,6 +35,7 @@ final class MethodReflection extends \ReflectionMethod
     public function __construct(
         private readonly ClassReflector $classReflector,
         private readonly MethodMetadata $metadata,
+        private readonly string $currentClass,
     ) {
         unset($this->name, $this->class);
     }
@@ -224,7 +225,11 @@ final class MethodReflection extends \ReflectionMethod
     public function getPrototype(): \ReflectionMethod
     {
         if ($this->metadata->prototype === null) {
-            throw new DefaultReflectionException();
+            throw new DefaultReflectionException(sprintf(
+                'Method %s::%s does not have a prototype',
+                ReflectionException::normalizeClass($this->currentClass),
+                $this->metadata->name,
+            ));
         }
 
         [$class, $name] = $this->metadata->prototype;

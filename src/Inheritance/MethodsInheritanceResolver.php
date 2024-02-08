@@ -20,7 +20,11 @@ final class MethodsInheritanceResolver
      */
     private array $methods = [];
 
+    /**
+     * @param class-string $class
+     */
     public function __construct(
+        private readonly string $class,
         private readonly ClassReflector $classReflector,
     ) {}
 
@@ -31,6 +35,18 @@ final class MethodsInheritanceResolver
     {
         foreach ($methods as $method) {
             $this->method($method->name)->setOwn($method);
+        }
+    }
+
+    public function addUsed(NamedObjectType ...$types): void
+    {
+        foreach ($types as $type) {
+            $class = $this->classReflector->reflectClass($type->class);
+            $templateResolver = TemplateResolver::create($class->getTemplates(), $type->templateArguments);
+
+            foreach ($class->getMethods() as $method) {
+                $this->method($method->name)->addUsed($method->__metadata(), $templateResolver);
+            }
         }
     }
 
@@ -64,6 +80,6 @@ final class MethodsInheritanceResolver
      */
     private function method(string $name): MethodInheritanceResolver
     {
-        return $this->methods[$name] ??= new MethodInheritanceResolver();
+        return $this->methods[$name] ??= new MethodInheritanceResolver($this->class);
     }
 }

@@ -545,17 +545,20 @@ final class ClassReflection extends \ReflectionClass
             return $this->resolvedMethods;
         }
 
-        $resolver = new MethodsInheritanceResolver($this->classReflector);
+        $resolver = new MethodsInheritanceResolver($this->metadata->name, $this->classReflector);
         $resolver->setOwn($this->metadata->ownMethods);
-        $resolver->addInherited(...$this->metadata->ownInterfaceTypes);
-        $resolver->addInherited(...$this->metadata->ownTraitTypes);
-
+        $resolver->addUsed(...$this->metadata->traitTypes);
         if ($this->metadata->parentType !== null) {
             $resolver->addInherited($this->metadata->parentType);
         }
+        $resolver->addInherited(...$this->metadata->interfaceTypes);
 
         return $this->resolvedMethods = array_map(
-            fn(MethodMetadata $metadata): MethodReflection => new MethodReflection($this->classReflector, $metadata),
+            fn(MethodMetadata $metadata): MethodReflection => new MethodReflection(
+                classReflector: $this->classReflector,
+                metadata: $metadata,
+                currentClass: $this->metadata->name,
+            ),
             $resolver->resolve(),
         );
     }
@@ -569,10 +572,9 @@ final class ClassReflection extends \ReflectionClass
             return $this->resolvedProperties;
         }
 
-        $resolver = new PropertiesInheritanceResolver($this->classReflector);
+        $resolver = new PropertiesInheritanceResolver($this->metadata->name, $this->classReflector);
         $resolver->setOwn($this->metadata->ownProperties);
-        $resolver->addInherited(...$this->metadata->ownTraitTypes);
-
+        $resolver->addUsed(...$this->metadata->traitTypes);
         if ($this->metadata->parentType !== null) {
             $resolver->addInherited($this->metadata->parentType);
         }
@@ -618,7 +620,7 @@ final class ClassReflection extends \ReflectionClass
         $interfaces = [];
         $ancestors = [];
 
-        foreach ($this->metadata->ownInterfaceTypes as $ownInterfaceType) {
+        foreach ($this->metadata->interfaceTypes as $ownInterfaceType) {
             $ancestors[] = $interface = $this->reflectClass($ownInterfaceType->class);
             yield $interface->name => $interface;
         }

@@ -24,7 +24,7 @@ final class PropertyMetadata
      */
     public function __construct(
         public readonly string $name,
-        public readonly string $class,
+        public string $class,
         public readonly int $modifiers,
         public TypeMetadata $type,
         public readonly string|false $docComment = false,
@@ -35,6 +35,17 @@ final class PropertyMetadata
         public readonly int|false $endLine = false,
         public readonly array $attributes = [],
     ) {}
+
+    /**
+     * @param class-string $class
+     */
+    public function withClass(string $class): self
+    {
+        $metadata = clone $this;
+        $metadata->class = $class;
+
+        return $metadata;
+    }
 
     public function withType(TypeMetadata $type): self
     {

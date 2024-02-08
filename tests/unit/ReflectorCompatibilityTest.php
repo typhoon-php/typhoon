@@ -9,6 +9,7 @@ use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\RequiresPhp;
 use PHPUnit\Framework\TestCase;
+use Typhoon\Reflection\ClassLocator\NativeReflectionLocator;
 use Typhoon\Reflection\NameContext\AnonymousClassName;
 
 #[CoversClass(AttributeReflection::class)]
@@ -32,19 +33,7 @@ final class ReflectorCompatibilityTest extends TestCase
     public static function reflectorSessions(): \Generator
     {
         yield 'default reflector' => TyphoonReflector::build()->startSession();
-        yield 'native reflector' => TyphoonReflector::build(classLocators: [
-            new class () implements ClassLocator {
-                public function locateClass(string $name): null|\ReflectionClass|FileResource
-                {
-                    try {
-                        /** @psalm-suppress ArgumentTypeCoercion */
-                        return new \ReflectionClass($name);
-                    } catch (\ReflectionException) {
-                        return null;
-                    }
-                }
-            },
-        ])->startSession();
+        yield 'native reflector' => TyphoonReflector::build(classLocators: [new NativeReflectionLocator()])->startSession();
     }
 
     /**
@@ -151,9 +140,9 @@ final class ReflectorCompatibilityTest extends TestCase
         // hasProperty() see below
         foreach ($this->getClasses($native) as $class) {
             $this->assertResultOrExceptionEqual(
-                static fn(): bool => $native->implementsInterface($class),
-                static fn(): bool => $typhoon->implementsInterface($class),
-                "class.implementsInterface({$class})",
+                native: static fn(): bool => $native->implementsInterface($class),
+                typhoon: static fn(): bool => $typhoon->implementsInterface($class),
+                messagePrefix: "class.implementsInterface({$class})",
             );
         }
         self::assertSame($native->inNamespace(), $typhoon->inNamespace(), 'class.inNamespace()');
@@ -175,9 +164,9 @@ final class ReflectorCompatibilityTest extends TestCase
         }
         foreach ($this->getClasses($native) as $class) {
             $this->assertResultOrExceptionEqual(
-                static fn(): bool => $native->isSubclassOf($class),
-                static fn(): bool => $typhoon->isSubclassOf($class),
-                "class.isSubclassOf({$class})",
+                native: static fn(): bool => $native->isSubclassOf($class),
+                typhoon: static fn(): bool => $typhoon->isSubclassOf($class),
+                messagePrefix: "class.isSubclassOf({$class})",
             );
         }
         self::assertSame($native->isTrait(), $typhoon->isTrait(), 'class.isTrait()');
@@ -270,11 +259,16 @@ final class ReflectorCompatibilityTest extends TestCase
         self::assertSame($native->getNumberOfParameters(), $typhoon->getNumberOfParameters(), $messagePrefix . '.getNumberOfParameters()');
         self::assertSame($native->getNumberOfRequiredParameters(), $typhoon->getNumberOfRequiredParameters(), $messagePrefix . '.getNumberOfRequiredParameters()');
         $this->assertParametersEqual($native->getParameters(), $typhoon->getParameters(), $messagePrefix . '.getParameters()');
-        if ($typhoon->hasPrototype()) {
-            // TODO: check throw same exception otherwise
-            self::assertSame($native->getPrototype()->class, $typhoon->getPrototype()->class, $messagePrefix . '.getPrototype().class');
-            self::assertSame($native->getPrototype()->name, $typhoon->getPrototype()->name, $messagePrefix . '.getPrototype().name');
-        }
+        $this->assertResultOrExceptionEqual(
+            native: static fn(): string => $native->getPrototype()->class,
+            typhoon: static fn(): string => $typhoon->getPrototype()->class,
+            messagePrefix: $messagePrefix . '.getPrototype().class',
+        );
+        $this->assertResultOrExceptionEqual(
+            native: static fn(): string => $native->getPrototype()->name,
+            typhoon: static fn(): string => $typhoon->getPrototype()->name,
+            messagePrefix: $messagePrefix . '.getPrototype().name',
+        );
         self::assertSame($native->getShortName(), $typhoon->getShortName(), $messagePrefix . '.getShortName()');
         self::assertSame($native->getStartLine(), $typhoon->getStartLine(), $messagePrefix . '.getStartLine()');
         self::assertSame($native->getStaticVariables(), $typhoon->getStaticVariables(), $messagePrefix . '.getStaticVariables()');

@@ -20,7 +20,7 @@ use Typhoon\Reflection\PhpDocParser\ContextualPhpDocTypeReflector;
 use Typhoon\Reflection\PhpDocParser\PhpDoc;
 use Typhoon\Reflection\PhpDocParser\PhpDocParser;
 use Typhoon\Reflection\TemplateReflection;
-use Typhoon\Reflection\TypeAlias\ImportedTypeAlias;
+use Typhoon\Reflection\TypeAlias\ImportedType;
 use Typhoon\Reflection\TypeContext\TypeContext;
 use Typhoon\Type;
 use Typhoon\Type\types;
@@ -77,9 +77,10 @@ final class ContextualPhpParserReflector
             anonymous: $node->name === null,
             deprecated: $phpDoc->isDeprecated(),
             parentType: $this->reflectParentType($node, $phpDoc),
-            ownInterfaceTypes: $this->reflectOwnInterfaceTypes($node, $phpDoc),
-            ownProperties: $this->reflectOwnProperties(class: $name, classNode: $node),
-            ownMethods: $this->reflectOwnMethods(class: $name, classNode: $node),
+            interfaceTypes: $this->reflectInterfaceTypes($node, $phpDoc),
+            traitTypes: $this->reflectTraitTypes($node),
+            ownProperties: $this->reflectOwnProperties($name, $node),
+            ownMethods: $this->reflectOwnMethods($name, $node),
         ));
     }
 
@@ -156,16 +157,16 @@ final class ContextualPhpParserReflector
     /**
      * @return list<Type\NamedObjectType>
      */
-    private function reflectOwnInterfaceTypes(Stmt\ClassLike $node, PhpDoc $phpDoc): array
+    private function reflectInterfaceTypes(Stmt\ClassLike $node, PhpDoc $phpDoc): array
     {
         if ($node instanceof Stmt\Interface_) {
-            $interfaceNames = $node->extends;
+            $names = $node->extends;
             $phpDocInterfaceTypes = $phpDoc->extendedTypes();
         } elseif ($node instanceof Stmt\Class_) {
-            $interfaceNames = $node->implements;
+            $names = $node->implements;
             $phpDocInterfaceTypes = $phpDoc->implementedTypes();
         } elseif ($node instanceof Stmt\Enum_) {
-            $interfaceNames = [
+            $names = [
                 ...$node->implements,
                 new Name\FullyQualified(\UnitEnum::class),
                 ...($node->scalarType === null ? [] : [new Name\FullyQualified(\BackedEnum::class)]),
@@ -175,33 +176,64 @@ final class ContextualPhpParserReflector
             return [];
         }
 
-        if ($interfaceNames === []) {
+        if ($names === []) {
             return [];
         }
 
-        $phpDocInterfaceTypesByClass = [];
+        $phpDocTypesByClass = [];
 
         foreach ($phpDocInterfaceTypes as $phpDocInterfaceType) {
             /** @var Type\NamedObjectType $implementedType */
             $implementedType = $this->phpDocTypeReflector->reflect($phpDocInterfaceType);
-            $phpDocInterfaceTypesByClass[$implementedType->class] = $implementedType;
+            $phpDocTypesByClass[$implementedType->class] = $implementedType;
         }
 
-        $reflectedInterfaceTypes = [];
+        $types = [];
 
-        foreach ($interfaceNames as $interfaceName) {
-            $interfaceNameAsString = $interfaceName->toCodeString();
+        foreach ($names as $name) {
+            $nameAsString = $name->toCodeString();
 
-            // https://github.com/phpstan/phpstan/issues/8889
-            if (\in_array($interfaceNameAsString, ['iterable', 'callable'], true)) {
+            // Fix for https://github.com/JetBrains/phpstorm-stubs/pull/1528.
+            if (\in_array($nameAsString, ['iterable', 'callable'], true)) {
                 continue;
             }
 
-            $interface = $this->typeContext->resolveNameAsClass($interfaceNameAsString);
-            $reflectedInterfaceTypes[] = $phpDocInterfaceTypesByClass[$interface] ?? types::object($interface);
+            $class = $this->typeContext->resolveNameAsClass($nameAsString);
+            $types[] = $phpDocTypesByClass[$class] ?? types::object($class);
         }
 
-        return $reflectedInterfaceTypes;
+        return $types;
+    }
+
+    /**
+     * @return list<Type\NamedObjectType>
+     */
+    private function reflectTraitTypes(Stmt\ClassLike $node): array
+    {
+        if ($node instanceof Stmt\Interface_) {
+            return [];
+        }
+
+        $phpDocTypesByClass = [];
+
+        foreach ($node->getTraitUses() as $useNode) {
+            foreach ($this->parsePhpDoc($useNode)->usedTypes() as $phpDocUsedType) {
+                $usedType = $this->phpDocTypeReflector->reflect($phpDocUsedType);
+                \assert($usedType instanceof Type\NamedObjectType);
+                $phpDocTypesByClass[$usedType->class] = $usedType;
+            }
+        }
+
+        $types = [];
+
+        foreach ($node->getTraitUses() as $useNode) {
+            foreach ($useNode->traits as $name) {
+                $class = $this->typeContext->resolveNameAsClass($name->toCodeString());
+                $types[] = $phpDocTypesByClass[$class] ?? types::object($class);
+            }
+        }
+
+        return $types;
     }
 
     /**
@@ -434,7 +466,7 @@ final class ContextualPhpParserReflector
                     return $this->typeContext->resolveNameAsType($typeImport->importedAlias);
                 }
 
-                return new ImportedTypeAlias($fromClass, $typeImport->importedAlias);
+                return new ImportedType($fromClass, $typeImport->importedAlias);
             };
         }
 

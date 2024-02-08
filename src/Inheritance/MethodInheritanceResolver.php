@@ -30,8 +30,12 @@ final class MethodInheritanceResolver
 
     private TypeInheritanceResolver $returnType;
 
-    public function __construct()
-    {
+    /**
+     * @param class-string $class
+     */
+    public function __construct(
+        private readonly string $class,
+    ) {
         $this->returnType = new TypeInheritanceResolver();
     }
 
@@ -46,6 +50,32 @@ final class MethodInheritanceResolver
         }
 
         $this->returnType->setOwn($method->returnType);
+    }
+
+    public function addUsed(MethodMetadata $method, TemplateResolver $templateResolver): void
+    {
+        if ($this->method !== null) {
+            $inheritedMethodParameters = array_column($method->parameters, null, 'name');
+
+            foreach ($this->parameterTypes as $name => $parameter) {
+                if (isset($inheritedMethodParameters[$name])) {
+                    $parameter->addInherited($inheritedMethodParameters[$name]->type, $templateResolver);
+                }
+            }
+
+            $this->returnType->addInherited($method->returnType, $templateResolver);
+
+            return;
+        }
+
+        $this->method = $method->withClass($this->class);
+
+        foreach ($method->parameters as $parameter) {
+            $this->parameterTypes[$parameter->name] = new TypeInheritanceResolver();
+            $this->parameterTypes[$parameter->name]->addInherited($parameter->type, $templateResolver);
+        }
+
+        $this->returnType->addInherited($method->returnType, $templateResolver);
     }
 
     public function addInherited(MethodMetadata $method, TemplateResolver $templateResolver): void

@@ -9,6 +9,7 @@ use PhpParser\ParserFactory;
 use Psr\SimpleCache\CacheInterface;
 use Typhoon\Reflection\ClassLocator\ClassLocatorChain;
 use Typhoon\Reflection\ClassLocator\ComposerClassLocator;
+use Typhoon\Reflection\ClassLocator\NativeReflectionFileLocator;
 use Typhoon\Reflection\ClassLocator\NativeReflectionLocator;
 use Typhoon\Reflection\ClassLocator\PhpStormStubsClassLocator;
 use Typhoon\Reflection\Metadata\MetadataCache;
@@ -66,6 +67,7 @@ final class TyphoonReflector
             $classLocators[] = new PhpStormStubsClassLocator();
         }
 
+        $classLocators[] = new NativeReflectionFileLocator();
         $classLocators[] = new NativeReflectionLocator();
 
         return $classLocators;

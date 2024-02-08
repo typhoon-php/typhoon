@@ -28,8 +28,8 @@ final class ClassMetadata extends RootMetadata
      * @param array<non-empty-string, Type> $typeAliases
      * @param list<TemplateReflection> $templates
      * @param int-mask-of<\ReflectionClass::IS_*> $modifiers
-     * @param list<NamedObjectType> $ownInterfaceTypes
-     * @param list<NamedObjectType> $ownTraitTypes
+     * @param list<NamedObjectType> $interfaceTypes
+     * @param list<NamedObjectType> $traitTypes
      * @param list<PropertyMetadata> $ownProperties
      * @param list<MethodMetadata> $ownMethods
      */
@@ -52,10 +52,10 @@ final class ClassMetadata extends RootMetadata
         public readonly bool $anonymous = false,
         public readonly bool $deprecated = false,
         public readonly ?NamedObjectType $parentType = null,
-        public readonly array $ownInterfaceTypes = [],
+        public readonly array $interfaceTypes = [],
+        public readonly array $traitTypes = [],
         public readonly array $ownProperties = [],
         public readonly array $ownMethods = [],
-        public readonly array $ownTraitTypes = [],
     ) {
         parent::__construct($name, $changeDetector);
     }

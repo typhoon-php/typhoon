@@ -44,9 +44,13 @@ final class NativeReflector
             trait: $class->isTrait(),
             anonymous: $class->isAnonymous(),
             parentType: $this->reflectParent($class),
-            ownInterfaceTypes: array_map(
+            interfaceTypes: array_map(
                 static fn(string $interface): Type\NamedObjectType => types::object($interface),
                 $class->getInterfaceNames(),
+            ),
+            traitTypes: array_map(
+                static fn(string $trait): Type\NamedObjectType => types::object($trait),
+                $class->getTraitNames(),
             ),
             ownProperties: $this->reflectOwnProperties($class),
             ownMethods: $this->reflectOwnMethods($class),

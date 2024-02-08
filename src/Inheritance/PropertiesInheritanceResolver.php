@@ -20,7 +20,11 @@ final class PropertiesInheritanceResolver
      */
     private array $properties = [];
 
+    /**
+     * @param class-string $class
+     */
     public function __construct(
+        private readonly string $class,
         private readonly ClassReflector $classReflector,
     ) {}
 
@@ -31,6 +35,18 @@ final class PropertiesInheritanceResolver
     {
         foreach ($properties as $property) {
             $this->property($property->name)->setOwn($property);
+        }
+    }
+
+    public function addUsed(NamedObjectType ...$types): void
+    {
+        foreach ($types as $type) {
+            $class = $this->classReflector->reflectClass($type->class);
+            $templateResolver = TemplateResolver::create($class->getTemplates(), $type->templateArguments);
+
+            foreach ($class->getProperties() as $property) {
+                $this->property($property->name)->addUsed($property->__metadata(), $templateResolver);
+            }
         }
     }
 
@@ -64,6 +80,6 @@ final class PropertiesInheritanceResolver
      */
     private function property(string $name): PropertyInheritanceResolver
     {
-        return $this->properties[$name] ??= new PropertyInheritanceResolver();
+        return $this->properties[$name] ??= new PropertyInheritanceResolver($this->class);
     }
 }

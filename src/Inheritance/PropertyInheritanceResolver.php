@@ -17,8 +17,12 @@ final class PropertyInheritanceResolver
 
     private TypeInheritanceResolver $type;
 
-    public function __construct()
-    {
+    /**
+     * @param class-string $class
+     */
+    public function __construct(
+        private readonly string $class,
+    ) {
         $this->type = new TypeInheritanceResolver();
     }
 
@@ -26,6 +30,12 @@ final class PropertyInheritanceResolver
     {
         $this->property = $property;
         $this->type->setOwn($property->type);
+    }
+
+    public function addUsed(PropertyMetadata $property, TemplateResolver $templateResolver): void
+    {
+        $this->property ??= $property->withClass($this->class);
+        $this->type->addInherited($property->type, $templateResolver);
     }
 
     public function addInherited(PropertyMetadata $property, TemplateResolver $templateResolver): void

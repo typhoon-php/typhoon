@@ -14,7 +14,7 @@ use Typhoon\Type\TypeVisitor;
  * @psalm-immutable
  * @implements Type<mixed>
  */
-final class ImportedTypeAlias implements Type
+final class ImportedType implements Type
 {
     /**
      * @param class-string $class
@@ -27,7 +27,7 @@ final class ImportedTypeAlias implements Type
 
     public function accept(TypeVisitor $visitor): mixed
     {
-        if ($visitor instanceof ImportedTypeAliasReplacer) {
+        if ($visitor instanceof ImportedTypeResolver) {
             return $visitor->visitImportedType($this)->accept($visitor);
         }
 

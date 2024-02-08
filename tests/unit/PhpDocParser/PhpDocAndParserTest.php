@@ -392,6 +392,48 @@ final class PhpDocAndParserTest extends TestCase
         );
     }
 
+    public function testItReturnsEmptyUsedTypesWhenNoImplementsTag(): void
+    {
+        $parser = new PhpDocParser();
+
+        $usedTypes = $parser->parsePhpDoc(
+            <<<'PHP'
+                /**
+                 * @example
+                 */
+                PHP,
+        )->usedTypes();
+
+        self::assertEmpty($usedTypes);
+    }
+
+    public function testItReturnsLatestPrioritizedUsedTypes(): void
+    {
+        $parser = new PhpDocParser();
+
+        $usedTypes = $parser->parsePhpDoc(
+            <<<'PHP'
+                /**
+                 * @example
+                 * 
+                 * @use C<int>
+                 * @use D<object>
+                 * @use D<mixed>
+                 * @phpstan-use C<float>
+                 * @phpstan-use C<string>
+                 */
+                PHP,
+        )->usedTypes();
+
+        self::assertEquals(
+            [
+                $this->createGenericTypeNode(new IdentifierTypeNode('C'), [new IdentifierTypeNode('string')]),
+                $this->createGenericTypeNode(new IdentifierTypeNode('D'), [new IdentifierTypeNode('mixed')]),
+            ],
+            $usedTypes,
+        );
+    }
+
     public function testItReturnsEmptyTypeAliasesWhenNoTypeTag(): void
     {
         $parser = new PhpDocParser();
@@ -501,6 +543,7 @@ final class PhpDocAndParserTest extends TestCase
                 /**
                  * @template T
                  * @implements Iterator
+                 * @use Iterator
                  * @extends stdClass
                  * @var string
                  * @param int $x
@@ -514,6 +557,7 @@ final class PhpDocAndParserTest extends TestCase
         $tags = static fn(): array => [
             $phpDoc->templates(),
             $phpDoc->implementedTypes(),
+            $phpDoc->usedTypes(),
             $phpDoc->extendedTypes(),
             $phpDoc->varType(),
             $phpDoc->paramTypes(),

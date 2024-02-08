@@ -14,6 +14,7 @@ use PHPStan\PhpDocParser\Ast\PhpDoc\ReturnTagValueNode;
 use PHPStan\PhpDocParser\Ast\PhpDoc\TemplateTagValueNode;
 use PHPStan\PhpDocParser\Ast\PhpDoc\TypeAliasImportTagValueNode;
 use PHPStan\PhpDocParser\Ast\PhpDoc\TypeAliasTagValueNode;
+use PHPStan\PhpDocParser\Ast\PhpDoc\UsesTagValueNode;
 use PHPStan\PhpDocParser\Ast\PhpDoc\VarTagValueNode;
 use PHPStan\PhpDocParser\Ast\Type\GenericTypeNode;
 use PHPStan\PhpDocParser\Ast\Type\TypeNode;
@@ -52,6 +53,11 @@ final class PhpDoc
      * @var ?list<GenericTypeNode>
      */
     private ?array $implementedTypes = null;
+
+    /**
+     * @var ?list<GenericTypeNode>
+     */
+    private ?array $usedTypes = null;
 
     /**
      * @var ?list<TypeAliasTagValueNode>
@@ -304,6 +310,38 @@ final class PhpDoc
         return $this->implementedTypes = array_map(
             static fn(PhpDocTagNode $tag): GenericTypeNode => $tag->value->type,
             array_values($implementsTags),
+        );
+    }
+
+    /**
+     * @return list<GenericTypeNode>
+     */
+    public function usedTypes(): array
+    {
+        if ($this->usedTypes !== null) {
+            return $this->usedTypes;
+        }
+
+        $tagsByName = [];
+
+        foreach ($this->tags as $key => $tag) {
+            if (!$tag->value instanceof UsesTagValueNode) {
+                continue;
+            }
+
+            /** @var PhpDocTagNode<UsesTagValueNode> $tag */
+            $name = $tag->value->type->type->name;
+
+            if ($this->shouldReplaceTag($tagsByName[$name] ?? null, $tag)) {
+                $tagsByName[$name] = $tag;
+            }
+
+            unset($this->tags[$key]);
+        }
+
+        return $this->usedTypes = array_map(
+            static fn(PhpDocTagNode $tag): GenericTypeNode => $tag->value->type,
+            array_values($tagsByName),
         );
     }
 

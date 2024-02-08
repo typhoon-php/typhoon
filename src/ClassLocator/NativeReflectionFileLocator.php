@@ -10,15 +10,23 @@ use Typhoon\Reflection\FileResource;
 /**
  * @api
  */
-final class NativeReflectionLocator implements ClassLocator
+final class NativeReflectionFileLocator implements ClassLocator
 {
     public function locateClass(string $name): null|FileResource|\ReflectionClass
     {
         try {
             /** @psalm-suppress ArgumentTypeCoercion */
-            return new \ReflectionClass($name);
+            $nativeReflection = new \ReflectionClass($name);
         } catch (\ReflectionException) {
             return null;
         }
+
+        $file = $nativeReflection->getFileName();
+
+        if ($file !== false) {
+            return new FileResource($file, $nativeReflection->getExtensionName());
+        }
+
+        return null;
     }
 }

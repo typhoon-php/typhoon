@@ -119,6 +119,39 @@ namespace Properties
         ) {
         }
     }
+
+    trait TraitWithProperties
+    {
+        public $noType;
+        public string $withDefault = 'abc';
+        public string $public;
+        protected string $protected;
+        private string $private;
+        public readonly string $publicReadonly;
+        protected readonly string $protectedReadonly;
+        private readonly string $privateReadonly;
+        public static string $publicStatic;
+        protected static string $protectedStatic;
+        private static string $privateStatic;
+        /**
+         * I am property!
+         */
+        private string $withPhpDoc;
+
+        public function __construct(
+            public string $publicPromoted,
+            protected string $protectedPromoted,
+            private string $privatePromoted,
+            public readonly string $publicReadonlyPromoted,
+            protected readonly string $protectedReadonlyPromoted,
+            private readonly string $privateReadonlyPromoted,
+            /**
+             * I am promoted property!
+             */
+            private readonly string $promotedWithPhpDoc,
+        ) {
+        }
+    }
 }
 
 namespace Methods
@@ -147,14 +180,23 @@ namespace Methods
         static private function withPhpDoc() { yield 1; }
     }
 
-    trait TraitWithMethod
+    trait TraitWithMethods
     {
-        public function a(): void {}
-    }
-
-    trait TraitWithAbstractMethod
-    {
-        abstract public function a(): void;
+        public function public(string &$byRef): void {}
+        protected function protected(): void {}
+        private function private(): void {}
+        static public function staticPublic(): void {}
+        static protected function staticProtected(): void {}
+        static private function staticPrivate(): void {}
+        static private function &byRef(): string {}
+        static private function variadic(string ...$strings): string {}
+        static private function optionalArgs(int $a, string $b = 'abc', float $c = 0.2): string {}
+        static private function generatorReturnType(): \Generator {}
+        static private function yield() { yield 1; }
+        /**
+         * I am method!
+         */
+        static private function withPhpDoc() { yield 1; }
     }
 }
 
@@ -268,7 +310,7 @@ namespace ParameterTypes
     }
 }
 
-namespace Inheritance
+namespace AbstractClassInheritance
 {
     abstract class Base
     {
@@ -283,5 +325,47 @@ namespace Inheritance
 
     final class Child extends Base
     {
+    }
+}
+
+namespace AbstractClassAndInterfaceInheritance
+{
+    interface Interfac
+    {
+        public function public(): void;
+    }
+
+    abstract class Base implements Interfac
+    {
+        private function private(): void {}
+        protected function protected(): void {}
+        public function public(): void {}
+    }
+
+    final class ClassThatJustExtends extends Base
+    {
+    }
+
+    final class ClassThatExtendsAndImplements extends Base implements Interfac
+    {
+    }
+}
+
+namespace TraitUsage
+{
+    trait Trrait
+    {
+        private string $private;
+        protected string $protected;
+        public string $public;
+
+        private function private(): void {}
+        protected function protected(): void {}
+        public function public(): void {}
+    }
+
+    final class FinalClass
+    {
+        use Trrait;
     }
 }
