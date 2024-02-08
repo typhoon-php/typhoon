@@ -13,6 +13,7 @@ use PhpParser\NodeTraverser;
 use PhpParser\NodeVisitorAbstract;
 use PHPStan\PhpDocParser\Ast\Type\TypeNode;
 use Typhoon\Reflection\ClassReflection;
+use Typhoon\Reflection\Exception\DefaultReflectionException;
 use Typhoon\Reflection\FileResource;
 use Typhoon\Reflection\Metadata\AttributeMetadata;
 use Typhoon\Reflection\Metadata\ClassMetadata;
@@ -23,7 +24,6 @@ use Typhoon\Reflection\Metadata\TypeMetadata;
 use Typhoon\Reflection\PhpDocParser\ContextualPhpDocTypeReflector;
 use Typhoon\Reflection\PhpDocParser\PhpDoc;
 use Typhoon\Reflection\PhpDocParser\PhpDocParser;
-use Typhoon\Reflection\ReflectionException;
 use Typhoon\Reflection\TemplateReflection;
 use Typhoon\Reflection\TypeAlias\ImportedTypeAlias;
 use Typhoon\Reflection\TypeContext\TypeContext;
@@ -562,7 +562,7 @@ final class ContextualPhpParserReflector
                 'iterable' => types::iterable(),
                 'resource' => types::resource,
                 'mixed' => types::mixed,
-                default => throw new ReflectionException(sprintf(
+                default => throw new DefaultReflectionException(sprintf(
                     '%s with name "%s" is not supported.',
                     $node->name,
                     $node::class,
@@ -580,7 +580,7 @@ final class ContextualPhpParserReflector
             return types::object($resolvedName);
         }
 
-        throw new ReflectionException(sprintf('%s is not supported.', $node::class));
+        throw new DefaultReflectionException(sprintf('%s is not supported.', $node::class));
     }
 
     /**

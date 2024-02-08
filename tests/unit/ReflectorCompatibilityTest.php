@@ -27,25 +27,29 @@ final class ReflectorCompatibilityTest extends TestCase
     }
 
     /**
-     * @return \Generator<string, list<ClassLocator>>
+     * @return \Generator<string, ReflectionSession>
      */
-    public static function classLocators(): \Generator
+    public static function reflectorSessions(): \Generator
     {
-        yield 'TyphoonReflector::defaultClassLocators()' => TyphoonReflector::defaultClassLocators();
-        yield 'NativeReflectionLocator' => [
+        yield 'default reflector' => TyphoonReflector::build()->startSession();
+        yield 'native reflector' => TyphoonReflector::build(classLocators: [
             new class () implements ClassLocator {
                 public function locateClass(string $name): null|\ReflectionClass|FileResource
                 {
-                    /** @psalm-suppress ArgumentTypeCoercion */
-                    return new \ReflectionClass($name);
+                    try {
+                        /** @psalm-suppress ArgumentTypeCoercion */
+                        return new \ReflectionClass($name);
+                    } catch (\ReflectionException) {
+                        return null;
+                    }
                 }
             },
-        ];
+        ])->startSession();
     }
 
     /**
      * @psalm-suppress PossiblyUnusedMethod
-     * @return \Generator<string, array{list<ClassLocator>, string}>
+     * @return \Generator<string, array{ReflectionSession, string}>
      */
     public static function classes(): \Generator
     {
@@ -54,22 +58,22 @@ final class ReflectorCompatibilityTest extends TestCase
 
         $anonymousNames = AnonymousClassName::findDeclared(file: self::CLASSES);
 
-        foreach (self::classLocators() as $classLocatorsName => $classLocators) {
-            yield \Iterator::class . ' using ' . $classLocatorsName => [$classLocators, \Iterator::class];
+        foreach (self::reflectorSessions() as $sessionName => $session) {
+            yield \Iterator::class . ' using ' . $sessionName => [$session, \Iterator::class];
 
             foreach (NameCollector::collect(self::CLASSES)->classes as $class) {
-                yield $class . ' using ' . $classLocatorsName => [$classLocators, $class];
+                yield $class . ' using ' . $sessionName => [$session, $class];
             }
 
             foreach ($anonymousNames as $anonymousName) {
-                yield 'anonymous at line ' . $anonymousName->line . ' using ' . $classLocatorsName => [$classLocators, $anonymousName->name];
+                yield 'anonymous at line ' . $anonymousName->line . ' using ' . $sessionName => [$session, $anonymousName->name];
             }
         }
     }
 
     /**
      * @psalm-suppress PossiblyUnusedMethod
-     * @return \Generator<string, array{list<ClassLocator>, string}>
+     * @return \Generator<string, array{ReflectionSession, string}>
      */
     public static function readonlyClasses(): \Generator
     {
@@ -78,40 +82,32 @@ final class ReflectorCompatibilityTest extends TestCase
             require_once self::READONLY_CLASSES;
         }
 
-        foreach (self::classLocators() as $classLocatorsName => $classLocators) {
+        foreach (self::reflectorSessions() as $sessionName => $session) {
             foreach (NameCollector::collect(self::READONLY_CLASSES)->classes as $class) {
-                yield $class . ' using ' . $classLocatorsName => [$classLocators, $class];
+                yield $class . ' using ' . $sessionName => [$session, $class];
             }
         }
     }
 
-    /**
-     * @param list<ClassLocator> $classLocators
-     */
     #[DataProvider('classes')]
-    public function testItReflectsClassesCompatibly(array $classLocators, string $class): void
+    public function testItReflectsClassesCompatibly(ReflectionSession $session, string $class): void
     {
-        $reflector = TyphoonReflector::build(classLocators: $classLocators);
         /** @psalm-suppress ArgumentTypeCoercion */
         $native = new \ReflectionClass($class);
 
-        $typhoon = $reflector->reflectClass($class);
+        $typhoon = $session->reflectClass($class);
 
         $this->assertClassEquals($native, $typhoon);
     }
 
-    /**
-     * @param ?list<ClassLocator> $classLocators
-     */
     #[RequiresPhp('>=8.2')]
     #[DataProvider('readonlyClasses')]
-    public function testItReflectsReadonlyClasses(?array $classLocators, string $class): void
+    public function testItReflectsReadonlyClasses(ReflectionSession $session, string $class): void
     {
-        $reflector = TyphoonReflector::build(classLocators: $classLocators);
         /** @psalm-suppress ArgumentTypeCoercion */
         $native = new \ReflectionClass($class);
 
-        $typhoon = $reflector->reflectClass($class);
+        $typhoon = $session->reflectClass($class);
 
         /** @psalm-suppress UnusedPsalmSuppress, MixedArgument, UndefinedMethod */
         self::assertSame($native->isReadOnly(), $typhoon->isReadOnly());
@@ -153,7 +149,13 @@ final class ReflectorCompatibilityTest extends TestCase
         // TODO hasConstant()
         // hasMethod() see below
         // hasProperty() see below
-        // TODO implementsInterface
+        foreach ($this->getClasses($native) as $class) {
+            $this->assertResultOrExceptionEqual(
+                static fn(): bool => $native->implementsInterface($class),
+                static fn(): bool => $typhoon->implementsInterface($class),
+                "class.implementsInterface({$class})",
+            );
+        }
         self::assertSame($native->inNamespace(), $typhoon->inNamespace(), 'class.inNamespace()');
         self::assertSame($native->isAbstract(), $typhoon->isAbstract(), 'class.isAbstract()');
         self::assertSame($native->isAnonymous(), $typhoon->isAnonymous(), 'class.isAnonymous()');
@@ -168,8 +170,16 @@ final class ReflectorCompatibilityTest extends TestCase
         self::assertSame($native->isInternal(), $typhoon->isInternal(), 'class.isInternal()');
         self::assertSame($native->isIterable(), $typhoon->isIterable(), 'class.isIterable()');
         self::assertSame($native->isIterateable(), $typhoon->isIterateable(), 'class.isIterateable()');
-        method_exists($native, 'isReadOnly') && self::assertSame($native->isReadOnly(), $typhoon->isReadOnly(), 'class.isReadOnly()');
-        // TODO isSubclassOf()
+        if (method_exists($native, 'isReadOnly')) {
+            self::assertSame($native->isReadOnly(), $typhoon->isReadOnly(), 'class.isReadOnly()');
+        }
+        foreach ($this->getClasses($native) as $class) {
+            $this->assertResultOrExceptionEqual(
+                static fn(): bool => $native->isSubclassOf($class),
+                static fn(): bool => $typhoon->isSubclassOf($class),
+                "class.isSubclassOf({$class})",
+            );
+        }
         self::assertSame($native->isTrait(), $typhoon->isTrait(), 'class.isTrait()');
         self::assertSame($native->isUserDefined(), $typhoon->isUserDefined(), 'class.isUserDefined()');
         if ($native->isInstantiable()) {
@@ -317,7 +327,9 @@ final class ReflectorCompatibilityTest extends TestCase
         self::assertSame($native->getClass()?->name, $typhoon->getClass()?->name, $messagePrefix . '.getClass().name');
         self::assertSame($native->getDeclaringClass()?->name, $typhoon->getDeclaringClass()?->name, $messagePrefix . '.getDeclaringClass().name');
         self::assertSame($native->getDeclaringFunction()->name, $typhoon->getDeclaringFunction()->name, $messagePrefix . '.getDeclaringFunction().name');
-        $native->isDefaultValueAvailable() && self::assertSame($native->getDefaultValueConstantName(), $typhoon->getDefaultValueConstantName(), $messagePrefix . '.getDefaultValueConstantName()');
+        if ($native->isDefaultValueAvailable()) {
+            self::assertSame($native->getDefaultValueConstantName(), $typhoon->getDefaultValueConstantName(), $messagePrefix . '.getDefaultValueConstantName()');
+        }
         self::assertSame($native->getName(), $typhoon->getName(), $messagePrefix . '.getName()');
         self::assertSame($native->getPosition(), $typhoon->getPosition(), $messagePrefix . '.getPosition()');
         self::assertEquals($native->getType(), $typhoon->getType(), $messagePrefix . '.getType()');
@@ -325,8 +337,10 @@ final class ReflectorCompatibilityTest extends TestCase
         self::assertSame($native->isArray(), $typhoon->isArray(), $messagePrefix . '.isArray()');
         self::assertSame($native->isCallable(), $typhoon->isCallable(), $messagePrefix . '.isCallable()');
         self::assertSame($native->isDefaultValueAvailable(), $typhoon->isDefaultValueAvailable(), $messagePrefix . '.isDefaultValueAvailable()');
-        $native->isDefaultValueAvailable() && self::assertEquals($native->getDefaultValue(), $typhoon->getDefaultValue(), $messagePrefix . '.getDefaultValue()');
-        $native->isDefaultValueAvailable() && self::assertSame($native->isDefaultValueConstant(), $typhoon->isDefaultValueConstant(), $messagePrefix . '.isDefaultValueConstant()');
+        if ($native->isDefaultValueAvailable()) {
+            self::assertEquals($native->getDefaultValue(), $typhoon->getDefaultValue(), $messagePrefix . '.getDefaultValue()');
+            self::assertSame($native->isDefaultValueConstant(), $typhoon->isDefaultValueConstant(), $messagePrefix . '.isDefaultValueConstant()');
+        }
         self::assertSame($native->isOptional(), $typhoon->isOptional(), $messagePrefix . '.isOptional()');
         self::assertSame($native->isPassedByReference(), $typhoon->isPassedByReference(), $messagePrefix . '.isPassedByReference()');
         self::assertSame($native->isPromoted(), $typhoon->isPromoted(), $messagePrefix . '.isPromoted()');
@@ -389,6 +403,34 @@ final class ReflectorCompatibilityTest extends TestCase
     }
 
     /**
+     * @return \Generator<int, class-string>
+     * @psalm-suppress MoreSpecificReturnType
+     */
+    private function getClasses(\ReflectionClass $class): \Generator
+    {
+        yield '';
+        yield 'HELLO!';
+        yield $class->name;
+        yield from $class->getInterfaceNames();
+        $parent = $class->getParentClass();
+
+        while ($parent !== false) {
+            yield $parent->name;
+            $parent = $parent->getParentClass();
+        }
+
+        yield \Iterator::class;
+        yield \ArrayAccess::class;
+        yield \Throwable::class;
+        yield \UnitEnum::class;
+        yield Variance::class;
+        yield \FilterIterator::class;
+        yield \stdClass::class;
+
+        // TODO add trait
+    }
+
+    /**
      * @template T of object
      * @param \ReflectionClass<T> $class
      * @return T
@@ -415,5 +457,35 @@ final class ReflectorCompatibilityTest extends TestCase
         }
 
         return $class->newInstanceWithoutConstructor();
+    }
+
+    private function assertResultOrExceptionEqual(\Closure $native, \Closure $typhoon, string $messagePrefix): void
+    {
+        $nativeException = null;
+        $nativeResult = null;
+        $typhoonException = null;
+        $typhoonResult = null;
+
+        try {
+            /** @psalm-suppress MixedAssignment */
+            $nativeResult = $native();
+        } catch (\Throwable $nativeException) {
+        }
+
+        try {
+            /** @psalm-suppress MixedAssignment */
+            $typhoonResult =  $typhoon();
+        } catch (\Throwable $typhoonException) {
+        }
+
+        self::assertSame($nativeResult, $typhoonResult, $messagePrefix);
+
+        if ($nativeException !== null) {
+            $messagePrefix .= '.exception';
+            self::assertInstanceOf($nativeException::class, $typhoonException, $messagePrefix . '.class');
+            self::assertSame($nativeException->getMessage(), $typhoonException->getMessage(), $messagePrefix . '.getMessage()');
+            self::assertEquals($nativeException->getPrevious(), $typhoonException->getPrevious(), $messagePrefix . '.getPrevious()');
+            self::assertSame($nativeException->getCode(), $typhoonException->getCode(), $messagePrefix . '.getCode()');
+        }
     }
 }

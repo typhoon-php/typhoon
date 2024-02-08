@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Typhoon\Reflection\NativeReflector;
 
+use Typhoon\Reflection\Exception\DefaultReflectionException;
 use Typhoon\Reflection\Metadata\AttributeMetadata;
 use Typhoon\Reflection\Metadata\ChangeDetector;
 use Typhoon\Reflection\Metadata\ClassMetadata;
@@ -11,7 +12,6 @@ use Typhoon\Reflection\Metadata\MethodMetadata;
 use Typhoon\Reflection\Metadata\ParameterMetadata;
 use Typhoon\Reflection\Metadata\PropertyMetadata;
 use Typhoon\Reflection\Metadata\TypeMetadata;
-use Typhoon\Reflection\ReflectionException;
 use Typhoon\Type;
 use Typhoon\Type\types;
 
@@ -222,7 +222,7 @@ final class NativeReflector
         }
 
         if (!$reflectionType instanceof \ReflectionNamedType) {
-            throw new ReflectionException(sprintf('Unknown reflection type %s.', $reflectionType::class));
+            throw new DefaultReflectionException(sprintf('Unknown reflection type %s.', $reflectionType::class));
         }
 
         $name = $reflectionType->getName();
@@ -275,7 +275,7 @@ final class NativeReflector
             'resource' => types::resource,
             'mixed' => types::mixed,
             default => $reflectionType->isBuiltin()
-                ? throw new ReflectionException(sprintf(
+                ? throw new DefaultReflectionException(sprintf(
                     '%s with name "%s" is not supported.',
                     \ReflectionNamedType::class,
                     $name,

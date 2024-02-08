@@ -6,6 +6,7 @@ namespace Typhoon\Reflection;
 
 use Typhoon\Reflection\Attributes\AttributeReflections;
 use Typhoon\Reflection\ClassReflection\ClassReflector;
+use Typhoon\Reflection\Exception\DefaultReflectionException;
 use Typhoon\Reflection\Metadata\MethodMetadata;
 use Typhoon\Reflection\Metadata\ParameterMetadata;
 use Typhoon\Type\Type;
@@ -43,7 +44,7 @@ final class MethodReflection extends \ReflectionMethod
      */
     public static function createFromMethodName(string $method): static
     {
-        throw new ReflectionException('Not implemented.');
+        throw new DefaultReflectionException('Not implemented.');
     }
 
     public function __get(string $name)
@@ -197,7 +198,7 @@ final class MethodReflection extends \ReflectionMethod
                 return $parameters[$nameOrPosition];
             }
 
-            throw new ReflectionException();
+            throw new DefaultReflectionException();
         }
 
         foreach ($parameters as $parameter) {
@@ -206,7 +207,7 @@ final class MethodReflection extends \ReflectionMethod
             }
         }
 
-        throw new ReflectionException();
+        throw new DefaultReflectionException();
     }
 
     /**
@@ -223,7 +224,7 @@ final class MethodReflection extends \ReflectionMethod
     public function getPrototype(): \ReflectionMethod
     {
         if ($this->metadata->prototype === null) {
-            throw new ReflectionException();
+            throw new DefaultReflectionException();
         }
 
         [$class, $name] = $this->metadata->prototype;
@@ -258,7 +259,7 @@ final class MethodReflection extends \ReflectionMethod
     public function getTemplate(int|string $nameOrPosition): TemplateReflection
     {
         if (\is_int($nameOrPosition)) {
-            return $this->metadata->templates[$nameOrPosition] ?? throw new ReflectionException();
+            return $this->metadata->templates[$nameOrPosition] ?? throw new DefaultReflectionException();
         }
 
         foreach ($this->metadata->templates as $template) {
@@ -267,7 +268,7 @@ final class MethodReflection extends \ReflectionMethod
             }
         }
 
-        throw new ReflectionException();
+        throw new DefaultReflectionException();
     }
 
     /**

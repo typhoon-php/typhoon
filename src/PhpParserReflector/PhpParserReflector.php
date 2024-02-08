@@ -7,6 +7,7 @@ namespace Typhoon\Reflection\PhpParserReflector;
 use PhpParser\NodeTraverser;
 use PhpParser\NodeVisitor;
 use PhpParser\Parser as PhpParser;
+use Typhoon\Reflection\Exception\DefaultReflectionException;
 use Typhoon\Reflection\FileResource;
 use Typhoon\Reflection\Metadata\ClassMetadata;
 use Typhoon\Reflection\Metadata\MetadataLazyCollection;
@@ -14,7 +15,6 @@ use Typhoon\Reflection\NameContext\AnonymousClassName;
 use Typhoon\Reflection\NameContext\NameContext;
 use Typhoon\Reflection\NameContext\NameContextVisitor;
 use Typhoon\Reflection\PhpDocParser\PhpDocParser;
-use Typhoon\Reflection\ReflectionException;
 use Typhoon\Reflection\TypeContext\ClassExistenceChecker;
 use Typhoon\Reflection\TypeContext\TypeContext;
 
@@ -70,6 +70,6 @@ final class PhpParserReflector
         foreach ($visitors as $visitor) {
             $traverser->addVisitor($visitor);
         }
-        $traverser->traverse($this->phpParser->parse($code) ?? throw new ReflectionException('Failed to parse code.'));
+        $traverser->traverse($this->phpParser->parse($code) ?? throw new DefaultReflectionException('Failed to parse code.'));
     }
 }

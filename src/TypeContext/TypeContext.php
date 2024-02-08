@@ -4,10 +4,10 @@ declare(strict_types=1);
 
 namespace Typhoon\Reflection\TypeContext;
 
+use Typhoon\Reflection\Exception\DefaultReflectionException;
 use Typhoon\Reflection\NameContext\NameContext;
 use Typhoon\Reflection\NameContext\NameResolver;
 use Typhoon\Reflection\NameContext\UnqualifiedName;
-use Typhoon\Reflection\ReflectionException;
 use Typhoon\Type\Type;
 use Typhoon\Type\types;
 
@@ -95,7 +95,7 @@ final class TypeContext implements NameResolver
     {
         foreach ($types as $name => $type) {
             if (isset($this->types[$name])) {
-                throw new ReflectionException($name);
+                throw new DefaultReflectionException($name);
             }
 
             $this->types[(new UnqualifiedName($name))->toString()] = $type;

@@ -7,12 +7,16 @@ namespace Typhoon\Reflection;
 /**
  * @api
  */
-final class ReflectionException extends \ReflectionException
+abstract class ReflectionException extends \ReflectionException
 {
-    public function __construct(string $message = '', int $code = 0, ?\Throwable $previous = null)
+    final public static function normalizeClass(string $class): string
     {
-        $message = strtr($message, "\0", '\0');
+        $nullBytePosition = strpos($class, "\0");
 
-        parent::__construct($message, $code, $previous);
+        if ($nullBytePosition === false) {
+            return $class;
+        }
+
+        return substr($class, 0, $nullBytePosition);
     }
 }

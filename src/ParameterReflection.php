@@ -6,6 +6,7 @@ namespace Typhoon\Reflection;
 
 use Typhoon\Reflection\Attributes\AttributeReflections;
 use Typhoon\Reflection\ClassReflection\ClassReflector;
+use Typhoon\Reflection\Exception\DefaultReflectionException;
 use Typhoon\Reflection\Metadata\ParameterMetadata;
 use Typhoon\Reflection\Nullability\NullableChecker;
 use Typhoon\Type\ArrayType;
@@ -112,7 +113,7 @@ final class ParameterReflection extends \ReflectionParameter
 
     public function getDeclaringFunction(): MethodReflection
     {
-        return $this->getDeclaringClass()?->getMethod($this->metadata->functionOrMethod) ?? throw new ReflectionException();
+        return $this->getDeclaringClass()?->getMethod($this->metadata->functionOrMethod) ?? throw new DefaultReflectionException();
     }
 
     public function getDefaultValue(): mixed

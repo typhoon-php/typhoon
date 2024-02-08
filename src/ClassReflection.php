@@ -6,6 +6,8 @@ namespace Typhoon\Reflection;
 
 use Typhoon\Reflection\Attributes\AttributeReflections;
 use Typhoon\Reflection\ClassReflection\ClassReflector;
+use Typhoon\Reflection\Exception\ClassDoesNotExistException;
+use Typhoon\Reflection\Exception\DefaultReflectionException;
 use Typhoon\Reflection\Inheritance\MethodsInheritanceResolver;
 use Typhoon\Reflection\Inheritance\PropertiesInheritanceResolver;
 use Typhoon\Reflection\Metadata\ClassMetadata;
@@ -154,33 +156,12 @@ final class ClassReflection extends \ReflectionClass
      */
     public function getInterfaces(): array
     {
-        $interfaces = [];
-        $ancestors = [];
-
-        foreach ($this->metadata->ownInterfaceTypes as $ownInterfaceType) {
-            $ownInterface = $this->reflectClass($ownInterfaceType->class);
-            $interfaces[$ownInterface->name] = $ownInterface;
-            $ancestors[] = $ownInterface;
-        }
-
-        $parent = $this->getParentClass();
-
-        if ($parent !== false) {
-            $ancestors[] = $parent;
-        }
-
-        foreach ($ancestors as $ancestor) {
-            foreach ($ancestor->getInterfaces() as $interface) {
-                $interfaces[$interface->name] = $interface;
-            }
-        }
-
-        return $interfaces;
+        return iterator_to_array($this->yieldInterfaces());
     }
 
     public function getMethod(string $name): MethodReflection
     {
-        return $this->getResolvedMethods()[$name] ?? throw new ReflectionException();
+        return $this->getResolvedMethods()[$name] ?? throw new DefaultReflectionException();
     }
 
     /**
@@ -229,34 +210,6 @@ final class ClassReflection extends \ReflectionClass
     }
 
     /**
-     * @return list<self>
-     */
-    public function getParentClasses(): array
-    {
-        $parent = $this->getParentClass();
-
-        if ($parent === false) {
-            return [];
-        }
-
-        return [$parent, ...$parent->getParentClasses()];
-    }
-
-    /**
-     * @return list<class-string>
-     */
-    public function getParentClassNames(): array
-    {
-        $parent = $this->getParentClass();
-
-        if ($parent === false) {
-            return [];
-        }
-
-        return [$parent->name, ...$parent->getParentClassNames()];
-    }
-
-    /**
      * @return list<PropertyReflection>
      */
     public function getProperties(?int $filter = null): array
@@ -273,7 +226,7 @@ final class ClassReflection extends \ReflectionClass
 
     public function getProperty(string $name): PropertyReflection
     {
-        return $this->getResolvedProperties()[$name] ?? throw new ReflectionException();
+        return $this->getResolvedProperties()[$name] ?? throw new DefaultReflectionException();
     }
 
     public function getReflectionConstant(string $name): \ReflectionClassConstant|false
@@ -324,7 +277,7 @@ final class ClassReflection extends \ReflectionClass
     public function getTemplate(int|string $nameOrPosition): TemplateReflection
     {
         if (\is_int($nameOrPosition)) {
-            return $this->metadata->templates[$nameOrPosition] ?? throw new ReflectionException();
+            return $this->metadata->templates[$nameOrPosition] ?? throw new DefaultReflectionException();
         }
 
         foreach ($this->metadata->templates as $template) {
@@ -333,7 +286,7 @@ final class ClassReflection extends \ReflectionClass
             }
         }
 
-        throw new ReflectionException();
+        throw new DefaultReflectionException();
     }
 
     /**
@@ -367,7 +320,7 @@ final class ClassReflection extends \ReflectionClass
 
     public function getTypeAlias(string $name): Type
     {
-        return $this->metadata->typeAliases[$name] ?? throw new ReflectionException();
+        return $this->metadata->typeAliases[$name] ?? throw new DefaultReflectionException();
     }
 
     /**
@@ -398,18 +351,29 @@ final class ClassReflection extends \ReflectionClass
     public function implementsInterface(string|\ReflectionClass $interface): bool
     {
         if (\is_string($interface)) {
-            $interface = $this->reflectClass($interface);
+            try {
+                $interface = $this->reflectClass($interface);
+            } catch (ClassDoesNotExistException) {
+                /** @var string $interface */
+                throw new ClassDoesNotExistException(sprintf('Interface "%s" does not exist', DefaultReflectionException::normalizeClass($interface)));
+            }
         }
 
         if (!$interface->isInterface()) {
-            throw new ReflectionException();
+            throw new DefaultReflectionException(sprintf('%s is not an interface', DefaultReflectionException::normalizeClass($interface->name)));
         }
 
         if ($this->metadata->name === $interface->name) {
             return true;
         }
 
-        return \in_array($interface->name, $this->getInterfaceNames(), true);
+        foreach ($this->yieldInterfaces() as $implementedInterface) {
+            if ($implementedInterface->name === $interface->name) {
+                return true;
+            }
+        }
+
+        return false;
     }
 
     public function inNamespace(): bool
@@ -467,7 +431,7 @@ final class ClassReflection extends \ReflectionClass
 
     public function isInstance(object $object): bool
     {
-        return $this->reflectClass($object::class)->isSubclassOf($this);
+        return $this->metadata->name === $object::class || $this->reflectClass($object::class)->isSubclassOf($this);
     }
 
     public function isInstantiable(): bool
@@ -509,18 +473,26 @@ final class ClassReflection extends \ReflectionClass
     public function isSubclassOf(string|\ReflectionClass $class): bool
     {
         if (\is_string($class)) {
+            if ($class === $this->metadata->name) {
+                return false;
+            }
+
             $class = $this->reflectClass($class);
+        } elseif ($class->name === $this->metadata->name) {
+            return false;
         }
 
         if ($class->isInterface() && $this->implementsInterface($class)) {
             return true;
         }
 
-        if ($class->name === $this->metadata->name) {
-            return true;
+        $parentClass = $this->metadata->parentType?->class;
+
+        if ($parentClass === null) {
+            return false;
         }
 
-        return \in_array($class->name, $this->getParentClassNames(), true);
+        return $class->name === $parentClass || $this->reflectClass($parentClass)->isSubclassOf($class);
     }
 
     public function isTrait(): bool
@@ -611,6 +583,14 @@ final class ClassReflection extends \ReflectionClass
         );
     }
 
+    /**
+     * @psalm-assert-if-true self $this->getParentClass()
+     */
+    private function hasParent(): bool
+    {
+        return $this->metadata->parentType !== null;
+    }
+
     private function loadNative(): void
     {
         if (!$this->nativeLoaded) {
@@ -623,9 +603,38 @@ final class ClassReflection extends \ReflectionClass
      * @template TObject of object
      * @param class-string<TObject> $class
      * @return ClassReflection<TObject>
+     * @throws ReflectionException
      */
     private function reflectClass(string $class): self
     {
         return $this->classReflector->reflectClass($class);
+    }
+
+    /**
+     * @return \Generator<interface-string, self>
+     */
+    private function yieldInterfaces(): \Generator
+    {
+        $interfaces = [];
+        $ancestors = [];
+
+        foreach ($this->metadata->ownInterfaceTypes as $ownInterfaceType) {
+            $ancestors[] = $interface = $this->reflectClass($ownInterfaceType->class);
+            yield $interface->name => $interface;
+        }
+
+        foreach ($ancestors as $ancestor) {
+            foreach ($ancestor->getInterfaces() as $interface) {
+                yield $interface->name => $interface;
+            }
+        }
+
+        if ($this->hasParent()) {
+            foreach ($this->getParentClass()->getInterfaces() as $interface) {
+                yield $interface->name => $interface;
+            }
+        }
+
+        return $interfaces;
     }
 }

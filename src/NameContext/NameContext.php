@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Typhoon\Reflection\NameContext;
 
-use Typhoon\Reflection\ReflectionException;
+use Typhoon\Reflection\Exception\DefaultReflectionException;
 
 /**
  * Inspired by PhpParser\NameContext.
@@ -91,7 +91,7 @@ final class NameContext implements NameResolver
         $resolvedAlias = ($alias === null ? $resolvedName->lastSegment() : new UnqualifiedName($alias))->toString();
 
         if (isset($this->namespaceImportTable[$resolvedAlias])) {
-            throw new ReflectionException(sprintf(
+            throw new DefaultReflectionException(sprintf(
                 'Cannot use %s as %s because the name is already in use.',
                 $name,
                 $resolvedAlias,
@@ -107,7 +107,7 @@ final class NameContext implements NameResolver
         $resolvedAlias = ($alias === null ? $resolvedName->lastSegment() : new UnqualifiedName($alias))->toString();
 
         if (isset($this->constantImportTable[$resolvedAlias])) {
-            throw new ReflectionException(sprintf(
+            throw new DefaultReflectionException(sprintf(
                 'Cannot use constant %s as %s because the name is already in use.',
                 $name,
                 $resolvedAlias,
@@ -123,7 +123,7 @@ final class NameContext implements NameResolver
         $resolvedAlias = ($alias === null ? $resolvedName->lastSegment() : new UnqualifiedName($alias))->toString();
 
         if (isset($this->functionImportTable[$resolvedAlias])) {
-            throw new ReflectionException(sprintf(
+            throw new DefaultReflectionException(sprintf(
                 'Cannot use constant %s as %s because the name is already in use.',
                 $name,
                 $resolvedAlias,

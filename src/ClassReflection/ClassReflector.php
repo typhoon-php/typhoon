@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Typhoon\Reflection\ClassReflection;
 
 use Typhoon\Reflection\ClassReflection;
+use Typhoon\Reflection\ReflectionException;
 
 /**
  * @internal
@@ -16,6 +17,7 @@ interface ClassReflector
      * @template T of object
      * @param string|class-string<T>|T $nameOrObject
      * @return ClassReflection<T>
+     * @throws ReflectionException
      */
     public function reflectClass(string|object $nameOrObject): ClassReflection;
 }

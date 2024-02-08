@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Typhoon\Reflection\TypeAlias;
 
-use Typhoon\Reflection\ReflectionException;
+use Typhoon\Reflection\Exception\DefaultReflectionException;
 use Typhoon\Type\Type;
 use Typhoon\Type\TypeVisitor;
 
@@ -31,6 +31,6 @@ final class ImportedTypeAlias implements Type
             return $visitor->visitImportedType($this)->accept($visitor);
         }
 
-        throw new ReflectionException(self::class);
+        throw new DefaultReflectionException(self::class);
     }
 }

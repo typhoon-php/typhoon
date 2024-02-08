@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Typhoon\Reflection;
 
 use Typhoon\Reflection\ClassReflection\ClassReflector;
+use Typhoon\Reflection\Exception\ClassDoesNotExistException;
 use Typhoon\Reflection\Metadata\ClassMetadata;
 use Typhoon\Reflection\Metadata\MetadataCache;
 use Typhoon\Reflection\Metadata\MetadataLazyCollection;
@@ -106,13 +107,16 @@ final class ReflectionSession implements ClassExistenceChecker, ClassReflector
         if (\is_object($nameOrObject)) {
             $name = $nameOrObject::class;
         } else {
-            \assert($nameOrObject !== '');
+            if ($nameOrObject === '') {
+                throw new ClassDoesNotExistException('Class "" does not exist');
+            }
+
             $name = $nameOrObject;
         }
 
         if (isset($this->reflectedClasses[$name])) {
             if ($this->reflectedClasses[$name] === false) {
-                throw new ReflectionException('Not found.');
+                throw new ClassDoesNotExistException(sprintf('Class "%s" does not exist', ReflectionException::normalizeClass($name)));
             }
 
             return $this->reflectedClasses[$name];
@@ -150,7 +154,7 @@ final class ReflectionSession implements ClassExistenceChecker, ClassReflector
 
             $this->reflectedClasses[$name] = false;
 
-            throw new ReflectionException('Not found');
+            throw new ClassDoesNotExistException(sprintf('Class "%s" does not exist', ReflectionException::normalizeClass($name)));
         }
 
         if ($resource instanceof \ReflectionClass) {
@@ -159,7 +163,7 @@ final class ReflectionSession implements ClassExistenceChecker, ClassReflector
 
         $this->reflectedClasses[$name] = false;
 
-        throw new ReflectionException('Not found');
+        throw new ClassDoesNotExistException(sprintf('Class "%s" does not exist', ReflectionException::normalizeClass($name)));
     }
 
     public function flush(): void

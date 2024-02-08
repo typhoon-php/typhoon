@@ -8,8 +8,8 @@ use PhpParser\Node;
 use PhpParser\Node\Stmt\Class_;
 use PhpParser\NodeTraverser;
 use PhpParser\NodeVisitorAbstract;
+use Typhoon\Reflection\Exception\DefaultReflectionException;
 use Typhoon\Reflection\NameContext\AnonymousClassName;
-use Typhoon\Reflection\ReflectionException;
 
 /**
  * @internal
@@ -25,7 +25,7 @@ final class FindAnonymousClassVisitor extends NodeVisitorAbstract
 
     public function node(): Class_
     {
-        return $this->node ?? throw new ReflectionException();
+        return $this->node ?? throw new DefaultReflectionException();
     }
 
     public function enterNode(Node $node): ?int
@@ -43,7 +43,7 @@ final class FindAnonymousClassVisitor extends NodeVisitorAbstract
         }
 
         if ($this->node !== null) {
-            throw new ReflectionException(sprintf('More than 1 anonymous class at %s:%d.', $this->name->file, $this->name->line));
+            throw new DefaultReflectionException(sprintf('More than 1 anonymous class at %s:%d.', $this->name->file, $this->name->line));
         }
 
         $this->node = $node;
