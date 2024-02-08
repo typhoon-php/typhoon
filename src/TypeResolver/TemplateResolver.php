@@ -12,10 +12,10 @@ use Typhoon\Type;
  * @psalm-internal Typhoon\Reflection
  * @psalm-immutable
  */
-final class TemplateTypeResolver extends RecursiveTypeReplacer
+final class TemplateResolver extends RecursiveTypeReplacer
 {
     /**
-     * @param non-empty-array<non-empty-string, Type\Type> $templateArguments
+     * @param array<non-empty-string, Type\Type> $templateArguments
      */
     private function __construct(
         private readonly array $templateArguments,
@@ -25,14 +25,9 @@ final class TemplateTypeResolver extends RecursiveTypeReplacer
      * @psalm-pure
      * @param array<TemplateReflection> $templates
      * @param array<Type\Type> $templateArguments
-     * @return Type\TypeVisitor<Type\Type>
      */
-    public static function create(array $templates, array $templateArguments): Type\TypeVisitor
+    public static function create(array $templates, array $templateArguments): self
     {
-        if ($templates === []) {
-            return new IdentityTypeReplacer();
-        }
-
         $resolvedTemplateArguments = [];
 
         foreach ($templates as $template) {

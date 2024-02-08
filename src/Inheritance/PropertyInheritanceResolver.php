@@ -5,8 +5,7 @@ declare(strict_types=1);
 namespace Typhoon\Reflection\Inheritance;
 
 use Typhoon\Reflection\Metadata\PropertyMetadata;
-use Typhoon\Type\Type;
-use Typhoon\Type\TypeVisitor;
+use Typhoon\Reflection\TypeResolver\TemplateResolver;
 
 /**
  * @internal
@@ -29,10 +28,7 @@ final class PropertyInheritanceResolver
         $this->type->setOwn($property->type);
     }
 
-    /**
-     * @param TypeVisitor<Type> $templateResolver
-     */
-    public function addInherited(PropertyMetadata $property, TypeVisitor $templateResolver): void
+    public function addInherited(PropertyMetadata $property, TemplateResolver $templateResolver): void
     {
         if ($property->modifiers & \ReflectionProperty::IS_PRIVATE) {
             return;

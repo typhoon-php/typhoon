@@ -5,8 +5,8 @@ declare(strict_types=1);
 namespace Typhoon\Reflection\Inheritance;
 
 use Typhoon\Reflection\Metadata\TypeMetadata;
+use Typhoon\Reflection\TypeResolver\TemplateResolver;
 use Typhoon\Type\Type;
-use Typhoon\Type\TypeVisitor;
 
 /**
  * @internal
@@ -17,7 +17,7 @@ final class TypeInheritanceResolver
     private ?TypeMetadata $own = null;
 
     /**
-     * @var list<array{TypeMetadata, TypeVisitor<Type>}>
+     * @var list<array{TypeMetadata, TemplateResolver}>
      */
     private array $inherited = [];
 
@@ -34,10 +34,7 @@ final class TypeInheritanceResolver
         $this->own = $type;
     }
 
-    /**
-     * @param TypeVisitor<Type> $templateResolver
-     */
-    public function addInherited(TypeMetadata $type, TypeVisitor $templateResolver): void
+    public function addInherited(TypeMetadata $type, TemplateResolver $templateResolver): void
     {
         $this->inherited[] = [$type, $templateResolver];
     }

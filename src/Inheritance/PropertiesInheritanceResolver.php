@@ -6,7 +6,7 @@ namespace Typhoon\Reflection\Inheritance;
 
 use Typhoon\Reflection\ClassReflection\ClassReflector;
 use Typhoon\Reflection\Metadata\PropertyMetadata;
-use Typhoon\Reflection\TypeResolver\TemplateTypeResolver;
+use Typhoon\Reflection\TypeResolver\TemplateResolver;
 use Typhoon\Type\NamedObjectType;
 
 /**
@@ -38,7 +38,7 @@ final class PropertiesInheritanceResolver
     {
         foreach ($types as $type) {
             $class = $this->classReflector->reflectClass($type->class);
-            $templateResolver = TemplateTypeResolver::create($class->getTemplates(), $type->templateArguments);
+            $templateResolver = TemplateResolver::create($class->getTemplates(), $type->templateArguments);
 
             foreach ($class->getProperties() as $property) {
                 $this->property($property->name)->addInherited($property->__metadata(), $templateResolver);

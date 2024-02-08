@@ -6,8 +6,7 @@ namespace Typhoon\Reflection\Inheritance;
 
 use Typhoon\Reflection\Metadata\MethodMetadata;
 use Typhoon\Reflection\Metadata\TypeMetadata;
-use Typhoon\Type\Type;
-use Typhoon\Type\TypeVisitor;
+use Typhoon\Reflection\TypeResolver\TemplateResolver;
 
 /**
  * @internal
@@ -49,10 +48,7 @@ final class MethodInheritanceResolver
         $this->returnType->setOwn($method->returnType);
     }
 
-    /**
-     * @param TypeVisitor<Type> $templateResolver
-     */
-    public function addInherited(MethodMetadata $method, TypeVisitor $templateResolver): void
+    public function addInherited(MethodMetadata $method, TemplateResolver $templateResolver): void
     {
         if ($method->modifiers & \ReflectionMethod::IS_PRIVATE) {
             return;
