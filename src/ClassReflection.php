@@ -198,9 +198,6 @@ final class ClassReflection extends \ReflectionClass
         ));
     }
 
-    /**
-     * @return int-mask-of<self::IS_*>
-     */
     public function getModifiers(): int
     {
         return $this->metadata->modifiers;

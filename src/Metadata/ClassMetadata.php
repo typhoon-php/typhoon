@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace Typhoon\Reflection\Metadata;
 
-use Typhoon\Reflection\ClassReflection;
 use Typhoon\Reflection\TemplateReflection;
 use Typhoon\Type\NamedObjectType;
 use Typhoon\Type\Type;
@@ -28,7 +27,7 @@ final class ClassMetadata extends RootMetadata
      * @param list<AttributeMetadata> $attributes
      * @param array<non-empty-string, Type> $typeAliases
      * @param list<TemplateReflection> $templates
-     * @param int-mask-of<ClassReflection::IS_*> $modifiers
+     * @param int-mask-of<\ReflectionClass::IS_*> $modifiers
      * @param list<NamedObjectType> $ownInterfaceTypes
      * @param list<NamedObjectType> $ownTraitTypes
      * @param list<PropertyMetadata> $ownProperties

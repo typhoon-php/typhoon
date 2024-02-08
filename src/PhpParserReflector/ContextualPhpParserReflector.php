@@ -160,7 +160,7 @@ final class ContextualPhpParserReflector
     }
 
     /**
-     * @return int-mask-of<ClassReflection::IS_*>
+     * @return int-mask-of<\ReflectionClass::IS_*>
      */
     private function reflectClassModifiers(Stmt\ClassLike $node): int
     {
@@ -172,9 +172,14 @@ final class ContextualPhpParserReflector
             return 0;
         }
 
-        return ($node->isAbstract() ? ClassReflection::IS_EXPLICIT_ABSTRACT : 0)
-            + ($node->isFinal() ? ClassReflection::IS_FINAL : 0)
-            + ($node->isReadonly() ? ClassReflection::IS_READONLY : 0);
+        $modifiers = ($node->isAbstract() ? ClassReflection::IS_EXPLICIT_ABSTRACT : 0)
+            + ($node->isFinal() ? ClassReflection::IS_FINAL : 0);
+
+        if (defined(\ReflectionClass::class.'::IS_READONLY') && $node->isReadonly()) {
+            $modifiers += \ReflectionClass::IS_READONLY;
+        }
+
+        return $modifiers;
     }
 
     private function reflectParent(Stmt\ClassLike $node, PhpDoc $phpDoc): ?Type\NamedObjectType
