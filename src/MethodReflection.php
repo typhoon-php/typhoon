@@ -39,7 +39,7 @@ final class MethodReflection extends \ReflectionMethod
     }
 
     /**
-     * @psalm-suppress MethodSignatureMismatch
+     * @psalm-suppress MethodSignatureMismatch, UnusedPsalmSuppress, UnusedParam
      */
     public static function createFromMethodName(string $method): static
     {
