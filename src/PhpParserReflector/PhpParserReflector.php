@@ -66,7 +66,7 @@ final class PhpParserReflector
     private function parseAndTraverse(string $code, array $visitors): void
     {
         $traverser = new NodeTraverser();
-        $traverser->addVisitor(new CorrectClassStartLineVisitor($code));
+        $traverser->addVisitor(new FixNodeStartLineVisitor($code));
         foreach ($visitors as $visitor) {
             $traverser->addVisitor($visitor);
         }

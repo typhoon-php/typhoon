@@ -266,7 +266,7 @@ final class ReflectorCompatibilityTest extends TestCase
             self::assertSame($native->getPrototype()->name, $typhoon->getPrototype()->name, $messagePrefix . '.getPrototype().name');
         }
         self::assertSame($native->getShortName(), $typhoon->getShortName(), $messagePrefix . '.getShortName()');
-        // self::assertSame($native->getStartLine(), $typhoon->getStartLine(), $messagePrefix . '.getStartLine()');
+        self::assertSame($native->getStartLine(), $typhoon->getStartLine(), $messagePrefix . '.getStartLine()');
         self::assertSame($native->getStaticVariables(), $typhoon->getStaticVariables(), $messagePrefix . '.getStaticVariables()');
         self::assertEquals($native->getTentativeReturnType(), $typhoon->getTentativeReturnType(), $messagePrefix . '.getTentativeReturnType()');
         if (method_exists($native, 'hasPrototype')) {
