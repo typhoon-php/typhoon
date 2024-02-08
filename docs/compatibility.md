@@ -87,59 +87,59 @@
 | `setAccessible()`     | ✅                                       |
 | `setValue()`          | ✅ Via native reflection                 |
 
-| `ReflectionMethod`                       | `Typhoon\Reflection\MethodReflection` |
-|------------------------------------------|---------------------------------------|
-| `$class`                                 | ✅                                     |
-| `$name`                                  | ✅                                     |
-| `__construct()`                          | ❌ `@internal`                         |
-| `__toString()`                           | ✅                                     |
-| `createFromMethodName()`                 | ❌                                     |
-| `getAttributes()`                        | ✅                                     |
-| `getClosure()`                           | ✅ Via native reflection               |
-| `getClosureCalledClass()`                | ✅                                     |
-| `getClosureScopeClass()`                 | ✅                                     |
-| `getClosureThis()`                       | ✅                                     |
-| `getClosureUsedVariables()`              | ✅                                     |
-| `getDeclaringClass()`                    | ✅                                     |
-| `getDocComment()`                        | ✅️                                    |
-| `getEndLine()`                           | ✅                                     |
-| `getExtension()`                         | ✅ Via native reflection               |
-| `getExtensionName()`                     | ✅                                     |
-| `getFileName()`                          | ✅️                                    |
-| `getModifiers()`                         | ✅                                     |
-| `getName()`                              | ✅                                     |
-| `getNamespaceName()`                     | ✅                                     |
-| `getNumberOfParameters()`                | ✅                                     |
-| `getNumberOfRequiredParameters()`        | ✅                                     |
-| `getParameters()`                        | ✅                                     |
-| `getPrototype()`                         | ✅                                     |
-| `getReturnType()`                        | ✅ Via native reflection               |
-| `getShortName()`                         | ✅                                     |
-| `getStartLine()`                         | ✅️                                    |
-| `getStaticVariables()`                   | ✅️ Via native reflection              |
-| `getTentativeReturnType()`               | ✅ Via native reflection               |
-| `hasPrototype()`                         | ✅                                     |
-| `hasReturnType()`                        | ✅                                     |
-| `hasTentativeReturnType()`               | ✅ Via native reflection               |
-| `inNamespace()`                          | ✅                                     |
-| `invoke()`                               | ✅ Via native reflection               |
-| `invokeArgs()`                           | ✅ Via native reflection               |
-| `isAbstract()`                           | ✅                                     |
-| `isClosure()`                            | ✅                                     |
-| `isConstructor()`                        | ✅                                     |
-| `isDeprecated()`                         | ✅                                     |
-| `isDestructor()`                         | ✅                                     |
-| `isFinal()`                              | ✅                                     |
-| `isGenerator()`                          | ✅                                     |
-| `isInternal()`                           | ✅                                     |
-| `isPrivate()`                            | ✅                                     |
-| `isProtected()`                          | ✅                                     |
-| `isPublic()`                             | ✅                                     |
-| `isStatic()`                             | ✅                                     |
-| `isUserDefined()`                        | ✅                                     |
-| `isVariadic()`                           | ✅                                     |
-| `returnsReference()`                     | ✅                                     |
-| `setAccessible()`                        | ✅                                     |
+| `ReflectionMethod`                       | `Typhoon\Reflection\MethodReflection`        |
+|------------------------------------------|----------------------------------------------|
+| `$class`                                 | ✅                                            |
+| `$name`                                  | ✅                                            |
+| `__construct()`                          | ❌ `@internal`                                |
+| `__toString()`                           | ✅                                            |
+| `createFromMethodName()`                 | ❌                                            |
+| `getAttributes()`                        | ✅                                            |
+| `getClosure()`                           | ✅ Via native reflection                      |
+| `getClosureCalledClass()`                | ✅                                            |
+| `getClosureScopeClass()`                 | ✅                                            |
+| `getClosureThis()`                       | ✅                                            |
+| `getClosureUsedVariables()`              | ✅                                            |
+| `getDeclaringClass()`                    | ✅                                            |
+| `getDocComment()`                        | ✅️                                           |
+| `getEndLine()`                           | ✅                                            |
+| `getExtension()`                         | ✅ Via native reflection                      |
+| `getExtensionName()`                     | ✅                                            |
+| `getFileName()`                          | ✅️                                           |
+| `getModifiers()`                         | ✅                                            |
+| `getName()`                              | ✅                                            |
+| `getNamespaceName()`                     | ✅                                            |
+| `getNumberOfParameters()`                | ✅                                            |
+| `getNumberOfRequiredParameters()`        | ✅                                            |
+| `getParameters()`                        | ✅                                            |
+| `getPrototype()`                         | ✅                                            |
+| `getReturnType()`                        | ✅ Via native reflection                      |
+| `getShortName()`                         | ✅                                            |
+| `getStartLine()`                         | ✅️                                           |
+| `getStaticVariables()`                   | ✅️ Via native reflection                     |
+| `getTentativeReturnType()`               | ✅ Via native reflection                      |
+| `hasPrototype()`                         | ✅                                            |
+| `hasReturnType()`                        | ✅ Via native reflection for internal methods |
+| `hasTentativeReturnType()`               | ✅ Via native reflection                      |
+| `inNamespace()`                          | ✅                                            |
+| `invoke()`                               | ✅ Via native reflection                      |
+| `invokeArgs()`                           | ✅ Via native reflection                      |
+| `isAbstract()`                           | ✅                                            |
+| `isClosure()`                            | ✅                                            |
+| `isConstructor()`                        | ✅                                            |
+| `isDeprecated()`                         | ✅                                            |
+| `isDestructor()`                         | ✅                                            |
+| `isFinal()`                              | ✅                                            |
+| `isGenerator()`                          | ✅                                            |
+| `isInternal()`                           | ✅                                            |
+| `isPrivate()`                            | ✅                                            |
+| `isProtected()`                          | ✅                                            |
+| `isPublic()`                             | ✅                                            |
+| `isStatic()`                             | ✅                                            |
+| `isUserDefined()`                        | ✅                                            |
+| `isVariadic()`                           | ✅                                            |
+| `returnsReference()`                     | ✅                                            |
+| `setAccessible()`                        | ✅                                            |
 
 | `ReflectionParameter`           | `Typhoon\Reflection\ParameterReflection` |
 |---------------------------------|------------------------------------------|

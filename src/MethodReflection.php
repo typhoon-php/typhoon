@@ -300,6 +300,12 @@ final class MethodReflection extends \ReflectionMethod
 
     public function hasReturnType(): bool
     {
+        if ($this->isInternal()) {
+            $this->loadNative();
+
+            return parent::hasReturnType();
+        }
+
         return $this->metadata->returnType->native !== null;
     }
 
