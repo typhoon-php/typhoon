@@ -19,6 +19,8 @@ use Typhoon\Reflection\TypeContext\ClassExistenceChecker;
  */
 final class ReflectionSession implements ClassExistenceChecker, ClassReflector
 {
+    private readonly MetadataLazyCollection $metadata;
+
     /**
      * @var array<non-empty-string, true>
      */
@@ -29,17 +31,15 @@ final class ReflectionSession implements ClassExistenceChecker, ClassReflector
      */
     private array $reflectedClasses = [];
 
-    private readonly MetadataLazyCollection $metadata;
-
     /**
      * @internal
      * @psalm-internal Typhoon\Reflection
      */
     public function __construct(
-        private readonly MetadataCache $cache,
         private readonly PhpParserReflector $phpParserReflector,
         private readonly NativeReflector $nativeReflector,
         private readonly ClassLocator $classLocator,
+        private readonly ?MetadataCache $cache,
     ) {
         $this->metadata = new MetadataLazyCollection();
     }
@@ -70,7 +70,7 @@ final class ReflectionSession implements ClassExistenceChecker, ClassReflector
             return true;
         }
 
-        $metadata = $this->cache->get(ClassMetadata::class, $name);
+        $metadata = $this->cache?->get(ClassMetadata::class, $name);
 
         if ($metadata !== null) {
             $this->reflectedClasses[$name] = new ClassReflection($this, $metadata);
@@ -136,7 +136,7 @@ final class ReflectionSession implements ClassExistenceChecker, ClassReflector
             return $this->reflectedClasses[$name] = new ClassReflection($this, $metadata);
         }
 
-        $metadata = $this->cache->get(ClassMetadata::class, $name);
+        $metadata = $this->cache?->get(ClassMetadata::class, $name);
 
         if ($metadata !== null) {
             return $this->reflectedClasses[$name] = new ClassReflection($this, $metadata);
@@ -168,7 +168,7 @@ final class ReflectionSession implements ClassExistenceChecker, ClassReflector
 
     public function flush(): void
     {
-        $this->cache->setMultiple($this->metadata);
+        $this->cache?->setMultiple($this->metadata);
         $this->metadata->clear();
         $this->reflectedResources = [];
         $this->reflectedClasses = [];

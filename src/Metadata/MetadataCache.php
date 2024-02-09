@@ -13,7 +13,7 @@ use Psr\SimpleCache\CacheInterface;
 final class MetadataCache
 {
     public function __construct(
-        private readonly ?CacheInterface $cache,
+        private readonly CacheInterface $cache,
         private readonly bool $detectChanges,
     ) {}
 
@@ -25,10 +25,6 @@ final class MetadataCache
      */
     public function get(string $class, string $name): ?object
     {
-        if ($this->cache === null) {
-            return null;
-        }
-
         /** @psalm-suppress MixedAssignment */
         $metadata = $this->cache->get($this->key($class, $name));
 
@@ -49,10 +45,6 @@ final class MetadataCache
      */
     public function setMultiple(iterable $metadata): void
     {
-        if ($this->cache === null) {
-            return;
-        }
-
         $metadataByKey = [];
 
         foreach ($metadata as $item) {

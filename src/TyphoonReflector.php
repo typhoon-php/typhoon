@@ -25,10 +25,10 @@ use Typhoon\Reflection\PhpParserReflector\PhpParserReflector;
 final class TyphoonReflector
 {
     private function __construct(
-        private readonly MetadataCache $cache,
         private readonly PhpParserReflector $phpParserReflector,
         private readonly NativeReflector $nativeReflector,
         private readonly ClassLocator $classLocator,
+        private readonly ?MetadataCache $cache,
     ) {}
 
     /**
@@ -42,13 +42,13 @@ final class TyphoonReflector
         ?PhpParser $phpParser = null,
     ): self {
         return new self(
-            cache: new MetadataCache($cache, $detectChanges),
             phpParserReflector: new PhpParserReflector(
                 phpParser: $phpParser ?? (new ParserFactory())->createForNewestSupportedVersion(),
                 phpDocParser: new PhpDocParser($tagPrioritizer),
             ),
             nativeReflector: new NativeReflector(),
             classLocator: new ClassLocatorChain($classLocators ?? self::defaultClassLocators()),
+            cache: $cache === null ? null : new MetadataCache($cache, $detectChanges),
         );
     }
 
