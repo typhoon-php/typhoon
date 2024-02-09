@@ -6,6 +6,7 @@ namespace Typhoon\Reflection\PhpParserReflector;
 
 use PhpParser\Node;
 use PhpParser\Node\Stmt\ClassLike;
+use PhpParser\NodeTraverser;
 use PhpParser\NodeVisitorAbstract;
 use Typhoon\Reflection\Metadata\ClassMetadata;
 use Typhoon\Reflection\Metadata\MetadataLazyCollection;
@@ -31,6 +32,8 @@ final class ResourceVisitor extends NodeVisitorAbstract
                 name: $name,
                 factory: static fn(): ClassMetadata => $reflector->reflectClass($node, $name),
             );
+
+            return NodeTraverser::DONT_TRAVERSE_CHILDREN;
         }
 
         return null;
