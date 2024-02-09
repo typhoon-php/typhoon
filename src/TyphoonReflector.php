@@ -88,7 +88,13 @@ final class TyphoonReflector
      */
     public function classExists(string $name): bool
     {
-        return $this->startSession()->classExists($name);
+        $session = $this->startSession();
+
+        try {
+            return $session->classExists($name);
+        } finally {
+            $session->flush();
+        }
     }
 
     /**
@@ -98,6 +104,12 @@ final class TyphoonReflector
      */
     public function reflectClass(string|object $nameOrObject): ClassReflection
     {
-        return $this->startSession()->reflectClass($nameOrObject);
+        $session = $this->startSession();
+
+        try {
+            return $session->reflectClass($nameOrObject);
+        } finally {
+            $session->flush();
+        }
     }
 }
