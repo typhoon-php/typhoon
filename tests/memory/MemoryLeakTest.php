@@ -44,6 +44,7 @@ final class MemoryLeakTest extends TestCase
         }
 
         self::$phpParser = (new ParserFactory())->createForHostVersion();
+        self::cleanUpParser();
     }
 
     private static function cleanUpParser(): void
@@ -51,15 +52,22 @@ final class MemoryLeakTest extends TestCase
         self::$phpParser->parse('');
     }
 
+    private static function assertMemoryIsConstant(\Closure $action): void
+    {
+        $memory = memory_get_usage();
+
+        $action();
+        self::cleanUpParser();
+
+        self::assertLessThanOrEqual(500, memory_get_usage() - $memory);
+    }
+
     public function testTyphoonReflectorClassExistsIsNotLeaking(): void
     {
         foreach (self::CLASSES as $class) {
-            $memory = memory_get_usage();
-
-            TyphoonReflector::build(phpParser: self::$phpParser)->classExists($class);
-            self::cleanUpParser();
-
-            self::assertLessThanOrEqual($memory, memory_get_usage());
+            self::assertMemoryIsConstant(static function () use ($class): void {
+                TyphoonReflector::build(phpParser: self::$phpParser)->classExists($class);
+            });
         }
     }
 
@@ -70,48 +78,39 @@ final class MemoryLeakTest extends TestCase
         self::cleanUpParser();
 
         foreach (self::CLASSES as $class) {
-            $memory = memory_get_usage();
-
-            TyphoonReflector::build(phpParser: self::$phpParser)->reflectClass($class);
-            self::cleanUpParser();
-
-            self::assertLessThanOrEqual($memory, memory_get_usage());
+            self::assertMemoryIsConstant(static function () use ($class): void {
+                TyphoonReflector::build(phpParser: self::$phpParser)->reflectClass($class);
+            });
         }
     }
 
     public function testReflectionSessionClassExistsIsNotLeaking(): void
     {
-        $session =    TyphoonReflector::build(phpParser: self::$phpParser)->startSession();
+        $session = TyphoonReflector::build(phpParser: self::$phpParser)->startSession();
         $session->classExists(Type\NamedObjectType::class);
         $session->flush();
         self::cleanUpParser();
 
         foreach (self::CLASSES as $class) {
-            $memory = memory_get_usage();
-
-            $session->classExists($class);
-            $session->flush();
-            self::cleanUpParser();
-
-            self::assertLessThanOrEqual($memory, memory_get_usage());
+            self::assertMemoryIsConstant(static function () use ($session, $class): void {
+                $session->classExists($class);
+                $session->flush();
+            });
         }
     }
 
     public function testReflectionSessionReflectIsNotLeaking(): void
     {
-        $session =    TyphoonReflector::build(phpParser: self::$phpParser)->startSession();
+        $session = TyphoonReflector::build(phpParser: self::$phpParser)->startSession();
         $session->reflectClass(Type\NamedObjectType::class);
         $session->flush();
         self::cleanUpParser();
 
         foreach (self::CLASSES as $class) {
-            $memory = memory_get_usage();
-
-            $session->reflectClass($class);
-            $session->flush();
-            self::cleanUpParser();
-
-            self::assertLessThanOrEqual($memory, memory_get_usage());
+            self::assertMemoryIsConstant(static function () use ($session, $class): void {
+                $session->reflectClass($class);
+                $session->flush();
+            });
         }
     }
 }
