@@ -13,5 +13,4 @@
         "NullSafePropertyCall": false
     },
     "minCoveredMsi": 80,
-    "testFrameworkOptions": "--testsuite=unit"
 }

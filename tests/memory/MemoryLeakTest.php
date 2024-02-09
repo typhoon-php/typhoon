@@ -59,7 +59,7 @@ final class MemoryLeakTest extends TestCase
         $action();
         self::cleanUpParser();
 
-        self::assertLessThanOrEqual(500, memory_get_usage() - $memory);
+        self::assertLessThanOrEqual($memory, memory_get_usage());
     }
 
     public function testTyphoonReflectorClassExistsIsNotLeaking(): void
