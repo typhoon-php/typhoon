@@ -8,6 +8,7 @@ use Mockery\Loader\RequireLoader;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
+use Typhoon\Reflection\ClassLocator\NativeReflectionLocator;
 
 #[CoversClass(AttributeReflection::class)]
 #[CoversClass(ClassReflection::class)]
@@ -18,10 +19,19 @@ final class ReflectorCompatibilityTest extends TestCase
 {
     private static ReflectionSession $defaultSession;
 
+    private static ReflectionSession $nativeSession;
+
     public static function setUpBeforeClass(): void
     {
         \Mockery::setLoader(new RequireLoader(__DIR__ . '/../../var/mockery'));
         self::$defaultSession = TyphoonReflector::build()->startSession();
+        self::$nativeSession = TyphoonReflector::build(classLocators: [new NativeReflectionLocator()])->startSession();
+    }
+
+    public static function tearDownAfterClass(): void
+    {
+        self::$defaultSession->flush();
+        self::$nativeSession->flush();
     }
 
     /**
@@ -51,6 +61,19 @@ final class ReflectorCompatibilityTest extends TestCase
         $native = new \ReflectionClass($class);
 
         $typhoon = self::$defaultSession->reflectClass($class);
+
+        $this->assertClassEquals($native, $typhoon);
+    }
+
+    /**
+     * @param class-string $class
+     */
+    #[DataProvider('classes')]
+    public function testItReflectsClassesCompatiblyViaNativeReflector(string $class): void
+    {
+        $native = new \ReflectionClass($class);
+
+        $typhoon = self::$nativeSession->reflectClass($class);
 
         $this->assertClassEquals($native, $typhoon);
     }
