@@ -59,12 +59,12 @@ final class TyphoonReflector
     {
         $classLocators = [];
 
-        if (ComposerClassLocator::isSupported()) {
-            $classLocators[] = new ComposerClassLocator();
-        }
-
         if (PhpStormStubsClassLocator::isSupported()) {
             $classLocators[] = new PhpStormStubsClassLocator();
+        }
+
+        if (ComposerClassLocator::isSupported()) {
+            $classLocators[] = new ComposerClassLocator();
         }
 
         $classLocators[] = new NativeReflectionFileLocator();
