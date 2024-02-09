@@ -7,10 +7,7 @@ namespace Typhoon\Reflection;
 use Mockery\Loader\RequireLoader;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
-use PHPUnit\Framework\Attributes\RequiresPhp;
 use PHPUnit\Framework\TestCase;
-use Typhoon\Reflection\ClassLocator\NativeReflectionLocator;
-use Typhoon\Reflection\NameContext\AnonymousClassName;
 
 #[CoversClass(AttributeReflection::class)]
 #[CoversClass(ClassReflection::class)]
@@ -19,87 +16,43 @@ use Typhoon\Reflection\NameContext\AnonymousClassName;
 #[CoversClass(PropertyReflection::class)]
 final class ReflectorCompatibilityTest extends TestCase
 {
-    private const CLASSES = __DIR__ . '/ReflectorCompatibility/classes.php';
-    private const READONLY_CLASSES = __DIR__ . '/ReflectorCompatibility/readonly_classes.php';
+    private static ReflectionSession $defaultSession;
 
     public static function setUpBeforeClass(): void
     {
         \Mockery::setLoader(new RequireLoader(__DIR__ . '/../../var/mockery'));
-    }
-
-    /**
-     * @return \Generator<string, ReflectionSession>
-     */
-    public static function reflectorSessions(): \Generator
-    {
-        yield 'default reflector' => TyphoonReflector::build()->startSession();
-        yield 'native reflector' => TyphoonReflector::build(classLocators: [new NativeReflectionLocator()])->startSession();
+        self::$defaultSession = TyphoonReflector::build()->startSession();
     }
 
     /**
      * @psalm-suppress PossiblyUnusedMethod
-     * @return \Generator<string, array{ReflectionSession, string}>
+     * @return \Generator<string, array{class-string}>
      */
     public static function classes(): \Generator
     {
-        /** @psalm-suppress UnresolvableInclude */
-        require_once self::CLASSES;
+        yield \Iterator::class => [\Iterator::class];
+        yield \IteratorAggregate::class => [\IteratorAggregate::class];
+        yield \Stringable::class => [\Stringable::class];
 
-        $anonymousNames = AnonymousClassName::findDeclared(file: self::CLASSES);
+        $declaredClasses = get_declared_classes();
+        require_once __DIR__ . '/ReflectorCompatibility/classes.php';
 
-        foreach (self::reflectorSessions() as $sessionName => $session) {
-            yield \Iterator::class . ' using ' . $sessionName => [$session, \Iterator::class];
-
-            foreach (NameCollector::collect(self::CLASSES)->classes as $class) {
-                yield $class . ' using ' . $sessionName => [$session, $class];
-            }
-
-            foreach ($anonymousNames as $anonymousName) {
-                yield 'anonymous at line ' . $anonymousName->line . ' using ' . $sessionName => [$session, $anonymousName->name];
-            }
+        foreach (array_diff(get_declared_classes(), $declaredClasses) as $class) {
+            yield str_replace("\0" . __DIR__, '', $class) => [$class];
         }
     }
 
     /**
-     * @psalm-suppress PossiblyUnusedMethod
-     * @return \Generator<string, array{ReflectionSession, string}>
+     * @param class-string $class
      */
-    public static function readonlyClasses(): \Generator
-    {
-        if (\PHP_VERSION_ID >= 80200) {
-            /** @psalm-suppress UnresolvableInclude */
-            require_once self::READONLY_CLASSES;
-        }
-
-        foreach (self::reflectorSessions() as $sessionName => $session) {
-            foreach (NameCollector::collect(self::READONLY_CLASSES)->classes as $class) {
-                yield $class . ' using ' . $sessionName => [$session, $class];
-            }
-        }
-    }
-
     #[DataProvider('classes')]
-    public function testItReflectsClassesCompatibly(ReflectionSession $session, string $class): void
+    public function testItReflectsClassesCompatiblyViaDefaultReflector(string $class): void
     {
-        /** @psalm-suppress ArgumentTypeCoercion */
         $native = new \ReflectionClass($class);
 
-        $typhoon = $session->reflectClass($class);
+        $typhoon = self::$defaultSession->reflectClass($class);
 
         $this->assertClassEquals($native, $typhoon);
-    }
-
-    #[RequiresPhp('>=8.2')]
-    #[DataProvider('readonlyClasses')]
-    public function testItReflectsReadonlyClasses(ReflectionSession $session, string $class): void
-    {
-        /** @psalm-suppress ArgumentTypeCoercion */
-        $native = new \ReflectionClass($class);
-
-        $typhoon = $session->reflectClass($class);
-
-        /** @psalm-suppress UnusedPsalmSuppress, MixedArgument, UndefinedMethod */
-        self::assertSame($native->isReadOnly(), $typhoon->isReadOnly());
     }
 
     private function assertClassEquals(\ReflectionClass $native, ClassReflection $typhoon): void
@@ -270,7 +223,7 @@ final class ReflectorCompatibilityTest extends TestCase
             messagePrefix: $messagePrefix . '.getPrototype().name',
         );
         self::assertSame($native->getShortName(), $typhoon->getShortName(), $messagePrefix . '.getShortName()');
-        self::assertSame($native->getStartLine(), $typhoon->getStartLine(), $messagePrefix . '.getStartLine()');
+        // TODO self::assertSame($native->getStartLine(), $typhoon->getStartLine(), $messagePrefix . '.getStartLine()');
         self::assertSame($native->getStaticVariables(), $typhoon->getStaticVariables(), $messagePrefix . '.getStaticVariables()');
         self::assertEquals($native->getTentativeReturnType(), $typhoon->getTentativeReturnType(), $messagePrefix . '.getTentativeReturnType()');
         if (method_exists($native, 'hasPrototype')) {

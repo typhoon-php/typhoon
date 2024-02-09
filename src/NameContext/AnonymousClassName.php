@@ -57,6 +57,7 @@ final class AnonymousClassName
     }
 
     /**
+     * @psalm-suppress PossiblyUnusedMethod
      * @return list<self>
      */
     public static function findDeclared(?string $file = null, ?int $line = null): array
