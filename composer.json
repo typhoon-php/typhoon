@@ -19,6 +19,7 @@
         "typhoon/type-stringifier": "^0.3@dev"
     },
     "require-dev": {
+        "dragon-code/benchmark": "^2.6",
         "ergebnis/composer-normalize": "^2.42.0",
         "friendsofphp/php-cs-fixer": "^3.49.0",
         "infection/infection": "^0.27.9",
