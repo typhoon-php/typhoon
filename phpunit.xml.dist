@@ -17,6 +17,9 @@
         <testsuite name="unit">
             <directory>tests/unit</directory>
         </testsuite>
+        <testsuite name="memory">
+            <directory>tests/memory</directory>
+        </testsuite>
     </testsuites>
 
     <source restrictDeprecations="true" restrictNotices="true" restrictWarnings="true">
