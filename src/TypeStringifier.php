@@ -12,17 +12,14 @@ use Typhoon\Type\ObjectShapeType;
 use Typhoon\Type\TypeVisitor;
 
 /**
- * @psalm-api
- * @psalm-immutable
+ * @api
  * @implements TypeVisitor<non-empty-string>
- * @psalm-suppress ImpureFunctionCall
  */
 final class TypeStringifier implements TypeVisitor
 {
     private function __construct() {}
 
     /**
-     * @psalm-pure
      * @return non-empty-string
      */
     public static function stringify(Type\Type $type): string
@@ -132,11 +129,6 @@ final class TypeStringifier implements TypeVisitor
     public function visitClassString(Type\ClassStringType $type): mixed
     {
         return 'class-string';
-    }
-
-    public function visitCallableString(Type\CallableStringType $type): mixed
-    {
-        return 'callable-string';
     }
 
     public function visitInterfaceString(Type\InterfaceStringType $type): mixed
@@ -249,11 +241,6 @@ final class TypeStringifier implements TypeVisitor
         }
 
         return $this->stringifyGenericType('non-empty-array', [$type->keyType, $type->valueType]);
-    }
-
-    public function visitCallableArray(Type\CallableArrayType $type): mixed
-    {
-        return 'callable-array';
     }
 
     public function visitArray(Type\ArrayType $type): mixed

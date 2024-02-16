@@ -104,11 +104,9 @@ final class TypeStringifierTest extends TestCase
         yield [types::literalInt, 'literal-int'];
         yield [types::classString(types::object), 'class-string<object>'];
         yield [types::classString, 'class-string'];
-        yield [types::callableString, 'callable-string'];
         yield [types::interfaceString, 'interface-string'];
         yield [types::enumString, 'enum-string'];
         yield [types::traitString, 'trait-string'];
-        yield [types::callableArray, 'callable-array'];
         yield [types::static(\stdClass::class), 'static'];
         yield [types::static(\stdClass::class, types::string, types::int), 'static<string, int>'];
         yield [types::objectShape(), 'object{}'];
