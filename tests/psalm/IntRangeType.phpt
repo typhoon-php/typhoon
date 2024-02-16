@@ -4,6 +4,6 @@
 namespace Typhoon\Type;
 
 $_type = PsalmTest::extractType(new IntRangeType());
-/** @psalm-check-type-exact $_type = \int */
+/** @psalm-check-type-exact $_type = int */
 
 --EXPECT--
