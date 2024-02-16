@@ -4,12 +4,13 @@ declare(strict_types=1);
 
 namespace Typhoon\Reflection\ReflectorPsalmTest;
 
+use Typhoon\Reflection\ClassReflection;
 use Typhoon\Reflection\TyphoonReflector;
 
 function testReflectClassInfersClassReflectionGenericType(TyphoonReflector $reflector): void
 {
     $_classReflection = $reflector->reflectClass(\stdClass::class);
-    /** @psalm-check-type-exact $_classReflection = \Typhoon\Reflection\ClassReflection<\stdClass> */
+    /** @psalm-check-type-exact $_classReflection = ClassReflection<\stdClass> */
 }
 
 function testReflectClassPreservesObjectType(TyphoonReflector $reflector): void
@@ -22,7 +23,7 @@ function testReflectClassPreservesObjectType(TyphoonReflector $reflector): void
 function testClassExistsAssertsThatStringIsClass(TyphoonReflector $reflector, string $class): void
 {
     if ($reflector->classExists($class)) {
-        /** @psalm-check-type-exact $class = \class-string */
+        /** @psalm-check-type-exact $class = class-string */
     }
 }
 
@@ -31,6 +32,6 @@ function testClassExistsDoesNotBreakInitialClassType(TyphoonReflector $reflector
     $class = \stdClass::class;
 
     if ($reflector->classExists($class)) {
-        /** @psalm-check-type-exact $class = \class-string<\stdClass> */
+        /** @psalm-check-type-exact $class = class-string<\stdClass> */
     }
 }
