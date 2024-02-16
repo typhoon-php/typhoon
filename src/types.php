@@ -25,7 +25,6 @@ final class types
     public const literalString = AnyLiteralStringType::type;
     public const numericString = NumericStringType::type;
     public const classString = ClassStringType::type;
-    public const callableString = CallableStringType::type;
     public const interfaceString = InterfaceStringType::type;
     public const enumString = EnumStringType::type;
     public const traitString = TraitStringType::type;
@@ -35,7 +34,6 @@ final class types
     public const string = StringType::type;
     public const numeric = NumericType::type;
     public const scalar = ScalarType::type;
-    public const callableArray = CallableArrayType::type;
     public const object = ObjectType::type;
     public const resource = ResourceType::type;
     public const closedResource = ClosedResourceType::type;

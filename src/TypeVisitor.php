@@ -72,9 +72,6 @@ interface TypeVisitor
     public function visitClassString(ClassStringType $type): mixed;
 
     /** @return TReturn */
-    public function visitCallableString(CallableStringType $type): mixed;
-
-    /** @return TReturn */
     public function visitInterfaceString(InterfaceStringType $type): mixed;
 
     /** @return TReturn */
@@ -112,9 +109,6 @@ interface TypeVisitor
 
     /** @return TReturn */
     public function visitNonEmptyArray(NonEmptyArrayType $type): mixed;
-
-    /** @return TReturn */
-    public function visitCallableArray(CallableArrayType $type): mixed;
 
     /** @return TReturn */
     public function visitArray(ArrayType $type): mixed;
