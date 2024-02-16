@@ -14,12 +14,12 @@
         "typhoon/type": "^0.3@dev"
     },
     "require-dev": {
-        "ergebnis/composer-normalize": "^2.41.1",
-        "friendsofphp/php-cs-fixer": "^3.47.1",
-        "phpunit/phpunit": "^10.5.7",
+        "ergebnis/composer-normalize": "^2.42.0",
+        "friendsofphp/php-cs-fixer": "^3.49.0",
+        "phpunit/phpunit": "^10.5.10",
         "phpyh/coding-standard": "^2.6.0",
         "psalm/plugin-phpunit": "^0.18.4",
-        "vimeo/psalm": "^5.21"
+        "vimeo/psalm": "^5.22.1"
     },
     "autoload": {
         "psr-4": {
