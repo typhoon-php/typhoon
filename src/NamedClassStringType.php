@@ -6,7 +6,6 @@ namespace Typhoon\Type;
 
 /**
  * @api
- * @psalm-immutable
  * @template-covariant TObject of object
  * @implements Type<class-string<TObject>>
  */

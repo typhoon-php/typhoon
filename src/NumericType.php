@@ -6,7 +6,6 @@ namespace Typhoon\Type;
 
 /**
  * @api
- * @psalm-immutable
  * @implements Type<numeric>
  */
 enum NumericType implements Type

@@ -6,7 +6,6 @@ namespace Typhoon\Type;
 
 /**
  * @api
- * @psalm-immutable
  * @implements Type<non-empty-string>
  */
 enum NonEmptyStringType implements Type

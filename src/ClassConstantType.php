@@ -6,7 +6,6 @@ namespace Typhoon\Type;
 
 /**
  * @api
- * @psalm-immutable
  * @template-covariant TClassConstant
  * @implements Type<TClassConstant>
  */

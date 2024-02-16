@@ -46,7 +46,6 @@ final class types
     private function __construct() {}
 
     /**
-     * @psalm-pure
      * @no-named-arguments
      * @param non-negative-int $int
      * @param non-negative-int ...$ints
@@ -57,7 +56,6 @@ final class types
     }
 
     /**
-     * @psalm-pure
      * @template TIntMask of positive-int
      * @param Type<TIntMask> $type
      * @return IntMaskOfType<TIntMask>
@@ -67,9 +65,6 @@ final class types
         return new IntMaskOfType($type);
     }
 
-    /**
-     * @psalm-pure
-     */
     public static function intRange(?int $min = null, ?int $max = null): IntType|IntRangeType
     {
         if ($min === null && $max === null) {
@@ -80,7 +75,6 @@ final class types
     }
 
     /**
-     * @psalm-pure
      * @template TValue of int
      * @param TValue $value
      * @return IntLiteralType<TValue>
@@ -91,7 +85,6 @@ final class types
     }
 
     /**
-     * @psalm-pure
      * @template TValue of float
      * @param TValue $value
      * @return FloatLiteralType<TValue>
@@ -102,7 +95,6 @@ final class types
     }
 
     /**
-     * @psalm-pure
      * @template TValue of string
      * @param TValue $value
      * @return StringLiteralType<TValue>
@@ -113,7 +105,6 @@ final class types
     }
 
     /**
-     * @psalm-pure
      * @template TClass of class-string
      * @template TObject of object
      * @param TClass|Type<TObject> $classOrType
@@ -130,7 +121,6 @@ final class types
     }
 
     /**
-     * @psalm-pure
      * @template TValue
      * @param Type<TValue> $valueType
      * @return NonEmptyListType<TValue>
@@ -141,7 +131,6 @@ final class types
     }
 
     /**
-     * @psalm-pure
      * @template TValue
      * @param Type<TValue> $valueType
      * @return ListType<TValue>
@@ -152,7 +141,6 @@ final class types
     }
 
     /**
-     * @psalm-pure
      * @param array<Type|ArrayElement> $elements
      */
     public static function arrayShape(array $elements = [], bool $sealed = true): ArrayShapeType
@@ -169,7 +157,6 @@ final class types
     }
 
     /**
-     * @psalm-pure
      * @template TType
      * @param Type<TType> $type
      * @return ArrayElement<TType>
@@ -180,7 +167,6 @@ final class types
     }
 
     /**
-     * @psalm-pure
      * @template TKey of array-key
      * @template TValue
      * @param Type<TKey> $keyType
@@ -193,7 +179,6 @@ final class types
     }
 
     /**
-     * @psalm-pure
      * @template TKey of array-key
      * @template TValue
      * @param Type<TKey> $keyType
@@ -210,7 +195,6 @@ final class types
     }
 
     /**
-     * @psalm-pure
      * @template TKey
      * @template TValue
      * @param Type<TKey> $keyType
@@ -227,7 +211,6 @@ final class types
     }
 
     /**
-     * @psalm-pure
      * @param array<string, Type|Property> $properties
      */
     public static function objectShape(array $properties = []): ObjectShapeType
@@ -240,16 +223,12 @@ final class types
         );
     }
 
-    /**
-     * @psalm-pure
-     */
     public static function prop(Type $type, bool $optional = false): Property
     {
         return new Property($type, $optional);
     }
 
     /**
-     * @psalm-pure
      * @no-named-arguments
      * @template TObject of object
      * @param class-string<TObject> $class
@@ -261,7 +240,6 @@ final class types
     }
 
     /**
-     * @psalm-pure
      * @no-named-arguments
      * @template TObject of object
      * @param class-string<TObject> $declaredAtClass
@@ -273,7 +251,6 @@ final class types
     }
 
     /**
-     * @psalm-pure
      * @template TReturn
      * @param list<Type|Parameter> $parameters
      * @param Type<TReturn> $returnType
@@ -297,7 +274,6 @@ final class types
     }
 
     /**
-     * @psalm-pure
      * @template TReturn
      * @param list<Type|Parameter> $parameters
      * @param Type<TReturn> $returnType
@@ -321,7 +297,6 @@ final class types
     }
 
     /**
-     * @psalm-pure
      * @template TType
      * @param Type<TType> $type
      * @return Parameter<TType>
@@ -332,7 +307,6 @@ final class types
     }
 
     /**
-     * @psalm-pure
      * @param non-empty-string $constant
      */
     public static function constant(string $constant): ConstantType
@@ -341,7 +315,6 @@ final class types
     }
 
     /**
-     * @psalm-pure
      * @param class-string $class
      * @param non-empty-string $constant
      */
@@ -350,24 +323,17 @@ final class types
         return new ClassConstantType($class, $constant);
     }
 
-    /**
-     * @psalm-pure
-     */
     public static function keyOf(Type $type): KeyOfType
     {
         return new KeyOfType($type);
     }
 
-    /**
-     * @psalm-pure
-     */
     public static function valueOf(Type $type): ValueOfType
     {
         return new ValueOfType($type);
     }
 
     /**
-     * @psalm-pure
      * @template TType
      * @param non-empty-string $name
      * @param Type<TType> $constraint
@@ -403,16 +369,12 @@ final class types
         return new AtMethod($class, $name);
     }
 
-    /**
-     * @psalm-pure
-     */
     public static function conditional(Argument|TemplateType $subject, Type $if, Type $then, Type $else): ConditionalType
     {
         return new ConditionalType($subject, $if, $then, $else);
     }
 
     /**
-     * @psalm-pure
      * @param non-empty-string $name
      */
     public static function arg(string $name): Argument
@@ -421,7 +383,6 @@ final class types
     }
 
     /**
-     * @psalm-pure
      * @no-named-arguments
      * @template TType
      * @param Type<TType> $type
@@ -433,7 +394,6 @@ final class types
     }
 
     /**
-     * @psalm-pure
      * @no-named-arguments
      */
     public static function intersection(Type $type1, Type $type2, Type ...$moreTypes): IntersectionType
@@ -442,7 +402,6 @@ final class types
     }
 
     /**
-     * @psalm-pure
      * @no-named-arguments
      * @template TType
      * @param Type<TType> $type1

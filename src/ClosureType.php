@@ -6,7 +6,6 @@ namespace Typhoon\Type;
 
 /**
  * @api
- * @psalm-immutable
  * @template-covariant TReturn
  * @implements Type<\Closure(): TReturn>
  */

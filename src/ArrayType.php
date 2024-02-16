@@ -6,7 +6,6 @@ namespace Typhoon\Type;
 
 /**
  * @api
- * @psalm-immutable
  * @template-covariant TKey of array-key
  * @template-covariant TValue
  * @implements Type<array<TKey, TValue>>

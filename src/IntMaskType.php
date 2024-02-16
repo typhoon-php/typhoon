@@ -6,7 +6,6 @@ namespace Typhoon\Type;
 
 /**
  * @api
- * @psalm-immutable
  * @template-covariant TIntMask of int<0, max>
  * @implements Type<TIntMask>
  */

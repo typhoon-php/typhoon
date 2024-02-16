@@ -13,13 +13,13 @@
         "php": "^8.1"
     },
     "require-dev": {
-        "ergebnis/composer-normalize": "^2.41.1",
-        "friendsofphp/php-cs-fixer": "^3.48.0",
-        "phpunit/phpunit": "^10.5.9",
+        "ergebnis/composer-normalize": "^2.42.0",
+        "friendsofphp/php-cs-fixer": "^3.49.0",
+        "phpunit/phpunit": "^10.5.10",
         "phpyh/coding-standard": "^2.6.0",
         "phpyh/psalm-tester": "^0.1.0",
         "typhoon/psalm-plugin": "^0.1.0",
-        "vimeo/psalm": "^5.21"
+        "vimeo/psalm": "^5.22.1"
     },
     "autoload": {
         "psr-4": {
