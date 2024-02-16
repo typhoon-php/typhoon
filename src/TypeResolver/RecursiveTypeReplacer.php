@@ -10,7 +10,6 @@ use Typhoon\Type\types;
 /**
  * @internal
  * @psalm-internal Typhoon\Reflection
- * @psalm-immutable
  * @implements Type\TypeVisitor<Type\Type>
  */
 abstract class RecursiveTypeReplacer implements Type\TypeVisitor
@@ -116,11 +115,6 @@ abstract class RecursiveTypeReplacer implements Type\TypeVisitor
         return $type;
     }
 
-    public function visitCallableString(Type\CallableStringType $type): mixed
-    {
-        return $type;
-    }
-
     public function visitInterfaceString(Type\InterfaceStringType $type): mixed
     {
         return $type;
@@ -178,12 +172,10 @@ abstract class RecursiveTypeReplacer implements Type\TypeVisitor
 
     public function visitArrayShape(Type\ArrayShapeType $type): mixed
     {
-        $visitor = $this;
-
         return types::arrayShape(
             array_map(
-                static fn(Type\ArrayElement $element): Type\ArrayElement => types::arrayElement(
-                    $element->type->accept($visitor),
+                fn(Type\ArrayElement $element): Type\ArrayElement => types::arrayElement(
+                    $element->type->accept($this),
                     $element->optional,
                 ),
                 $type->elements,
@@ -196,11 +188,6 @@ abstract class RecursiveTypeReplacer implements Type\TypeVisitor
     {
         /** @psalm-suppress MixedArgumentTypeCoercion */
         return types::nonEmptyArray($type->keyType->accept($this), $type->valueType->accept($this));
-    }
-
-    public function visitCallableArray(Type\CallableArrayType $type): mixed
-    {
-        return $type;
     }
 
     public function visitArray(Type\ArrayType $type): mixed
@@ -216,32 +203,26 @@ abstract class RecursiveTypeReplacer implements Type\TypeVisitor
 
     public function visitNamedObject(Type\NamedObjectType $type): mixed
     {
-        $visitor = $this;
-
         return types::object($type->class, ...array_map(
-            static fn(Type\Type $templateArgument): Type\Type => $templateArgument->accept($visitor),
+            fn(Type\Type $templateArgument): Type\Type => $templateArgument->accept($this),
             $type->templateArguments,
         ));
     }
 
     public function visitStatic(Type\StaticType $type): mixed
     {
-        $visitor = $this;
-
         return types::static($type->declaredAtClass, ...array_map(
-            static fn(Type\Type $templateArgument): Type\Type => $templateArgument->accept($visitor),
+            fn(Type\Type $templateArgument): Type\Type => $templateArgument->accept($this),
             $type->templateArguments,
         ));
     }
 
     public function visitObjectShape(Type\ObjectShapeType $type): mixed
     {
-        $visitor = $this;
-
         return types::objectShape(
             array_map(
-                static fn(Type\Property $property): Type\Property => types::prop(
-                    $property->type->accept($visitor),
+                fn(Type\Property $property): Type\Property => types::prop(
+                    $property->type->accept($this),
                     $property->optional,
                 ),
                 $type->properties,
@@ -266,35 +247,31 @@ abstract class RecursiveTypeReplacer implements Type\TypeVisitor
 
     public function visitClosure(Type\ClosureType $type): mixed
     {
-        $visitor = $this;
-
         return types::closure(
             array_map(
-                static fn(Type\Parameter $parameter): Type\Parameter => types::param(
-                    $parameter->type->accept($visitor),
+                fn(Type\Parameter $parameter): Type\Parameter => types::param(
+                    $parameter->type->accept($this),
                     $parameter->hasDefault,
                     $parameter->variadic,
                 ),
                 $type->parameters,
             ),
-            $type->returnType?->accept($visitor),
+            $type->returnType?->accept($this),
         );
     }
 
     public function visitCallable(Type\CallableType $type): mixed
     {
-        $visitor = $this;
-
         return types::callable(
             array_map(
-                static fn(Type\Parameter $parameter): Type\Parameter => types::param(
-                    $parameter->type->accept($visitor),
+                fn(Type\Parameter $parameter): Type\Parameter => types::param(
+                    $parameter->type->accept($this),
                     $parameter->hasDefault,
                     $parameter->variadic,
                 ),
                 $type->parameters,
             ),
-            $type->returnType?->accept($visitor),
+            $type->returnType?->accept($this),
         );
     }
 
@@ -335,20 +312,16 @@ abstract class RecursiveTypeReplacer implements Type\TypeVisitor
 
     public function visitIntersection(Type\IntersectionType $type): mixed
     {
-        $visitor = $this;
-
         return types::intersection(...array_map(
-            static fn(Type\Type $part): Type\Type => $part->accept($visitor),
+            fn(Type\Type $part): Type\Type => $part->accept($this),
             $type->types,
         ));
     }
 
     public function visitUnion(Type\UnionType $type): mixed
     {
-        $visitor = $this;
-
         return types::union(...array_map(
-            static fn(Type\Type $part): Type\Type => $part->accept($visitor),
+            fn(Type\Type $part): Type\Type => $part->accept($this),
             $type->types,
         ));
     }

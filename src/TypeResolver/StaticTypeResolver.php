@@ -10,7 +10,6 @@ use Typhoon\Type\types;
 /**
  * @internal
  * @psalm-internal Typhoon\Reflection
- * @psalm-immutable
  * @psalm-suppress UnusedClass
  */
 final class StaticTypeResolver extends RecursiveTypeReplacer
@@ -24,10 +23,8 @@ final class StaticTypeResolver extends RecursiveTypeReplacer
 
     public function visitStatic(Type\StaticType $type): mixed
     {
-        $visitor = $this;
-
         return types::object($this->class, ...array_map(
-            static fn(Type\Type $templateArgument): Type\Type => $templateArgument->accept($visitor),
+            fn(Type\Type $templateArgument): Type\Type => $templateArgument->accept($this),
             $type->templateArguments,
         ));
     }

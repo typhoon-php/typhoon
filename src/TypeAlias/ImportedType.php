@@ -11,7 +11,6 @@ use Typhoon\Type\TypeVisitor;
 /**
  * @internal
  * @psalm-internal Typhoon\Reflection
- * @psalm-immutable
  * @implements Type<mixed>
  */
 final class ImportedType implements Type

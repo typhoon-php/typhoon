@@ -10,7 +10,6 @@ use Typhoon\Type;
 /**
  * @internal
  * @psalm-internal Typhoon\Reflection
- * @psalm-immutable
  */
 final class TemplateResolver extends RecursiveTypeReplacer
 {
@@ -22,7 +21,6 @@ final class TemplateResolver extends RecursiveTypeReplacer
     ) {}
 
     /**
-     * @psalm-pure
      * @param array<TemplateReflection> $templates
      * @param array<Type\Type> $templateArguments
      */

@@ -71,7 +71,7 @@ final class ContextualPhpDocTypeReflectorTest extends TestCase
         yield ['literal-string', types::literalString];
         yield ['numeric-string', types::numericString];
         yield ['class-string', types::classString];
-        yield ['callable-string', types::callableString];
+        yield ['callable-string', types::intersection(types::callable(), types::string)];
         yield ['interface-string', types::interfaceString];
         yield ['enum-string', types::enumString];
         yield ['trait-string', types::traitString];
@@ -81,7 +81,7 @@ final class ContextualPhpDocTypeReflectorTest extends TestCase
         yield ['string', types::string];
         yield ['numeric', types::numeric];
         yield ['scalar', types::scalar];
-        yield ['callable-array', types::callableArray];
+        yield ['callable-array', types::intersection(types::callable(), types::array())];
         yield ['object', types::object];
         yield ['resource', types::resource];
         yield ['closed-resource', types::closedResource];

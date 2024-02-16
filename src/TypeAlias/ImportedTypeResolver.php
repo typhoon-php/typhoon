@@ -11,7 +11,6 @@ use Typhoon\Type\Type;
 /**
  * @internal
  * @psalm-internal Typhoon\Reflection
- * @psalm-immutable
  */
 final class ImportedTypeResolver extends RecursiveTypeReplacer
 {
@@ -22,9 +21,6 @@ final class ImportedTypeResolver extends RecursiveTypeReplacer
         private readonly ClassReflector $classReflector,
     ) {}
 
-    /**
-     * @psalm-suppress ImpureMethodCall
-     */
     public function visitImportedType(ImportedType $type): Type
     {
         return $this->classReflector->reflectClass($type->class)->getTypeAlias($type->name);
