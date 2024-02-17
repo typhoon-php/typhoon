@@ -88,7 +88,7 @@ final class MethodReflection extends \ReflectionMethod
         if ($this->attributes === null) {
             $class = $this->metadata->class;
             $method = $this->metadata->name;
-            $this->attributes = new AttributeReflections(
+            $this->attributes = AttributeReflections::create(
                 $this->classReflector,
                 $this->metadata->attributes,
                 static fn(): array => (new \ReflectionMethod($class, $method))->getAttributes(),

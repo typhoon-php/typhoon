@@ -72,7 +72,7 @@ final class PropertyReflection extends \ReflectionProperty
         if ($this->attributes === null) {
             $class = $this->metadata->class;
             $property = $this->metadata->name;
-            $this->attributes = new AttributeReflections(
+            $this->attributes = AttributeReflections::create(
                 $this->classReflector,
                 $this->metadata->attributes,
                 static fn(): array => (new \ReflectionProperty($class, $property))->getAttributes(),

@@ -18,11 +18,11 @@ final class AttributeReflection extends \ReflectionAttribute
     /**
      * @internal
      * @psalm-internal Typhoon\Reflection
-     * @param \Closure(): list<\ReflectionAttribute> $nativeAttributes
+     * @param \Closure(): list<\ReflectionAttribute> $nativeAttributesFactory
      */
     public function __construct(
         private readonly AttributeMetadata $metadata,
-        private readonly \Closure $nativeAttributes,
+        private readonly \Closure $nativeAttributesFactory,
     ) {}
 
     public function __toString(): string
@@ -64,6 +64,6 @@ final class AttributeReflection extends \ReflectionAttribute
     private function native(): \ReflectionAttribute
     {
         /** @var \ReflectionAttribute<TAttribute> */
-        return ($this->nativeAttributes)()[$this->metadata->position] ?? throw new DefaultReflectionException();
+        return ($this->nativeAttributesFactory)()[$this->metadata->position] ?? throw new DefaultReflectionException();
     }
 }

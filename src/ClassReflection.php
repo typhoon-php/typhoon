@@ -81,7 +81,7 @@ final class ClassReflection extends \ReflectionClass
     {
         if ($this->attributes === null) {
             $class = $this->metadata->name;
-            $this->attributes = new AttributeReflections(
+            $this->attributes = AttributeReflections::create(
                 $this->classReflector,
                 $this->metadata->attributes,
                 static fn(): array => (new \ReflectionClass($class))->getAttributes(),

@@ -17,22 +17,31 @@ use Typhoon\Reflection\Metadata\AttributeMetadata;
 final class AttributeReflections
 {
     /**
-     * @var list<AttributeReflection>
+     * @param list<AttributeReflection> $attributes
      */
-    private readonly array $attributes;
+    private function __construct(
+        private readonly ClassReflector $classReflector,
+        private readonly array $attributes,
+    ) {}
 
     /**
      * @param list<AttributeMetadata> $attributes
-     * @param \Closure(): list<\ReflectionAttribute> $nativeAttributes
+     * @param \Closure(): list<\ReflectionAttribute> $nativeAttributesFactory
      */
-    public function __construct(
-        private readonly ClassReflector $classReflector,
+    public static function create(
+        ClassReflector $classReflector,
         array $attributes,
-        \Closure $nativeAttributes,
-    ) {
-        $this->attributes = array_map(
-            static fn(AttributeMetadata $attribute): \ReflectionAttribute => new AttributeReflection($attribute, $nativeAttributes),
-            $attributes,
+        \Closure $nativeAttributesFactory,
+    ): self {
+        return new self(
+            $classReflector,
+            array_map(
+                static fn(AttributeMetadata $attribute): AttributeReflection => new AttributeReflection(
+                    $attribute,
+                    $nativeAttributesFactory,
+                ),
+                $attributes,
+            ),
         );
     }
 

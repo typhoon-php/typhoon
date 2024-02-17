@@ -77,7 +77,7 @@ final class ParameterReflection extends \ReflectionParameter
         if ($this->attributes === null) {
             $function = $this->function();
             $parameter = $this->metadata->name;
-            $this->attributes = new AttributeReflections(
+            $this->attributes = AttributeReflections::create(
                 $this->classReflector,
                 $this->metadata->attributes,
                 static fn(): array => (new \ReflectionParameter($function, $parameter))->getAttributes(),
