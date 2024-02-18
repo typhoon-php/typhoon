@@ -27,7 +27,7 @@ final class ResourceVisitor extends NodeVisitorAbstract
         if ($node instanceof ClassLike && $node->name !== null) {
             $name = $this->reflector->resolveClassName($node->name);
             $reflector = clone $this->reflector;
-            $this->metadata->set(
+            $this->metadata->setFactory(
                 class: ClassMetadata::class,
                 name: $name,
                 factory: static fn(): ClassMetadata => $reflector->reflectClass($node, $name),

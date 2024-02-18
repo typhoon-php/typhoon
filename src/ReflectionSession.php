@@ -13,6 +13,7 @@ use Typhoon\Reflection\NameContext\AnonymousClassName;
 use Typhoon\Reflection\NativeReflector\NativeReflector;
 use Typhoon\Reflection\PhpParserReflector\PhpParserReflector;
 use Typhoon\Reflection\TypeContext\ClassExistenceChecker;
+use Typhoon\Reflection\TypeContext\WeakClassExistenceChecker;
 
 /**
  * @api
@@ -25,11 +26,6 @@ final class ReflectionSession implements ClassExistenceChecker, ClassReflector
      * @var array<non-empty-string, true>
      */
     private array $reflectedResources = [];
-
-    /**
-     * @var array<non-empty-string, false|ClassReflection>
-     */
-    private array $reflectedClasses = [];
 
     /**
      * @internal
@@ -53,10 +49,6 @@ final class ReflectionSession implements ClassExistenceChecker, ClassReflector
             return false;
         }
 
-        if (isset($this->reflectedClasses[$name])) {
-            return $this->reflectedClasses[$name] !== false;
-        }
-
         if (class_exists($name, false) || interface_exists($name, false) || trait_exists($name, false)) {
             return true;
         }
@@ -70,11 +62,7 @@ final class ReflectionSession implements ClassExistenceChecker, ClassReflector
             return true;
         }
 
-        $metadata = $this->cache?->get(ClassMetadata::class, $name);
-
-        if ($metadata !== null) {
-            $this->reflectedClasses[$name] = new ClassReflection($this, $metadata);
-
+        if ($this->cache?->get(ClassMetadata::class, $name) !== null) {
             return true;
         }
 
@@ -83,20 +71,17 @@ final class ReflectionSession implements ClassExistenceChecker, ClassReflector
         if ($resource instanceof FileResource) {
             $this->reflectFile($resource);
 
-            if ($this->metadata->has(ClassMetadata::class, $name)) {
-                return true;
-            }
-
-            return $this->reflectedClasses[$name] = false;
+            return $this->metadata->has(ClassMetadata::class, $name);
         }
 
         if ($resource instanceof \ReflectionClass) {
-            $this->metadata->set(ClassMetadata::class, $name, fn(): ClassMetadata => $this->nativeReflector->reflectClass($resource));
+            $nativeReflector = $this->nativeReflector;
+            $this->metadata->setFactory(ClassMetadata::class, $name, static fn(): ClassMetadata => $nativeReflector->reflectClass($resource));
 
             return true;
         }
 
-        return $this->reflectedClasses[$name] = false;
+        return false;
     }
 
     /**
@@ -105,41 +90,45 @@ final class ReflectionSession implements ClassExistenceChecker, ClassReflector
     public function reflectClass(string|object $nameOrObject): ClassReflection
     {
         if (\is_object($nameOrObject)) {
-            $name = $nameOrObject::class;
-        } else {
-            if ($nameOrObject === '') {
-                throw new ClassDoesNotExistException('Class "" does not exist');
-            }
-
-            $name = $nameOrObject;
+            return new ClassReflection($this, $this->reflectClassMetadata($nameOrObject::class));
         }
 
-        if (isset($this->reflectedClasses[$name])) {
-            if ($this->reflectedClasses[$name] === false) {
-                throw new ClassDoesNotExistException(sprintf('Class "%s" does not exist', ReflectionException::normalizeClass($name)));
-            }
-
-            return $this->reflectedClasses[$name];
+        if ($nameOrObject === '') {
+            throw new ClassDoesNotExistException('Class "" does not exist');
         }
 
+        return new ClassReflection($this, $this->reflectClassMetadata($nameOrObject));
+    }
+
+    public function flush(): void
+    {
+        $this->cache?->setMultiple($this->metadata);
+        $this->metadata->clear();
+        $this->reflectedResources = [];
+    }
+
+    /**
+     * @param non-empty-string $name
+     * @throws ReflectionException
+     */
+    private function reflectClassMetadata(string $name): ClassMetadata
+    {
         $anonymousName = AnonymousClassName::tryFromString($name);
 
         if ($anonymousName !== null) {
-            $metadata = $this->phpParserReflector->reflectAnonymousClass($anonymousName);
-
-            return $this->reflectedClasses[$name] = new ClassReflection($this, $metadata);
+            return $this->phpParserReflector->reflectAnonymousClass($anonymousName);
         }
 
         $metadata = $this->metadata->get(ClassMetadata::class, $name);
 
         if ($metadata !== null) {
-            return $this->reflectedClasses[$name] = new ClassReflection($this, $metadata);
+            return $metadata;
         }
 
         $metadata = $this->cache?->get(ClassMetadata::class, $name);
 
         if ($metadata !== null) {
-            return $this->reflectedClasses[$name] = new ClassReflection($this, $metadata);
+            return $metadata;
         }
 
         $resource = $this->classLocator->locateClass($name);
@@ -149,35 +138,26 @@ final class ReflectionSession implements ClassExistenceChecker, ClassReflector
             $metadata = $this->metadata->get(ClassMetadata::class, $name);
 
             if ($metadata !== null) {
-                return $this->reflectedClasses[$name] = new ClassReflection($this, $metadata);
+                return $metadata;
             }
-
-            $this->reflectedClasses[$name] = false;
 
             throw new ClassDoesNotExistException(sprintf('Class "%s" does not exist', ReflectionException::normalizeClass($name)));
         }
 
         if ($resource instanceof \ReflectionClass) {
-            return $this->reflectedClasses[$name] = new ClassReflection($this, $this->nativeReflector->reflectClass($resource));
+            $metadata = $this->nativeReflector->reflectClass($resource);
+            $this->metadata->set($metadata);
+
+            return $metadata;
         }
 
-        $this->reflectedClasses[$name] = false;
-
         throw new ClassDoesNotExistException(sprintf('Class "%s" does not exist', ReflectionException::normalizeClass($name)));
-    }
-
-    public function flush(): void
-    {
-        $this->cache?->setMultiple($this->metadata);
-        $this->metadata->clear();
-        $this->reflectedResources = [];
-        $this->reflectedClasses = [];
     }
 
     private function reflectFile(FileResource $file): void
     {
         if (!isset($this->reflectedResources[$file->file])) {
-            $this->phpParserReflector->reflectFile($file, $this->metadata, $this);
+            $this->phpParserReflector->reflectFile($file, $this->metadata, new WeakClassExistenceChecker($this));
             $this->reflectedResources[$file->file] = true;
         }
     }

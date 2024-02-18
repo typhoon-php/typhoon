@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Typhoon\Reflection\Inheritance;
 
-use Typhoon\Reflection\ClassReflection\ClassReflector;
+use Typhoon\Reflection\Metadata\ClassMetadata;
 use Typhoon\Reflection\Metadata\MethodMetadata;
 use Typhoon\Reflection\TypeResolver\TemplateResolver;
 use Typhoon\Type\NamedObjectType;
@@ -22,10 +22,11 @@ final class MethodsInheritanceResolver
 
     /**
      * @param class-string $class
+     * @param \Closure(class-string): ClassMetadata $classMetadataReflector
      */
     public function __construct(
         private readonly string $class,
-        private readonly ClassReflector $classReflector,
+        private readonly \Closure $classMetadataReflector,
     ) {}
 
     /**
@@ -41,11 +42,11 @@ final class MethodsInheritanceResolver
     public function addUsed(NamedObjectType ...$types): void
     {
         foreach ($types as $type) {
-            $class = $this->classReflector->reflectClass($type->class);
-            $templateResolver = TemplateResolver::create($class->getTemplates(), $type->templateArguments);
+            $class = ($this->classMetadataReflector)($type->class);
+            $templateResolver = TemplateResolver::create($class->templates, $type->templateArguments);
 
-            foreach ($class->getMethods() as $method) {
-                $this->method($method->name)->addUsed($method->__metadata(), $templateResolver);
+            foreach ($class->resolvedMethods($this->classMetadataReflector) as $method) {
+                $this->method($method->name)->addUsed($method, $templateResolver);
             }
         }
     }
@@ -53,11 +54,11 @@ final class MethodsInheritanceResolver
     public function addInherited(NamedObjectType ...$types): void
     {
         foreach ($types as $type) {
-            $class = $this->classReflector->reflectClass($type->class);
-            $templateResolver = TemplateResolver::create($class->getTemplates(), $type->templateArguments);
+            $class = ($this->classMetadataReflector)($type->class);
+            $templateResolver = TemplateResolver::create($class->templates, $type->templateArguments);
 
-            foreach ($class->getMethods() as $method) {
-                $this->method($method->name)->addInherited($method->__metadata(), $templateResolver);
+            foreach ($class->resolvedMethods($this->classMetadataReflector) as $method) {
+                $this->method($method->name)->addInherited($method, $templateResolver);
             }
         }
     }

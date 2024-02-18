@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Typhoon\Reflection\Inheritance;
 
-use Typhoon\Reflection\ClassReflection\ClassReflector;
+use Typhoon\Reflection\Metadata\ClassMetadata;
 use Typhoon\Reflection\Metadata\PropertyMetadata;
 use Typhoon\Reflection\TypeResolver\TemplateResolver;
 use Typhoon\Type\NamedObjectType;
@@ -22,10 +22,11 @@ final class PropertiesInheritanceResolver
 
     /**
      * @param class-string $class
+     * @param \Closure(class-string): ClassMetadata $classMetadataReflector
      */
     public function __construct(
         private readonly string $class,
-        private readonly ClassReflector $classReflector,
+        private readonly \Closure $classMetadataReflector,
     ) {}
 
     /**
@@ -41,11 +42,11 @@ final class PropertiesInheritanceResolver
     public function addUsed(NamedObjectType ...$types): void
     {
         foreach ($types as $type) {
-            $class = $this->classReflector->reflectClass($type->class);
-            $templateResolver = TemplateResolver::create($class->getTemplates(), $type->templateArguments);
+            $class = ($this->classMetadataReflector)($type->class);
+            $templateResolver = TemplateResolver::create($class->templates, $type->templateArguments);
 
-            foreach ($class->getProperties() as $property) {
-                $this->property($property->name)->addUsed($property->__metadata(), $templateResolver);
+            foreach ($class->resolvedProperties($this->classMetadataReflector) as $property) {
+                $this->property($property->name)->addUsed($property, $templateResolver);
             }
         }
     }
@@ -53,11 +54,11 @@ final class PropertiesInheritanceResolver
     public function addInherited(NamedObjectType ...$types): void
     {
         foreach ($types as $type) {
-            $class = $this->classReflector->reflectClass($type->class);
-            $templateResolver = TemplateResolver::create($class->getTemplates(), $type->templateArguments);
+            $class = ($this->classMetadataReflector)($type->class);
+            $templateResolver = TemplateResolver::create($class->templates, $type->templateArguments);
 
-            foreach ($class->getProperties() as $property) {
-                $this->property($property->name)->addInherited($property->__metadata(), $templateResolver);
+            foreach ($class->resolvedProperties($this->classMetadataReflector) as $property) {
+                $this->property($property->name)->addInherited($property, $templateResolver);
             }
         }
     }

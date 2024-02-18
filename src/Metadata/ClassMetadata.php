@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace Typhoon\Reflection\Metadata;
 
+use Typhoon\Reflection\Inheritance\MethodsInheritanceResolver;
+use Typhoon\Reflection\Inheritance\PropertiesInheritanceResolver;
 use Typhoon\Reflection\TemplateReflection;
 use Typhoon\Type\NamedObjectType;
 use Typhoon\Type\Type;
@@ -17,6 +19,16 @@ use Typhoon\Type\Type;
  */
 final class ClassMetadata extends RootMetadata
 {
+    /**
+     * @var ?array<non-empty-string, PropertyMetadata>
+     */
+    private ?array $resolvedProperties = null;
+
+    /**
+     * @var ?array<non-empty-string, MethodMetadata>
+     */
+    private ?array $resolvedMethods = null;
+
     /**
      * @param class-string<T> $name
      * @param non-empty-string|false $extension
@@ -58,5 +70,46 @@ final class ClassMetadata extends RootMetadata
         public readonly array $ownMethods = [],
     ) {
         parent::__construct($name, $changeDetector);
+    }
+
+    /**
+     * @param \Closure(class-string): ClassMetadata $classMetadataReflector
+     * @return array<non-empty-string, PropertyMetadata>
+     */
+    public function resolvedProperties(\Closure $classMetadataReflector): array
+    {
+        if ($this->resolvedProperties !== null) {
+            return $this->resolvedProperties;
+        }
+
+        $resolver = new PropertiesInheritanceResolver($this->name, $classMetadataReflector);
+        $resolver->setOwn($this->ownProperties);
+        $resolver->addUsed(...$this->traitTypes);
+        if ($this->parentType !== null) {
+            $resolver->addInherited($this->parentType);
+        }
+
+        return $this->resolvedProperties = $resolver->resolve();
+    }
+
+    /**
+     * @param \Closure(class-string): ClassMetadata $classMetadataReflector
+     * @return array<non-empty-string, MethodMetadata>
+     */
+    public function resolvedMethods(\Closure $classMetadataReflector): array
+    {
+        if ($this->resolvedMethods !== null) {
+            return $this->resolvedMethods;
+        }
+
+        $resolver = new MethodsInheritanceResolver($this->name, $classMetadataReflector);
+        $resolver->setOwn($this->ownMethods);
+        $resolver->addUsed(...$this->traitTypes);
+        if ($this->parentType !== null) {
+            $resolver->addInherited($this->parentType);
+        }
+        $resolver->addInherited(...$this->interfaceTypes);
+
+        return $this->resolvedMethods = $resolver->resolve();
     }
 }

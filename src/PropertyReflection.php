@@ -46,15 +46,6 @@ final class PropertyReflection extends \ReflectionProperty
         return $name === 'name' || $name === 'class';
     }
 
-    /**
-     * @internal
-     * @psalm-internal Typhoon\Reflection
-     */
-    public function __metadata(): PropertyMetadata
-    {
-        return $this->metadata;
-    }
-
     public function __toString(): string
     {
         $this->loadNative();

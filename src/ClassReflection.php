@@ -8,8 +8,6 @@ use Typhoon\Reflection\Attributes\AttributeReflections;
 use Typhoon\Reflection\ClassReflection\ClassReflector;
 use Typhoon\Reflection\Exception\ClassDoesNotExistException;
 use Typhoon\Reflection\Exception\DefaultReflectionException;
-use Typhoon\Reflection\Inheritance\MethodsInheritanceResolver;
-use Typhoon\Reflection\Inheritance\PropertiesInheritanceResolver;
 use Typhoon\Reflection\Metadata\ClassMetadata;
 use Typhoon\Reflection\Metadata\MethodMetadata;
 use Typhoon\Reflection\Metadata\PropertyMetadata;
@@ -29,16 +27,6 @@ final class ClassReflection extends \ReflectionClass
     private ?AttributeReflections $attributes = null;
 
     private bool $nativeLoaded = false;
-
-    /**
-     * @var ?array<non-empty-string, MethodReflection>
-     */
-    private ?array $resolvedMethods = null;
-
-    /**
-     * @var ?array<non-empty-string, PropertyReflection>
-     */
-    private ?array $resolvedProperties = null;
 
     /**
      * @internal
@@ -541,25 +529,13 @@ final class ClassReflection extends \ReflectionClass
      */
     private function getResolvedMethods(): array
     {
-        if ($this->resolvedMethods !== null) {
-            return $this->resolvedMethods;
-        }
-
-        $resolver = new MethodsInheritanceResolver($this->metadata->name, $this->classReflector);
-        $resolver->setOwn($this->metadata->ownMethods);
-        $resolver->addUsed(...$this->metadata->traitTypes);
-        if ($this->metadata->parentType !== null) {
-            $resolver->addInherited($this->metadata->parentType);
-        }
-        $resolver->addInherited(...$this->metadata->interfaceTypes);
-
-        return $this->resolvedMethods = array_map(
+        return array_map(
             fn(MethodMetadata $metadata): MethodReflection => new MethodReflection(
                 classReflector: $this->classReflector,
                 metadata: $metadata,
                 currentClass: $this->metadata->name,
             ),
-            $resolver->resolve(),
+            $this->metadata->resolvedMethods($this->reflectClassMetadata(...)),
         );
     }
 
@@ -568,20 +544,12 @@ final class ClassReflection extends \ReflectionClass
      */
     private function getResolvedProperties(): array
     {
-        if ($this->resolvedProperties !== null) {
-            return $this->resolvedProperties;
-        }
-
-        $resolver = new PropertiesInheritanceResolver($this->metadata->name, $this->classReflector);
-        $resolver->setOwn($this->metadata->ownProperties);
-        $resolver->addUsed(...$this->metadata->traitTypes);
-        if ($this->metadata->parentType !== null) {
-            $resolver->addInherited($this->metadata->parentType);
-        }
-
-        return $this->resolvedProperties = array_map(
-            fn(PropertyMetadata $metadata): PropertyReflection => new PropertyReflection($this->classReflector, $metadata),
-            $resolver->resolve(),
+        return array_map(
+            fn(PropertyMetadata $metadata): PropertyReflection => new PropertyReflection(
+                classReflector: $this->classReflector,
+                metadata: $metadata,
+            ),
+            $this->metadata->resolvedProperties($this->reflectClassMetadata(...)),
         );
     }
 
@@ -610,6 +578,15 @@ final class ClassReflection extends \ReflectionClass
     private function reflectClass(string $class): self
     {
         return $this->classReflector->reflectClass($class);
+    }
+
+    /**
+     * @param class-string $class
+     * @throws ReflectionException
+     */
+    private function reflectClassMetadata(string $class): ClassMetadata
+    {
+        return $this->reflectClass($class)->metadata;
     }
 
     /**

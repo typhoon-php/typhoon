@@ -47,13 +47,18 @@ final class MetadataLazyCollection implements \IteratorAggregate
         return $metadata;
     }
 
+    public function set(RootMetadata $metadata): void
+    {
+        $this->metadata[$metadata::class][$metadata->name] = $metadata;
+    }
+
     /**
      * @template TMetadata of RootMetadata
      * @param class-string<TMetadata> $class
      * @param non-empty-string $name
      * @param \Closure(): TMetadata $factory
      */
-    public function set(string $class, string $name, \Closure $factory): void
+    public function setFactory(string $class, string $name, \Closure $factory): void
     {
         $this->metadata[$class][$name] = $factory;
     }

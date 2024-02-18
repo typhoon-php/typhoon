@@ -62,15 +62,6 @@ final class MethodReflection extends \ReflectionMethod
         return $name === 'name' || $name === 'class';
     }
 
-    /**
-     * @internal
-     * @psalm-internal Typhoon\Reflection
-     */
-    public function __metadata(): MethodMetadata
-    {
-        return $this->metadata;
-    }
-
     public function __toString(): string
     {
         $this->loadNative();

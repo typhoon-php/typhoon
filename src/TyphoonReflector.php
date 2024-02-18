@@ -76,10 +76,10 @@ final class TyphoonReflector
     public function startSession(): ReflectionSession
     {
         return new ReflectionSession(
-            cache: $this->cache,
             phpParserReflector: $this->phpParserReflector,
             nativeReflector: $this->nativeReflector,
             classLocator: $this->classLocator,
+            cache: $this->cache,
         );
     }
 
