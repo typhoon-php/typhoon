@@ -14,14 +14,12 @@ namespace Typhoon\Reflection\NameContext;
 final class AnonymousClassName
 {
     /**
-     * @param class-string<TObject> $name
      * @param non-empty-string $file
-     * @param int<0, max> $line
+     * @param non-negative-int $line
      * @param ?class-string $superType
-     * @param int<0, max> $rtdKeyCounter
+     * @param non-negative-int $rtdKeyCounter
      */
     private function __construct(
-        public readonly string $name,
         public readonly string $file,
         public readonly int $line,
         public readonly ?string $superType,
@@ -52,8 +50,7 @@ final class AnonymousClassName
         /** @var int<0, max> */
         $rtdKeyCounter = hexdec($matches[4]);
 
-        /** @var class-string $name */
-        return new self($name, $file, $line, $superType, $rtdKeyCounter);
+        return new self($file, $line, $superType, $rtdKeyCounter);
     }
 
     /**
@@ -83,5 +80,14 @@ final class AnonymousClassName
         }
 
         return $names;
+    }
+
+    /**
+     * @return class-string<TObject>
+     */
+    public function toString(): string
+    {
+        /** @var class-string<TObject> */
+        return sprintf("%s@anonymous\x00%s:%d$%x", $this->superType ?? 'class', $this->file, $this->line, $this->rtdKeyCounter);
     }
 }

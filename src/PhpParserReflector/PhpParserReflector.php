@@ -64,7 +64,7 @@ final class PhpParserReflector
             file: $file,
         );
 
-        return $reflector->reflectClass($node, $name->name);
+        return $reflector->reflectClass($node, $name->toString());
     }
 
     /**
