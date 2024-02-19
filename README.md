@@ -3,11 +3,11 @@
 This library is an alternative to [native PHP Reflection](https://www.php.net/manual/en/book.reflection.php). It is:
 - static,
 - lazy,
-- cacheable,
+- [PSR-16](https://www.php-fig.org/psr/psr-16/) cacheable,
 - compatible with native reflection,
 - supports most of the Psalm/PHPStan types,
 - can resolve templates,
-- does not create circular object references, can be safely used with `zend.enable_gc=0`.
+- does not create circular object references (can be safely used with [zend.enable_gc=0](https://www.php.net/manual/en/info.configuration.php#ini.zend.enable-gc)).
 
 ## Installation
 
@@ -59,7 +59,8 @@ This library is 99% compatible with native reflection API. See [compatibility](d
 
 ## Caching
 
-The recommended way to cache reflection is using [Typhoon OPcache](https://github.com/typhoon-php/opcache).
+You can use any [PSR-16](https://www.php-fig.org/psr/psr-16/) implementation for caching, but we highly recommend [Typhoon OPcache](https://github.com/typhoon-php/opcache).
+Typhoon OPcache stores values as php files that could be opcached. It is much faster than an average file cache implementation that uses `serialize`. 
 
 ```php
 use Typhoon\Reflection\TyphoonReflector;
@@ -70,7 +71,7 @@ $reflector = TyphoonReflector::build(
 );
 ```
 
-To detect file changes during development, decorate cache with [ChangeDetectingCache](src/Cache/ChangeDetectingCache.php).
+To detect file changes during development, decorate your cache with [ChangeDetectingCache](src/Cache/ChangeDetectingCache.php).
 
 ```php
 use Typhoon\Reflection\TyphoonReflector;
