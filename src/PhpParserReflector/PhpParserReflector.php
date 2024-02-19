@@ -35,7 +35,7 @@ final class PhpParserReflector
         $nameContext = new NameContext();
         $this->parseAndTraverse($file->contents(), [
             new NameContextVisitor($nameContext),
-            new ResourceVisitor(
+            new FileResourceVisitor(
                 reflector: new ContextualPhpParserReflector(
                     phpDocParser: $this->phpDocParser,
                     typeContext: new TypeContext(

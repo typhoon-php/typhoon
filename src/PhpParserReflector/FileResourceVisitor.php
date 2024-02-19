@@ -15,7 +15,7 @@ use Typhoon\Reflection\Metadata\MetadataCollection;
  * @internal
  * @psalm-internal Typhoon\Reflection\PhpParserReflector
  */
-final class ResourceVisitor extends NodeVisitorAbstract
+final class FileResourceVisitor extends NodeVisitorAbstract
 {
     public function __construct(
         private readonly ContextualPhpParserReflector $reflector,
