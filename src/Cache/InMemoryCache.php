@@ -17,9 +17,16 @@ final class InMemoryCache implements CacheInterface
      */
     private array $items = [];
 
+    private static function validateKey(string $key): void
+    {
+        if (preg_match('#[{}()/\\\@:]#', $key)) {
+            throw new InvalidCacheKey($key);
+        }
+    }
+
     public function get(string $key, mixed $default = null): mixed
     {
-        $this->validateKey($key);
+        self::validateKey($key);
 
         if (\array_key_exists($key, $this->items)) {
             return $this->items[$key];
@@ -30,7 +37,8 @@ final class InMemoryCache implements CacheInterface
 
     public function set(string $key, mixed $value, null|\DateInterval|int $ttl = null): bool
     {
-        $this->validateKey($key);
+        self::validateKey($key);
+
         $this->items[$key] = $value;
 
         return true;
@@ -38,7 +46,8 @@ final class InMemoryCache implements CacheInterface
 
     public function delete(string $key): bool
     {
-        $this->validateKey($key);
+        self::validateKey($key);
+
         unset($this->items[$key]);
 
         return true;
@@ -56,7 +65,8 @@ final class InMemoryCache implements CacheInterface
         $items = [];
 
         foreach ($keys as $key) {
-            $this->validateKey($key);
+            self::validateKey($key);
+
             $items[$key] = $this->get($key, $default);
         }
 
@@ -67,7 +77,8 @@ final class InMemoryCache implements CacheInterface
     {
         foreach ($values as $key => $value) {
             \assert(\is_string($key));
-            $this->validateKey($key);
+            self::validateKey($key);
+
             $this->items[$key] = $value;
         }
 
@@ -77,7 +88,8 @@ final class InMemoryCache implements CacheInterface
     public function deleteMultiple(iterable $keys): bool
     {
         foreach ($keys as $key) {
-            $this->validateKey($key);
+            self::validateKey($key);
+
             unset($this->items[$key]);
         }
 
@@ -86,15 +98,8 @@ final class InMemoryCache implements CacheInterface
 
     public function has(string $key): bool
     {
-        $this->validateKey($key);
+        self::validateKey($key);
 
         return \array_key_exists($key, $this->items);
-    }
-
-    private function validateKey(string $key): void
-    {
-        if (preg_match('#[{}()/\\\@:]#', $key)) {
-            throw new InvalidCacheKey($key);
-        }
     }
 }
