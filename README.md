@@ -56,7 +56,7 @@ var_dump($dataReflection->getTyphoonType()); // object representation of T templ
 ## Caching
 
 You can use any [PSR-16](https://www.php-fig.org/psr/psr-16/) implementation for caching, but we highly recommend [Typhoon OPcache](https://github.com/typhoon-php/opcache).
-Typhoon OPcache stores values as php files that could be opcached. It is much faster than an average file cache implementation that uses `serialize`. 
+It stores values as php files that could be opcached. It is much faster than an average file cache implementation that uses `serialize`. 
 
 ```php
 use Typhoon\Reflection\TyphoonReflector;
