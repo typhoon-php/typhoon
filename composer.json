@@ -36,10 +36,7 @@
     "autoload": {
         "psr-4": {
             "Typhoon\\Reflection\\": "src/"
-        },
-        "files": [
-            "src/Exceptionally/exceptionally.php"
-        ]
+        }
     },
     "autoload-dev": {
         "psr-4": {

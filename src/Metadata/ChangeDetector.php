@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Typhoon\Reflection\Metadata;
 
-use function Typhoon\Reflection\Exceptionally\exceptionally;
+use Typhoon\Reflection\Exception\DefaultReflectionException;
 
 /**
  * @internal
@@ -18,7 +18,11 @@ abstract class ChangeDetector
     final public static function fromFileContents(string $file, ?string $contents = null): self
     {
         if ($contents === null) {
-            $hash = exceptionally(static fn(): string|false => md5_file($file));
+            $hash = md5_file($file);
+
+            if ($hash === false) {
+                throw new DefaultReflectionException(sprintf('File %s does not exist or is not readable.', $file));
+            }
         } else {
             $hash = md5($contents);
         }
@@ -34,12 +38,20 @@ abstract class ChangeDetector
             return self::fromFileContents($file);
         }
 
-        $extension = $reflection->getExtensionName();
+        $extension = $reflection->getExtension();
 
-        return new PhpVersionChangeDetector(
-            $extension,
-            exceptionally(static fn(): string|false => phpversion($extension)),
-        );
+        if ($extension !== null) {
+            $name = $extension->name;
+            \assert($name !== '');
+
+            return new PhpVersionChangeDetector($name, $extension->getVersion() ?? false);
+        }
+
+        if ($reflection->isInternal()) {
+            return new PhpVersionChangeDetector(null, PHP_VERSION);
+        }
+
+        throw new DefaultReflectionException();
     }
 
     abstract public function changed(): bool;

@@ -15,11 +15,17 @@ final class PhpVersionChangeDetector extends ChangeDetector
      */
     protected function __construct(
         private readonly ?string $extension,
-        private readonly string $version,
+        private readonly string|false $version,
     ) {}
 
     public function changed(): bool
     {
-        return phpversion($this->extension) === $this->version;
+        set_error_handler(static fn(): bool => true);
+
+        try {
+            return phpversion($this->extension) === $this->version;
+        } finally {
+            restore_error_handler();
+        }
     }
 }

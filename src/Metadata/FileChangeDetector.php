@@ -4,8 +4,6 @@ declare(strict_types=1);
 
 namespace Typhoon\Reflection\Metadata;
 
-use function Typhoon\Reflection\Exceptionally\exceptionally;
-
 /**
  * @internal
  * @psalm-internal Typhoon\Reflection
@@ -23,10 +21,12 @@ final class FileChangeDetector extends ChangeDetector
 
     public function changed(): bool
     {
+        set_error_handler(static fn(): bool => true);
+
         try {
-            return exceptionally(fn(): string|false => md5_file($this->file)) !== $this->hash;
-        } catch (\Throwable) {
-            return true;
+            return md5_file($this->file) !== $this->hash;
+        } finally {
+            restore_error_handler();
         }
     }
 }
