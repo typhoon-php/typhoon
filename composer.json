@@ -29,7 +29,7 @@
         "phpyh/coding-standard": "^2.6.0",
         "psalm/plugin-phpunit": "^0.18.4",
         "symfony/var-dumper": "^6.4.2 || ^7.0.3",
-        "typhoon/opcache": "^0.2@dev",
+        "typhoon/opcache": "^0.2.1",
         "typhoon/psalm-plugin": "^0.1.0",
         "vimeo/psalm": "^5.22.1"
     },
