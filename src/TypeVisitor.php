@@ -95,9 +95,6 @@ interface TypeVisitor
     public function visitArrayKey(ArrayKeyType $type): mixed;
 
     /** @return TReturn */
-    public function visitScalar(ScalarType $type): mixed;
-
-    /** @return TReturn */
     public function visitNonEmptyList(NonEmptyListType $type): mixed;
 
     /** @return TReturn */

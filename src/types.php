@@ -33,7 +33,7 @@ final class types
     public const nonFalsyString = TruthyStringType::type;
     public const string = StringType::type;
     public const numeric = NumericType::type;
-    public const scalar = ScalarType::type;
+    public const scalar = __scalar;
     public const object = ObjectType::type;
     public const resource = ResourceType::type;
     public const closedResource = ClosedResourceType::type;
@@ -444,6 +444,12 @@ const __nonPositiveInt = new IntRangeType(max: 0);
  * @psalm-internal Typhoon\Type
  */
 const __nonNegativeInt = new IntRangeType(0);
+
+/**
+ * @internal
+ * @psalm-internal Typhoon\Type
+ */
+const __scalar = new UnionType([BoolType::type, IntType::type, FloatType::type, StringType::type]);
 
 /**
  * @internal
