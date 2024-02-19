@@ -2,7 +2,7 @@
 
 This library is an alternative to [native PHP Reflection](https://www.php.net/manual/en/book.reflection.php). It is:
 - static,
-- lazy,
+- lazy (does not load inherited classes until you reflect properties or methods),
 - [PSR-16](https://www.php-fig.org/psr/psr-16/) cacheable,
 - [99% compatible with native reflection](docs/compatibility.md),
 - supports most of the Psalm/PHPStan types,
