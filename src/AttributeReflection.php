@@ -18,6 +18,7 @@ final class AttributeReflection extends \ReflectionAttribute
     /**
      * @internal
      * @psalm-internal Typhoon\Reflection
+     * @param AttributeMetadata<TAttribute> $metadata
      * @param \Closure(): list<\ReflectionAttribute> $nativeAttributesFactory
      */
     public function __construct(
@@ -35,6 +36,9 @@ final class AttributeReflection extends \ReflectionAttribute
         return $this->native()->getArguments();
     }
 
+    /**
+     * @return class-string<TAttribute>
+     */
     public function getName(): string
     {
         return $this->metadata->name;

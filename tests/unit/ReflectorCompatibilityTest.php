@@ -8,6 +8,7 @@ use Mockery\Loader\RequireLoader;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
+use Typhoon\Reflection\Cache\InMemoryCache;
 use Typhoon\Reflection\ClassLocator\NativeReflectionLocator;
 
 #[CoversClass(AttributeReflection::class)]
@@ -17,21 +18,15 @@ use Typhoon\Reflection\ClassLocator\NativeReflectionLocator;
 #[CoversClass(PropertyReflection::class)]
 final class ReflectorCompatibilityTest extends TestCase
 {
-    private static ReflectionSession $defaultSession;
+    private static TyphoonReflector $defaultReflector;
 
-    private static ReflectionSession $nativeSession;
+    private static TyphoonReflector $nativeReflector;
 
     public static function setUpBeforeClass(): void
     {
         \Mockery::setLoader(new RequireLoader(__DIR__ . '/../../var/mockery'));
-        self::$defaultSession = TyphoonReflector::build()->startSession();
-        self::$nativeSession = TyphoonReflector::build(classLocators: [new NativeReflectionLocator()])->startSession();
-    }
-
-    public static function tearDownAfterClass(): void
-    {
-        self::$defaultSession->flush();
-        self::$nativeSession->flush();
+        self::$defaultReflector = TyphoonReflector::build(new InMemoryCache());
+        self::$nativeReflector = TyphoonReflector::build(new InMemoryCache(), [new NativeReflectionLocator()]);
     }
 
     /**
@@ -60,7 +55,7 @@ final class ReflectorCompatibilityTest extends TestCase
     {
         $native = new \ReflectionClass($class);
 
-        $typhoon = self::$defaultSession->reflectClass($class);
+        $typhoon = self::$defaultReflector->reflectClass($class);
 
         $this->assertClassEquals($native, $typhoon);
     }
@@ -73,7 +68,7 @@ final class ReflectorCompatibilityTest extends TestCase
     {
         $native = new \ReflectionClass($class);
 
-        $typhoon = self::$nativeSession->reflectClass($class);
+        $typhoon = self::$nativeReflector->reflectClass($class);
 
         $this->assertClassEquals($native, $typhoon);
     }

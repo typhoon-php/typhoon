@@ -15,9 +15,9 @@ interface ClassReflector
 {
     /**
      * @template T of object
-     * @param string|class-string<T>|T $nameOrObject
+     * @param class-string<T> $name
      * @return ClassReflection<T>
      * @throws ReflectionException
      */
-    public function reflectClass(string|object $nameOrObject): ClassReflection;
+    public function reflectClass(string $name): ClassReflection;
 }

@@ -9,7 +9,7 @@ use PhpParser\Node\Stmt\ClassLike;
 use PhpParser\NodeTraverser;
 use PhpParser\NodeVisitorAbstract;
 use Typhoon\Reflection\Metadata\ClassMetadata;
-use Typhoon\Reflection\Metadata\MetadataLazyCollection;
+use Typhoon\Reflection\Metadata\MetadataCollection;
 
 /**
  * @internal
@@ -19,7 +19,7 @@ final class ResourceVisitor extends NodeVisitorAbstract
 {
     public function __construct(
         private readonly ContextualPhpParserReflector $reflector,
-        private readonly MetadataLazyCollection $metadata,
+        private readonly MetadataCollection $metadata,
     ) {}
 
     public function enterNode(Node $node): ?int
@@ -27,7 +27,7 @@ final class ResourceVisitor extends NodeVisitorAbstract
         if ($node instanceof ClassLike && $node->name !== null) {
             $name = $this->reflector->resolveClassName($node->name);
             $reflector = clone $this->reflector;
-            $this->metadata->setFactory(
+            $this->metadata->set(
                 class: ClassMetadata::class,
                 name: $name,
                 factory: static fn(): ClassMetadata => $reflector->reflectClass($node, $name),

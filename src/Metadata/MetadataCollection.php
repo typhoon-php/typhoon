@@ -9,7 +9,7 @@ namespace Typhoon\Reflection\Metadata;
  * @psalm-internal Typhoon\Reflection
  * @implements \IteratorAggregate<int, RootMetadata>
  */
-final class MetadataLazyCollection implements \IteratorAggregate
+final class MetadataCollection implements \IteratorAggregate
 {
     /**
      * @var array<class-string<RootMetadata>, array<non-empty-string, RootMetadata|\Closure(): RootMetadata>>
@@ -18,7 +18,6 @@ final class MetadataLazyCollection implements \IteratorAggregate
 
     /**
      * @param class-string<RootMetadata> $class
-     * @param non-empty-string $name
      */
     public function has(string $class, string $name): bool
     {
@@ -47,33 +46,23 @@ final class MetadataLazyCollection implements \IteratorAggregate
         return $metadata;
     }
 
-    public function set(RootMetadata $metadata): void
-    {
-        $this->metadata[$metadata::class][$metadata->name] = $metadata;
-    }
-
     /**
      * @template TMetadata of RootMetadata
      * @param class-string<TMetadata> $class
      * @param non-empty-string $name
      * @param \Closure(): TMetadata $factory
      */
-    public function setFactory(string $class, string $name, \Closure $factory): void
+    public function set(string $class, string $name, \Closure $factory): void
     {
         $this->metadata[$class][$name] = $factory;
     }
 
-    public function clear(): void
-    {
-        $this->metadata = [];
-    }
-
     public function getIterator(): \Traversable
     {
-        foreach ($this->metadata as &$byName) {
-            foreach ($byName as &$metadata) {
+        foreach ($this->metadata as $class => $byName) {
+            foreach ($byName as $name => $metadata) {
                 if ($metadata instanceof \Closure) {
-                    yield $metadata = $metadata();
+                    yield $this->metadata[$class][$name] = $metadata();
                 } else {
                     yield $metadata;
                 }
