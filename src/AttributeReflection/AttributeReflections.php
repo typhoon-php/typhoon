@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Typhoon\Reflection\Attributes;
+namespace Typhoon\Reflection\AttributeReflection;
 
 use Typhoon\Reflection\AttributeReflection;
 use Typhoon\Reflection\ClassReflection\ClassReflector;

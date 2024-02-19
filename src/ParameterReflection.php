@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Typhoon\Reflection;
 
-use Typhoon\Reflection\Attributes\AttributeReflections;
+use Typhoon\Reflection\AttributeReflection\AttributeReflections;
 use Typhoon\Reflection\ClassReflection\ClassReflector;
 use Typhoon\Reflection\Exception\DefaultReflectionException;
 use Typhoon\Reflection\Metadata\ParameterMetadata;
