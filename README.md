@@ -4,7 +4,7 @@ This library is an alternative to [native PHP Reflection](https://www.php.net/ma
 - static,
 - lazy,
 - [PSR-16](https://www.php-fig.org/psr/psr-16/) cacheable,
-- compatible with native reflection,
+- [99% compatible with native reflection](docs/compatibility.md),
 - supports most of the Psalm/PHPStan types,
 - can resolve templates,
 - does not create circular object references (can be safely used with [zend.enable_gc=0](https://www.php.net/manual/en/info.configuration.php#ini.zend.enable-gc)).
@@ -52,10 +52,6 @@ $dataReflection = $articleReflection->getProperty('data');
 
 var_dump($dataReflection->getTyphoonType()); // object representation of T template type
 ```
-
-## Compatibility
-
-This library is 99% compatible with native reflection API. See [compatibility](docs/compatibility.md) and [ReflectorCompatibilityTest](tests/unit/ReflectorCompatibilityTest.php) for more details.
 
 ## Caching
 
