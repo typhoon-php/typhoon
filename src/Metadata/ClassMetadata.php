@@ -112,4 +112,12 @@ final class ClassMetadata extends RootMetadata
 
         return $this->resolvedMethods = $resolver->resolve();
     }
+
+    public function __serialize(): array
+    {
+        $data = get_object_vars($this);
+        unset($data['resolvedProperties'], $data['resolvedMethods']);
+
+        return $data;
+    }
 }

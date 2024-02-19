@@ -16,7 +16,7 @@ abstract class RootMetadata
      */
     public function __construct(
         public readonly string $name,
-        private readonly ChangeDetector $changeDetector,
+        protected readonly ChangeDetector $changeDetector,
     ) {}
 
     final public function changed(): bool
