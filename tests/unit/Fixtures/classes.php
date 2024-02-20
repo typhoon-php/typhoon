@@ -364,7 +364,7 @@ namespace TraitUsage
         public function publicMethod(): void {}
     }
 
-    final class ClassUsesTraitAsIs
+    final class ClassSimplyUsesTraitAsIs
     {
         use Trait_;
     }

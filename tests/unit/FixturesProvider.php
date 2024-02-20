@@ -17,7 +17,7 @@ final class FixturesProvider
     private function __construct() {}
 
     /**
-     * @psalm-suppress PossiblyUnusedMethod
+     * @psalm-suppress PossiblyUnusedReturnValue
      * @return array<string, array{class-string}>
      */
     public static function classes(): array

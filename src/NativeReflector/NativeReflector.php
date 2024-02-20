@@ -105,7 +105,7 @@ final class NativeReflector
         $methods = [];
 
         foreach ($class->getMethods() as $method) {
-            if ($method->class === $class->name) {
+            if ($this->isOwnMethod($class, $method)) {
                 $methods[] = new MethodMetadata(
                     name: $method->name,
                     class: $method->class,
@@ -127,6 +127,29 @@ final class NativeReflector
         }
 
         return $methods;
+    }
+
+    private function isOwnMethod(\ReflectionClass $class, \ReflectionMethod $method): bool
+    {
+        if ($class->isEnum() && \in_array($method->name, ['cases', 'from', 'tryFrom'], true)) {
+            return true;
+        }
+
+        if ($method->class !== $class->name) {
+            return false;
+        }
+
+        if ($method->getFileName() !== $class->getFileName()) {
+            return false;
+        }
+
+        $classStartLine = $class->getStartLine();
+        $classEndLine = $class->getEndLine();
+        $methodStartLine = $method->getStartLine();
+        $methodEndLine = $method->getEndLine();
+
+        return ($methodStartLine === $classStartLine || \is_int($methodStartLine) && \is_int($classStartLine) && $methodStartLine >= $classStartLine)
+            && ($methodEndLine === $classEndLine || \is_int($methodEndLine) && \is_int($classEndLine) && $methodEndLine <= $classEndLine);
     }
 
     /**
