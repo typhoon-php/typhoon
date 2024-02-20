@@ -294,16 +294,18 @@ final class ClassReflection extends \ReflectionClass
 
     public function getTraitNames(): array
     {
-        $this->loadNative();
-
-        return parent::getTraitNames();
+        /** @var list<trait-string> */
+        return array_column($this->metadata->traitTypes, 'class');
     }
 
+    /**
+     * @return array<trait-string, self>
+     */
     public function getTraits(): array
     {
-        $this->loadNative();
+        $traitNames = $this->getTraitNames();
 
-        return parent::getTraits();
+        return array_combine($traitNames, array_map($this->reflectClass(...), $traitNames));
     }
 
     public function getTypeAlias(string $name): Type

@@ -104,7 +104,7 @@ final class ReflectorCompatibilityTest extends TestCase
         // getStaticPropertyValue()
         self::assertSame($native->getTraitAliases(), $typhoon->getTraitAliases(), 'class.getTraitAliases()');
         self::assertSame($native->getTraitNames(), $typhoon->getTraitNames(), 'class.getTraitNames()');
-        self::assertEquals($native->getTraits(), $typhoon->getTraits(), 'class.getTraits()');
+        $this->assertSameNames($native->getTraits(), $typhoon->getTraits(), 'class.getTraits().name');
         // TODO hasConstant()
         // hasMethod() see below
         // hasProperty() see below
@@ -349,7 +349,11 @@ final class ReflectorCompatibilityTest extends TestCase
      */
     private function assertSameNames(array $nativeReflections, array $typhoonReflections, string $message): void
     {
-        self::assertSame(array_column($nativeReflections, 'name'), array_column($typhoonReflections, 'name'), $message);
+        self::assertSame(
+            array_combine(array_keys($nativeReflections), array_column($nativeReflections, 'name')),
+            array_combine(array_keys($typhoonReflections), array_column($typhoonReflections, 'name')),
+            $message,
+        );
     }
 
     private function canCreateMockObject(\ReflectionClass $class): bool

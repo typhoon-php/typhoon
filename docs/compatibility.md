@@ -33,8 +33,8 @@
 | `getStaticProperties()`           | ✅ Via native reflection              |
 | `getStaticPropertyValue()`        | ✅ Via native reflection              |
 | `getTraitAliases()`               | ✅ Via native reflection. TODO        |
-| `getTraitNames()`                 | ✅ Via native reflection. TODO        |
-| `getTraits()`                     | ✅ Via native reflection. TODO        |
+| `getTraitNames()`                 | ✅                                    |
+| `getTraits()`                     | ✅                                    |
 | `hasConstant()`                   | ✅ Via native reflection. TODO        |
 | `hasMethod()`                     | ✅                                    |
 | `hasProperty()`                   | ✅                                    |

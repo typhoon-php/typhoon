@@ -353,19 +353,19 @@ namespace AbstractClassAndInterfaceInheritance
 
 namespace TraitUsage
 {
-    trait Trrait
+    trait Trait_
     {
         private string $private;
         protected string $protected;
         public string $public;
 
-        private function private(): void {}
-        protected function protected(): void {}
-        public function public(): void {}
+        private function privateMethod(): void {}
+        protected function protectedMethod(): void {}
+        public function publicMethod(): void {}
     }
 
-    final class FinalClass
+    final class ClassUsesTraitAsIs
     {
-        use Trrait;
+        use Trait_;
     }
 }
