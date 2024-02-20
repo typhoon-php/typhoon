@@ -8,7 +8,6 @@ use Mockery\Loader\RequireLoader;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
-use Typhoon\Reflection\Cache\InMemoryCache;
 use Typhoon\Reflection\ClassLocator\NativeReflectionLocator;
 
 #[CoversClass(AttributeReflection::class)]
@@ -25,8 +24,8 @@ final class ReflectorCompatibilityTest extends TestCase
     public static function setUpBeforeClass(): void
     {
         \Mockery::setLoader(new RequireLoader(__DIR__ . '/../../var/mockery'));
-        self::$defaultReflector = TyphoonReflector::build(new InMemoryCache());
-        self::$nativeReflector = TyphoonReflector::build(new InMemoryCache(), [new NativeReflectionLocator()]);
+        self::$defaultReflector = TyphoonReflector::build();
+        self::$nativeReflector = TyphoonReflector::build(classLocators: [new NativeReflectionLocator()]);
     }
 
     /**

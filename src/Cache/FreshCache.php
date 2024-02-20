@@ -5,12 +5,13 @@ declare(strict_types=1);
 namespace Typhoon\Reflection\Cache;
 
 use Psr\SimpleCache\CacheInterface;
+use Typhoon\Reflection\Metadata\MetadataCacheItem;
 
 /**
  * @api
  * @psalm-suppress MixedAssignment
  */
-final class ChangeDetectingCache implements CacheInterface
+final class FreshCache implements CacheInterface
 {
     public function __construct(
         private readonly CacheInterface $cache,
@@ -20,7 +21,7 @@ final class ChangeDetectingCache implements CacheInterface
     {
         $value = $this->cache->get($key, $default);
 
-        if ($value instanceof Changeable && $value->changed()) {
+        if ($value instanceof MetadataCacheItem && $value->changed()) {
             return $default;
         }
 
@@ -51,7 +52,7 @@ final class ChangeDetectingCache implements CacheInterface
         $values = [];
 
         foreach ($this->cache->getMultiple($keys) as $key => $value) {
-            if ($value instanceof Changeable && $value->changed()) {
+            if ($value instanceof MetadataCacheItem && $value->changed()) {
                 $value = $default;
             }
 
@@ -75,7 +76,7 @@ final class ChangeDetectingCache implements CacheInterface
     {
         $value = $this->cache->get($key);
 
-        if ($value instanceof Changeable && $value->changed()) {
+        if ($value instanceof MetadataCacheItem && $value->changed()) {
             return false;
         }
 

@@ -59,9 +59,9 @@ final class ContextualPhpParserReflector
         $phpDoc = $this->parsePhpDoc($node);
 
         return $this->executeWithTypes(types::atClass($name), $phpDoc, fn(): ClassMetadata => new ClassMetadata(
-            changeDetector: $this->file->changeDetector(),
             name: $name,
             modifiers: ClassReflections::modifiers($node),
+            changeDetector: $this->file->changeDetector(),
             internal: $this->file->isInternal(),
             extension: $this->file->extension,
             file: $this->file->isInternal() ? false : $this->file->file,

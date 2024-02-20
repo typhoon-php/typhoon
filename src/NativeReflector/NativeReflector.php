@@ -29,9 +29,9 @@ final class NativeReflector
     public function reflectClass(\ReflectionClass $class): ClassMetadata
     {
         return new ClassMetadata(
-            changeDetector: ChangeDetector::fromReflection($class),
             name: $class->name,
             modifiers: $class->getModifiers(),
+            changeDetector: ChangeDetector::fromReflection($class),
             internal: $class->isInternal(),
             extension: $class->getExtensionName(),
             file: $class->getFileName(),

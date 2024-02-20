@@ -10,12 +10,16 @@ use Psr\SimpleCache\CacheInterface;
  * @api
  * @psalm-suppress MixedAssignment
  */
-final class InMemoryCache implements CacheInterface
+final class LruCache implements CacheInterface
 {
     /**
      * @var array<string, mixed>
      */
-    private array $items = [];
+    private array $values = [];
+
+    public function __construct(
+        private readonly int $capacity = 1000,
+    ) {}
 
     private static function validateKey(string $key): void
     {
@@ -28,18 +32,23 @@ final class InMemoryCache implements CacheInterface
     {
         self::validateKey($key);
 
-        if (\array_key_exists($key, $this->items)) {
-            return $this->items[$key];
+        if (!\array_key_exists($key, $this->values)) {
+            return $default;
         }
 
-        return $default;
+        $value = $this->values[$key];
+        unset($this->values[$key]);
+
+        return $this->values[$key] = $value;
     }
 
     public function set(string $key, mixed $value, null|\DateInterval|int $ttl = null): bool
     {
         self::validateKey($key);
 
-        $this->items[$key] = $value;
+        unset($this->values[$key]);
+        $this->values[$key] = $value;
+        $this->evict();
 
         return true;
     }
@@ -48,29 +57,27 @@ final class InMemoryCache implements CacheInterface
     {
         self::validateKey($key);
 
-        unset($this->items[$key]);
+        unset($this->values[$key]);
 
         return true;
     }
 
     public function clear(): bool
     {
-        $this->items = [];
+        $this->values = [];
 
         return true;
     }
 
     public function getMultiple(iterable $keys, mixed $default = null): iterable
     {
-        $items = [];
+        $values = [];
 
         foreach ($keys as $key) {
-            self::validateKey($key);
-
-            $items[$key] = $this->get($key, $default);
+            $values[$key] = $this->get($key, $default);
         }
 
-        return $items;
+        return $values;
     }
 
     public function setMultiple(iterable $values, null|\DateInterval|int $ttl = null): bool
@@ -79,8 +86,11 @@ final class InMemoryCache implements CacheInterface
             \assert(\is_string($key));
             self::validateKey($key);
 
-            $this->items[$key] = $value;
+            unset($this->values[$key]);
+            $this->values[$key] = $value;
         }
+
+        $this->evict();
 
         return true;
     }
@@ -88,9 +98,7 @@ final class InMemoryCache implements CacheInterface
     public function deleteMultiple(iterable $keys): bool
     {
         foreach ($keys as $key) {
-            self::validateKey($key);
-
-            unset($this->items[$key]);
+            $this->delete($key);
         }
 
         return true;
@@ -98,8 +106,13 @@ final class InMemoryCache implements CacheInterface
 
     public function has(string $key): bool
     {
-        self::validateKey($key);
+        return $this->get($key, $this) !== $this;
+    }
 
-        return \array_key_exists($key, $this->items);
+    private function evict(): void
+    {
+        if (\count($this->values) > $this->capacity) {
+            $this->values = \array_slice($this->values, -$this->capacity);
+        }
     }
 }

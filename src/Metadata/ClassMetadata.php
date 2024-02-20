@@ -46,9 +46,9 @@ final class ClassMetadata extends RootMetadata
      * @param list<MethodMetadata> $ownMethods
      */
     public function __construct(
-        ChangeDetector $changeDetector,
         string $name,
         public readonly int $modifiers,
+        ChangeDetector $changeDetector,
         public readonly bool $internal = false,
         public readonly string|false $extension = false,
         public readonly string|false $file = false,

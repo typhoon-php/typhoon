@@ -7,6 +7,7 @@ namespace Typhoon\Reflection;
 use PhpParser\Parser as PhpParser;
 use PhpParser\ParserFactory;
 use Psr\SimpleCache\CacheInterface;
+use Typhoon\Reflection\Cache\LruCache;
 use Typhoon\Reflection\ClassLocator\ClassLocatorChain;
 use Typhoon\Reflection\ClassLocator\ComposerClassLocator;
 use Typhoon\Reflection\ClassLocator\NativeReflectionFileLocator;
@@ -15,8 +16,7 @@ use Typhoon\Reflection\ClassLocator\PhpStormStubsClassLocator;
 use Typhoon\Reflection\ClassReflection\ClassReflector;
 use Typhoon\Reflection\Exception\ClassDoesNotExistException;
 use Typhoon\Reflection\Metadata\ClassMetadata;
-use Typhoon\Reflection\Metadata\MetadataCollection;
-use Typhoon\Reflection\Metadata\RootMetadata;
+use Typhoon\Reflection\Metadata\MetadataStorage;
 use Typhoon\Reflection\NameContext\AnonymousClassName;
 use Typhoon\Reflection\NativeReflector\NativeReflector;
 use Typhoon\Reflection\PhpDocParser\PhpDocParser;
@@ -24,6 +24,7 @@ use Typhoon\Reflection\PhpDocParser\PHPStanOverPsalmOverOthersTagPrioritizer;
 use Typhoon\Reflection\PhpDocParser\TagPrioritizer;
 use Typhoon\Reflection\PhpParserReflector\PhpParserReflector;
 use Typhoon\Reflection\TypeContext\ClassExistenceChecker;
+use Typhoon\Reflection\TypeContext\WeakClassExistenceChecker;
 
 /**
  * @api
@@ -34,15 +35,15 @@ final class TyphoonReflector implements ClassExistenceChecker, ClassReflector
         private readonly PhpParserReflector $phpParserReflector,
         private readonly NativeReflector $nativeReflector,
         private readonly ClassLocator $classLocator,
-        private readonly ?CacheInterface $cache,
+        private readonly MetadataStorage $metadataStorage,
     ) {}
 
     /**
      * @param ?array<ClassLocator> $classLocators
      */
     public static function build(
-        ?CacheInterface $cache = null,
         ?array $classLocators = null,
+        ?CacheInterface $cache = new LruCache(),
         TagPrioritizer $tagPrioritizer = new PHPStanOverPsalmOverOthersTagPrioritizer(),
         ?PhpParser $phpParser = null,
     ): self {
@@ -53,7 +54,7 @@ final class TyphoonReflector implements ClassExistenceChecker, ClassReflector
             ),
             nativeReflector: new NativeReflector(),
             classLocator: new ClassLocatorChain($classLocators ?? self::defaultClassLocators()),
-            cache: $cache,
+            metadataStorage: new MetadataStorage($cache),
         );
     }
 
@@ -137,58 +138,26 @@ final class TyphoonReflector implements ClassExistenceChecker, ClassReflector
             return $this->phpParserReflector->reflectAnonymousClass($anonymousName);
         }
 
-        $key = $this->cacheKey(ClassMetadata::class, $name);
+        $metadata = $this->metadataStorage->get(ClassMetadata::class, $name);
 
-        /** @psalm-suppress MixedAssignment */
-        $cachedMetadata = $this->cache?->get($key);
-
-        if ($cachedMetadata instanceof ClassMetadata) {
-            return $cachedMetadata;
+        if ($metadata !== null) {
+            return $metadata;
         }
 
-        $location = $this->classLocator->locateClass($name);
-
-        if ($location === null) {
-            throw new ClassDoesNotExistException(sprintf('Class "%s" does not exist', ReflectionException::normalizeClass($name)));
-        }
+        $location = $this->classLocator->locateClass($name)
+            ?? throw new ClassDoesNotExistException(sprintf('Class "%s" does not exist', ReflectionException::normalizeClass($name)));
 
         if ($location instanceof \ReflectionClass) {
             $metadata = $this->nativeReflector->reflectClass($location);
-            $this->cache?->set($key, $metadata);
+            $this->metadataStorage->save($metadata);
 
             return $metadata;
         }
 
-        return $this->reflectFile($location)->get(ClassMetadata::class, $name)
-            ?? throw new ClassDoesNotExistException(sprintf('Class "%s" does not exist', ReflectionException::normalizeClass($name)));
-    }
+        $this->phpParserReflector->reflectFile($location, new WeakClassExistenceChecker($this), $this->metadataStorage);
+        $metadata = $this->metadataStorage->get(ClassMetadata::class, $name);
+        $this->metadataStorage->commit();
 
-    private function reflectFile(FileResource $file): MetadataCollection
-    {
-        $collection = $this->phpParserReflector->reflectFile($file, $this);
-
-        if ($this->cache === null) {
-            return $collection;
-        }
-
-        $cacheItems = [];
-
-        foreach ($collection as $item) {
-            $cacheItems[$this->cacheKey($item::class, $item->name)] = $item;
-        }
-
-        $this->cache->setMultiple($cacheItems);
-
-        return $collection;
-    }
-
-    /**
-     * @param class-string<RootMetadata> $class
-     * @param non-empty-string $name
-     * @return non-empty-string
-     */
-    private function cacheKey(string $class, string $name): string
-    {
-        return hash('xxh128', $class . '#' . $name);
+        return $metadata ?? throw new ClassDoesNotExistException(sprintf('Class "%s" does not exist', ReflectionException::normalizeClass($name)));
     }
 }

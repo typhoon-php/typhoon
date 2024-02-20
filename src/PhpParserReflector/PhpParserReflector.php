@@ -10,7 +10,7 @@ use PhpParser\Parser as PhpParser;
 use Typhoon\Reflection\Exception\DefaultReflectionException;
 use Typhoon\Reflection\FileResource;
 use Typhoon\Reflection\Metadata\ClassMetadata;
-use Typhoon\Reflection\Metadata\MetadataCollection;
+use Typhoon\Reflection\Metadata\MetadataStorage;
 use Typhoon\Reflection\NameContext\AnonymousClassName;
 use Typhoon\Reflection\NameContext\NameContext;
 use Typhoon\Reflection\NameContext\NameContextVisitor;
@@ -29,9 +29,8 @@ final class PhpParserReflector
         private readonly PhpDocParser $phpDocParser,
     ) {}
 
-    public function reflectFile(FileResource $file, ClassExistenceChecker $classExistenceChecker): MetadataCollection
+    public function reflectFile(FileResource $file, ClassExistenceChecker $classExistenceChecker, MetadataStorage $metadata): void
     {
-        $metadata = new MetadataCollection();
         $nameContext = new NameContext();
         $this->parseAndTraverse($file->contents(), [
             new NameContextVisitor($nameContext),
@@ -40,15 +39,13 @@ final class PhpParserReflector
                     phpDocParser: $this->phpDocParser,
                     typeContext: new TypeContext(
                         nameResolver: $nameContext,
-                        classExistenceChecker: new MetadataAwareClassExistenceChecker($metadata, $classExistenceChecker),
+                        classExistenceChecker: $classExistenceChecker,
                     ),
                     file: $file,
                 ),
                 metadata: $metadata,
             ),
         ]);
-
-        return $metadata;
     }
 
     public function reflectAnonymousClass(AnonymousClassName $name): ClassMetadata
