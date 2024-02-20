@@ -12,9 +12,6 @@ use Simple\StringEnum;
 use TraitUsage\ClassSimplyUsesTraitAsIs;
 use Typhoon\Reflection\FixturesProvider;
 
-/**
- * @psalm-suppress UndefinedClass
- */
 #[CoversClass(NativeReflector::class)]
 final class NativeReflectorTest extends TestCase
 {
