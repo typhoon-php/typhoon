@@ -16,6 +16,7 @@ use Typhoon\Type\Type;
  * @template-covariant T of object
  * @template-extends RootMetadata<class-string<T>>
  * @psalm-suppress PossiblyUnusedProperty
+ * @psalm-type ClassMetadataReflector = \Closure(class-string): ClassMetadata
  */
 final class ClassMetadata extends RootMetadata
 {
@@ -97,7 +98,7 @@ final class ClassMetadata extends RootMetadata
     }
 
     /**
-     * @param \Closure(class-string): ClassMetadata $classMetadataReflector
+     * @param ClassMetadataReflector $classMetadataReflector
      * @return array<non-empty-string, PropertyMetadata>
      */
     public function resolvedProperties(\Closure $classMetadataReflector): array
@@ -117,7 +118,7 @@ final class ClassMetadata extends RootMetadata
     }
 
     /**
-     * @param \Closure(class-string): ClassMetadata $classMetadataReflector
+     * @param ClassMetadataReflector $classMetadataReflector
      * @return array<non-empty-string, MethodMetadata>
      */
     public function resolvedMethods(\Closure $classMetadataReflector): array

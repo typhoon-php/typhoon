@@ -12,6 +12,7 @@ use Typhoon\Type\NamedObjectType;
 /**
  * @internal
  * @psalm-internal Typhoon\Reflection
+ * @psalm-import-type ClassMetadataReflector from ClassMetadata
  */
 final class MethodsInheritanceResolver
 {
@@ -22,7 +23,7 @@ final class MethodsInheritanceResolver
 
     /**
      * @param class-string $class
-     * @param \Closure(class-string): ClassMetadata $classMetadataReflector
+     * @param ClassMetadataReflector $classMetadataReflector
      */
     public function __construct(
         private readonly string $class,
