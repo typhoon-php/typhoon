@@ -9,7 +9,7 @@ use PHPUnit\Framework\Attributes\TestWith;
 use PHPUnit\Framework\TestCase;
 use Simple\JustEnum;
 use Simple\StringEnum;
-use TraitUsage\ClassSimplyUsesTraitAsIs;
+use Traits\ClassSimplyUsesTraitAsIs;
 use Typhoon\Reflection\FixturesProvider;
 
 #[CoversClass(NativeReflector::class)]

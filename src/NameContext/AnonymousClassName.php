@@ -9,7 +9,6 @@ namespace Typhoon\Reflection\NameContext;
  * @psalm-internal Typhoon\Reflection
  * @psalm-immutable
  * @template TObject of object
- * @psalm-suppress PossiblyUnusedProperty
  */
 final class AnonymousClassName
 {

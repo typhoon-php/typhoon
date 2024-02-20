@@ -11,6 +11,7 @@ use Typhoon\Reflection\TypeResolver\TemplateResolver;
 /**
  * @internal
  * @psalm-internal Typhoon\Reflection\Inheritance
+ * @psalm-import-type Prototype from MethodMetadata
  */
 final class MethodInheritanceResolver
 {
@@ -19,7 +20,7 @@ final class MethodInheritanceResolver
     private bool $own = false;
 
     /**
-     * @var ?array{class-string, non-empty-string}
+     * @var Prototype
      */
     private ?array $prototype = null;
 

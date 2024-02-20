@@ -13,6 +13,8 @@ use Typhoon\Type\NamedObjectType;
  * @internal
  * @psalm-internal Typhoon\Reflection
  * @psalm-import-type ClassMetadataReflector from ClassMetadata
+ * @psalm-import-type TraitMethodAliases from ClassMetadata
+ * @psalm-import-type TraitMethodPrecedence from ClassMetadata
  */
 final class MethodsInheritanceResolver
 {
@@ -31,28 +33,46 @@ final class MethodsInheritanceResolver
     ) {}
 
     /**
-     * @param iterable<MethodMetadata> $methods
+     * @param list<MethodMetadata> $methods
      */
-    public function setOwn(iterable $methods): void
+    public function setOwn(array $methods): void
     {
         foreach ($methods as $method) {
             $this->method($method->name)->setOwn($method);
         }
     }
 
-    public function addUsed(NamedObjectType ...$types): void
+    /**
+     * @param list<NamedObjectType> $types
+     * @param TraitMethodAliases $traitMethodAliases
+     * @param TraitMethodPrecedence $traitMethodPrecedence
+     */
+    public function addUsed(array $types, array $traitMethodAliases, array $traitMethodPrecedence): void
     {
-        foreach ($types as $type) {
-            $class = ($this->classMetadataReflector)($type->class);
-            $templateResolver = TemplateResolver::create($class->templates, $type->templateArguments);
+        foreach (array_column($types, null, 'class') as $type) {
+            $trait = ($this->classMetadataReflector)($type->class);
+            $templateResolver = TemplateResolver::create($trait->templates, $type->templateArguments);
 
-            foreach ($class->resolvedMethods($this->classMetadataReflector) as $method) {
-                $this->method($method->name)->addUsed($method, $templateResolver);
+            foreach ($trait->resolvedMethods($this->classMetadataReflector) as $method) {
+                $name = $method->name;
+
+                if (isset($traitMethodPrecedence[$name]) && $traitMethodPrecedence[$name] !== $trait->name) {
+                    continue;
+                }
+
+                foreach ($traitMethodAliases[$trait->name][$name] ?? [] as $alias) {
+                    $this->method($alias->alias ?? $name)->addUsed($method->toAlias($alias), $templateResolver);
+                }
+
+                $this->method($name)->addUsed($method, $templateResolver);
             }
         }
     }
 
-    public function addInherited(NamedObjectType ...$types): void
+    /**
+     * @param list<NamedObjectType> $types
+     */
+    public function addInherited(array $types): void
     {
         foreach ($types as $type) {
             $class = ($this->classMetadataReflector)($type->class);

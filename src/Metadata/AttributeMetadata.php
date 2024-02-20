@@ -9,7 +9,6 @@ namespace Typhoon\Reflection\Metadata;
  * @psalm-internal Typhoon\Reflection
  * @psalm-immutable
  * @template TAttribute of object
- * @psalm-suppress PossiblyUnusedProperty
  */
 final class AttributeMetadata
 {

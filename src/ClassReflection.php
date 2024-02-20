@@ -289,9 +289,21 @@ final class ClassReflection extends \ReflectionClass
 
     public function getTraitAliases(): array
     {
-        $this->loadNative();
+        $traitAliases = [];
 
-        return parent::getTraitAliases();
+        foreach ($this->metadata->traitMethodAliases as $trait => $methodAliases) {
+            foreach ($methodAliases as $method => $aliases) {
+                foreach ($aliases as $alias) {
+                    if ($alias->alias === null) {
+                        continue;
+                    }
+
+                    $traitAliases[$alias->alias] = $trait . '::' . $method;
+                }
+            }
+        }
+
+        return $traitAliases;
     }
 
     public function getTraitNames(): array

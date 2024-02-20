@@ -32,7 +32,7 @@
 | `getStartLine()`                  | ✅️                                   |
 | `getStaticProperties()`           | ✅ Via native reflection              |
 | `getStaticPropertyValue()`        | ✅ Via native reflection              |
-| `getTraitAliases()`               | ✅ Via native reflection. TODO        |
+| `getTraitAliases()`               | ✅                                    |
 | `getTraitNames()`                 | ✅                                    |
 | `getTraits()`                     | ✅                                    |
 | `hasConstant()`                   | ✅ Via native reflection. TODO        |

@@ -10,12 +10,12 @@ use Typhoon\Reflection\TemplateReflection;
  * @internal
  * @psalm-internal Typhoon\Reflection
  * @psalm-immutable
- * @psalm-suppress PossiblyUnusedProperty
+ * @psalm-type Prototype = ?array{class-string, non-empty-string}
  */
 final class MethodMetadata
 {
     /**
-     * @var ?array{class-string, non-empty-string}
+     * @var Prototype
      */
     public ?array $prototype = null;
 
@@ -33,9 +33,9 @@ final class MethodMetadata
      * @param list<AttributeMetadata> $attributes
      */
     public function __construct(
-        public readonly string $name,
+        public string $name,
         public string $class,
-        public readonly int $modifiers,
+        public int $modifiers,
         public array $parameters,
         public TypeMetadata $returnType,
         public readonly array $templates = [],
@@ -51,6 +51,25 @@ final class MethodMetadata
         public readonly array $attributes = [],
     ) {}
 
+    public function toAlias(TraitMethodAlias $alias): self
+    {
+        $metadata = clone $this;
+
+        if ($alias->alias !== null) {
+            $metadata->name = $alias->alias;
+        }
+
+        if ($alias->visibility !== null) {
+            $metadata->modifiers = $metadata->modifiers
+                & ~\ReflectionMethod::IS_PUBLIC
+                & ~\ReflectionMethod::IS_PROTECTED
+                & ~\ReflectionMethod::IS_PRIVATE
+                | $alias->visibility;
+        }
+
+        return $metadata;
+    }
+
     /**
      * @param class-string $class
      */
@@ -63,9 +82,9 @@ final class MethodMetadata
     }
 
     /**
-     * @param array{class-string, non-empty-string} $prototype
+     * @param Prototype $prototype
      */
-    public function withPrototype(array $prototype): self
+    public function withPrototype(?array $prototype): self
     {
         $metadata = clone $this;
         $metadata->prototype = $prototype;

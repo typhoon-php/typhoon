@@ -8,6 +8,7 @@ use PhpParser\Node;
 use PhpParser\Node\Expr;
 use PhpParser\Node\Name;
 use PhpParser\Node\Stmt;
+use PHPStan\PhpDocParser\Ast\Type\IdentifierTypeNode;
 use PHPStan\PhpDocParser\Ast\Type\TypeNode;
 use Typhoon\Reflection\FileResource;
 use Typhoon\Reflection\Metadata\AttributeMetadata;
@@ -15,6 +16,7 @@ use Typhoon\Reflection\Metadata\ClassMetadata;
 use Typhoon\Reflection\Metadata\MethodMetadata;
 use Typhoon\Reflection\Metadata\ParameterMetadata;
 use Typhoon\Reflection\Metadata\PropertyMetadata;
+use Typhoon\Reflection\Metadata\TraitMethodAlias;
 use Typhoon\Reflection\Metadata\TypeMetadata;
 use Typhoon\Reflection\PhpDocParser\ContextualPhpDocTypeReflector;
 use Typhoon\Reflection\PhpDocParser\PhpDoc;
@@ -28,6 +30,8 @@ use Typhoon\Type\types;
 /**
  * @internal
  * @psalm-internal Typhoon\Reflection\PhpParserReflector
+ * @psalm-import-type TraitMethodAliases from ClassMetadata
+ * @psalm-import-type TraitMethodPrecedence from ClassMetadata
  */
 final class ContextualPhpParserReflector
 {
@@ -46,7 +50,7 @@ final class ContextualPhpParserReflector
      */
     public function resolveClassName(Node\Identifier $name): string
     {
-        return $this->typeContext->resolveNameAsClass($name->name);
+        return $this->resolveNameAsClass($name);
     }
 
     /**
@@ -57,6 +61,7 @@ final class ContextualPhpParserReflector
     public function reflectClass(Stmt\ClassLike $node, string $name): ClassMetadata
     {
         $phpDoc = $this->parsePhpDoc($node);
+        [$traitTypes, $traitMethodAliases, $traitMethodPrecedence] = $this->reflectTraits($node);
 
         return $this->executeWithTypes(types::atClass($name), $phpDoc, fn(): ClassMetadata => new ClassMetadata(
             name: $name,
@@ -78,7 +83,9 @@ final class ContextualPhpParserReflector
             deprecated: $phpDoc->isDeprecated(),
             parentType: $this->reflectParentType($node, $phpDoc),
             interfaceTypes: $this->reflectInterfaceTypes($node, $phpDoc),
-            traitTypes: $this->reflectTraitTypes($node),
+            traitTypes: $traitTypes,
+            traitMethodAliases: $traitMethodAliases,
+            traitMethodPrecedence: $traitMethodPrecedence,
             ownProperties: $this->reflectOwnProperties($name, $node),
             ownMethods: $this->reflectOwnMethods($name, $node),
         ));
@@ -104,7 +111,7 @@ final class ContextualPhpParserReflector
 
         foreach ($attrGroups as $attrGroup) {
             foreach ($attrGroup->attrs as $attr) {
-                $name = $this->typeContext->resolveNameAsClass($attr->name->toCodeString());
+                $name = $this->resolveNameAsClass($attr->name);
 
                 if (str_starts_with($name, 'JetBrains\PhpStorm\Internal')) {
                     continue;
@@ -140,7 +147,7 @@ final class ContextualPhpParserReflector
             return null;
         }
 
-        $parentClass = $this->typeContext->resolveNameAsClass($node->extends->toCodeString());
+        $parentClass = $this->resolveNameAsClass($node->extends);
 
         foreach ($phpDoc->extendedTypes() as $phpDocExtendedType) {
             /** @var Type\NamedObjectType $extendedType */
@@ -198,7 +205,7 @@ final class ContextualPhpParserReflector
                 continue;
             }
 
-            $class = $this->typeContext->resolveNameAsClass($nameAsString);
+            $class = $this->resolveNameAsClass($nameAsString);
             $types[] = $phpDocTypesByClass[$class] ?? types::object($class);
         }
 
@@ -206,12 +213,12 @@ final class ContextualPhpParserReflector
     }
 
     /**
-     * @return list<Type\NamedObjectType>
+     * @return array{list<Type\NamedObjectType>, TraitMethodAliases, TraitMethodPrecedence}
      */
-    private function reflectTraitTypes(Stmt\ClassLike $node): array
+    private function reflectTraits(Stmt\ClassLike $node): array
     {
         if ($node instanceof Stmt\Interface_) {
-            return [];
+            return [[], [], []];
         }
 
         $phpDocTypesByClass = [];
@@ -224,16 +231,45 @@ final class ContextualPhpParserReflector
             }
         }
 
-        $types = [];
+        $traitTypes = [];
+        /** @var TraitMethodAliases */
+        $traitMethodAliases = [];
+        /** @var TraitMethodPrecedence */
+        $traitMethodPrecedence = [];
 
         foreach ($node->getTraitUses() as $useNode) {
+            $useTraitClasses = [];
+
             foreach ($useNode->traits as $name) {
-                $class = $this->typeContext->resolveNameAsClass($name->toCodeString());
-                $types[] = $phpDocTypesByClass[$class] ?? types::object($class);
+                $useTraitClass = $this->resolveNameAsClass($name);
+                $useTraitClasses[] = $useTraitClass;
+                $traitTypes[] = $phpDocTypesByClass[$useTraitClass] ?? types::object($useTraitClass);
+            }
+
+            foreach ($useNode->adaptations as $adaptation) {
+                if ($adaptation instanceof Stmt\TraitUseAdaptation\Alias) {
+                    if ($adaptation->trait === null) {
+                        $aliasClasses = $useTraitClasses;
+                    } else {
+                        $aliasClasses = [$this->resolveNameAsClass($adaptation->trait)];
+                    }
+
+                    foreach ($aliasClasses as $aliasClass) {
+                        $traitMethodAliases[$aliasClass][$adaptation->method->name][] = new TraitMethodAlias(
+                            visibility: $adaptation->newModifier,
+                            alias: $adaptation->newName?->name,
+                        );
+                    }
+                }
+
+                if ($adaptation instanceof Stmt\TraitUseAdaptation\Precedence) {
+                    \assert($adaptation->trait !== null);
+                    $traitMethodPrecedence[$adaptation->method->name] = $this->resolveNameAsClass($adaptation->trait);
+                }
             }
         }
 
-        return $types;
+        return [$traitTypes, $traitMethodAliases, $traitMethodPrecedence];
     }
 
     /**
@@ -460,7 +496,7 @@ final class ContextualPhpParserReflector
         foreach ($phpDoc->typeAliasImports() as $typeImport) {
             $alias = $typeImport->importedAs ?? $typeImport->importedAlias;
             $types[$alias] = function () use ($class, $typeImport): Type\Type {
-                $fromClass = $this->typeContext->resolveNameAsClass($typeImport->importedFrom->name);
+                $fromClass = $this->resolveNameAsClass($typeImport->importedFrom);
 
                 if ($fromClass === $class) {
                     return $this->typeContext->resolveNameAsType($typeImport->importedAlias);
@@ -479,6 +515,17 @@ final class ContextualPhpParserReflector
         }
 
         return $this->typeContext->executeWithTypes($action, $types);
+    }
+
+    /**
+     * @return class-string
+     */
+    private function resolveNameAsClass(string|Node\Identifier|Name|IdentifierTypeNode $name): string
+    {
+        return $this->typeContext->resolveNameAsClass(match (true) {
+            $name instanceof Name => $name->toCodeString(),
+            default => (string) $name,
+        });
     }
 
     private function parsePhpDoc(Node $node): PhpDoc

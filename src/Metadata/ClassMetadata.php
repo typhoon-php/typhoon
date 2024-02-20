@@ -15,8 +15,9 @@ use Typhoon\Type\Type;
  * @psalm-internal Typhoon\Reflection
  * @template-covariant T of object
  * @template-extends RootMetadata<class-string<T>>
- * @psalm-suppress PossiblyUnusedProperty
  * @psalm-type ClassMetadataReflector = \Closure(class-string): ClassMetadata
+ * @psalm-type TraitMethodAliases = array<class-string, non-empty-array<non-empty-string, list<TraitMethodAlias>>>
+ * @psalm-type TraitMethodPrecedence = array<non-empty-string, class-string>
  */
 final class ClassMetadata extends RootMetadata
 {
@@ -32,6 +33,7 @@ final class ClassMetadata extends RootMetadata
 
     /**
      * @param class-string<T> $name
+     * @param int-mask-of<\ReflectionClass::IS_*> $modifiers
      * @param non-empty-string|false $extension
      * @param non-empty-string|false $file
      * @param positive-int|false $startLine
@@ -40,9 +42,10 @@ final class ClassMetadata extends RootMetadata
      * @param list<AttributeMetadata> $attributes
      * @param array<non-empty-string, Type> $typeAliases
      * @param list<TemplateReflection> $templates
-     * @param int-mask-of<\ReflectionClass::IS_*> $modifiers
      * @param list<NamedObjectType> $interfaceTypes
      * @param list<NamedObjectType> $traitTypes
+     * @param TraitMethodAliases $traitMethodAliases
+     * @param TraitMethodPrecedence $traitMethodPrecedence
      * @param list<PropertyMetadata> $ownProperties
      * @param list<MethodMetadata> $ownMethods
      */
@@ -67,6 +70,8 @@ final class ClassMetadata extends RootMetadata
         public readonly ?NamedObjectType $parentType = null,
         public readonly array $interfaceTypes = [],
         public readonly array $traitTypes = [],
+        public readonly array $traitMethodAliases = [],
+        public readonly array $traitMethodPrecedence = [],
         public readonly array $ownProperties = [],
         public readonly array $ownMethods = [],
     ) {
@@ -129,11 +134,11 @@ final class ClassMetadata extends RootMetadata
 
         $resolver = new MethodsInheritanceResolver($this->name, $classMetadataReflector);
         $resolver->setOwn($this->ownMethods);
-        $resolver->addUsed(...$this->traitTypes);
+        $resolver->addUsed($this->traitTypes, $this->traitMethodAliases, $this->traitMethodPrecedence);
         if ($this->parentType !== null) {
-            $resolver->addInherited($this->parentType);
+            $resolver->addInherited([$this->parentType]);
         }
-        $resolver->addInherited(...$this->interfaceTypes);
+        $resolver->addInherited($this->interfaceTypes);
 
         return $this->resolvedMethods = $resolver->resolve();
     }

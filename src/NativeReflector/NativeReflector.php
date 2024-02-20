@@ -11,6 +11,7 @@ use Typhoon\Reflection\Metadata\ClassMetadata;
 use Typhoon\Reflection\Metadata\MethodMetadata;
 use Typhoon\Reflection\Metadata\ParameterMetadata;
 use Typhoon\Reflection\Metadata\PropertyMetadata;
+use Typhoon\Reflection\Metadata\TraitMethodAlias;
 use Typhoon\Reflection\Metadata\TypeMetadata;
 use Typhoon\Type;
 use Typhoon\Type\types;
@@ -18,6 +19,9 @@ use Typhoon\Type\types;
 /**
  * @internal
  * @psalm-internal Typhoon\Reflection
+ * @psalm-import-type TraitMethodAliases from ClassMetadata
+ * @psalm-import-type TraitMethodPrecedence from ClassMetadata
+ * @psalm-import-type Visibility from TraitMethodAlias
  */
 final class NativeReflector
 {
@@ -28,6 +32,8 @@ final class NativeReflector
      */
     public function reflectClass(\ReflectionClass $class): ClassMetadata
     {
+        [$traitMethodAliases, $traitMethodPrecedence] = $this->reflectTraitInfo($class);
+
         return new ClassMetadata(
             name: $class->name,
             modifiers: $class->getModifiers(),
@@ -52,6 +58,8 @@ final class NativeReflector
                 static fn(string $trait): Type\NamedObjectType => types::object($trait),
                 $class->getTraitNames(),
             ),
+            traitMethodAliases: $traitMethodAliases,
+            traitMethodPrecedence: $traitMethodPrecedence,
             ownProperties: $this->reflectOwnProperties($class),
             ownMethods: $this->reflectOwnMethods($class),
         );
@@ -139,6 +147,11 @@ final class NativeReflector
             return false;
         }
 
+        return $this->isMethodFromSameFile($class, $method);
+    }
+
+    private function isMethodFromSameFile(\ReflectionClass $class, \ReflectionMethod $method): bool
+    {
         if ($method->getFileName() !== $class->getFileName()) {
             return false;
         }
@@ -150,6 +163,71 @@ final class NativeReflector
 
         return ($methodStartLine === $classStartLine || \is_int($methodStartLine) && \is_int($classStartLine) && $methodStartLine >= $classStartLine)
             && ($methodEndLine === $classEndLine || \is_int($methodEndLine) && \is_int($classEndLine) && $methodEndLine <= $classEndLine);
+    }
+
+    /**
+     * @return array{TraitMethodAliases, TraitMethodPrecedence}
+     */
+    private function reflectTraitInfo(\ReflectionClass $class): array
+    {
+        $traits = $class->getTraits();
+
+        if ($traits === []) {
+            return [[], []];
+        }
+
+        /** @var TraitMethodAliases */
+        $traitMethodAliases = [];
+        /** @var TraitMethodPrecedence */
+        $traitMethodPrecedence = [];
+
+        foreach ($class->getTraitAliases() as $alias => $traitMethodName) {
+            [$traitName, $methodName] = explode('::', $traitMethodName);
+
+            /**
+             * @var class-string $traitName
+             * @var non-empty-string $methodName
+             */
+            $traitMethodAliases[$traitName][$methodName][] = new TraitMethodAlias(
+                visibility: $this->calculateMethodVisibilityDiff(new \ReflectionMethod($traitName, $methodName), $class->getMethod($alias)),
+                alias: $alias,
+            );
+        }
+
+        foreach ($traits as $trait) {
+            foreach ($trait->getMethods() as $traitMethod) {
+                $classMethod = $class->getMethod($traitMethod->name);
+
+                if (!$this->isMethodFromSameFile($trait, $classMethod)) {
+                    continue;
+                }
+
+                $traitMethodPrecedence[$traitMethod->name] = $trait->name;
+                $visibilityDiff = $this->calculateMethodVisibilityDiff($traitMethod, $classMethod);
+
+                if ($visibilityDiff !== null) {
+                    $traitMethodAliases[$trait->name][$traitMethod->name][] = new TraitMethodAlias($visibilityDiff);
+                }
+            }
+        }
+
+        return [$traitMethodAliases, $traitMethodPrecedence];
+    }
+
+    /**
+     * @return Visibility
+     */
+    private function calculateMethodVisibilityDiff(\ReflectionMethod $old, \ReflectionMethod $new): ?int
+    {
+        if ($new->isPublic()) {
+            return $old->isPublic() ? null : \ReflectionMethod::IS_PUBLIC;
+        }
+
+        if ($new->isProtected()) {
+            return $old->isProtected() ? null : \ReflectionMethod::IS_PROTECTED;
+        }
+
+        return $old->isPrivate() ? null : \ReflectionMethod::IS_PRIVATE;
     }
 
     /**

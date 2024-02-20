@@ -25,7 +25,7 @@ final class EnumReflections
         return new PropertyMetadata(
             name: 'name',
             class: $class,
-            modifiers: \ReflectionProperty::IS_PUBLIC + \ReflectionProperty::IS_READONLY,
+            modifiers: \ReflectionProperty::IS_PUBLIC | \ReflectionProperty::IS_READONLY,
             type: TypeMetadata::create(native: types::string, phpDoc: types::nonEmptyString),
         );
     }
@@ -38,7 +38,7 @@ final class EnumReflections
         return new PropertyMetadata(
             name: 'value',
             class: $class,
-            modifiers: \ReflectionProperty::IS_PUBLIC + \ReflectionProperty::IS_READONLY,
+            modifiers: \ReflectionProperty::IS_PUBLIC | \ReflectionProperty::IS_READONLY,
             type: $type,
         );
     }
@@ -51,7 +51,7 @@ final class EnumReflections
         return new MethodMetadata(
             name: 'cases',
             class: $class,
-            modifiers: \ReflectionMethod::IS_STATIC + \ReflectionMethod::IS_PUBLIC,
+            modifiers: \ReflectionMethod::IS_STATIC | \ReflectionMethod::IS_PUBLIC,
             parameters: [],
             returnType: TypeMetadata::create(types::array(), types::list(types::object($class))),
             internal: true,
@@ -66,7 +66,7 @@ final class EnumReflections
         return new MethodMetadata(
             name: 'from',
             class: $class,
-            modifiers: \ReflectionMethod::IS_STATIC + \ReflectionMethod::IS_PUBLIC,
+            modifiers: \ReflectionMethod::IS_STATIC | \ReflectionMethod::IS_PUBLIC,
             parameters: [
                 new ParameterMetadata(
                     position: 0,
@@ -89,7 +89,7 @@ final class EnumReflections
         return new MethodMetadata(
             name: 'tryFrom',
             class: $class,
-            modifiers: \ReflectionMethod::IS_STATIC + \ReflectionMethod::IS_PUBLIC,
+            modifiers: \ReflectionMethod::IS_STATIC | \ReflectionMethod::IS_PUBLIC,
             parameters: [
                 new ParameterMetadata(
                     position: 0,

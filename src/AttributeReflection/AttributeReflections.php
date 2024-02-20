@@ -12,7 +12,6 @@ use Typhoon\Reflection\Metadata\AttributeMetadata;
  * @internal
  * @psalm-internal Typhoon\Reflection
  * @template-covariant T of object
- * @psalm-suppress PossiblyUnusedProperty
  */
 final class AttributeReflections
 {

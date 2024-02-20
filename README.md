@@ -110,6 +110,5 @@ $reflector = TyphoonReflector::build(
 
 ## TODO
 
-- [ ] traits
 - [ ] class constants
 - [ ] functions

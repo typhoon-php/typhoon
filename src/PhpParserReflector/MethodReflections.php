@@ -46,10 +46,10 @@ final class MethodReflections
     public static function modifiers(ClassMethod $node, bool $interface): int
     {
         return ($node->isStatic() ? \ReflectionMethod::IS_STATIC : 0)
-            + ($node->isPublic() ? \ReflectionMethod::IS_PUBLIC : 0)
-            + ($node->isProtected() ? \ReflectionMethod::IS_PROTECTED : 0)
-            + ($node->isPrivate() ? \ReflectionMethod::IS_PRIVATE : 0)
-            + (($interface || $node->isAbstract()) ? \ReflectionMethod::IS_ABSTRACT : 0)
-            + ($node->isFinal() ? \ReflectionMethod::IS_FINAL : 0);
+            | ($node->isPublic() ? \ReflectionMethod::IS_PUBLIC : 0)
+            | ($node->isProtected() ? \ReflectionMethod::IS_PROTECTED : 0)
+            | ($node->isPrivate() ? \ReflectionMethod::IS_PRIVATE : 0)
+            | (($interface || $node->isAbstract()) ? \ReflectionMethod::IS_ABSTRACT : 0)
+            | ($node->isFinal() ? \ReflectionMethod::IS_FINAL : 0);
     }
 }

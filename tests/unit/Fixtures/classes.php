@@ -351,21 +351,119 @@ namespace AbstractClassAndInterfaceInheritance
     }
 }
 
-namespace TraitUsage
+namespace Traits
 {
-    trait Trait_
+    trait T1
     {
         private string $private;
         protected string $protected;
         public string $public;
+
+        private static string $privateStatic;
+        protected static string $protectedStatic;
+        public static string $publicStatic;
+
+        private function t1(): void {}
+
+        private function privateMethod(): void {}
+        protected function protectedMethod(): void {}
+        public function publicMethod(): void {}
+
+        private static function privateStaticMethod(): void {}
+        protected static function protectedStaticMethod(): void {}
+        public static function publicStaticMethod(): void {}
+    }
+
+    final class ClassSimplyUsesTraitAsIs
+    {
+        use T1;
+    }
+
+    trait EmptyTrait {}
+
+    final class ClassUsesTraitsMultipleTimes
+    {
+        use T1;
+        use EmptyTrait;
+        use EmptyTrait;
+        use T1;
+        use EmptyTrait;
+    }
+
+    final class ClassUsesTraitWithAlteredNames
+    {
+        use T1 {
+            privateMethod as privateAsProtectedMethod;
+            protectedMethod as protectedAsPublicMethod;
+            publicMethod as publicAsPrivateMethod;
+
+            privateStaticMethod as privateStaticAsProtectedMethod;
+            protectedStaticMethod as protectedStaticAsPublicMethod;
+            publicStaticMethod as publicStaticAsPrivateMethod;
+        }
+    }
+
+    final class ClassUsesTraitWithAlteredVisibility
+    {
+        use T1 {
+            privateMethod as protected;
+            protectedMethod as public;
+            publicMethod as private;
+
+            privateStaticMethod as protected;
+            protectedStaticMethod as public;
+            publicStaticMethod as private;
+        }
+    }
+
+    final class ClassUsesTraitWithAlteredVisibilityAndName
+    {
+        use T1 {
+            privateMethod as protected privateAsProtectedMethod;
+            protectedMethod as public protectedAsPublicMethod;
+            publicMethod as private publicAsPrivateMethod;
+
+            privateStaticMethod as protected privateStaticAsProtectedMethod;
+            protectedStaticMethod as public protectedStaticAsPublicMethod;
+            publicStaticMethod as private publicStaticAsPrivateMethod;
+        }
+    }
+
+    trait T2
+    {
+        private function t2(): void {}
 
         private function privateMethod(): void {}
         protected function protectedMethod(): void {}
         public function publicMethod(): void {}
     }
 
-    final class ClassSimplyUsesTraitAsIs
+    final class ClassUsesTraitsWithInsteadOf
     {
-        use Trait_;
+        use T1, T2 {
+            T1::privateMethod insteadof T2;
+            T2::protectedMethod insteadof T1;
+        }
+        use T2 {
+            T2::publicMethod insteadof T1;
+        }
+    }
+
+    final class ClassUsesTraitsWithIsnteadofAndAliasesAndOverridesMethods
+    {
+        use T1, T2 {
+            T1::privateMethod insteadof T2;
+            T2::protectedMethod insteadof T1;
+        }
+        use T2 {
+            T2::publicMethod insteadof T1;
+        }
+        use T2 {
+            T2::publicMethod as private t2PublicAsPrivate;
+        }
+
+        public function publicMethod(): void {}
+
+        private function t2PublicAsPrivate(): void {}
     }
 }
