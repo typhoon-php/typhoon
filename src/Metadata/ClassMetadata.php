@@ -73,6 +73,30 @@ final class ClassMetadata extends RootMetadata
     }
 
     /**
+     * @return ?class-string
+     */
+    public function parentClass(): ?string
+    {
+        return $this->parentType?->class;
+    }
+
+    /**
+     * @return list<class-string>
+     */
+    public function interfaceClasses(): array
+    {
+        return array_column($this->interfaceTypes, 'class');
+    }
+
+    /**
+     * @return list<class-string>
+     */
+    public function traitClasses(): array
+    {
+        return array_column($this->traitTypes, 'class');
+    }
+
+    /**
      * @param \Closure(class-string): ClassMetadata $classMetadataReflector
      * @return array<non-empty-string, PropertyMetadata>
      */

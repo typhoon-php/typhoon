@@ -190,11 +190,13 @@ final class ClassReflection extends \ReflectionClass
 
     public function getParentClass(): self|false
     {
-        if ($this->metadata->parentType === null) {
+        $parentClass = $this->metadata->parentClass();
+
+        if ($parentClass === null) {
             return false;
         }
 
-        return $this->reflectClass($this->metadata->parentType->class);
+        return $this->reflectClass($parentClass);
     }
 
     /**
@@ -295,7 +297,7 @@ final class ClassReflection extends \ReflectionClass
     public function getTraitNames(): array
     {
         /** @var list<trait-string> */
-        return array_column($this->metadata->traitTypes, 'class');
+        return $this->metadata->traitClasses();
     }
 
     /**
@@ -476,7 +478,7 @@ final class ClassReflection extends \ReflectionClass
             return true;
         }
 
-        $parentClass = $this->metadata->parentType?->class;
+        $parentClass = $this->metadata->parentClass();
 
         if ($parentClass === null) {
             return false;
@@ -560,7 +562,7 @@ final class ClassReflection extends \ReflectionClass
      */
     private function hasParent(): bool
     {
-        return $this->metadata->parentType !== null;
+        return $this->metadata->parentClass() !== null;
     }
 
     private function loadNative(): void
@@ -599,8 +601,8 @@ final class ClassReflection extends \ReflectionClass
         $interfaces = [];
         $ancestors = [];
 
-        foreach ($this->metadata->interfaceTypes as $ownInterfaceType) {
-            $ancestors[] = $interface = $this->reflectClass($ownInterfaceType->class);
+        foreach ($this->metadata->interfaceClasses() as $interfaceClass) {
+            $ancestors[] = $interface = $this->reflectClass($interfaceClass);
             yield $interface->name => $interface;
         }
 
