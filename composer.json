@@ -41,8 +41,7 @@
     "autoload-dev": {
         "psr-4": {
             "Typhoon\\Reflection\\": [
-                "tests/unit",
-                "tests/memory"
+                "tests/unit"
             ]
         }
     },
