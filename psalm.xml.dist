@@ -32,7 +32,7 @@
         <directory name="tests"/>
         <ignoreFiles>
             <directory name="tests/unit/NameContext/functional"/>
-            <directory name="tests/unit/ReflectorCompatibility"/>
+            <directory name="tests/unit/Fixtures"/>
             <directory name="var"/>
             <directory name="vendor"/>
         </ignoreFiles>

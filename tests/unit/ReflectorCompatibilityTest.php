@@ -6,7 +6,7 @@ namespace Typhoon\Reflection;
 
 use Mockery\Loader\RequireLoader;
 use PHPUnit\Framework\Attributes\CoversClass;
-use PHPUnit\Framework\Attributes\DataProvider;
+use PHPUnit\Framework\Attributes\DataProviderExternal;
 use PHPUnit\Framework\TestCase;
 use Typhoon\Reflection\ClassLocator\NativeReflectionLocator;
 
@@ -29,27 +29,9 @@ final class ReflectorCompatibilityTest extends TestCase
     }
 
     /**
-     * @psalm-suppress PossiblyUnusedMethod
-     * @return \Generator<string, array{class-string}>
-     */
-    public static function classes(): \Generator
-    {
-        yield \Iterator::class => [\Iterator::class];
-        yield \IteratorAggregate::class => [\IteratorAggregate::class];
-        yield \Stringable::class => [\Stringable::class];
-
-        $declaredClasses = get_declared_classes();
-        require_once __DIR__ . '/ReflectorCompatibility/classes.php';
-
-        foreach (array_diff(get_declared_classes(), $declaredClasses) as $class) {
-            yield str_replace("\0" . __DIR__, '', $class) => [$class];
-        }
-    }
-
-    /**
      * @param class-string $class
      */
-    #[DataProvider('classes')]
+    #[DataProviderExternal(FixturesProvider::class, 'classes')]
     public function testItReflectsClassesCompatiblyViaDefaultReflector(string $class): void
     {
         $native = new \ReflectionClass($class);
@@ -62,7 +44,7 @@ final class ReflectorCompatibilityTest extends TestCase
     /**
      * @param class-string $class
      */
-    #[DataProvider('classes')]
+    #[DataProviderExternal(FixturesProvider::class, 'classes')]
     public function testItReflectsClassesCompatiblyViaNativeReflector(string $class): void
     {
         $native = new \ReflectionClass($class);

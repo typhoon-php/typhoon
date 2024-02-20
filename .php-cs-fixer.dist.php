@@ -23,7 +23,7 @@ $finder = Finder::create()
             ->in(__DIR__ . '/tests')
             ->exclude([
                 'unit/NameContext/functional',
-                'unit/ReflectorCompatibility',
+                'unit/Fixtures',
             ]),
     );
 
