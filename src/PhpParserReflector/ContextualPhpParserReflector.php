@@ -97,6 +97,7 @@ final class ContextualPhpParserReflector
             ownProperties: $this->reflectOwnProperties($name, $node),
             ownMethods: $this->reflectOwnMethods($name, $node),
             finalPhpDoc: $phpDoc->hasFinal(),
+            readonlyPhpDoc: $phpDoc->hasReadonly(),
         ));
     }
 
@@ -316,6 +317,7 @@ final class ContextualPhpParserReflector
                     startLine: $this->reflectLine($node->getStartLine()),
                     endLine: $this->reflectLine($node->getEndLine()),
                     attributes: $this->reflectAttributes($node->attrGroups, \Attribute::TARGET_PROPERTY),
+                    readonlyPhpDoc: $phpDoc->hasReadonly(),
                 );
             }
         }
@@ -350,6 +352,7 @@ final class ContextualPhpParserReflector
                 startLine: $this->reflectLine($node->getStartLine()),
                 endLine: $this->reflectLine($node->getEndLine()),
                 attributes: $this->reflectAttributes($node->attrGroups, \Attribute::TARGET_PROPERTY),
+                readonlyPhpDoc: $phpDoc->hasReadonly(),
             );
         }
 

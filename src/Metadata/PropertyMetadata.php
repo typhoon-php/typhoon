@@ -34,6 +34,7 @@ final class PropertyMetadata
         public readonly int|false $startLine = false,
         public readonly int|false $endLine = false,
         public readonly array $attributes = [],
+        public readonly bool $readonlyPhpDoc = false,
     ) {}
 
     /**
@@ -53,5 +54,10 @@ final class PropertyMetadata
         $metadata->type = $type;
 
         return $metadata;
+    }
+
+    public function readonlyNative(): bool
+    {
+        return ($this->modifiers & \ReflectionProperty::IS_READONLY) !== 0;
     }
 }

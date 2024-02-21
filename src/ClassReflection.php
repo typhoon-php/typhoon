@@ -473,9 +473,13 @@ final class ClassReflection extends \ReflectionClass
         return $this->isIterable();
     }
 
-    public function isReadOnly(): bool
+    public function isReadonly(Origin $origin = Origin::Resolved): bool
     {
-        return ($this->metadata->modifiers & self::IS_READONLY) !== 0;
+        return match ($origin) {
+            Origin::PhpDoc => $this->metadata->readonlyPhpDoc,
+            Origin::Native => $this->metadata->readonlyNative(),
+            Origin::Resolved => $this->metadata->readonlyPhpDoc || $this->metadata->readonlyNative(),
+        };
     }
 
     public function isSubclassOf(string|\ReflectionClass $class): bool

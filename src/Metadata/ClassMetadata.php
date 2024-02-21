@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Typhoon\Reflection\Metadata;
 
+use Typhoon\Reflection\ClassReflection;
 use Typhoon\Reflection\Inheritance\MethodsInheritanceResolver;
 use Typhoon\Reflection\Inheritance\PropertiesInheritanceResolver;
 use Typhoon\Reflection\TemplateReflection;
@@ -75,6 +76,7 @@ final class ClassMetadata extends RootMetadata
         public readonly array $ownProperties = [],
         public readonly array $ownMethods = [],
         public readonly bool $finalPhpDoc = false,
+        public readonly bool $readonlyPhpDoc = false,
     ) {
         parent::__construct($name, $changeDetector);
     }
@@ -147,6 +149,11 @@ final class ClassMetadata extends RootMetadata
     public function finalNative(): bool
     {
         return $this->enum || $this->modifiers & \ReflectionClass::IS_FINAL;
+    }
+
+    public function readonlyNative(): bool
+    {
+        return ($this->modifiers & ClassReflection::IS_READONLY) !== 0;
     }
 
     public function __serialize(): array

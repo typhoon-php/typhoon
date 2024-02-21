@@ -185,9 +185,13 @@ final class PropertyReflection extends \ReflectionProperty
         return ($this->metadata->modifiers & self::IS_PUBLIC) === \ReflectionProperty::IS_PUBLIC;
     }
 
-    public function isReadOnly(): bool
+    public function isReadonly(Origin $origin = Origin::Resolved): bool
     {
-        return ($this->metadata->modifiers & self::IS_READONLY) !== 0;
+        return match ($origin) {
+            Origin::PhpDoc => $this->metadata->readonlyPhpDoc,
+            Origin::Native => $this->metadata->readonlyNative(),
+            Origin::Resolved => $this->metadata->readonlyPhpDoc || $this->metadata->readonlyNative(),
+        };
     }
 
     public function isStatic(): bool
