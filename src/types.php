@@ -25,9 +25,6 @@ final class types
     public const literalString = AnyLiteralStringType::type;
     public const numericString = NumericStringType::type;
     public const classString = ClassStringType::type;
-    public const interfaceString = InterfaceStringType::type;
-    public const enumString = EnumStringType::type;
-    public const traitString = TraitStringType::type;
     public const nonEmptyString = NonEmptyStringType::type;
     public const truthyString = TruthyStringType::type;
     public const nonFalsyString = TruthyStringType::type;

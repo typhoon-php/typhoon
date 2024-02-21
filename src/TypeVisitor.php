@@ -71,15 +71,6 @@ interface TypeVisitor
     public function visitClassString(ClassStringType $type): mixed;
 
     /** @return TReturn */
-    public function visitInterfaceString(InterfaceStringType $type): mixed;
-
-    /** @return TReturn */
-    public function visitEnumString(EnumStringType $type): mixed;
-
-    /** @return TReturn */
-    public function visitTraitString(TraitStringType $type): mixed;
-
-    /** @return TReturn */
     public function visitNonEmptyString(NonEmptyStringType $type): mixed;
 
     /** @return TReturn */
