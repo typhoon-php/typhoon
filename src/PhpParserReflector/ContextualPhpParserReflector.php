@@ -324,7 +324,7 @@ final class ContextualPhpParserReflector
             return $properties;
         }
 
-        $phpDoc = $this->parsePhpDoc($constructorNode);
+        $constructorPhpDoc = $this->parsePhpDoc($constructorNode);
 
         foreach ($constructorNode->params as $node) {
             $modifiers = PropertyReflections::promotedModifiers($node, $classReadOnly);
@@ -335,11 +335,12 @@ final class ContextualPhpParserReflector
 
             \assert($node->var instanceof Expr\Variable && \is_string($node->var->name));
             $name = $node->var->name;
+            $phpDoc = $this->parsePhpDoc($node);
             $properties[] = new PropertyMetadata(
                 name: $name,
                 class: $class,
                 modifiers: $modifiers,
-                type: $this->reflectType($node->type, $phpDoc->paramTypes()[$name] ?? null),
+                type: $this->reflectType($node->type, $phpDoc->varType() ?? $constructorPhpDoc->paramTypes()[$name] ?? null),
                 docComment: $this->reflectDocComment($node),
                 hasDefaultValue: $node->default !== null || $node->type === null,
                 promoted: true,
