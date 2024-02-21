@@ -32,7 +32,7 @@ final class types
     public const truthyString = TruthyStringType::type;
     public const nonFalsyString = TruthyStringType::type;
     public const string = StringType::type;
-    public const numeric = NumericType::type;
+    public const numeric = __numeric;
     public const scalar = __scalar;
     public const object = ObjectType::type;
     public const resource = ResourceType::type;
@@ -456,6 +456,12 @@ const __arrayKey = new UnionType([IntType::type, StringType::type]);
  * @psalm-internal Typhoon\Type
  */
 const __scalar = new UnionType([BoolType::type, IntType::type, FloatType::type, StringType::type]);
+
+/**
+ * @internal
+ * @psalm-internal Typhoon\Type
+ */
+const __numeric = new UnionType([IntType::type, FloatType::type, NumericStringType::type]);
 
 /**
  * @internal
