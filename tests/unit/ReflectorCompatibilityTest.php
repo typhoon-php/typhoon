@@ -8,6 +8,7 @@ use Mockery\Loader\RequireLoader;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProviderExternal;
 use PHPUnit\Framework\TestCase;
+use Traits\Trait1;
 use Typhoon\Reflection\ClassLocator\NativeReflectionLocator;
 
 #[CoversClass(AttributeReflection::class)]
@@ -376,8 +377,7 @@ final class ReflectorCompatibilityTest extends TestCase
         yield Variance::class;
         yield \FilterIterator::class;
         yield \stdClass::class;
-
-        // TODO add trait
+        yield Trait1::class;
     }
 
     /**

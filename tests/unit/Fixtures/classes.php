@@ -353,7 +353,7 @@ namespace AbstractClassAndInterfaceInheritance
 
 namespace Traits
 {
-    trait T1
+    trait Trait1
     {
         private string $private;
         protected string $protected;
@@ -376,23 +376,23 @@ namespace Traits
 
     final class ClassSimplyUsesTraitAsIs
     {
-        use T1;
+        use Trait1;
     }
 
     trait EmptyTrait {}
 
     final class ClassUsesTraitsMultipleTimes
     {
-        use T1;
+        use Trait1;
         use EmptyTrait;
         use EmptyTrait;
-        use T1;
+        use Trait1;
         use EmptyTrait;
     }
 
     final class ClassUsesTraitWithAlteredNames
     {
-        use T1 {
+        use Trait1 {
             privateMethod as privateAsProtectedMethod;
             protectedMethod as protectedAsPublicMethod;
             publicMethod as publicAsPrivateMethod;
@@ -405,7 +405,7 @@ namespace Traits
 
     final class ClassUsesTraitWithAlteredVisibility
     {
-        use T1 {
+        use Trait1 {
             privateMethod as protected;
             protectedMethod as public;
             publicMethod as private;
@@ -418,7 +418,7 @@ namespace Traits
 
     final class ClassUsesTraitWithAlteredVisibilityAndName
     {
-        use T1 {
+        use Trait1 {
             privateMethod as protected privateAsProtectedMethod;
             protectedMethod as public protectedAsPublicMethod;
             publicMethod as private publicAsPrivateMethod;
@@ -429,7 +429,7 @@ namespace Traits
         }
     }
 
-    trait T2
+    trait Trait2
     {
         private function t2(): void {}
 
@@ -440,26 +440,26 @@ namespace Traits
 
     final class ClassUsesTraitsWithInsteadOf
     {
-        use T1, T2 {
-            T1::privateMethod insteadof T2;
-            T2::protectedMethod insteadof T1;
+        use Trait1, Trait2 {
+            Trait1::privateMethod insteadof Trait2;
+            Trait2::protectedMethod insteadof Trait1;
         }
-        use T2 {
-            T2::publicMethod insteadof T1;
+        use Trait2 {
+            Trait2::publicMethod insteadof Trait1;
         }
     }
 
     final class ClassUsesTraitsWithIsnteadofAndAliasesAndOverridesMethods
     {
-        use T1, T2 {
-            T1::privateMethod insteadof T2;
-            T2::protectedMethod insteadof T1;
+        use Trait1, Trait2 {
+            Trait1::privateMethod insteadof Trait2;
+            Trait2::protectedMethod insteadof Trait1;
         }
-        use T2 {
-            T2::publicMethod insteadof T1;
+        use Trait2 {
+            Trait2::publicMethod insteadof Trait1;
         }
-        use T2 {
-            T2::publicMethod as private t2PublicAsPrivate;
+        use Trait2 {
+            Trait2::publicMethod as private t2PublicAsPrivate;
         }
 
         public function publicMethod(): void {}
