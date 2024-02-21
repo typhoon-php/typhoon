@@ -20,6 +20,9 @@ interface TypeVisitor
     public function visitNull(NullType $type): mixed;
 
     /** @return TReturn */
+    public function visitNonEmpty(NonEmptyType $type): mixed;
+
+    /** @return TReturn */
     public function visitFalse(FalseType $type): mixed;
 
     /** @return TReturn */
@@ -71,25 +74,16 @@ interface TypeVisitor
     public function visitClassString(ClassStringType $type): mixed;
 
     /** @return TReturn */
-    public function visitNonEmptyString(NonEmptyStringType $type): mixed;
-
-    /** @return TReturn */
     public function visitTruthyString(TruthyStringType $type): mixed;
 
     /** @return TReturn */
     public function visitString(StringType $type): mixed;
 
     /** @return TReturn */
-    public function visitNonEmptyList(NonEmptyListType $type): mixed;
-
-    /** @return TReturn */
     public function visitList(ListType $type): mixed;
 
     /** @return TReturn */
     public function visitArrayShape(ArrayShapeType $type): mixed;
-
-    /** @return TReturn */
-    public function visitNonEmptyArray(NonEmptyArrayType $type): mixed;
 
     /** @return TReturn */
     public function visitArray(ArrayType $type): mixed;

@@ -25,7 +25,7 @@ final class types
     public const literalString = AnyLiteralStringType::type;
     public const numericString = NumericStringType::type;
     public const classString = ClassStringType::type;
-    public const nonEmptyString = NonEmptyStringType::type;
+    public const nonEmptyString = __nonEmptyString;
     public const truthyString = TruthyStringType::type;
     public const nonFalsyString = TruthyStringType::type;
     public const string = StringType::type;
@@ -119,11 +119,12 @@ final class types
     /**
      * @template TValue
      * @param Type<TValue> $valueType
-     * @return NonEmptyListType<TValue>
+     * @return Type<non-empty-list<TValue>>
+     * @psalm-suppress InvalidReturnType, InvalidReturnStatement
      */
-    public static function nonEmptyList(Type $valueType = self::mixed): NonEmptyListType
+    public static function nonEmptyList(Type $valueType = self::mixed): Type
     {
-        return new NonEmptyListType($valueType);
+        return new NonEmptyType(self::list($valueType));
     }
 
     /**
@@ -167,11 +168,12 @@ final class types
      * @template TValue
      * @param Type<TKey> $keyType
      * @param Type<TValue> $valueType
-     * @return NonEmptyArrayType<TKey, TValue>
+     * @return Type<non-empty-array<TKey, TValue>>
+     * @psalm-suppress MoreSpecificReturnType, LessSpecificReturnStatement
      */
-    public static function nonEmptyArray(Type $keyType = self::arrayKey, Type $valueType = self::mixed): NonEmptyArrayType
+    public static function nonEmptyArray(Type $keyType = self::arrayKey, Type $valueType = self::mixed): Type
     {
-        return new NonEmptyArrayType($keyType, $valueType);
+        return new NonEmptyType(self::array($keyType, $valueType));
     }
 
     /**
@@ -441,6 +443,12 @@ const __nonPositiveInt = new IntRangeType(max: 0);
  * @psalm-internal Typhoon\Type
  */
 const __nonNegativeInt = new IntRangeType(0);
+
+/**
+ * @internal
+ * @psalm-internal Typhoon\Type
+ */
+const __nonEmptyString = new NonEmptyType(StringType::type);
 
 /**
  * @internal
