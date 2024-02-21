@@ -428,9 +428,13 @@ final class ClassReflection extends \ReflectionClass
         return $this->metadata->enum;
     }
 
-    public function isFinal(): bool
+    public function isFinal(Origin $origin = Origin::Resolved): bool
     {
-        return $this->metadata->enum || ($this->metadata->modifiers & self::IS_FINAL) !== 0;
+        return match ($origin) {
+            Origin::PhpDoc => $this->metadata->finalPhpDoc,
+            Origin::Native => $this->metadata->finalNative(),
+            Origin::Resolved => $this->metadata->finalPhpDoc || $this->metadata->finalNative(),
+        };
     }
 
     public function isInstance(object $object): bool

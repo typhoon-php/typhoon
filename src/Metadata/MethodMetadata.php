@@ -52,6 +52,7 @@ final class MethodMetadata
         public readonly bool $deprecated = false,
         public readonly Type $throwsType = types::never,
         public readonly array $attributes = [],
+        public readonly bool $finalPhpDoc = false,
     ) {}
 
     public function toAlias(TraitMethodAlias $alias): self
@@ -111,5 +112,10 @@ final class MethodMetadata
         $method->returnType = $returnType;
 
         return $method;
+    }
+
+    public function finalNative(): bool
+    {
+        return ($this->modifiers & \ReflectionMethod::IS_FINAL) !== 0;
     }
 }

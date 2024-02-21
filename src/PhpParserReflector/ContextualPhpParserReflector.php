@@ -88,7 +88,7 @@ final class ContextualPhpParserReflector
             enum: $node instanceof Stmt\Enum_,
             trait: $node instanceof Stmt\Trait_,
             anonymous: $node->name === null,
-            deprecated: $phpDoc->isDeprecated(),
+            deprecated: $phpDoc->hasDeprecated(),
             parentType: $this->reflectParentType($node, $phpDoc),
             interfaceTypes: $this->reflectInterfaceTypes($node, $phpDoc),
             traitTypes: $traitTypes,
@@ -96,6 +96,7 @@ final class ContextualPhpParserReflector
             traitMethodPrecedence: $traitMethodPrecedence,
             ownProperties: $this->reflectOwnProperties($name, $node),
             ownMethods: $this->reflectOwnMethods($name, $node),
+            finalPhpDoc: $phpDoc->hasFinal(),
         ));
     }
 
@@ -311,7 +312,7 @@ final class ContextualPhpParserReflector
                     type: $type,
                     docComment: $this->reflectDocComment($node),
                     hasDefaultValue: $property->default !== null || $node->type === null,
-                    deprecated: $phpDoc->isDeprecated(),
+                    deprecated: $phpDoc->hasDeprecated(),
                     startLine: $this->reflectLine($node->getStartLine()),
                     endLine: $this->reflectLine($node->getEndLine()),
                     attributes: $this->reflectAttributes($node->attrGroups, \Attribute::TARGET_PROPERTY),
@@ -345,7 +346,7 @@ final class ContextualPhpParserReflector
                 docComment: $this->reflectDocComment($node),
                 hasDefaultValue: $node->default !== null || $node->type === null,
                 promoted: true,
-                deprecated: $phpDoc->isDeprecated(),
+                deprecated: $phpDoc->hasDeprecated(),
                 startLine: $this->reflectLine($node->getStartLine()),
                 endLine: $this->reflectLine($node->getEndLine()),
                 attributes: $this->reflectAttributes($node->attrGroups, \Attribute::TARGET_PROPERTY),
@@ -383,9 +384,10 @@ final class ContextualPhpParserReflector
                 endLine: $this->reflectLine($node->getEndLine()),
                 returnsReference: $node->byRef,
                 generator: MethodReflections::isGenerator($node),
-                deprecated: $phpDoc->isDeprecated(),
+                deprecated: $phpDoc->hasDeprecated(),
                 throwsType: $this->reflectThrowsType($phpDoc->throwsTypes()),
                 attributes: $this->reflectAttributes($node->attrGroups, \Attribute::TARGET_METHOD),
+                finalPhpDoc: $phpDoc->hasFinal(),
             ));
         }
 
@@ -429,7 +431,7 @@ final class ContextualPhpParserReflector
                 optional: $isOptional,
                 variadic: $node->variadic,
                 promoted: ParameterReflections::isPromoted($node),
-                deprecated: $phpDoc->isDeprecated(),
+                deprecated: $phpDoc->hasDeprecated(),
                 startLine: $this->reflectLine($node->getStartLine()),
                 endLine: $this->reflectLine($node->getEndLine()),
                 attributes: $this->reflectAttributes($node->attrGroups, \Attribute::TARGET_PARAMETER),

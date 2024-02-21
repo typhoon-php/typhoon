@@ -101,7 +101,7 @@ final class PhpDoc
         return $attribute instanceof Variance ? $attribute : Variance::INVARIANT;
     }
 
-    public function isDeprecated(): bool
+    public function hasDeprecated(): bool
     {
         foreach ($this->tags as $tag) {
             if ($tag->value instanceof DeprecatedTagValueNode) {
@@ -112,7 +112,7 @@ final class PhpDoc
         return false;
     }
 
-    public function isFinal(): bool
+    public function hasFinal(): bool
     {
         foreach ($this->tags as $tag) {
             if ($tag->name === '@final') {
@@ -123,7 +123,7 @@ final class PhpDoc
         return false;
     }
 
-    public function isReadonly(): bool
+    public function hasReadonly(): bool
     {
         foreach ($this->tags as $tag) {
             if (\in_array($tag->name, ['@readonly', '@psalm-readonly', '@phpstan-readonly'], true)) {

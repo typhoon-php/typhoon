@@ -363,9 +363,13 @@ final class MethodReflection extends \ReflectionMethod
         return $this->metadata->name === '__destruct';
     }
 
-    public function isFinal(): bool
+    public function isFinal(Origin $origin = Origin::Resolved): bool
     {
-        return ($this->metadata->modifiers & self::IS_FINAL) !== 0;
+        return match ($origin) {
+            Origin::PhpDoc => $this->metadata->finalPhpDoc,
+            Origin::Native => $this->metadata->finalNative(),
+            Origin::Resolved => $this->metadata->finalPhpDoc || $this->metadata->finalNative(),
+        };
     }
 
     public function isGenerator(): bool

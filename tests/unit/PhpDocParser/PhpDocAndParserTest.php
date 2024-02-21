@@ -44,7 +44,7 @@ final class PhpDocAndParserTest extends TestCase
         self::assertSame(Variance::COVARIANT, $actualVariance);
     }
 
-    public function testIsDeprecatedReturnsFalseIfNoDeprecatedTag(): void
+    public function testHasDeprecatedReturnsFalseIfNoDeprecatedTag(): void
     {
         $parser = new PhpDocParser();
 
@@ -54,12 +54,12 @@ final class PhpDocAndParserTest extends TestCase
                  * @example
                  */
                 PHP,
-        )->isDeprecated();
+        )->hasDeprecated();
 
         self::assertFalse($deprecated);
     }
 
-    public function testIsDeprecatedReturnsTrueIfDeprecated(): void
+    public function testHasDeprecatedReturnsTrueIfDeprecated(): void
     {
         $parser = new PhpDocParser();
 
@@ -70,12 +70,12 @@ final class PhpDocAndParserTest extends TestCase
                  * @deprecated
                  */
                 PHP,
-        )->isDeprecated();
+        )->hasDeprecated();
 
         self::assertTrue($deprecated);
     }
 
-    public function testIsFinalReturnsFalseIfNoFinalTag(): void
+    public function testHasFinalReturnsFalseIfNoFinalTag(): void
     {
         $parser = new PhpDocParser();
 
@@ -85,12 +85,12 @@ final class PhpDocAndParserTest extends TestCase
                  * @example
                  */
                 PHP,
-        )->isFinal();
+        )->hasFinal();
 
         self::assertFalse($final);
     }
 
-    public function testIsFinalReturnsTrueIfFinal(): void
+    public function testHasFinalReturnsTrueIfFinal(): void
     {
         $parser = new PhpDocParser();
 
@@ -101,12 +101,12 @@ final class PhpDocAndParserTest extends TestCase
                  * @final
                  */
                 PHP,
-        )->isFinal();
+        )->hasFinal();
 
         self::assertTrue($final);
     }
 
-    public function testIsReadonlyReturnsFalseIfNoReadonlyTag(): void
+    public function testHasReadonlyReturnsFalseIfNoReadonlyTag(): void
     {
         $parser = new PhpDocParser();
 
@@ -116,12 +116,12 @@ final class PhpDocAndParserTest extends TestCase
                  * @example
                  */
                 PHP,
-        )->isReadonly();
+        )->hasReadonly();
 
         self::assertFalse($readonly);
     }
 
-    public function testIsReadonlyReturnsTrueIfReadonly(): void
+    public function testHasReadonlyReturnsTrueIfReadonly(): void
     {
         $parser = new PhpDocParser();
 
@@ -132,7 +132,7 @@ final class PhpDocAndParserTest extends TestCase
                  * @readonly
                  */
                 PHP,
-        )->isReadonly();
+        )->hasReadonly();
 
         self::assertTrue($readonly);
     }

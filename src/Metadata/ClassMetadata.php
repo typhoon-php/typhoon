@@ -74,6 +74,7 @@ final class ClassMetadata extends RootMetadata
         public readonly array $traitMethodPrecedence = [],
         public readonly array $ownProperties = [],
         public readonly array $ownMethods = [],
+        public readonly bool $finalPhpDoc = false,
     ) {
         parent::__construct($name, $changeDetector);
     }
@@ -141,6 +142,11 @@ final class ClassMetadata extends RootMetadata
         $resolver->addInherited($this->interfaceTypes);
 
         return $this->resolvedMethods = $resolver->resolve();
+    }
+
+    public function finalNative(): bool
+    {
+        return $this->enum || $this->modifiers & \ReflectionClass::IS_FINAL;
     }
 
     public function __serialize(): array
