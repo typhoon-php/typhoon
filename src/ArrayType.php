@@ -29,7 +29,7 @@ final class ArrayType implements Type
      * @param Type<TValue> $valueType
      */
     public function __construct(
-        Type $keyType = ArrayKeyType::type,
+        Type $keyType = types::arrayKey,
         Type $valueType = MixedType::type,
     ) {
         $this->valueType = $valueType;

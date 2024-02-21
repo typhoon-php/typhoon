@@ -37,7 +37,7 @@ final class types
     public const object = ObjectType::type;
     public const resource = ResourceType::type;
     public const closedResource = ClosedResourceType::type;
-    public const arrayKey = ArrayKeyType::type;
+    public const arrayKey = __arrayKey;
     public const mixed = MixedType::type;
 
     /**
@@ -184,6 +184,7 @@ final class types
      * @param Type<TKey> $keyType
      * @param Type<TValue> $valueType
      * @return ArrayType<TKey, TValue>
+     * @psalm-suppress MixedReturnTypeCoercion
      */
     public static function array(Type $keyType = self::arrayKey, Type $valueType = self::mixed): ArrayType
     {
@@ -444,6 +445,12 @@ const __nonPositiveInt = new IntRangeType(max: 0);
  * @psalm-internal Typhoon\Type
  */
 const __nonNegativeInt = new IntRangeType(0);
+
+/**
+ * @internal
+ * @psalm-internal Typhoon\Type
+ */
+const __arrayKey = new UnionType([IntType::type, StringType::type]);
 
 /**
  * @internal

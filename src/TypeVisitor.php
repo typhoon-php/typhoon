@@ -92,9 +92,6 @@ interface TypeVisitor
     public function visitNumeric(NumericType $type): mixed;
 
     /** @return TReturn */
-    public function visitArrayKey(ArrayKeyType $type): mixed;
-
-    /** @return TReturn */
     public function visitNonEmptyList(NonEmptyListType $type): mixed;
 
     /** @return TReturn */

@@ -26,7 +26,6 @@ final class PsalmTest extends TestCase
 
     #[TestWith([__DIR__ . '/psalm/AnyLiteralIntType.phpt'])]
     #[TestWith([__DIR__ . '/psalm/AnyLiteralStringType.phpt'])]
-    #[TestWith([__DIR__ . '/psalm/ArrayKeyType.phpt'])]
     #[TestWith([__DIR__ . '/psalm/ArrayShapeType.phpt'])]
     #[TestWith([__DIR__ . '/psalm/ArrayType.phpt'])]
     #[TestWith([__DIR__ . '/psalm/BoolType.phpt'])]
