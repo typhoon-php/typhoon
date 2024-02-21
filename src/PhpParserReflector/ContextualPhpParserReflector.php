@@ -37,12 +37,19 @@ final class ContextualPhpParserReflector
 {
     private ContextualPhpDocTypeReflector $phpDocTypeReflector;
 
+    /**
+     * @var \WeakMap<Node, PhpDoc>
+     */
+    private \WeakMap $memoizedPhpDocs;
+
     public function __construct(
         private readonly PhpDocParser $phpDocParser,
         private TypeContext $typeContext,
         private readonly FileResource $file,
     ) {
         $this->phpDocTypeReflector = new ContextualPhpDocTypeReflector($typeContext);
+        /** @var \WeakMap<Node, PhpDoc> */
+        $this->memoizedPhpDocs = new \WeakMap();
     }
 
     /**
@@ -532,13 +539,17 @@ final class ContextualPhpParserReflector
 
     private function parsePhpDoc(Node $node): PhpDoc
     {
+        if (isset($this->memoizedPhpDocs[$node])) {
+            return $this->memoizedPhpDocs[$node];
+        }
+
         $text = $node->getDocComment()?->getText();
 
         if ($text === null || $text === '') {
             return PhpDoc::empty();
         }
 
-        return $this->phpDocParser->parsePhpDoc($text);
+        return $this->memoizedPhpDocs[$node] = $this->phpDocParser->parsePhpDoc($text);
     }
 
     /**
