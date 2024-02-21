@@ -237,6 +237,14 @@ final class MethodReflection extends \ReflectionMethod
         return parent::getReturnType();
     }
 
+    /**
+     * @return ($origin is Origin::Resolved ? Type : null|Type)
+     */
+    public function getReturnTyphoonType(Origin $origin = Origin::Resolved): ?Type
+    {
+        return $this->metadata->returnType->get($origin);
+    }
+
     public function getShortName(): string
     {
         return $this->metadata->name;
@@ -287,15 +295,7 @@ final class MethodReflection extends \ReflectionMethod
     /**
      * @return ($origin is Origin::Resolved ? Type : null|Type)
      */
-    public function getTyphoonReturnType(Origin $origin = Origin::Resolved): ?Type
-    {
-        return $this->metadata->returnType->get($origin);
-    }
-
-    /**
-     * @return ($origin is Origin::Resolved ? Type : null|Type)
-     */
-    public function getTyphoonThrowsType(Origin $origin = Origin::Resolved): ?Type
+    public function getThrowsTyphoonType(Origin $origin = Origin::Resolved): ?Type
     {
         return match ($origin) {
             Origin::Native => null,
