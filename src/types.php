@@ -12,8 +12,8 @@ final class types
     public const never = NeverType::type;
     public const void = VoidType::type;
     public const null = NullType::type;
-    public const false = FalseType::type;
-    public const true = TrueType::type;
+    public const false = __false;
+    public const true = __true;
     public const bool = BoolType::type;
     public const literalInt = AnyLiteralIntType::type;
     public const int = IntType::type;
@@ -40,6 +40,26 @@ final class types
      * @psalm-suppress UnusedConstructor
      */
     private function __construct() {}
+
+    /**
+     * @template TValue of bool|int|float|string
+     * @param TValue $value
+     * @return LiteralType<TValue>
+     */
+    public static function literal(bool|int|float|string $value): LiteralType
+    {
+        return new LiteralType($value);
+    }
+
+    /**
+     * @template TClass of class-string
+     * @param TClass $class
+     * @return ClassStringLiteralType<TClass>
+     */
+    public static function classStringLiteral(string $class): ClassStringLiteralType
+    {
+        return new ClassStringLiteralType($class);
+    }
 
     /**
      * @no-named-arguments
@@ -71,49 +91,13 @@ final class types
     }
 
     /**
-     * @template TValue of int
-     * @param TValue $value
-     * @return IntLiteralType<TValue>
-     */
-    public static function int(int $value): IntLiteralType
-    {
-        return new IntLiteralType($value);
-    }
-
-    /**
-     * @template TValue of float
-     * @param TValue $value
-     * @return FloatLiteralType<TValue>
-     */
-    public static function float(float $value): FloatLiteralType
-    {
-        return new FloatLiteralType($value);
-    }
-
-    /**
-     * @template TValue of string
-     * @param TValue $value
-     * @return StringLiteralType<TValue>
-     */
-    public static function string(string $value): StringLiteralType
-    {
-        return new StringLiteralType($value);
-    }
-
-    /**
-     * @template TClass of class-string
      * @template TObject of object
-     * @param TClass|Type<TObject> $classOrType
-     * @return ($classOrType is TClass ? ClassStringLiteralType<TClass> : NamedClassStringType<TObject>)
-     * @psalm-suppress TypeDoesNotContainType, NoValue
+     * @param Type<TObject> $type
+     * @return NamedClassStringType<TObject>
      */
-    public static function classString(string|Type $classOrType): ClassStringLiteralType|NamedClassStringType
+    public static function classString(Type $type): NamedClassStringType
     {
-        if (\is_string($classOrType)) {
-            return new ClassStringLiteralType($classOrType);
-        }
-
-        return new NamedClassStringType($classOrType);
+        return new NamedClassStringType($type);
     }
 
     /**
@@ -419,6 +403,18 @@ final class types
         return new UnionType([$type1, $type2, ...$moreTypes]);
     }
 }
+
+/**
+ * @internal
+ * @psalm-internal Typhoon\Type
+ */
+const __true = new LiteralType(true);
+
+/**
+ * @internal
+ * @psalm-internal Typhoon\Type
+ */
+const __false = new LiteralType(false);
 
 /**
  * @internal

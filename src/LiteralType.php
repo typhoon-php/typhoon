@@ -6,15 +6,15 @@ namespace Typhoon\Type;
 
 /**
  * @api
- * @template-covariant TValue of int
+ * @template-covariant TValue of bool|int|float|string
  * @implements Type<TValue>
  */
-final class IntLiteralType implements Type
+final class LiteralType implements Type
 {
     /**
      * @var TValue
      */
-    public readonly int $value;
+    public readonly bool|int|float|string $value;
 
     /**
      * @internal
@@ -22,13 +22,13 @@ final class IntLiteralType implements Type
      * @param TValue $value
      */
     public function __construct(
-        int $value,
+        bool|int|float|string $value,
     ) {
         $this->value = $value;
     }
 
     public function accept(TypeVisitor $visitor): mixed
     {
-        return $visitor->visitIntLiteral($this);
+        return $visitor->visitLiteral($this);
     }
 }
