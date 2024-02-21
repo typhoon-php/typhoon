@@ -15,8 +15,8 @@ This library is an alternative to [native PHP Reflection](https://www.php.net/ma
 composer require typhoon/reflection jetbrains/phpstorm-stubs
 ```
 
-Installing `jetbrains/phpstorm-stubs` is highly recommended.
-Without stubs native PHP classes are reflected via native reflector that does not support templates. 
+Installing `jetbrains/phpstorm-stubs` is highly recommended. Without stubs core PHP classes are reflected via
+[NativeReflector](src/NativeReflector/NativeReflector.php) that does not support phpDoc types. 
 
 ## Basic Usage
 

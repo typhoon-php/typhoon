@@ -291,6 +291,11 @@ final class MethodReflection extends \ReflectionMethod
         return $this->metadata->returnType->get($origin);
     }
 
+    public function getTyphoonThrowsType(): Type
+    {
+        return $this->metadata->throwsType;
+    }
+
     public function hasPrototype(): bool
     {
         return $this->metadata->prototype !== null;

@@ -10,6 +10,7 @@ use PhpParser\Node\Name;
 use PhpParser\Node\Stmt;
 use PHPStan\PhpDocParser\Ast\Type\IdentifierTypeNode;
 use PHPStan\PhpDocParser\Ast\Type\TypeNode;
+use PHPStan\PhpDocParser\Ast\Type\UnionTypeNode;
 use Typhoon\Reflection\FileResource;
 use Typhoon\Reflection\Metadata\AttributeMetadata;
 use Typhoon\Reflection\Metadata\ClassMetadata;
@@ -383,6 +384,7 @@ final class ContextualPhpParserReflector
                 returnsReference: $node->byRef,
                 generator: MethodReflections::isGenerator($node),
                 deprecated: $phpDoc->isDeprecated(),
+                throwsType: $this->reflectThrowsType($phpDoc->throwsTypes()),
                 attributes: $this->reflectAttributes($node->attrGroups, \Attribute::TARGET_METHOD),
             ));
         }
@@ -443,6 +445,34 @@ final class ContextualPhpParserReflector
             native: $native === null ? null : NativeTypeReflections::reflect($this->typeContext, $native, $implicitlyNullable),
             phpDoc: $phpDoc === null ? null : $this->phpDocTypeReflector->reflect($phpDoc),
         );
+    }
+
+    /**
+     * @param list<TypeNode> $throwsTypes
+     */
+    private function reflectThrowsType(array $throwsTypes): Type\Type
+    {
+        if ($throwsTypes === []) {
+            return types::never;
+        }
+
+        if (\count($throwsTypes) === 1) {
+            return $this->phpDocTypeReflector->reflect($throwsTypes[0]);
+        }
+
+        $flatTypes = [];
+
+        foreach ($throwsTypes as $throwsType) {
+            if ($throwsType instanceof UnionTypeNode) {
+                foreach ($throwsType->types as $type) {
+                    $flatTypes[] = $type;
+                }
+            } else {
+                $flatTypes[] = $throwsType;
+            }
+        }
+
+        return $this->phpDocTypeReflector->reflect(new UnionTypeNode($flatTypes));
     }
 
     /**

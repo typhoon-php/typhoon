@@ -10,6 +10,7 @@ use PHPStan\PhpDocParser\Ast\PhpDoc\TypeAliasTagValueNode;
 use PHPStan\PhpDocParser\Ast\Type\GenericTypeNode;
 use PHPStan\PhpDocParser\Ast\Type\IdentifierTypeNode;
 use PHPStan\PhpDocParser\Ast\Type\TypeNode;
+use PHPStan\PhpDocParser\Ast\Type\UnionTypeNode;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Typhoon\Reflection\Variance;
@@ -241,6 +242,33 @@ final class PhpDocAndParserTest extends TestCase
         )->returnType();
 
         self::assertEquals(new IdentifierTypeNode('string'), $returnType);
+    }
+
+    public function testItReturnsAllThrowsTypes(): void
+    {
+        $parser = new PhpDocParser();
+
+        $throwsTypes = $parser->parsePhpDoc(
+            <<<'PHP'
+                /**
+                 * @throws RuntimeException|LogicException
+                 * @throws \Exception
+                 * @phpstan-throws \OutOfBoundsException
+                 */
+                PHP,
+        )->throwsTypes();
+
+        self::assertEquals(
+            [
+                new UnionTypeNode([
+                    new IdentifierTypeNode('RuntimeException'),
+                    new IdentifierTypeNode('LogicException'),
+                ]),
+                new IdentifierTypeNode('\Exception'),
+                new IdentifierTypeNode('\OutOfBoundsException'),
+            ],
+            $throwsTypes,
+        );
     }
 
     public function testItReturnsEmptyTemplatesWhenNoTemplateTag(): void
@@ -551,6 +579,8 @@ final class PhpDocAndParserTest extends TestCase
                  * @return array
                  * @phpstan-type A int
                  * @phpstan-import-type C from bool as A
+                 * @phpstan-throws RuntimeException
+                 * @throws LogicException
                  */
                 PHP,
         );
@@ -564,6 +594,7 @@ final class PhpDocAndParserTest extends TestCase
             $phpDoc->returnType(),
             $phpDoc->typeAliases(),
             $phpDoc->typeAliasImports(),
+            $phpDoc->throwsTypes(),
         ];
 
         $first = $tags();

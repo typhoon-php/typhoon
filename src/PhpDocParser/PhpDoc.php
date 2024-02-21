@@ -12,6 +12,7 @@ use PHPStan\PhpDocParser\Ast\PhpDoc\PhpDocTagNode;
 use PHPStan\PhpDocParser\Ast\PhpDoc\PhpDocTagValueNode;
 use PHPStan\PhpDocParser\Ast\PhpDoc\ReturnTagValueNode;
 use PHPStan\PhpDocParser\Ast\PhpDoc\TemplateTagValueNode;
+use PHPStan\PhpDocParser\Ast\PhpDoc\ThrowsTagValueNode;
 use PHPStan\PhpDocParser\Ast\PhpDoc\TypeAliasImportTagValueNode;
 use PHPStan\PhpDocParser\Ast\PhpDoc\TypeAliasTagValueNode;
 use PHPStan\PhpDocParser\Ast\PhpDoc\UsesTagValueNode;
@@ -38,6 +39,11 @@ final class PhpDoc
     private ?array $paramTypes = null;
 
     private null|TypeNode|false $returnType = false;
+
+    /**
+     * @var ?list<TypeNode>
+     */
+    private ?array $throwsTypes = null;
 
     /**
      * @var ?list<TemplateTagValueNode>
@@ -209,6 +215,28 @@ final class PhpDoc
         }
 
         return $this->returnType = $returnTag?->value->type;
+    }
+
+    /**
+     * @return list<TypeNode>
+     */
+    public function throwsTypes(): array
+    {
+        if ($this->throwsTypes !== null) {
+            return $this->throwsTypes;
+        }
+
+        $throwsTypes = [];
+
+        foreach ($this->tags as $tag) {
+            if (!$tag->value instanceof ThrowsTagValueNode) {
+                continue;
+            }
+
+            $throwsTypes[] = $tag->value->type;
+        }
+
+        return $this->throwsTypes = $throwsTypes;
     }
 
     /**

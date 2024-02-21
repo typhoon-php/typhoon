@@ -5,6 +5,8 @@ declare(strict_types=1);
 namespace Typhoon\Reflection\Metadata;
 
 use Typhoon\Reflection\TemplateReflection;
+use Typhoon\Type\Type;
+use Typhoon\Type\types;
 
 /**
  * @internal
@@ -48,6 +50,7 @@ final class MethodMetadata
         public readonly bool $returnsReference = false,
         public readonly bool $generator = false,
         public readonly bool $deprecated = false,
+        public readonly Type $throwsType = types::never,
         public readonly array $attributes = [],
     ) {}
 
