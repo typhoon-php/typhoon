@@ -187,7 +187,7 @@ final class ReflectorCompatibilityTest extends TestCase
     {
         self::assertSame($native->class, $typhoon->class, $messagePrefix . '.class');
         self::assertSame($native->name, $typhoon->name, $messagePrefix . '.name');
-        // TODO: self::assertSame($native->__toString(), $typhoon->__toString(), $messagePrefix . '.__toString()');
+        self::assertSame($native->__toString(), $typhoon->__toString(), $messagePrefix . '.__toString()');
         self::assertAttributesEqual($native->getAttributes(), $typhoon->getAttributes(), $messagePrefix . 'getAttributes()');
         if ($native->isStatic()) {
             $this->assertMethodClosureEquals($native->getClosure(), $typhoon->getClosure(), $messagePrefix . '.getClosure()');

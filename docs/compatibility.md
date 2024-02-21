@@ -92,7 +92,7 @@
 | `$class`                                 | ✅                                            |
 | `$name`                                  | ✅                                            |
 | `__construct()`                          | ❌ `@internal`                                |
-| `__toString()`                           | ✅                                            |
+| `__toString()`                           | ✅ Via native reflection                      |
 | `createFromMethodName()`                 | ❌                                            |
 | `getAttributes()`                        | ✅                                            |
 | `getClosure()`                           | ✅ Via native reflection                      |

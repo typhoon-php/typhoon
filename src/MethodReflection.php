@@ -31,6 +31,7 @@ final class MethodReflection extends \ReflectionMethod
     /**
      * @internal
      * @psalm-internal Typhoon\Reflection
+     * @param class-string $currentClass
      */
     public function __construct(
         private readonly ClassReflector $classReflector,
@@ -414,7 +415,7 @@ final class MethodReflection extends \ReflectionMethod
     private function loadNative(): void
     {
         if (!$this->nativeLoaded) {
-            parent::__construct($this->metadata->class, $this->metadata->name);
+            parent::__construct($this->currentClass, $this->metadata->name);
             $this->nativeLoaded = true;
         }
     }
