@@ -36,7 +36,6 @@ final class types
     public const scalar = __scalar;
     public const object = ObjectType::type;
     public const resource = ResourceType::type;
-    public const closedResource = ClosedResourceType::type;
     public const arrayKey = __arrayKey;
     public const mixed = MixedType::type;
 

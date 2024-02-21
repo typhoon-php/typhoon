@@ -33,7 +33,6 @@ final class PsalmTest extends TestCase
     #[TestWith([__DIR__ . '/psalm/ClassConstantType.phpt'])]
     #[TestWith([__DIR__ . '/psalm/ClassStringLiteralType.phpt'])]
     #[TestWith([__DIR__ . '/psalm/ClassStringType.phpt'])]
-    #[TestWith([__DIR__ . '/psalm/ClosedResourceType.phpt'])]
     #[TestWith([__DIR__ . '/psalm/ClosureType.phpt'])]
     #[TestWith([__DIR__ . '/psalm/ConditionalType.phpt'])]
     #[TestWith([__DIR__ . '/psalm/ConstantType.phpt'])]

@@ -125,9 +125,6 @@ interface TypeVisitor
     public function visitResource(ResourceType $type): mixed;
 
     /** @return TReturn */
-    public function visitClosedResource(ClosedResourceType $type): mixed;
-
-    /** @return TReturn */
     public function visitClosure(ClosureType $type): mixed;
 
     /** @return TReturn */
