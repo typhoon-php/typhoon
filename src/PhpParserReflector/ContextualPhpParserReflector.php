@@ -260,6 +260,8 @@ final class ContextualPhpParserReflector
                             alias: $adaptation->newName?->name,
                         );
                     }
+
+                    continue;
                 }
 
                 if ($adaptation instanceof Stmt\TraitUseAdaptation\Precedence) {
