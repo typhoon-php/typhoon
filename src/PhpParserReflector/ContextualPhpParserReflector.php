@@ -388,7 +388,7 @@ final class ContextualPhpParserReflector
                 returnsReference: $node->byRef,
                 generator: MethodReflections::isGenerator($node),
                 deprecated: $phpDoc->hasDeprecated(),
-                throwsType: $this->reflectThrowsType($phpDoc->throwsTypes()),
+                throwsTypePhpDoc: $this->reflectThrowsType($phpDoc->throwsTypes()),
                 attributes: $this->reflectAttributes($node->attrGroups, \Attribute::TARGET_METHOD),
                 finalPhpDoc: $phpDoc->hasFinal(),
             ));
@@ -455,10 +455,10 @@ final class ContextualPhpParserReflector
     /**
      * @param list<TypeNode> $throwsTypes
      */
-    private function reflectThrowsType(array $throwsTypes): Type\Type
+    private function reflectThrowsType(array $throwsTypes): ?Type\Type
     {
         if ($throwsTypes === []) {
-            return types::never;
+            return null;
         }
 
         if (\count($throwsTypes) === 1) {

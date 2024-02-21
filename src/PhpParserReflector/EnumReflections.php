@@ -78,7 +78,6 @@ final class EnumReflections
             ],
             returnType: TypeMetadata::create(types::array(), types::list(types::object($class))),
             internal: true,
-            throwsType: types::object(\ValueError::class),
         );
     }
 

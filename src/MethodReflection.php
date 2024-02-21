@@ -10,6 +10,7 @@ use Typhoon\Reflection\Exception\DefaultReflectionException;
 use Typhoon\Reflection\Metadata\MethodMetadata;
 use Typhoon\Reflection\Metadata\ParameterMetadata;
 use Typhoon\Type\Type;
+use Typhoon\Type\types;
 
 /**
  * @api
@@ -291,9 +292,16 @@ final class MethodReflection extends \ReflectionMethod
         return $this->metadata->returnType->get($origin);
     }
 
-    public function getTyphoonThrowsType(): Type
+    /**
+     * @return ($origin is Origin::Resolved ? Type : null|Type)
+     */
+    public function getTyphoonThrowsType(Origin $origin = Origin::Resolved): ?Type
     {
-        return $this->metadata->throwsType;
+        return match ($origin) {
+            Origin::Native => null,
+            Origin::PhpDoc => $this->metadata->throwsTypePhpDoc,
+            Origin::Resolved => $this->metadata->throwsTypePhpDoc ?? types::never,
+        };
     }
 
     public function hasPrototype(): bool
