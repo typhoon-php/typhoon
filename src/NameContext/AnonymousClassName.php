@@ -53,35 +53,6 @@ final class AnonymousClassName
     }
 
     /**
-     * @psalm-suppress PossiblyUnusedMethod
-     * @return list<self>
-     */
-    public static function findDeclared(?string $file = null, ?int $line = null): array
-    {
-        $names = [];
-
-        foreach (get_declared_classes() as $class) {
-            $name = self::tryFromString($class);
-
-            if ($name === null) {
-                continue;
-            }
-
-            if ($file !== null && $name->file !== $file) {
-                continue;
-            }
-
-            if ($line !== null && $name->line !== $line) {
-                continue;
-            }
-
-            $names[] = $name;
-        }
-
-        return $names;
-    }
-
-    /**
      * @return class-string<TObject>
      */
     public function toString(): string
