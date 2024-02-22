@@ -15,14 +15,12 @@ final class types
     public const false = __false;
     public const true = __true;
     public const bool = BoolType::type;
-    public const literalInt = AnyLiteralIntType::type;
     public const int = IntType::type;
     public const positiveInt = __positiveInt;
     public const negativeInt = __negativeInt;
     public const nonPositiveInt = __nonPositiveInt;
     public const nonNegativeInt = __nonNegativeInt;
     public const float = FloatType::type;
-    public const literalString = AnyLiteralStringType::type;
     public const numericString = NumericStringType::type;
     public const classString = ClassStringType::type;
     public const nonEmptyString = __nonEmptyString;
@@ -49,6 +47,16 @@ final class types
     public static function literal(bool|int|float|string $value): LiteralType
     {
         return new LiteralType($value);
+    }
+
+    /**
+     * @template TType
+     * @param Type<TType> $type
+     * @return AnyLiteralType<TType>
+     */
+    public static function anyLiteral(Type $type): AnyLiteralType
+    {
+        return new AnyLiteralType($type);
     }
 
     /**
