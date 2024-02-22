@@ -122,6 +122,9 @@ interface TypeVisitor
     public function visitConditional(ConditionalType $type): mixed;
 
     /** @return TReturn */
+    public function visitAlias(AliasType $type): mixed;
+
+    /** @return TReturn */
     public function visitIntersection(IntersectionType $type): mixed;
 
     /** @return TReturn */

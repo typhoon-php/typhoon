@@ -365,6 +365,15 @@ final class types
     }
 
     /**
+     * @param non-empty-string $class
+     * @param non-empty-string $name
+     */
+    public static function alias(string $class, string $name): AliasType
+    {
+        return new AliasType($class, $name);
+    }
+
+    /**
      * @param non-empty-string $name
      */
     public static function arg(string $name): Argument
