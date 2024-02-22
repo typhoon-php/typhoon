@@ -8,6 +8,7 @@ use PHPyh\CodingStandard\PhpCsFixerCodingStandard;
 
 $finder = Finder::create()->append([
     __FILE__,
+    __DIR__ . '/src/types.php',
     __DIR__ . '/src/TypeVisitor.php',
 ]);
 

@@ -8,7 +8,10 @@ use PHPyh\CodingStandard\PhpCsFixerCodingStandard;
 
 $finder = Finder::create()
     ->in(__DIR__ . '/src')
-    ->notName(['TypeVisitor.php'])
+    ->notName([
+        'TypeVisitor.php',
+        'types.php',
+    ])
     ->append([__FILE__])
     ->append(Finder::create()->in(__DIR__ . '/tests'));
 
