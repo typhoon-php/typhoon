@@ -152,6 +152,9 @@ interface TypeVisitor
     public function visitValueOf(ValueOfType $type): mixed;
 
     /** @return TReturn */
+    public function visitOffset(OffsetType $type): mixed;
+
+    /** @return TReturn */
     public function visitTemplate(TemplateType $type): mixed;
 
     /** @return TReturn */

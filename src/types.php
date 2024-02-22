@@ -334,6 +334,11 @@ final class types
         return new ValueOfType($type);
     }
 
+    public static function offset(Type $subject, Type $offset): OffsetType
+    {
+        return new OffsetType($subject, $offset);
+    }
+
     /**
      * @template TType
      * @param non-empty-string $name

@@ -64,6 +64,7 @@ final class PsalmTest extends TestCase
     #[TestWith([__DIR__ . '/psalm/NumericType.phpt'])]
     #[TestWith([__DIR__ . '/psalm/ObjectShapeType.phpt'])]
     #[TestWith([__DIR__ . '/psalm/ObjectType.phpt'])]
+    #[TestWith([__DIR__ . '/psalm/OffsetType.phpt'])]
     #[TestWith([__DIR__ . '/psalm/ResourceType.phpt'])]
     #[TestWith([__DIR__ . '/psalm/ScalarType.phpt'])]
     #[TestWith([__DIR__ . '/psalm/StaticType.phpt'])]
