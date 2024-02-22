@@ -11,9 +11,6 @@ final class FixturesProvider
      */
     private static ?array $classes = null;
 
-    /**
-     * @psalm-suppress UnusedConstructor
-     */
     private function __construct() {}
 
     /**

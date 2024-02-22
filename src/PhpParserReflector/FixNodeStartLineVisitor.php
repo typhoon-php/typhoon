@@ -7,6 +7,10 @@ namespace Typhoon\Reflection\PhpParserReflector;
 use PhpParser\Node;
 use PhpParser\NodeVisitorAbstract;
 
+/**
+ * @internal
+ * @psalm-internal Typhoon\Reflection\PhpParserReflector
+ */
 final class FixNodeStartLineVisitor extends NodeVisitorAbstract
 {
     private const START_LINE_ATTRIBUTE = 'startLine';

@@ -8,11 +8,12 @@ use PhpParser\Node\Param;
 use PhpParser\Node\Stmt\Class_;
 use PhpParser\Node\Stmt\Property;
 
+/**
+ * @internal
+ * @psalm-internal Typhoon\Reflection\PhpParserReflector
+ */
 final class PropertyReflections
 {
-    /**
-     * @psalm-suppress UnusedConstructor
-     */
     private function __construct() {}
 
     /**

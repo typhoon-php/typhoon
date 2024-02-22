@@ -11,6 +11,10 @@ use Typhoon\Reflection\NameContext\UnqualifiedName;
 use Typhoon\Type\Type;
 use Typhoon\Type\types;
 
+/**
+ * @internal
+ * @psalm-internal Typhoon\Reflection
+ */
 final class TypeContext implements NameResolver
 {
     /**

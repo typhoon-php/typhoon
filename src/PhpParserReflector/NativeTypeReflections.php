@@ -11,11 +11,12 @@ use Typhoon\Reflection\TypeContext\TypeContext;
 use Typhoon\Type\Type;
 use Typhoon\Type\types;
 
+/**
+ * @internal
+ * @psalm-internal Typhoon\Reflection\PhpParserReflector
+ */
 final class NativeTypeReflections
 {
-    /**
-     * @psalm-suppress UnusedConstructor
-     */
     private function __construct() {}
 
     public static function reflect(TypeContext $typeContext, Node $node, bool $implicitlyNullable = false): Type

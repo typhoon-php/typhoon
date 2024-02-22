@@ -9,11 +9,12 @@ use PhpParser\Node\Stmt\ClassLike;
 use PhpParser\Node\Stmt\Enum_;
 use Typhoon\Reflection\ClassReflection;
 
+/**
+ * @internal
+ * @psalm-internal Typhoon\Reflection\PhpParserReflector
+ */
 final class ClassReflections
 {
-    /**
-     * @psalm-suppress UnusedConstructor
-     */
     private function __construct() {}
 
     /**

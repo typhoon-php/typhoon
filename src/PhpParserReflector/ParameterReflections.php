@@ -8,11 +8,12 @@ use PhpParser\Node\Expr\ConstFetch;
 use PhpParser\Node\Param;
 use PhpParser\Node\Stmt\Class_;
 
+/**
+ * @internal
+ * @psalm-internal Typhoon\Reflection\PhpParserReflector
+ */
 final class ParameterReflections
 {
-    /**
-     * @psalm-suppress UnusedConstructor
-     */
     private function __construct() {}
 
     public static function isPromoted(Param $node): bool

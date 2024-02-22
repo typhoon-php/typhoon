@@ -46,6 +46,7 @@
     </ignoreExceptions>
 
     <issueHandlers>
+        <UnusedConstructor errorLevel="suppress"/>
         <MissingThrowsDocblock>
             <errorLevel type="suppress">
                 <directory name="tests"/>

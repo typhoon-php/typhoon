@@ -10,11 +10,12 @@ use Typhoon\Reflection\Metadata\PropertyMetadata;
 use Typhoon\Reflection\Metadata\TypeMetadata;
 use Typhoon\Type\types;
 
+/**
+ * @internal
+ * @psalm-internal Typhoon\Reflection\PhpParserReflector
+ */
 final class EnumReflections
 {
-    /**
-     * @psalm-suppress UnusedConstructor
-     */
     private function __construct() {}
 
     /**
