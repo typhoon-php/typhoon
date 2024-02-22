@@ -8,6 +8,7 @@ use Typhoon\Reflection\Exception\DefaultReflectionException;
 use Typhoon\Reflection\Metadata\AttributeMetadata;
 use Typhoon\Reflection\Metadata\ChangeDetector;
 use Typhoon\Reflection\Metadata\ClassMetadata;
+use Typhoon\Reflection\Metadata\InheritedName;
 use Typhoon\Reflection\Metadata\MethodMetadata;
 use Typhoon\Reflection\Metadata\ParameterMetadata;
 use Typhoon\Reflection\Metadata\PropertyMetadata;
@@ -51,11 +52,11 @@ final class NativeReflector
             anonymous: $class->isAnonymous(),
             parentType: $this->reflectParent($class),
             interfaceTypes: array_map(
-                static fn(string $interface): Type\NamedObjectType => types::object($interface),
+                static fn(string $name): InheritedName => new InheritedName($name),
                 $class->getInterfaceNames(),
             ),
             traitTypes: array_map(
-                static fn(string $trait): Type\NamedObjectType => types::object($trait),
+                static fn(string $name): InheritedName => new InheritedName($name),
                 $class->getTraitNames(),
             ),
             traitMethodAliases: $traitMethodAliases,
@@ -65,7 +66,7 @@ final class NativeReflector
         );
     }
 
-    private function reflectParent(\ReflectionClass $class): ?Type\NamedObjectType
+    private function reflectParent(\ReflectionClass $class): ?InheritedName
     {
         $parentClass = $class->getParentClass();
 
@@ -73,7 +74,7 @@ final class NativeReflector
             return null;
         }
 
-        return types::object($parentClass->name);
+        return new InheritedName($parentClass->name);
     }
 
     /**
@@ -341,7 +342,7 @@ final class NativeReflector
                 throw new \LogicException('Cannot use type "static" outside of class scope.');
             }
 
-            return types::static($class);
+            return types::template('static', types::atClass($class));
         }
 
         $type = match ($name) {

@@ -308,8 +308,13 @@ final class ClassReflection extends \ReflectionClass
 
     public function getTraitNames(): array
     {
-        /** @var list<trait-string> */
-        return $this->metadata->traitClasses();
+        $traitNames = [];
+
+        foreach ($this->yieldTraits() as $name => $_trait) {
+            $traitNames[] = $name;
+        }
+
+        return $traitNames;
     }
 
     /**
@@ -317,9 +322,7 @@ final class ClassReflection extends \ReflectionClass
      */
     public function getTraits(): array
     {
-        $traitNames = $this->getTraitNames();
-
-        return array_combine($traitNames, array_map($this->reflectClass(...), $traitNames));
+        return iterator_to_array($this->yieldTraits());
     }
 
     public function getTypeAlias(string $name): Type
@@ -594,9 +597,7 @@ final class ClassReflection extends \ReflectionClass
     }
 
     /**
-     * @template TObject of object
-     * @param class-string<TObject> $class
-     * @return ClassReflection<TObject>
+     * @param non-empty-string $class
      * @throws ReflectionException
      */
     private function reflectClass(string $class): self
@@ -605,7 +606,7 @@ final class ClassReflection extends \ReflectionClass
     }
 
     /**
-     * @param class-string $class
+     * @param non-empty-string $class
      * @throws ReflectionException
      */
     private function reflectClassMetadata(string $class): ClassMetadata
@@ -639,5 +640,18 @@ final class ClassReflection extends \ReflectionClass
         }
 
         return $interfaces;
+    }
+
+    /**
+     * @return \Generator<trait-string, self>
+     */
+    private function yieldTraits(): \Generator
+    {
+        foreach ($this->metadata->traitClasses() as $traitClass) {
+            $trait = $this->reflectClass($traitClass);
+            /** @var trait-string */
+            $name = $trait->name;
+            yield $name => $trait;
+        }
     }
 }

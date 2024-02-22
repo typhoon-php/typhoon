@@ -24,7 +24,7 @@
 
     <plugins>
         <pluginClass class="Psalm\PhpUnitPlugin\Plugin"/>
-        <pluginClass class="Typhoon\PsalmPlugin\TyphoonPlugin"/>
+        <!--<pluginClass class="Typhoon\PsalmPlugin\TyphoonPlugin"/>-->
     </plugins>
 
     <projectFiles>

@@ -8,7 +8,6 @@ use Typhoon\Reflection\ClassReflection;
 use Typhoon\Reflection\Inheritance\MethodsInheritanceResolver;
 use Typhoon\Reflection\Inheritance\PropertiesInheritanceResolver;
 use Typhoon\Reflection\TemplateReflection;
-use Typhoon\Type\NamedObjectType;
 use Typhoon\Type\Type;
 
 /**
@@ -16,9 +15,9 @@ use Typhoon\Type\Type;
  * @psalm-internal Typhoon\Reflection
  * @template-covariant T of object
  * @template-extends RootMetadata<class-string<T>>
- * @psalm-type ClassMetadataReflector = \Closure(class-string): ClassMetadata
- * @psalm-type TraitMethodAliases = array<class-string, non-empty-array<non-empty-string, list<TraitMethodAlias>>>
- * @psalm-type TraitMethodPrecedence = array<non-empty-string, class-string>
+ * @psalm-type ClassMetadataReflector = \Closure(non-empty-string): ClassMetadata
+ * @psalm-type TraitMethodAliases = array<non-empty-string, non-empty-array<non-empty-string, list<TraitMethodAlias>>>
+ * @psalm-type TraitMethodPrecedence = array<non-empty-string, non-empty-string>
  */
 final class ClassMetadata extends RootMetadata
 {
@@ -43,8 +42,8 @@ final class ClassMetadata extends RootMetadata
      * @param list<AttributeMetadata> $attributes
      * @param array<non-empty-string, Type> $typeAliases
      * @param list<TemplateReflection> $templates
-     * @param list<NamedObjectType> $interfaceTypes
-     * @param list<NamedObjectType> $traitTypes
+     * @param list<InheritedName> $interfaceTypes
+     * @param list<InheritedName> $traitTypes
      * @param TraitMethodAliases $traitMethodAliases
      * @param TraitMethodPrecedence $traitMethodPrecedence
      * @param list<PropertyMetadata> $ownProperties
@@ -68,7 +67,7 @@ final class ClassMetadata extends RootMetadata
         public readonly bool $trait = false,
         public readonly bool $anonymous = false,
         public readonly bool $deprecated = false,
-        public readonly ?NamedObjectType $parentType = null,
+        public readonly ?InheritedName $parentType = null,
         public readonly array $interfaceTypes = [],
         public readonly array $traitTypes = [],
         public readonly array $traitMethodAliases = [],
@@ -82,7 +81,7 @@ final class ClassMetadata extends RootMetadata
     }
 
     /**
-     * @return ?class-string
+     * @return ?non-empty-string
      */
     public function parentClass(): ?string
     {
@@ -90,7 +89,7 @@ final class ClassMetadata extends RootMetadata
     }
 
     /**
-     * @return list<class-string>
+     * @return list<non-empty-string>
      */
     public function interfaceClasses(): array
     {
@@ -98,7 +97,7 @@ final class ClassMetadata extends RootMetadata
     }
 
     /**
-     * @return list<class-string>
+     * @return list<non-empty-string>
      */
     public function traitClasses(): array
     {

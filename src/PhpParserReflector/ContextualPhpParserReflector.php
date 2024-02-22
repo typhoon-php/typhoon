@@ -14,6 +14,7 @@ use PHPStan\PhpDocParser\Ast\Type\UnionTypeNode;
 use Typhoon\Reflection\FileResource;
 use Typhoon\Reflection\Metadata\AttributeMetadata;
 use Typhoon\Reflection\Metadata\ClassMetadata;
+use Typhoon\Reflection\Metadata\InheritedName;
 use Typhoon\Reflection\Metadata\MethodMetadata;
 use Typhoon\Reflection\Metadata\ParameterMetadata;
 use Typhoon\Reflection\Metadata\PropertyMetadata;
@@ -23,7 +24,6 @@ use Typhoon\Reflection\PhpDocParser\ContextualPhpDocTypeReflector;
 use Typhoon\Reflection\PhpDocParser\PhpDoc;
 use Typhoon\Reflection\PhpDocParser\PhpDocParser;
 use Typhoon\Reflection\TemplateReflection;
-use Typhoon\Reflection\TypeAlias\ImportedType;
 use Typhoon\Reflection\TypeContext\TypeContext;
 use Typhoon\Type;
 use Typhoon\Type\types;
@@ -33,6 +33,7 @@ use Typhoon\Type\types;
  * @psalm-internal Typhoon\Reflection\PhpParserReflector
  * @psalm-import-type TraitMethodAliases from ClassMetadata
  * @psalm-import-type TraitMethodPrecedence from ClassMetadata
+ * @psalm-import-type Types from TypeContext as ContextTypes
  */
 final class ContextualPhpParserReflector
 {
@@ -54,14 +55,6 @@ final class ContextualPhpParserReflector
     }
 
     /**
-     * @return class-string
-     */
-    public function resolveClassName(Node\Identifier $name): string
-    {
-        return $this->resolveNameAsClass($name);
-    }
-
-    /**
      * @template TObject of object
      * @param class-string<TObject> $name
      * @return ClassMetadata<TObject>
@@ -69,42 +62,65 @@ final class ContextualPhpParserReflector
     public function reflectClass(Stmt\ClassLike $node, string $name): ClassMetadata
     {
         $phpDoc = $this->parsePhpDoc($node);
-        [$traitTypes, $traitMethodAliases, $traitMethodPrecedence] = $this->reflectTraits($node);
-
-        return $this->executeWithTypes(types::atClass($name), $phpDoc, fn(): ClassMetadata => new ClassMetadata(
+        $trait = $node instanceof Stmt\Trait_;
+        $this->typeContext->enterClass(
             name: $name,
-            modifiers: ClassReflections::modifiers($node),
-            changeDetector: $this->file->changeDetector(),
-            internal: $this->file->isInternal(),
-            extension: $this->file->extension,
-            file: $this->file->isInternal() ? false : $this->file->file,
-            startLine: $this->reflectLine($node->getStartLine()),
-            endLine: $this->reflectLine($node->getEndLine()),
-            docComment: $this->reflectDocComment($node),
-            attributes: $this->reflectAttributes($node->attrGroups, \Attribute::TARGET_CLASS),
-            typeAliases: $this->reflectTypeAliasesFromContext($phpDoc),
-            templates: $this->reflectTemplatesFromContext($phpDoc),
-            interface: $node instanceof Stmt\Interface_,
-            enum: $node instanceof Stmt\Enum_,
-            trait: $node instanceof Stmt\Trait_,
-            anonymous: $node->name === null,
-            deprecated: $phpDoc->hasDeprecated(),
-            parentType: $this->reflectParentType($node, $phpDoc),
-            interfaceTypes: $this->reflectInterfaceTypes($node, $phpDoc),
-            traitTypes: $traitTypes,
-            traitMethodAliases: $traitMethodAliases,
-            traitMethodPrecedence: $traitMethodPrecedence,
-            ownProperties: $this->reflectOwnProperties($name, $node),
-            ownMethods: $this->reflectOwnMethods($name, $node),
-            finalPhpDoc: $phpDoc->hasFinal(),
-            readonlyPhpDoc: $phpDoc->hasReadonly(),
-        ));
+            trait: $trait,
+            aliasTypes: $this->reflectClassAliasTypes($phpDoc),
+            templateTypes: $this->reflectTemplateTypes(types::atClass($name), $phpDoc),
+        );
+
+        try {
+            [$traitTypes, $traitMethodAliases, $traitMethodPrecedence] = $this->reflectTraits($node);
+
+            return new ClassMetadata(
+                name: $name,
+                modifiers: ClassReflections::modifiers($node),
+                changeDetector: $this->file->changeDetector(),
+                internal: $this->file->isInternal(),
+                extension: $this->file->extension,
+                file: $this->file->isInternal() ? false : $this->file->file,
+                startLine: $this->reflectLine($node->getStartLine()),
+                endLine: $this->reflectLine($node->getEndLine()),
+                docComment: $this->reflectDocComment($node),
+                attributes: $this->reflectAttributes($node->attrGroups, \Attribute::TARGET_CLASS),
+                typeAliases: $this->reflectTypeAliases($phpDoc),
+                templates: $this->reflectTemplatesFromContext($phpDoc),
+                interface: $node instanceof Stmt\Interface_,
+                enum: $node instanceof Stmt\Enum_,
+                trait: $trait,
+                anonymous: $node->name === null,
+                deprecated: $phpDoc->hasDeprecated(),
+                parentType: $this->reflectParentType($node, $phpDoc),
+                interfaceTypes: $this->reflectInterfaceTypes($node, $phpDoc),
+                traitTypes: $traitTypes,
+                traitMethodAliases: $traitMethodAliases,
+                traitMethodPrecedence: $traitMethodPrecedence,
+                ownProperties: $this->reflectOwnProperties($name, $node),
+                ownMethods: $this->reflectOwnMethods($name, $node),
+                finalPhpDoc: $phpDoc->hasFinal(),
+                readonlyPhpDoc: $phpDoc->hasReadonly(),
+            );
+        } finally {
+            $this->typeContext->leaveClass();
+        }
     }
 
     public function __clone()
     {
         $this->typeContext = clone $this->typeContext;
         $this->phpDocTypeReflector = new ContextualPhpDocTypeReflector($this->typeContext);
+    }
+
+    /**
+     * @return non-empty-string
+     */
+    public function resolveNameAsClass(string|Node\Identifier|Name|IdentifierTypeNode $name): string
+    {
+        return $this->typeContext->resolveNameAsClass(match (true) {
+            $name instanceof Name => $name->toCodeString(),
+            default => (string) $name,
+        });
     }
 
     /**
@@ -151,7 +167,7 @@ final class ContextualPhpParserReflector
         return $attributes;
     }
 
-    private function reflectParentType(Stmt\ClassLike $node, PhpDoc $phpDoc): ?Type\NamedObjectType
+    private function reflectParentType(Stmt\ClassLike $node, PhpDoc $phpDoc): ?InheritedName
     {
         if (!$node instanceof Stmt\Class_ || $node->extends === null) {
             return null;
@@ -160,19 +176,16 @@ final class ContextualPhpParserReflector
         $parentClass = $this->resolveNameAsClass($node->extends);
 
         foreach ($phpDoc->extendedTypes() as $phpDocExtendedType) {
-            /** @var Type\NamedObjectType $extendedType */
-            $extendedType = $this->phpDocTypeReflector->reflect($phpDocExtendedType);
-
-            if ($extendedType->class === $parentClass) {
-                return $extendedType;
+            if ($this->resolveNameAsClass($phpDocExtendedType->type) === $parentClass) {
+                return new InheritedName($parentClass, array_map($this->phpDocTypeReflector->reflect(...), $phpDocExtendedType->genericTypes));
             }
         }
 
-        return types::object($parentClass);
+        return new InheritedName($parentClass);
     }
 
     /**
-     * @return list<Type\NamedObjectType>
+     * @return list<InheritedName>
      */
     private function reflectInterfaceTypes(Stmt\ClassLike $node, PhpDoc $phpDoc): array
     {
@@ -197,15 +210,16 @@ final class ContextualPhpParserReflector
             return [];
         }
 
-        $phpDocTypesByClass = [];
+        $templateArgumentsByClass = [];
 
         foreach ($phpDocInterfaceTypes as $phpDocInterfaceType) {
-            /** @var Type\NamedObjectType $implementedType */
-            $implementedType = $this->phpDocTypeReflector->reflect($phpDocInterfaceType);
-            $phpDocTypesByClass[$implementedType->class] = $implementedType;
+            $templateArgumentsByClass[$this->resolveNameAsClass($phpDocInterfaceType->type)] = array_map(
+                $this->phpDocTypeReflector->reflect(...),
+                $phpDocInterfaceType->genericTypes,
+            );
         }
 
-        $types = [];
+        $inheritedNames = [];
 
         foreach ($names as $name) {
             $nameAsString = $name->toCodeString();
@@ -216,14 +230,14 @@ final class ContextualPhpParserReflector
             }
 
             $class = $this->resolveNameAsClass($nameAsString);
-            $types[] = $phpDocTypesByClass[$class] ?? types::object($class);
+            $inheritedNames[] = new InheritedName($class, $templateArgumentsByClass[$class] ?? []);
         }
 
-        return $types;
+        return $inheritedNames;
     }
 
     /**
-     * @return array{list<Type\NamedObjectType>, TraitMethodAliases, TraitMethodPrecedence}
+     * @return array{list<InheritedName>, TraitMethodAliases, TraitMethodPrecedence}
      */
     private function reflectTraits(Stmt\ClassLike $node): array
     {
@@ -231,17 +245,18 @@ final class ContextualPhpParserReflector
             return [[], [], []];
         }
 
-        $phpDocTypesByClass = [];
+        $templateArgumentsByClass = [];
 
         foreach ($node->getTraitUses() as $useNode) {
             foreach ($this->parsePhpDoc($useNode)->usedTypes() as $phpDocUsedType) {
-                $usedType = $this->phpDocTypeReflector->reflect($phpDocUsedType);
-                \assert($usedType instanceof Type\NamedObjectType);
-                $phpDocTypesByClass[$usedType->class] = $usedType;
+                $templateArgumentsByClass[$this->resolveNameAsClass($phpDocUsedType->type)] = array_map(
+                    $this->phpDocTypeReflector->reflect(...),
+                    $phpDocUsedType->genericTypes,
+                );
             }
         }
 
-        $traitTypes = [];
+        $inheritedNames = [];
         /** @var TraitMethodAliases */
         $traitMethodAliases = [];
         /** @var TraitMethodPrecedence */
@@ -253,7 +268,7 @@ final class ContextualPhpParserReflector
             foreach ($useNode->traits as $name) {
                 $useTraitClass = $this->resolveNameAsClass($name);
                 $useTraitClasses[] = $useTraitClass;
-                $traitTypes[] = $phpDocTypesByClass[$useTraitClass] ?? types::object($useTraitClass);
+                $inheritedNames[] = new InheritedName($useTraitClass, $templateArgumentsByClass[$useTraitClass] ?? []);
             }
 
             foreach ($useNode->adaptations as $adaptation) {
@@ -281,7 +296,7 @@ final class ContextualPhpParserReflector
             }
         }
 
-        return [$traitTypes, $traitMethodAliases, $traitMethodPrecedence];
+        return [$inheritedNames, $traitMethodAliases, $traitMethodPrecedence];
     }
 
     /**
@@ -371,27 +386,32 @@ final class ContextualPhpParserReflector
         foreach ($classNode->getMethods() as $node) {
             $name = $node->name->name;
             $phpDoc = $this->parsePhpDoc($node);
-            $declaredAt = types::atMethod($class, $name);
-            $methods[] = $this->executeWithTypes($declaredAt, $phpDoc, fn(): MethodMetadata => new MethodMetadata(
-                name: $name,
-                class: $class,
-                modifiers: MethodReflections::modifiers($node, $interface),
-                parameters: $this->reflectParameters($node->params, $phpDoc, $class, $name),
-                returnType: $this->reflectType($node->returnType, $phpDoc->returnType()),
-                templates: $this->reflectTemplatesFromContext($phpDoc),
-                docComment: $this->reflectDocComment($node),
-                internal: $this->file->isInternal(),
-                extension: $this->file->extension,
-                file: $this->file->isInternal() ? false : $this->file->file,
-                startLine: $this->reflectLine($node->getStartLine()),
-                endLine: $this->reflectLine($node->getEndLine()),
-                returnsReference: $node->byRef,
-                generator: MethodReflections::isGenerator($node),
-                deprecated: $phpDoc->hasDeprecated(),
-                throwsTypePhpDoc: $this->reflectThrowsType($phpDoc->throwsTypes()),
-                attributes: $this->reflectAttributes($node->attrGroups, \Attribute::TARGET_METHOD),
-                finalPhpDoc: $phpDoc->hasFinal(),
-            ));
+            $this->typeContext->enterMethod($this->reflectTemplateTypes(types::atMethod($class, $name), $phpDoc));
+
+            try {
+                $methods[] = new MethodMetadata(
+                    name: $name,
+                    class: $class,
+                    modifiers: MethodReflections::modifiers($node, $interface),
+                    parameters: $this->reflectParameters($node->params, $phpDoc, $class, $name),
+                    returnType: $this->reflectType($node->returnType, $phpDoc->returnType()),
+                    templates: $this->reflectTemplatesFromContext($phpDoc),
+                    docComment: $this->reflectDocComment($node),
+                    internal: $this->file->isInternal(),
+                    extension: $this->file->extension,
+                    file: $this->file->isInternal() ? false : $this->file->file,
+                    startLine: $this->reflectLine($node->getStartLine()),
+                    endLine: $this->reflectLine($node->getEndLine()),
+                    returnsReference: $node->byRef,
+                    generator: MethodReflections::isGenerator($node),
+                    deprecated: $phpDoc->hasDeprecated(),
+                    throwsTypePhpDoc: $this->reflectThrowsType($phpDoc->throwsTypes()),
+                    attributes: $this->reflectAttributes($node->attrGroups, \Attribute::TARGET_METHOD),
+                    finalPhpDoc: $phpDoc->hasFinal(),
+                );
+            } finally {
+                $this->typeContext->leaveMethod();
+            }
         }
 
         if ($classNode instanceof Stmt\Enum_) {
@@ -488,12 +508,10 @@ final class ContextualPhpParserReflector
         $reflections = [];
 
         foreach ($phpDoc->templates() as $position => $node) {
-            $templateType = $this->typeContext->resolveNameAsType($node->name);
-            \assert($templateType instanceof Type\TemplateType);
             $reflections[] = new TemplateReflection(
                 name: $node->name,
                 position: $position,
-                constraint: $templateType->constraint,
+                constraint: $node->bound === null ? types::mixed : $this->phpDocTypeReflector->reflect($node->bound),
                 variance: PhpDoc::templateTagVariance($node),
             );
         }
@@ -504,34 +522,27 @@ final class ContextualPhpParserReflector
     /**
      * @return array<non-empty-string, Type\Type>
      */
-    private function reflectTypeAliasesFromContext(PhpDoc $phpDoc): array
+    private function reflectTypeAliases(PhpDoc $phpDoc): array
     {
         $typeAliases = [];
 
         foreach ($phpDoc->typeAliases() as $typeAlias) {
-            $typeAliases[$typeAlias->alias] = $this->typeContext->resolveNameAsType($typeAlias->alias);
+            $typeAliases[$typeAlias->alias] = $this->phpDocTypeReflector->reflect($typeAlias->type);
         }
 
         foreach ($phpDoc->typeAliasImports() as $typeImport) {
             $alias = $typeImport->importedAs ?? $typeImport->importedAlias;
-            $typeAliases[$alias] = $this->typeContext->resolveNameAsType($alias);
+            $typeAliases[$alias] = types::alias($this->resolveNameAsClass($typeImport->importedFrom), $typeImport->importedAlias);
         }
 
         return $typeAliases;
     }
 
     /**
-     * @template TReturn
-     * @param \Closure(): TReturn $action
-     * @return TReturn
+     * @return ContextTypes
      */
-    private function executeWithTypes(Type\AtClass|Type\AtMethod $declaredAt, PhpDoc $phpDoc, \Closure $action): mixed
+    private function reflectClassAliasTypes(PhpDoc $phpDoc): array
     {
-        $class = match (true) {
-            $declaredAt instanceof Type\AtClass => $declaredAt->name,
-            $declaredAt instanceof Type\AtMethod => $declaredAt->class,
-            default => null,
-        };
         $types = [];
 
         foreach ($phpDoc->typeAliases() as $typeAlias) {
@@ -540,37 +551,24 @@ final class ContextualPhpParserReflector
 
         foreach ($phpDoc->typeAliasImports() as $typeImport) {
             $alias = $typeImport->importedAs ?? $typeImport->importedAlias;
-            $types[$alias] = function () use ($class, $typeImport): Type\Type {
-                $fromClass = $this->resolveNameAsClass($typeImport->importedFrom);
-
-                if ($fromClass === $class) {
-                    return $this->typeContext->resolveNameAsType($typeImport->importedAlias);
-                }
-
-                return new ImportedType($fromClass, $typeImport->importedAlias);
-            };
+            $types[$alias] = fn(): Type\Type => types::alias($this->resolveNameAsClass($typeImport->importedFrom), $typeImport->importedAlias);
         }
 
-        foreach ($phpDoc->templates() as $template) {
-            $types[$template->name] = fn(): Type\TemplateType => types::template(
-                name: $template->name,
-                declaredAt: $declaredAt,
-                constraint: $template->bound === null ? types::mixed : $this->phpDocTypeReflector->reflect($template->bound),
-            );
-        }
-
-        return $this->typeContext->executeWithTypes($action, $types);
+        return $types;
     }
 
     /**
-     * @return class-string
+     * @return ContextTypes
      */
-    private function resolveNameAsClass(string|Node\Identifier|Name|IdentifierTypeNode $name): string
+    private function reflectTemplateTypes(Type\AtClass|Type\AtMethod $declaredAt, PhpDoc $phpDoc): array
     {
-        return $this->typeContext->resolveNameAsClass(match (true) {
-            $name instanceof Name => $name->toCodeString(),
-            default => (string) $name,
-        });
+        $types = [];
+
+        foreach ($phpDoc->templates() as $template) {
+            $types[$template->name] = types::template($template->name, $declaredAt);
+        }
+
+        return $types;
     }
 
     private function parsePhpDoc(Node $node): PhpDoc

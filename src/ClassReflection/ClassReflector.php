@@ -6,17 +6,16 @@ namespace Typhoon\Reflection\ClassReflection;
 
 use Typhoon\Reflection\ClassReflection;
 use Typhoon\Reflection\ReflectionException;
+use Typhoon\Reflection\TypeContext\ClassExistenceChecker;
 
 /**
  * @internal
  * @psalm-internal Typhoon\Reflection
  */
-interface ClassReflector
+interface ClassReflector extends ClassExistenceChecker
 {
     /**
-     * @template T of object
-     * @param class-string<T> $name
-     * @return ClassReflection<T>
+     * @param non-empty-string $name
      * @throws ReflectionException
      */
     public function reflectClass(string $name): ClassReflection;

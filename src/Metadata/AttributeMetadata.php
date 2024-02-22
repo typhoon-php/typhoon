@@ -8,12 +8,11 @@ namespace Typhoon\Reflection\Metadata;
  * @internal
  * @psalm-internal Typhoon\Reflection
  * @psalm-immutable
- * @template TAttribute of object
  */
 final class AttributeMetadata
 {
     /**
-     * @param class-string<TAttribute> $name
+     * @param non-empty-string $name
      * @param non-negative-int $position
      * @param \Attribute::TARGET_* $target
      */

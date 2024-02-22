@@ -57,8 +57,10 @@ final class NameContextVisitor extends NodeVisitorAbstract
             }
 
             $this->nameContext->enterClass(
-                name: $node->name->name,
-                parent: $node instanceof Stmt\Class_ ? $node->extends?->toCodeString() : null,
+                unresolvedName: $node->name->name,
+                unresolvedParentName: $node instanceof Stmt\Class_ ? $node->extends?->toCodeString() : null,
+                trait: $node instanceof Stmt\Trait_,
+                final: $node instanceof Stmt\Class_ && $node->isFinal(),
             );
 
             return null;

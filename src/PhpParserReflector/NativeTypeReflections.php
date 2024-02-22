@@ -69,13 +69,7 @@ final class NativeTypeReflections
         }
 
         if ($node instanceof Name) {
-            $resolvedName = $typeContext->resolveNameAsClass($node->toCodeString());
-
-            if ($node->toString() === 'static') {
-                return types::static($resolvedName);
-            }
-
-            return types::object($resolvedName);
+            return $typeContext->resolveNameAsType($node->toCodeString(), classOnly: true);
         }
 
         throw new DefaultReflectionException(sprintf('%s is not supported.', $node::class));

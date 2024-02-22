@@ -4,334 +4,176 @@ declare(strict_types=1);
 
 namespace Typhoon\Reflection\TypeResolver;
 
-use Typhoon\Type;
+use Typhoon\Type\Argument;
+use Typhoon\Type\ArrayElement;
+use Typhoon\Type\AtClass;
+use Typhoon\Type\AtFunction;
+use Typhoon\Type\AtMethod;
+use Typhoon\Type\DefaultTypeVisitor;
+use Typhoon\Type\Parameter;
+use Typhoon\Type\Property;
+use Typhoon\Type\Type;
 use Typhoon\Type\types;
+use Typhoon\Type\Variance;
 
 /**
  * @internal
  * @psalm-internal Typhoon\Reflection
- * @implements Type\TypeVisitor<Type\Type>
+ * @extends DefaultTypeVisitor<Type>
  */
-abstract class RecursiveTypeReplacer implements Type\TypeVisitor
+abstract class RecursiveTypeReplacer extends DefaultTypeVisitor
 {
-    public function visitNever(Type\NeverType $type): mixed
+    public function classConstant(Type $self, Type $class, string $name): mixed
     {
-        return $type;
+        return types::classConstant($class->accept($this), $name);
     }
 
-    public function visitVoid(Type\VoidType $type): mixed
+    public function intMask(Type $self, Type $type): mixed
     {
-        return $type;
+        return types::intMask($type->accept($this));
     }
 
-    public function visitNull(Type\NullType $type): mixed
+    public function literal(Type $self, Type $type): mixed
     {
-        return $type;
+        return types::literal($type->accept($this));
     }
 
-    public function visitFalse(Type\FalseType $type): mixed
+    public function namedClassString(Type $self, Type $object): mixed
     {
-        return $type;
+        return types::classString($object->accept($this));
     }
 
-    public function visitTrue(Type\TrueType $type): mixed
+    public function list(Type $self, Type $value): mixed
     {
-        return $type;
+        return types::list($value->accept($this));
     }
 
-    public function visitBool(Type\BoolType $type): mixed
-    {
-        return $type;
-    }
-
-    public function visitIntLiteral(Type\IntLiteralType $type): mixed
-    {
-        return $type;
-    }
-
-    public function visitAnyLiteralInt(Type\AnyLiteralIntType $type): mixed
-    {
-        return $type;
-    }
-
-    public function visitIntRange(Type\IntRangeType $type): mixed
-    {
-        return $type;
-    }
-
-    public function visitIntMask(Type\IntMaskType $type): mixed
-    {
-        return $type;
-    }
-
-    public function visitIntMaskOf(Type\IntMaskOfType $type): mixed
-    {
-        return $type;
-    }
-
-    public function visitInt(Type\IntType $type): mixed
-    {
-        return $type;
-    }
-
-    public function visitFloatLiteral(Type\FloatLiteralType $type): mixed
-    {
-        return $type;
-    }
-
-    public function visitFloat(Type\FloatType $type): mixed
-    {
-        return $type;
-    }
-
-    public function visitStringLiteral(Type\StringLiteralType $type): mixed
-    {
-        return $type;
-    }
-
-    public function visitAnyLiteralString(Type\AnyLiteralStringType $type): mixed
-    {
-        return $type;
-    }
-
-    public function visitNumericString(Type\NumericStringType $type): mixed
-    {
-        return $type;
-    }
-
-    public function visitClassStringLiteral(Type\ClassStringLiteralType $type): mixed
-    {
-        return $type;
-    }
-
-    public function visitNamedClassString(Type\NamedClassStringType $type): mixed
-    {
-        /** @psalm-suppress MixedArgumentTypeCoercion */
-        return types::classString($type->type->accept($this));
-    }
-
-    public function visitClassString(Type\ClassStringType $type): mixed
-    {
-        return $type;
-    }
-
-    public function visitInterfaceString(Type\InterfaceStringType $type): mixed
-    {
-        return $type;
-    }
-
-    public function visitEnumString(Type\EnumStringType $type): mixed
-    {
-        return $type;
-    }
-
-    public function visitTraitString(Type\TraitStringType $type): mixed
-    {
-        return $type;
-    }
-
-    public function visitNonEmptyString(Type\NonEmptyStringType $type): mixed
-    {
-        return $type;
-    }
-
-    public function visitTruthyString(Type\TruthyStringType $type): mixed
-    {
-        return $type;
-    }
-
-    public function visitString(Type\StringType $type): mixed
-    {
-        return $type;
-    }
-
-    public function visitNumeric(Type\NumericType $type): mixed
-    {
-        return $type;
-    }
-
-    public function visitArrayKey(Type\ArrayKeyType $type): mixed
-    {
-        return $type;
-    }
-
-    public function visitScalar(Type\ScalarType $type): mixed
-    {
-        return $type;
-    }
-
-    public function visitNonEmptyList(Type\NonEmptyListType $type): mixed
-    {
-        return types::nonEmptyList($type->valueType->accept($this));
-    }
-
-    public function visitList(Type\ListType $type): mixed
-    {
-        return types::list($type->valueType->accept($this));
-    }
-
-    public function visitArrayShape(Type\ArrayShapeType $type): mixed
+    public function arrayShape(Type $self, array $elements, bool $sealed): mixed
     {
         return types::arrayShape(
             array_map(
-                fn(Type\ArrayElement $element): Type\ArrayElement => types::arrayElement(
+                fn(ArrayElement $element): ArrayElement => types::arrayElement(
                     $element->type->accept($this),
                     $element->optional,
                 ),
-                $type->elements,
+                $elements,
             ),
-            $type->sealed,
+            $sealed,
         );
     }
 
-    public function visitNonEmptyArray(Type\NonEmptyArrayType $type): mixed
+    public function array(Type $self, Type $key, Type $value): mixed
     {
-        /** @psalm-suppress MixedArgumentTypeCoercion */
-        return types::nonEmptyArray($type->keyType->accept($this), $type->valueType->accept($this));
+        return types::array($key->accept($this), $value->accept($this));
     }
 
-    public function visitArray(Type\ArrayType $type): mixed
+    public function iterable(Type $self, Type $key, Type $value): mixed
     {
-        /** @psalm-suppress MixedArgumentTypeCoercion */
-        return types::array($type->keyType->accept($this), $type->valueType->accept($this));
+        return types::iterable($key->accept($this), $value->accept($this));
     }
 
-    public function visitIterable(Type\IterableType $type): mixed
+    public function namedObject(Type $self, string $class, array $arguments): mixed
     {
-        return types::iterable($type->keyType->accept($this), $type->valueType->accept($this));
-    }
-
-    public function visitNamedObject(Type\NamedObjectType $type): mixed
-    {
-        return types::object($type->class, ...array_map(
-            fn(Type\Type $templateArgument): Type\Type => $templateArgument->accept($this),
-            $type->templateArguments,
+        return types::object($class, ...array_map(
+            fn(Type $templateArgument): Type => $templateArgument->accept($this),
+            $arguments,
         ));
     }
 
-    public function visitStatic(Type\StaticType $type): mixed
+    public function template(Type $self, string $name, AtClass|AtFunction|AtMethod $declaredAt): mixed
     {
-        return types::static($type->declaredAtClass, ...array_map(
-            fn(Type\Type $templateArgument): Type\Type => $templateArgument->accept($this),
-            $type->templateArguments,
-        ));
+        return types::template($name, $declaredAt);
     }
 
-    public function visitObjectShape(Type\ObjectShapeType $type): mixed
+    public function varianceAware(Type $self, Type $type, Variance $variance): mixed
+    {
+        return types::varianceAware($type->accept($this), $variance);
+    }
+
+    public function objectShape(Type $self, array $properties): mixed
     {
         return types::objectShape(
             array_map(
-                fn(Type\Property $property): Type\Property => types::prop(
+                fn(Property $property): Property => types::prop(
                     $property->type->accept($this),
                     $property->optional,
                 ),
-                $type->properties,
+                $properties,
             ),
         );
     }
 
-    public function visitObject(Type\ObjectType $type): mixed
-    {
-        return $type;
-    }
-
-    public function visitResource(Type\ResourceType $type): mixed
-    {
-        return $type;
-    }
-
-    public function visitClosedResource(Type\ClosedResourceType $type): mixed
-    {
-        return $type;
-    }
-
-    public function visitClosure(Type\ClosureType $type): mixed
+    public function closure(Type $self, array $parameters, Type $return): mixed
     {
         return types::closure(
             array_map(
-                fn(Type\Parameter $parameter): Type\Parameter => types::param(
+                fn(Parameter $parameter): Parameter => types::param(
                     type: $parameter->type->accept($this),
                     hasDefault: $parameter->hasDefault,
                     variadic: $parameter->variadic,
                     byReference: $parameter->byReference,
                     name: $parameter->name,
                 ),
-                $type->parameters,
+                $parameters,
             ),
-            $type->returnType?->accept($this),
+            $return->accept($this),
         );
     }
 
-    public function visitCallable(Type\CallableType $type): mixed
+    public function callable(Type $self, array $parameters, Type $return): mixed
     {
         return types::callable(
             array_map(
-                fn(Type\Parameter $parameter): Type\Parameter => types::param(
+                fn(Parameter $parameter): Parameter => types::param(
                     type: $parameter->type->accept($this),
                     hasDefault: $parameter->hasDefault,
                     variadic: $parameter->variadic,
                     byReference: $parameter->byReference,
                     name: $parameter->name,
                 ),
-                $type->parameters,
+                $parameters,
             ),
-            $type->returnType?->accept($this),
+            $return->accept($this),
         );
     }
 
-    public function visitConstant(Type\ConstantType $type): mixed
+    public function key(Type $self, Type $type): mixed
     {
-        return $type;
+        return types::key($type->accept($this));
     }
 
-    public function visitClassConstant(Type\ClassConstantType $type): mixed
+    public function value(Type $self, Type $type): mixed
     {
-        return $type;
+        return types::value($type->accept($this));
     }
 
-    public function visitKeyOf(Type\KeyOfType $type): mixed
+    public function offset(Type $self, Type $type, Type $offset): mixed
     {
-        return types::keyOf($type->type->accept($this));
+        return types::offset($type->accept($this), $offset->accept($this));
     }
 
-    public function visitValueOf(Type\ValueOfType $type): mixed
+    public function conditional(Type $self, Argument|Type $subject, Type $if, Type $then, Type $else): mixed
     {
-        return types::valueOf($type->type->accept($this));
+        return types::conditional($subject, $if->accept($this), $then->accept($this), $else->accept($this));
     }
 
-    public function visitTemplate(Type\TemplateType $type): mixed
+    public function intersection(Type $self, array $types): mixed
     {
-        return $type;
+        return types::intersection(...array_map(fn(Type $part): Type => $part->accept($this), $types));
     }
 
-    public function visitConditional(Type\ConditionalType $type): mixed
+    public function union(Type $self, array $types): mixed
     {
-        return types::conditional(
-            $type->subject,
-            $type->if->accept($this),
-            $type->then->accept($this),
-            $type->else->accept($this),
-        );
+        return types::union(...array_map(fn(Type $part): Type => $part->accept($this), $types));
     }
 
-    public function visitIntersection(Type\IntersectionType $type): mixed
+    public function nonEmpty(Type $self, Type $type): mixed
     {
-        return types::intersection(...array_map(
-            fn(Type\Type $part): Type\Type => $part->accept($this),
-            $type->types,
-        ));
+        return types::nonEmpty($type->accept($this));
     }
 
-    public function visitUnion(Type\UnionType $type): mixed
+    protected function default(Type $self): mixed
     {
-        return types::union(...array_map(
-            fn(Type\Type $part): Type\Type => $part->accept($this),
-            $type->types,
-        ));
-    }
-
-    public function visitMixed(Type\MixedType $type): mixed
-    {
-        return $type;
+        return $self;
     }
 }

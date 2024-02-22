@@ -42,6 +42,8 @@ final class NameContext implements NameResolver
      */
     private array $functionImportTable = [];
 
+    private bool $inClass = false;
+
     /**
      * @psalm-pure
      */
@@ -133,24 +135,37 @@ final class NameContext implements NameResolver
         $this->functionImportTable[$resolvedAlias] = $resolvedName;
     }
 
-    public function enterClass(string $name, ?string $parent = null): void
+    public function enterClass(string $unresolvedName, ?string $unresolvedParentName, bool $trait, bool $final): void
     {
         $this->leaveClass();
 
-        $this->namespaceImportTable[self::SELF] = self::parse($name)->resolve($this->namespace, $this->namespaceImportTable);
+        $this->inClass = true;
 
-        if ($parent !== null) {
-            $this->namespaceImportTable[self::PARENT] = self::parse($parent)->resolve($this->namespace, $this->namespaceImportTable);
+        if ($trait) {
+            return;
+        }
+
+        $this->namespaceImportTable[self::SELF] = self::parse($unresolvedName)->resolve($this->namespace, $this->namespaceImportTable);
+
+        if ($unresolvedParentName !== null) {
+            $this->namespaceImportTable[self::PARENT] = self::parse($unresolvedParentName)->resolve($this->namespace, $this->namespaceImportTable);
+        }
+
+        if ($final) {
+            $this->namespaceImportTable[self::STATIC] = $this->namespaceImportTable[self::SELF];
         }
     }
 
     public function leaveClass(): void
     {
-        unset($this->namespaceImportTable[self::SELF], $this->namespaceImportTable[self::PARENT]);
+        $this->inClass = false;
+        unset($this->namespaceImportTable[self::SELF], $this->namespaceImportTable[self::PARENT], $this->namespaceImportTable[self::STATIC]);
     }
 
     public function leaveNamespace(): void
     {
+        $this->leaveClass();
+
         $this->namespace = null;
         $this->namespaceImportTable = [];
         $this->constantImportTable = [];
@@ -159,7 +174,7 @@ final class NameContext implements NameResolver
 
     public function resolveNameAsClass(string $name): string
     {
-        if (!isset($this->namespaceImportTable[self::SELF]) && isset(self::SPECIAL[strtolower($name)])) {
+        if (!$this->inClass && isset(self::SPECIAL[strtolower($name)])) {
             throw new \InvalidArgumentException(sprintf('%s cannot be used outside of the class scope.', $name));
         }
 

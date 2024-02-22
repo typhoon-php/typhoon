@@ -7,7 +7,7 @@ namespace Typhoon\Reflection\NameContext;
 interface NameResolver
 {
     /**
-     * @return class-string
+     * @return non-empty-string
      */
     public function resolveNameAsClass(string $name): string;
 

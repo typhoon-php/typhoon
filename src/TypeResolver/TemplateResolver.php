@@ -5,7 +5,10 @@ declare(strict_types=1);
 namespace Typhoon\Reflection\TypeResolver;
 
 use Typhoon\Reflection\TemplateReflection;
-use Typhoon\Type;
+use Typhoon\Type\AtClass;
+use Typhoon\Type\AtFunction;
+use Typhoon\Type\AtMethod;
+use Typhoon\Type\Type;
 
 /**
  * @internal
@@ -14,7 +17,7 @@ use Typhoon\Type;
 final class TemplateResolver extends RecursiveTypeReplacer
 {
     /**
-     * @param array<non-empty-string, Type\Type> $templateArguments
+     * @param array<non-empty-string, Type> $templateArguments
      */
     private function __construct(
         private readonly array $templateArguments,
@@ -22,7 +25,7 @@ final class TemplateResolver extends RecursiveTypeReplacer
 
     /**
      * @param array<TemplateReflection> $templates
-     * @param array<Type\Type> $templateArguments
+     * @param array<Type> $templateArguments
      */
     public static function create(array $templates, array $templateArguments): self
     {
@@ -37,8 +40,8 @@ final class TemplateResolver extends RecursiveTypeReplacer
         return new self($resolvedTemplateArguments);
     }
 
-    public function visitTemplate(Type\TemplateType $type): mixed
+    public function template(Type $self, string $name, AtClass|AtFunction|AtMethod $declaredAt): mixed
     {
-        return $this->templateArguments[$type->name] ?? $type;
+        return $this->templateArguments[$name] ?? $self;
     }
 }

@@ -5,9 +5,9 @@ declare(strict_types=1);
 namespace Typhoon\Reflection\Inheritance;
 
 use Typhoon\Reflection\Metadata\ClassMetadata;
+use Typhoon\Reflection\Metadata\InheritedName;
 use Typhoon\Reflection\Metadata\PropertyMetadata;
 use Typhoon\Reflection\TypeResolver\TemplateResolver;
-use Typhoon\Type\NamedObjectType;
 
 /**
  * @internal
@@ -40,11 +40,11 @@ final class PropertiesInheritanceResolver
         }
     }
 
-    public function addUsed(NamedObjectType ...$types): void
+    public function addUsed(InheritedName ...$names): void
     {
-        foreach ($types as $type) {
-            $class = ($this->classMetadataReflector)($type->class);
-            $templateResolver = TemplateResolver::create($class->templates, $type->templateArguments);
+        foreach ($names as $name) {
+            $class = ($this->classMetadataReflector)($name->class);
+            $templateResolver = TemplateResolver::create($class->templates, $name->templateArguments);
 
             foreach ($class->resolvedProperties($this->classMetadataReflector) as $property) {
                 $this->property($property->name)->addUsed($property, $templateResolver);
@@ -52,11 +52,11 @@ final class PropertiesInheritanceResolver
         }
     }
 
-    public function addInherited(NamedObjectType ...$types): void
+    public function addInherited(InheritedName ...$names): void
     {
-        foreach ($types as $type) {
-            $class = ($this->classMetadataReflector)($type->class);
-            $templateResolver = TemplateResolver::create($class->templates, $type->templateArguments);
+        foreach ($names as $name) {
+            $class = ($this->classMetadataReflector)($name->class);
+            $templateResolver = TemplateResolver::create($class->templates, $name->templateArguments);
 
             foreach ($class->resolvedProperties($this->classMetadataReflector) as $property) {
                 $this->property($property->name)->addInherited($property, $templateResolver);

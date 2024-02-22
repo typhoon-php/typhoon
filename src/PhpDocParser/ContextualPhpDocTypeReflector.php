@@ -27,9 +27,9 @@ use PHPStan\PhpDocParser\Ast\Type\TypeNode;
 use PHPStan\PhpDocParser\Ast\Type\UnionTypeNode;
 use Typhoon\Reflection\Exception\DefaultReflectionException;
 use Typhoon\Reflection\TypeContext\TypeContext;
-use Typhoon\Type;
+use Typhoon\Type\Parameter;
+use Typhoon\Type\Type;
 use Typhoon\Type\types;
-use Typhoon\TypeStringifier\TypeStringifier;
 
 /**
  * @internal
@@ -41,7 +41,7 @@ final class ContextualPhpDocTypeReflector
         private TypeContext $typeContext = new TypeContext(),
     ) {}
 
-    public function reflect(TypeNode $node): Type\Type
+    public function reflect(TypeNode $node): Type
     {
         if ($node instanceof NullableTypeNode) {
             return types::nullable($this->reflect($node->type));
@@ -56,7 +56,7 @@ final class ContextualPhpDocTypeReflector
         }
 
         if ($node instanceof ArrayTypeNode) {
-            return types::array(valueType: $this->reflect($node->type));
+            return types::array(value: $this->reflect($node->type));
         }
 
         if ($node instanceof ArrayShapeNode) {
@@ -98,55 +98,8 @@ final class ContextualPhpDocTypeReflector
     /**
      * @param list<TypeNode> $genericTypes
      */
-    private function reflectIdentifier(string $name, array $genericTypes = []): Type\Type
+    private function reflectIdentifier(string $name, array $genericTypes = []): Type
     {
-        if ($name === 'int') {
-            return $this->reflectInt($genericTypes);
-        }
-
-        if ($name === 'int-mask') {
-            return $this->reflectIntMask($genericTypes);
-        }
-
-        if ($name === 'int-mask-of') {
-            return $this->reflectIntMaskOf($genericTypes);
-        }
-
-        if ($name === 'list') {
-            return $this->reflectList($genericTypes);
-        }
-
-        if ($name === 'non-empty-list') {
-            return $this->reflectNonEmptyList($genericTypes);
-        }
-
-        if ($name === 'array') {
-            return $this->reflectArray($genericTypes);
-        }
-
-        if ($name === 'non-empty-array') {
-            return $this->reflectNonEmptyArray($genericTypes);
-        }
-
-        if ($name === 'iterable') {
-            return $this->reflectIterable($genericTypes);
-        }
-
-        if ($name === 'class-string') {
-            return $this->reflectClassString($genericTypes);
-        }
-
-        if ($name === 'key-of') {
-            return $this->reflectKeyOf($genericTypes);
-        }
-
-        if ($name === 'value-of') {
-            return $this->reflectValueOf($genericTypes);
-        }
-
-        // todo warning
-
-        /** @var Type\Type */
         return match ($name) {
             'null' => types::null,
             'true' => types::true,
@@ -157,69 +110,67 @@ final class ContextualPhpDocTypeReflector
             'negative-int' => types::negativeInt,
             'non-negative-int' => types::nonNegativeInt,
             'non-positive-int' => types::nonPositiveInt,
+            'int' => match (\count($genericTypes)) {
+                0 => types::int,
+                2 => types::intRange(
+                    min: $this->reflectIntLimit($genericTypes[0], 'min'),
+                    max: $this->reflectIntLimit($genericTypes[1], 'max'),
+                ),
+                default => throw new DefaultReflectionException(sprintf('int range type should have 2 arguments, got %d.', \count($genericTypes)))
+            },
+            'int-mask', 'int-mask-of' => types::intMask(types::union(...array_map($this->reflect(...), $genericTypes))),
             'numeric' => types::numeric,
-            'string' => types::string,
             'non-empty-string' => types::nonEmptyString,
+            'string' => types::string,
             'non-falsy-string', 'truthy-string' => types::truthyString,
             'numeric-string' => types::numericString,
+            'class-string' => match (\count($genericTypes)) {
+                0 => types::classString,
+                1 => types::classString($this->reflect($genericTypes[0])),
+                default => throw new DefaultReflectionException(),
+            },
             'array-key' => types::arrayKey,
+            'key-of' => match ($number = \count($genericTypes)) {
+                1 => types::key($this->reflect($genericTypes[0])),
+                default => throw new DefaultReflectionException(sprintf('key-of type should have 1 argument, got %d.', $number)),
+            },
+            'value-of' => match ($number = \count($genericTypes)) {
+                1 => types::value($this->reflect($genericTypes[0])),
+                default => throw new DefaultReflectionException(sprintf('value-of type should have 1 argument, got %d.', $number)),
+            },
             'literal-int' => types::literalInt,
             'literal-string' => types::literalString,
             'callable-string' => types::intersection(types::callable(), types::string),
-            'interface-string' => types::interfaceString,
-            'enum-string' => types::enumString,
-            'trait-string' => types::traitString,
+            'interface-string', 'enum-string', 'trait-string' => types::classString,
             'callable-array' => types::intersection(types::callable(), types::array()),
-            'resource' => types::resource,
-            'closed-resource' => types::closedResource,
+            'resource', 'closed-resource', 'open-resource' => types::resource,
+            'list' => match ($number = \count($genericTypes)) {
+                0 => types::list(),
+                1 => types::list($this->reflect($genericTypes[0])),
+                default => throw new DefaultReflectionException(sprintf('list type should have at most 1 argument, got %d.', $number)),
+            },
+            'array' => match ($number = \count($genericTypes)) {
+                0 => types::array(),
+                1 => types::array(value: $this->reflect($genericTypes[0])),
+                2 => types::array(...array_map($this->reflect(...), $genericTypes)),
+                default => throw new DefaultReflectionException(sprintf('array type should have at most 2 arguments, got %d.', $number)),
+            },
+            'iterable' => match ($number = \count($genericTypes)) {
+                0 => types::iterable(),
+                1 => types::iterable(value: $this->reflect($genericTypes[0])),
+                2 => types::iterable(...array_map($this->reflect(...), $genericTypes)),
+                default => throw new DefaultReflectionException(sprintf('iterable type should have at most 2 arguments, got %d.', $number)),
+            },
             'object' => types::object,
             'callable' => types::callable(),
             'mixed' => types::mixed,
             'void' => types::void,
             'scalar' => types::scalar,
             'never' => types::never,
-            default => $this->reflectName($name, $genericTypes),
-        };
-    }
-
-    /**
-     * @param list<TypeNode> $genericTypes
-     */
-    private function reflectName(string $name, array $genericTypes): Type\Type
-    {
-        $type = $this->typeContext->resolveNameAsType($name);
-
-        if ($genericTypes === []) {
-            if ($type instanceof Type\NamedObjectType && $type->class === \Closure::class) {
-                return types::closure();
-            }
-
-            return $type;
-        }
-
-        if ($type instanceof Type\NamedObjectType) {
-            return types::object($type->class, ...array_map($this->reflect(...), $genericTypes));
-        }
-
-        if ($type instanceof Type\StaticType) {
-            return types::static($type->declaredAtClass, ...array_map($this->reflect(...), $genericTypes));
-        }
-
-        throw new DefaultReflectionException(sprintf('Types %s does not support template arguments.', TypeStringifier::stringify($type)));
-    }
-
-    /**
-     * @param list<TypeNode> $templateArguments
-     */
-    private function reflectInt(array $templateArguments): Type\Type
-    {
-        return match (\count($templateArguments)) {
-            0 => types::int,
-            2 => types::intRange(
-                min: $this->reflectIntLimit($templateArguments[0], 'min'),
-                max: $this->reflectIntLimit($templateArguments[1], 'max'),
-            ),
-            default => throw new DefaultReflectionException(sprintf('int range type should have 2 arguments, got %d.', \count($templateArguments)))
+            default => match (true) {
+                str_starts_with($name, 'non-empty-') => types::nonEmpty($this->reflectIdentifier(substr($name, 10), $genericTypes)),
+                default => $this->typeContext->resolveNameAsType($name, array_map($this->reflect(...), $genericTypes))
+            },
         };
     }
 
@@ -243,125 +194,7 @@ final class ContextualPhpDocTypeReflector
         return (int) $type->constExpr->value;
     }
 
-    /**
-     * @param list<TypeNode> $templateArguments
-     */
-    private function reflectIntMask(array $templateArguments): Type\IntMaskType
-    {
-        if ($templateArguments === []) {
-            throw new DefaultReflectionException('int-mask type should have at least 1 argument.');
-        }
-
-        return types::intMask(...array_map($this->reflectIntMaskInt(...), $templateArguments));
-    }
-
-    /**
-     * @return int<0, max>
-     */
-    private function reflectIntMaskInt(TypeNode $node): int
-    {
-        if (!$node instanceof ConstTypeNode) {
-            throw new DefaultReflectionException(sprintf('Invalid int-mask argument: %s.', $node));
-        }
-
-        if (!$node->constExpr instanceof ConstExprIntegerNode) {
-            throw new DefaultReflectionException(sprintf('Invalid int-mask argument: %s.', $node));
-        }
-
-        $value = (int) $node->constExpr->value;
-
-        if ($value < 0) {
-            throw new DefaultReflectionException(sprintf('Invalid int-mask argument: %d.', $value));
-        }
-
-        return $value;
-    }
-
-    /**
-     * @param list<TypeNode> $templateArguments
-     */
-    private function reflectIntMaskOf(array $templateArguments): Type\IntMaskOfType
-    {
-        if (\count($templateArguments) !== 1) {
-            throw new DefaultReflectionException(sprintf('int-mask-of type should have 1 argument, got %d.', \count($templateArguments)));
-        }
-
-        /** @psalm-suppress MixedArgumentTypeCoercion */
-        return types::intMaskOf($this->reflect($templateArguments[0]));
-    }
-
-    /**
-     * @param list<TypeNode> $templateArguments
-     */
-    private function reflectList(array $templateArguments): Type\Type
-    {
-        return match ($number = \count($templateArguments)) {
-            0 => types::list(),
-            1 => types::list($this->reflect($templateArguments[0])),
-            default => throw new DefaultReflectionException(sprintf('list type should have at most 1 argument, got %d.', $number)),
-        };
-    }
-
-    /**
-     * @param list<TypeNode> $templateArguments
-     */
-    private function reflectNonEmptyList(array $templateArguments): Type\Type
-    {
-        return match ($number = \count($templateArguments)) {
-            0 => types::nonEmptyList(),
-            1 => types::nonEmptyList($this->reflect($templateArguments[0])),
-            default => throw new DefaultReflectionException(sprintf('non-empty-list type should have at most 1 argument, got %d.', $number)),
-        };
-    }
-
-    /**
-     * @param list<TypeNode> $templateArguments
-     */
-    private function reflectArray(array $templateArguments): Type\Type
-    {
-        /**
-         * @psalm-suppress MixedArgumentTypeCoercion
-         * @todo check array-key
-         */
-        return match ($number = \count($templateArguments)) {
-            0 => types::array(),
-            1 => types::array(valueType: $this->reflect($templateArguments[0])),
-            2 => types::array(...array_map($this->reflect(...), $templateArguments)),
-            default => throw new DefaultReflectionException(sprintf('array type should have at most 2 arguments, got %d.', $number)),
-        };
-    }
-
-    /**
-     * @param list<TypeNode> $templateArguments
-     */
-    private function reflectNonEmptyArray(array $templateArguments): Type\Type
-    {
-        /**
-         * @psalm-suppress MixedArgumentTypeCoercion
-         * @todo check array-key
-         */
-        return match ($number = \count($templateArguments)) {
-            0 => types::nonEmptyArray(),
-            1 => types::nonEmptyArray(valueType: $this->reflect($templateArguments[0])),
-            2 => types::nonEmptyArray(...array_map($this->reflect(...), $templateArguments)),
-            default => throw new DefaultReflectionException(sprintf('non-empty-array type should have at most 2 arguments, got %d.', $number)),
-        };
-    }
-
-    /**
-     * @param list<TypeNode> $templateArguments
-     */
-    private function reflectIterable(array $templateArguments): Type\Type
-    {
-        return match ($number = \count($templateArguments)) {
-            0 => types::iterable(),
-            1 => types::iterable(valueType: $this->reflect($templateArguments[0])),
-            2 => types::iterable(...array_map($this->reflect(...), $templateArguments)),
-            default => throw new DefaultReflectionException(sprintf('iterable type should have at most 2 arguments, got %d.', $number)),
-        };
-    }
-
-    private function reflectArrayShape(ArrayShapeNode $node): Type\ArrayShapeType
+    private function reflectArrayShape(ArrayShapeNode $node): Type
     {
         $elements = [];
 
@@ -389,7 +222,7 @@ final class ContextualPhpDocTypeReflector
         return types::arrayShape($elements, $node->sealed);
     }
 
-    private function reflectObjectShape(ObjectShapeNode $node): Type\ObjectShapeType
+    private function reflectObjectShape(ObjectShapeNode $node): Type
     {
         $properties = [];
 
@@ -408,20 +241,20 @@ final class ContextualPhpDocTypeReflector
         return types::objectShape($properties);
     }
 
-    private function reflectConstExpr(ConstTypeNode $node): Type\Type
+    private function reflectConstExpr(ConstTypeNode $node): Type
     {
         $exprNode = $node->constExpr;
 
         if ($exprNode instanceof ConstExprIntegerNode) {
-            return types::int((int) $exprNode->value);
+            return types::literalValue((int) $exprNode->value);
         }
 
         if ($exprNode instanceof ConstExprFloatNode) {
-            return types::float((float) $exprNode->value);
+            return types::literalValue((float) $exprNode->value);
         }
 
         if ($exprNode instanceof ConstExprStringNode) {
-            return types::string($exprNode->value);
+            return types::literalValue($exprNode->value);
         }
 
         if ($exprNode instanceof ConstExprTrueNode) {
@@ -441,7 +274,7 @@ final class ContextualPhpDocTypeReflector
                 return types::constant($exprNode->name);
             }
 
-            $class = $this->typeContext->resolveNameAsClass($exprNode->className);
+            $class = $this->typeContext->resolveNameAsType($exprNode->className);
 
             if ($exprNode->name === 'class') {
                 return types::classString($class);
@@ -453,19 +286,19 @@ final class ContextualPhpDocTypeReflector
         throw new DefaultReflectionException(sprintf('PhpDoc node %s is not supported.', $exprNode::class));
     }
 
-    private function reflectCallable(CallableTypeNode $node): Type\Type
+    private function reflectCallable(CallableTypeNode $node): Type
     {
         if ($node->identifier->name === 'callable') {
             return types::callable(
                 parameters: $this->reflectCallableParameters($node->parameters),
-                returnType: $this->reflect($node->returnType),
+                return: $this->reflect($node->returnType),
             );
         }
 
         if ($this->typeContext->resolveNameAsClass($node->identifier->name) === \Closure::class) {
             return types::closure(
                 parameters: $this->reflectCallableParameters($node->parameters),
-                returnType: $this->reflect($node->returnType),
+                return: $this->reflect($node->returnType),
             );
         }
 
@@ -474,12 +307,12 @@ final class ContextualPhpDocTypeReflector
 
     /**
      * @param list<CallableTypeParameterNode> $nodes
-     * @return list<Type\Parameter>
+     * @return list<Parameter>
      */
     private function reflectCallableParameters(array $nodes): array
     {
         return array_map(
-            fn(CallableTypeParameterNode $parameter): Type\Parameter => types::param(
+            fn(CallableTypeParameterNode $parameter): Parameter => types::param(
                 type: $this->reflect($parameter->type),
                 hasDefault: $parameter->isOptional,
                 variadic: $parameter->isVariadic,
@@ -490,49 +323,10 @@ final class ContextualPhpDocTypeReflector
         );
     }
 
-    /**
-     * @param list<TypeNode> $genericTypes
-     */
-    private function reflectClassString(array $genericTypes): Type\Type
-    {
-        /** @psalm-suppress MixedArgumentTypeCoercion */
-        return match (\count($genericTypes)) {
-            0 => types::classString,
-            1 => types::classString($this->reflect($genericTypes[0])),
-            default => throw new DefaultReflectionException(),
-        };
-    }
-
-    /**
-     * @param list<TypeNode> $templateArguments
-     */
-    private function reflectKeyOf(array $templateArguments): Type\KeyOfType
-    {
-        return match ($number = \count($templateArguments)) {
-            1 => types::keyOf($this->reflect($templateArguments[0])),
-            default => throw new DefaultReflectionException(sprintf('key-of type should have 1 argument, got %d.', $number)),
-        };
-    }
-
-    /**
-     * @param list<TypeNode> $templateArguments
-     */
-    private function reflectValueOf(array $templateArguments): Type\ValueOfType
-    {
-        return match ($number = \count($templateArguments)) {
-            1 => types::valueOf($this->reflect($templateArguments[0])),
-            default => throw new DefaultReflectionException(sprintf('value-of type should have 1 argument, got %d.', $number)),
-        };
-    }
-
-    private function reflectConditional(ConditionalTypeNode|ConditionalTypeForParameterNode $node): Type\ConditionalType
+    private function reflectConditional(ConditionalTypeNode|ConditionalTypeForParameterNode $node): Type
     {
         if ($node instanceof ConditionalTypeNode) {
             $subject = $this->reflect($node->subjectType);
-
-            if (!$subject instanceof Type\TemplateType) {
-                throw new DefaultReflectionException(sprintf('Conditional type subject should be an argument or a template, got %s.', $node->subjectType));
-            }
         } else {
             /** @var non-empty-string */
             $name = substr($node->parameterName, 1);

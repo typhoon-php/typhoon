@@ -8,11 +8,7 @@ use Typhoon\Reflection\AttributeReflection\AttributeReflections;
 use Typhoon\Reflection\ClassReflection\ClassReflector;
 use Typhoon\Reflection\Exception\DefaultReflectionException;
 use Typhoon\Reflection\Metadata\ParameterMetadata;
-use Typhoon\Reflection\Nullability\NullableChecker;
-use Typhoon\Type\ArrayType;
-use Typhoon\Type\CallableType;
-use Typhoon\Type\ClosureType;
-use Typhoon\Type\NamedObjectType;
+use Typhoon\Type\DefaultTypeVisitor;
 use Typhoon\Type\Type;
 
 /**
@@ -59,7 +55,35 @@ final class ParameterReflection extends \ReflectionParameter
 
     public function allowsNull(): bool
     {
-        return NullableChecker::isNullable($this->metadata->type->native);
+        return $this->metadata->type->native?->accept(
+            new /** @extends DefaultTypeVisitor<bool> */ class () extends DefaultTypeVisitor {
+                public function null(Type $self): mixed
+                {
+                    return true;
+                }
+
+                public function union(Type $self, array $types): mixed
+                {
+                    foreach ($types as $type) {
+                        if ($type->accept($this)) {
+                            return true;
+                        }
+                    }
+
+                    return false;
+                }
+
+                public function mixed(Type $self): mixed
+                {
+                    return true;
+                }
+
+                protected function default(Type $self): mixed
+                {
+                    return false;
+                }
+            },
+        ) ?? true;
     }
 
     public function canBePassedByValue(): bool
@@ -87,19 +111,32 @@ final class ParameterReflection extends \ReflectionParameter
         return $this->attributes->get($name, $flags);
     }
 
-    public function getClass(): ?\ReflectionClass
+    public function getClass(): ?ClassReflection
     {
-        $nativeType = $this->metadata->type->native;
+        return $this->metadata->type->native?->accept(
+            new /** @extends DefaultTypeVisitor<?ClassReflection> */ class ($this->classReflector) extends DefaultTypeVisitor {
+                public function __construct(
+                    private readonly ClassReflector $classReflector,
+                ) {}
 
-        if ($nativeType instanceof NamedObjectType) {
-            return $this->classReflector->reflectClass($nativeType->class);
-        }
+                public function namedObject(Type $self, string $class, array $arguments): mixed
+                {
+                    /** @psalm-suppress InternalMethod */
+                    return $this->classReflector->reflectClass($class);
+                }
 
-        if ($nativeType instanceof ClosureType) {
-            return $this->classReflector->reflectClass(\Closure::class);
-        }
+                public function closure(Type $self, array $parameters, Type $return): mixed
+                {
+                    /** @psalm-suppress InternalMethod */
+                    return $this->classReflector->reflectClass(\Closure::class);
+                }
 
-        return null;
+                protected function default(Type $self): mixed
+                {
+                    return null;
+                }
+            },
+        );
     }
 
     public function getDeclaringClass(): ?ClassReflection
@@ -178,12 +215,36 @@ final class ParameterReflection extends \ReflectionParameter
 
     public function isArray(): bool
     {
-        return $this->metadata->type->native instanceof ArrayType;
+        return $this->metadata->type->native?->accept(
+            new /** @extends DefaultTypeVisitor<bool> */ class () extends DefaultTypeVisitor {
+                public function array(Type $self, Type $key, Type $value): mixed
+                {
+                    return true;
+                }
+
+                protected function default(Type $self): mixed
+                {
+                    return false;
+                }
+            },
+        ) ?? false;
     }
 
     public function isCallable(): bool
     {
-        return $this->metadata->type->native instanceof CallableType;
+        return $this->metadata->type->native?->accept(
+            new /** @extends DefaultTypeVisitor<bool> */ class () extends DefaultTypeVisitor {
+                public function callable(Type $self, array $parameters, Type $return): mixed
+                {
+                    return true;
+                }
+
+                protected function default(Type $self): mixed
+                {
+                    return false;
+                }
+            },
+        ) ?? false;
     }
 
     public function isDefaultValueAvailable(): bool
