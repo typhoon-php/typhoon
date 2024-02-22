@@ -6,7 +6,7 @@ namespace Typhoon\Type;
 
 /**
  * @api
- * @template-covariant TClass of class-string
+ * @template-covariant TClass of non-empty-string
  * @implements Type<TClass>
  */
 final class ClassStringLiteralType implements Type

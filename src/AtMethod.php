@@ -10,7 +10,7 @@ namespace Typhoon\Type;
 final class AtMethod
 {
     /**
-     * @var class-string
+     * @var non-empty-string
      */
     public readonly string $class;
 
@@ -22,7 +22,7 @@ final class AtMethod
     /**
      * @internal
      * @psalm-internal Typhoon\Type
-     * @param class-string $class
+     * @param non-empty-string $class
      * @param non-empty-string $name
      */
     public function __construct(

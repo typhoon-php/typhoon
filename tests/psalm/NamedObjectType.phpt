@@ -3,7 +3,10 @@
 
 namespace Typhoon\Type;
 
-$_type = PsalmTest::extractType(new NamedObjectType(\stdClass::class));
-/** @psalm-check-type-exact $_type = \stdClass */
+$_nonExistingClassObject = PsalmTest::extractType(new NamedObjectType('SomeClass'));
+/** @psalm-check-type-exact $_nonExistingClassObject = mixed */
+
+$_existingClassObject = PsalmTest::extractType(new NamedObjectType(\stdClass::class));
+/** @psalm-check-type-exact $_existingClassObject = \stdClass */
 
 --EXPECT--

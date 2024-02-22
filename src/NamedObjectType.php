@@ -12,7 +12,7 @@ namespace Typhoon\Type;
 final class NamedObjectType implements Type
 {
     /**
-     * @var class-string<TObject>
+     * @var class-string<TObject>|non-empty-string
      */
     public readonly string $class;
 
@@ -24,7 +24,7 @@ final class NamedObjectType implements Type
     /**
      * @internal
      * @psalm-internal Typhoon\Type
-     * @param class-string<TObject> $class
+     * @param class-string<TObject>|non-empty-string $class
      * @param list<Type> $templateArguments
      */
     public function __construct(

@@ -10,14 +10,14 @@ namespace Typhoon\Type;
 final class AtFunction
 {
     /**
-     * @var callable-string
+     * @var non-empty-string
      */
     public readonly string $name;
 
     /**
      * @internal
      * @psalm-internal Typhoon\Type
-     * @param callable-string $name
+     * @param non-empty-string $name
      */
     public function __construct(
         string $name,

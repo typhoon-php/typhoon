@@ -12,7 +12,7 @@ namespace Typhoon\Type;
 final class ClassConstantType implements Type
 {
     /**
-     * @var class-string
+     * @var non-empty-string
      */
     public readonly string $class;
 
@@ -24,7 +24,7 @@ final class ClassConstantType implements Type
     /**
      * @internal
      * @psalm-internal Typhoon\Type
-     * @param class-string $class
+     * @param non-empty-string $class
      * @param non-empty-string $constant
      */
     public function __construct(

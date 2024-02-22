@@ -52,7 +52,7 @@ final class types
     }
 
     /**
-     * @template TClass of class-string
+     * @template TClass of non-empty-string
      * @param TClass $class
      * @return ClassStringLiteralType<TClass>
      */
@@ -214,8 +214,9 @@ final class types
     /**
      * @no-named-arguments
      * @template TObject of object
-     * @param class-string<TObject> $class
-     * @return NamedObjectType<TObject>
+     * @param class-string<TObject>|non-empty-string $class
+     * @return ($class is class-string ? NamedObjectType<TObject> : NamedObjectType<object>)
+     * @psalm-suppress MixedReturnTypeCoercion
      */
     public static function object(string $class, Type ...$templateArguments): NamedObjectType
     {
@@ -299,7 +300,7 @@ final class types
     }
 
     /**
-     * @param class-string $class
+     * @param non-empty-string $class
      * @param non-empty-string $constant
      */
     public static function classConstant(string $class, string $constant): ClassConstantType
@@ -334,7 +335,7 @@ final class types
     }
 
     /**
-     * @param callable-string $name
+     * @param non-empty-string $name
      */
     public static function atFunction(string $name): AtFunction
     {
@@ -342,7 +343,7 @@ final class types
     }
 
     /**
-     * @param class-string $name
+     * @param non-empty-string $name
      */
     public static function atClass(string $name): AtClass
     {
@@ -350,7 +351,7 @@ final class types
     }
 
     /**
-     * @param class-string $class
+     * @param non-empty-string $class
      * @param non-empty-string $name
      */
     public static function atMethod(string $class, string $name): AtMethod
