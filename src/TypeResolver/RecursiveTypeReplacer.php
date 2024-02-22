@@ -250,9 +250,11 @@ abstract class RecursiveTypeReplacer implements Type\TypeVisitor
         return types::closure(
             array_map(
                 fn(Type\Parameter $parameter): Type\Parameter => types::param(
-                    $parameter->type->accept($this),
-                    $parameter->hasDefault,
-                    $parameter->variadic,
+                    type: $parameter->type->accept($this),
+                    hasDefault: $parameter->hasDefault,
+                    variadic: $parameter->variadic,
+                    byReference: $parameter->byReference,
+                    name: $parameter->name,
                 ),
                 $type->parameters,
             ),
@@ -265,9 +267,11 @@ abstract class RecursiveTypeReplacer implements Type\TypeVisitor
         return types::callable(
             array_map(
                 fn(Type\Parameter $parameter): Type\Parameter => types::param(
-                    $parameter->type->accept($this),
-                    $parameter->hasDefault,
-                    $parameter->variadic,
+                    type: $parameter->type->accept($this),
+                    hasDefault: $parameter->hasDefault,
+                    variadic: $parameter->variadic,
+                    byReference: $parameter->byReference,
+                    name: $parameter->name,
                 ),
                 $type->parameters,
             ),

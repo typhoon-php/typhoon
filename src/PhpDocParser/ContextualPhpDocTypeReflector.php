@@ -483,6 +483,8 @@ final class ContextualPhpDocTypeReflector
                 type: $this->reflect($parameter->type),
                 hasDefault: $parameter->isOptional,
                 variadic: $parameter->isVariadic,
+                byReference: $parameter->isReference,
+                name: $parameter->parameterName ?: null,
             ),
             $nodes,
         );
