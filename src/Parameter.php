@@ -19,6 +19,8 @@ final class Parameter
 
     public readonly bool $variadic;
 
+    public readonly bool $byReference;
+
     /**
      * @internal
      * @psalm-internal Typhoon\Type
@@ -28,11 +30,13 @@ final class Parameter
         Type $type = MixedType::type,
         bool $hasDefault = false,
         bool $variadic = false,
+        bool $byReference = false,
     ) {
         \assert(!($hasDefault && $variadic), 'Parameter can be either default or variadic.');
 
-        $this->variadic = $variadic;
-        $this->hasDefault = $hasDefault;
         $this->type = $type;
+        $this->hasDefault = $hasDefault;
+        $this->variadic = $variadic;
+        $this->byReference = $byReference;
     }
 }

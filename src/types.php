@@ -301,9 +301,9 @@ final class types
      * @param Type<TType> $type
      * @return Parameter<TType>
      */
-    public static function param(Type $type = self::mixed, bool $hasDefault = false, bool $variadic = false): Parameter
+    public static function param(Type $type = self::mixed, bool $hasDefault = false, bool $variadic = false, bool $byReference = false): Parameter
     {
-        return new Parameter($type, $hasDefault, $variadic);
+        return new Parameter($type, $hasDefault, $variadic, $byReference);
     }
 
     /**
