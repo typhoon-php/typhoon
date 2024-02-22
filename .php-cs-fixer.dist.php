@@ -7,13 +7,10 @@ use PhpCsFixer\Finder;
 use PHPyh\CodingStandard\PhpCsFixerCodingStandard;
 
 $finder = Finder::create()
-    ->in([
-        __DIR__ . '/src',
-        __DIR__ . '/tests',
-    ])
-    ->append([
-        __FILE__,
-    ]);
+    ->in(__DIR__ . '/src')
+    ->notName(['TypeVisitor.php'])
+    ->append([__FILE__])
+    ->append(Finder::create()->in(__DIR__ . '/tests'));
 
 $config = (new Config())
     ->setFinder($finder)

@@ -38,7 +38,10 @@
         "sort-packages": true
     },
     "scripts": {
-        "fixcs": "vendor/bin/php-cs-fixer fix --diff --verbose",
+        "fixcs": [
+            "vendor/bin/php-cs-fixer fix --verbose",
+            "vendor/bin/php-cs-fixer fix --config=.TypeVisitor.php-cs-fixer.dist.php --verbose"
+        ],
         "pre-command-run": "mkdir -p var",
         "psalm": "psalm --show-info --no-diff",
         "test": "phpunit"
