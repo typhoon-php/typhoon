@@ -22,15 +22,22 @@ final class Parameter
     public readonly bool $byReference;
 
     /**
+     * @var ?non-empty-string
+     */
+    public readonly ?string $name;
+
+    /**
      * @internal
      * @psalm-internal Typhoon\Type
      * @param Type<TType> $type
+     * @param ?non-empty-string $name
      */
     public function __construct(
         Type $type = MixedType::type,
         bool $hasDefault = false,
         bool $variadic = false,
         bool $byReference = false,
+        ?string $name = null,
     ) {
         \assert(!($hasDefault && $variadic), 'Parameter can be either default or variadic.');
 
@@ -38,5 +45,6 @@ final class Parameter
         $this->hasDefault = $hasDefault;
         $this->variadic = $variadic;
         $this->byReference = $byReference;
+        $this->name = $name;
     }
 }
