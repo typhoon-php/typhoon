@@ -128,5 +128,8 @@ interface TypeVisitor
     public function visitValueOf(ValueOfType $type): mixed;
 
     /** @return TReturn */
+    public function visitVarianceAware(VarianceAwareType $type): mixed;
+
+    /** @return TReturn */
     public function visitVoid(VoidType $type): mixed;
 }

@@ -420,6 +420,16 @@ final class types
     {
         return new ValueOfType($type);
     }
+
+    /**
+     * @template TType
+     * @param Type<TType> $type
+     * @return VarianceAwareType<TType>
+     */
+    public static function varianceAware(Type $type, Variance $variance): VarianceAwareType
+    {
+        return new VarianceAwareType($type, $variance);
+    }
 }
 
 /**
