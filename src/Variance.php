@@ -8,10 +8,10 @@ namespace Typhoon\Type;
  * @api
  * @psalm-immutable
  */
-enum Variance: string
+enum Variance
 {
-    case Invariant = 'invariant';
-    case Covariant = 'covariant';
-    case Contravariant = 'contravariant';
-    case Bivariant = 'bivariant';
+    case Invariant;
+    case Covariant;
+    case Contravariant;
+    case Bivariant;
 }
