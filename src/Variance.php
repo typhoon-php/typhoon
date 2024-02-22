@@ -10,8 +10,8 @@ namespace Typhoon\Type;
  */
 enum Variance
 {
-    case INVARIANT;
-    case COVARIANT;
-    case CONTRAVARIANT;
-    case BIVARIANT;
+    case Invariant;
+    case Covariant;
+    case Contravariant;
+    case Bivariant;
 }

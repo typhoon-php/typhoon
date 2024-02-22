@@ -10,29 +10,29 @@ namespace Typhoon\Type;
 final class types
 {
     public const arrayKey = __arrayKey;
-    public const bool = BoolType::type;
-    public const classString = ClassStringType::type;
+    public const bool = BoolType::Type;
+    public const classString = ClassStringType::Type;
     public const false = __false;
-    public const float = FloatType::type;
-    public const int = IntType::type;
-    public const mixed = MixedType::type;
+    public const float = FloatType::Type;
+    public const int = IntType::Type;
+    public const mixed = MixedType::Type;
     public const negativeInt = __negativeInt;
-    public const never = NeverType::type;
+    public const never = NeverType::Type;
     public const nonEmptyString = __nonEmptyString;
-    public const nonFalsyString = TruthyStringType::type;
+    public const nonFalsyString = TruthyStringType::Type;
     public const nonNegativeInt = __nonNegativeInt;
     public const nonPositiveInt = __nonPositiveInt;
-    public const null = NullType::type;
+    public const null = NullType::Type;
     public const numeric = __numeric;
-    public const numericString = NumericStringType::type;
-    public const object = ObjectType::type;
+    public const numericString = NumericStringType::Type;
+    public const object = ObjectType::Type;
     public const positiveInt = __positiveInt;
-    public const resource = ResourceType::type;
+    public const resource = ResourceType::Type;
     public const scalar = __scalar;
-    public const string = StringType::type;
+    public const string = StringType::Type;
     public const true = __true;
-    public const truthyString = TruthyStringType::type;
-    public const void = VoidType::type;
+    public const truthyString = TruthyStringType::Type;
+    public const void = VoidType::Type;
 
     /**
      * @psalm-suppress UnusedConstructor
@@ -253,7 +253,7 @@ final class types
     public static function intRange(?int $min = null, ?int $max = null): IntType|IntRangeType
     {
         if ($min === null && $max === null) {
-            return IntType::type;
+            return IntType::Type;
         }
 
         return new IntRangeType($min, $max);
@@ -472,25 +472,25 @@ const __nonNegativeInt = new IntRangeType(0);
  * @internal
  * @psalm-internal Typhoon\Type
  */
-const __nonEmptyString = new NonEmptyType(StringType::type);
+const __nonEmptyString = new NonEmptyType(StringType::Type);
 
 /**
  * @internal
  * @psalm-internal Typhoon\Type
  */
-const __arrayKey = new UnionType([IntType::type, StringType::type]);
+const __arrayKey = new UnionType([IntType::Type, StringType::Type]);
 
 /**
  * @internal
  * @psalm-internal Typhoon\Type
  */
-const __scalar = new UnionType([BoolType::type, IntType::type, FloatType::type, StringType::type]);
+const __scalar = new UnionType([BoolType::Type, IntType::Type, FloatType::Type, StringType::Type]);
 
 /**
  * @internal
  * @psalm-internal Typhoon\Type
  */
-const __numeric = new UnionType([IntType::type, FloatType::type, NumericStringType::type]);
+const __numeric = new UnionType([IntType::Type, FloatType::Type, NumericStringType::Type]);
 
 /**
  * @internal

@@ -3,7 +3,7 @@
 
 namespace Typhoon\Type;
 
-$_type = PsalmTest::extractType(FloatType::type);
+$_type = PsalmTest::extractType(FloatType::Type);
 /** @psalm-check-type-exact $_type = float */
 
 --EXPECT--

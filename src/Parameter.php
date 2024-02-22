@@ -33,7 +33,7 @@ final class Parameter
      * @param ?non-empty-string $name
      */
     public function __construct(
-        Type $type = MixedType::type,
+        Type $type = MixedType::Type,
         bool $hasDefault = false,
         bool $variadic = false,
         bool $byReference = false,

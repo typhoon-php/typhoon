@@ -3,7 +3,7 @@
 
 namespace Typhoon\Type;
 
-$_type = PsalmTest::extractType(TruthyStringType::type);
+$_type = PsalmTest::extractType(TruthyStringType::Type);
 /** @psalm-check-type-exact $_type = truthy-string */
 
 --EXPECT--

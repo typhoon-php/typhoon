@@ -3,7 +3,7 @@
 
 namespace Typhoon\Type;
 
-$_type = PsalmTest::extractType(new TemplateType('T', new AtFunction('trim'), ObjectType::type));
+$_type = PsalmTest::extractType(new TemplateType('T', new AtFunction('trim'), ObjectType::Type));
 /** @psalm-check-type-exact $_type = object */
 
 --EXPECT--

@@ -30,7 +30,7 @@ final class ArrayType implements Type
      */
     public function __construct(
         Type $keyType = types::arrayKey,
-        Type $valueType = MixedType::type,
+        Type $valueType = MixedType::Type,
     ) {
         $this->valueType = $valueType;
         $this->keyType = $keyType;

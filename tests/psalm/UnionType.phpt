@@ -3,7 +3,7 @@
 
 namespace Typhoon\Type;
 
-$_type = PsalmTest::extractType(new UnionType([StringType::type, IntType::type]));
+$_type = PsalmTest::extractType(new UnionType([StringType::Type, IntType::Type]));
 /** @psalm-check-type-exact $_type = string|int */
 
 --EXPECT--

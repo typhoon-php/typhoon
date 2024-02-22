@@ -29,8 +29,8 @@ final class IterableType implements Type
      * @param Type<TValue> $valueType
      */
     public function __construct(
-        Type $keyType = MixedType::type,
-        Type $valueType = MixedType::type,
+        Type $keyType = MixedType::Type,
+        Type $valueType = MixedType::Type,
     ) {
         $this->valueType = $valueType;
         $this->keyType = $keyType;

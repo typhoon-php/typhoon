@@ -22,7 +22,7 @@ final class ListType implements Type
      * @param Type<TValue> $valueType
      */
     public function __construct(
-        Type $valueType = MixedType::type,
+        Type $valueType = MixedType::Type,
     ) {
         $this->valueType = $valueType;
     }

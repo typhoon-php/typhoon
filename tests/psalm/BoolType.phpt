@@ -3,7 +3,7 @@
 
 namespace Typhoon\Type;
 
-$_type = PsalmTest::extractType(BoolType::type);
+$_type = PsalmTest::extractType(BoolType::Type);
 /** @psalm-check-type-exact $_type = bool */
 
 --EXPECT--

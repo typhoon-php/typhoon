@@ -3,7 +3,7 @@
 
 namespace Typhoon\Type;
 
-$_type = PsalmTest::extractType(NumericStringType::type);
+$_type = PsalmTest::extractType(NumericStringType::Type);
 /** @psalm-check-type-exact $_type = numeric-string */
 
 --EXPECT--

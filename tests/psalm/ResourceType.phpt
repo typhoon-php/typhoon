@@ -3,7 +3,7 @@
 
 namespace Typhoon\Type;
 
-$_type = PsalmTest::extractType(ResourceType::type);
+$_type = PsalmTest::extractType(ResourceType::Type);
 /** @psalm-check-type-exact $_type = resource */
 
 --EXPECT--

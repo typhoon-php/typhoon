@@ -14,7 +14,7 @@ enum NullType implements Type
      * @internal
      * @psalm-internal Typhoon\Type
      */
-    case type;
+    case Type;
 
     public function accept(TypeVisitor $visitor): mixed
     {
