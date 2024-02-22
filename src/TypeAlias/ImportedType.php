@@ -12,6 +12,8 @@ use Typhoon\Type\TypeVisitor;
  * @internal
  * @psalm-internal Typhoon\Reflection
  * @implements Type<mixed>
+ * @psalm-suppress PossiblyUnusedProperty
+ * @todo replace with AliasType from type component
  */
 final class ImportedType implements Type
 {
@@ -26,10 +28,6 @@ final class ImportedType implements Type
 
     public function accept(TypeVisitor $visitor): mixed
     {
-        if ($visitor instanceof ImportedTypeResolver) {
-            return $visitor->visitImportedType($this)->accept($visitor);
-        }
-
         throw new DefaultReflectionException(self::class);
     }
 }
