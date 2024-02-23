@@ -139,9 +139,9 @@ enum types implements Type
      * @param Type<TReturn> $returnType
      * @return Type<callable>
      */
-    public static function callable(array $parameters = [], ?Type $returnType = null): Type
+    public static function callable(array $parameters = [], Type $returnType = self::mixed): Type
     {
-        if ($parameters === [] && $returnType === null) {
+        if ($parameters === [] && $returnType === self::mixed) {
             return self::callable;
         }
 
@@ -189,9 +189,9 @@ enum types implements Type
      * @param Type<TReturn> $returnType
      * @return Type<\Closure(): TReturn>
      */
-    public static function closure(array $parameters = [], ?Type $returnType = null): Type
+    public static function closure(array $parameters = [], Type $returnType = self::mixed): Type
     {
-        if ($parameters === [] && $returnType === null) {
+        if ($parameters === [] && $returnType === self::mixed) {
             return self::closure;
         }
 

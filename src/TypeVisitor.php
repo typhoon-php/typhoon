@@ -52,10 +52,10 @@ interface TypeVisitor
      * @template TCallableReturn
      * @param Type<callable(): TCallableReturn> $type
      * @param list<Parameter> $parameters
-     * @param ?Type<TCallableReturn> $returnType
+     * @param Type<TCallableReturn> $returnType
      * @return TReturn
      */
-    public function callable(Type $type, array $parameters, ?Type $returnType): mixed;
+    public function callable(Type $type, array $parameters, Type $returnType): mixed;
 
     /**
      * @param non-empty-string $class
@@ -79,13 +79,13 @@ interface TypeVisitor
     public function classStringLiteral(Type $type, string $class): mixed;
 
     /**
-     * @template TCallableReturn
-     * @param Type<\Closure(): TCallableReturn> $type
+     * @template TClosureReturn
+     * @param Type<\Closure(): TClosureReturn> $type
      * @param list<Parameter> $parameters
-     * @param ?Type<TCallableReturn> $returnType
+     * @param Type<TClosureReturn> $returnType
      * @return TReturn
      */
-    public function closure(Type $type, array $parameters, ?Type $returnType): mixed;
+    public function closure(Type $type, array $parameters, Type $returnType): mixed;
 
     /**
      * @return TReturn

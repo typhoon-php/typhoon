@@ -14,11 +14,11 @@ final class CallableType implements Type
 {
     /**
      * @param list<Parameter> $parameters
-     * @param ?Type<TReturn> $returnType
+     * @param Type<TReturn> $returnType
      */
     public function __construct(
         private readonly array $parameters,
-        private readonly ?Type $returnType,
+        private readonly Type $returnType,
     ) {}
 
     public function accept(TypeVisitor $visitor): mixed
