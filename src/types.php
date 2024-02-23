@@ -20,12 +20,16 @@ enum types implements Type
     case float;
     case int;
     case iterable;
+    case literalInt;
+    case literalString;
     case mixed;
     case negativeInt;
     case never;
+    case nonEmptyString;
     case nonNegativeInt;
     case nonPositiveInt;
     case null;
+    case numeric;
     case numericString;
     case object;
     case positiveInt;
@@ -427,12 +431,16 @@ enum types implements Type
             self::float => $visitor->float($this),
             self::int => $visitor->int($this),
             self::iterable => $visitor->iterable($this, self::mixed, self::mixed),
+            self::literalInt => $visitor->anyLiteral($this, self::int),
+            self::literalString => $visitor->anyLiteral($this, self::string),
             self::mixed => $visitor->mixed($this),
             self::negativeInt => $visitor->intRange($this, null, -1),
             self::never => $visitor->never($this),
+            self::nonEmptyString => $visitor->nonEmpty($this, self::string),
             self::nonNegativeInt => $visitor->intRange($this, 0, null),
             self::nonPositiveInt => $visitor->intRange($this, null, 0),
             self::null => $visitor->null($this),
+            self::numeric => $visitor->union($this, [self::int, self::float, self::numericString]),
             self::numericString => $visitor->numericString($this),
             self::object => $visitor->object($this),
             self::positiveInt => $visitor->intRange($this, 1, null),
