@@ -61,7 +61,7 @@ abstract class DefaultTypeVisitor implements TypeVisitor
         return $this->default($type);
     }
 
-    public function conditional(Type $type, TemplateType|Argument $subject, Type $if, Type $then, Type $else): mixed
+    public function conditional(Type $type, Argument|Type $subject, Type $if, Type $then, Type $else): mixed
     {
         return $this->default($type);
     }

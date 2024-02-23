@@ -200,7 +200,7 @@ enum types implements Type
         );
     }
 
-    public static function conditional(Argument|TemplateType $subject, Type $if, Type $then, Type $else): Type
+    public static function conditional(Argument|Type $subject, Type $if, Type $then, Type $else): Type
     {
         return new ConditionalType($subject, $if, $then, $else);
     }

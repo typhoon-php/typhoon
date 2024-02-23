@@ -90,7 +90,7 @@ interface TypeVisitor
     /**
      * @return TReturn
      */
-    public function conditional(Type $type, Argument|TemplateType $subject, Type $if, Type $then, Type $else): mixed;
+    public function conditional(Type $type, Argument|Type $subject, Type $if, Type $then, Type $else): mixed;
 
     /**
      * @param non-empty-string $name
