@@ -24,7 +24,6 @@ $config = (new Config())
 
 $rules = $config->getRules();
 $rules['ordered_class_elements']['sort_algorithm'] = 'alpha';
-// $rules['phpdoc_var_without_name'] = false;
 $rules['final_public_method_for_abstract_class'] = false;
 
 return $config->setRules($rules);
