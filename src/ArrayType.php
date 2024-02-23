@@ -7,7 +7,7 @@ namespace Typhoon\Type;
 /**
  * @internal
  * @psalm-internal Typhoon\Type
- * @template-covariant TKey of array-key
+ * @template-covariant TKey
  * @template-covariant TValue
  * @implements Type<array<TKey, TValue>>
  */

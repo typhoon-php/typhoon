@@ -68,7 +68,7 @@ enum types implements Type
     }
 
     /**
-     * @template TKey of array-key
+     * @template TKey
      * @template TValue
      * @param Type<TKey> $keyType
      * @param Type<TValue> $valueType
@@ -298,7 +298,7 @@ enum types implements Type
     }
 
     /**
-     * @template TKey of array-key
+     * @template TKey
      * @template TValue
      * @param Type<TKey> $keyType
      * @param Type<TValue> $valueType

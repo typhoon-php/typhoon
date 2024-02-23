@@ -26,7 +26,7 @@ interface TypeVisitor
     public function anyLiteral(Type $type, Type $innerType): mixed;
 
     /**
-     * @template TKey of array-key
+     * @template TKey
      * @template TValue
      * @param Type<array<TKey, TValue>> $type
      * @param Type<TKey> $keyType
