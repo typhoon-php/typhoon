@@ -6,12 +6,11 @@ namespace Typhoon\Type;
 
 /**
  * @api
- * @psalm-immutable
  */
 enum Variance
 {
-    case Invariant;
-    case Covariant;
-    case Contravariant;
     case Bivariant;
+    case Contravariant;
+    case Covariant;
+    case Invariant;
 }

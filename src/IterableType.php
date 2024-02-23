@@ -5,7 +5,8 @@ declare(strict_types=1);
 namespace Typhoon\Type;
 
 /**
- * @api
+ * @internal
+ * @psalm-internal Typhoon\Type
  * @template-covariant TKey
  * @template-covariant TValue
  * @implements Type<iterable<TKey, TValue>>
@@ -13,31 +14,16 @@ namespace Typhoon\Type;
 final class IterableType implements Type
 {
     /**
-     * @var Type<TKey>
-     */
-    public readonly Type $keyType;
-
-    /**
-     * @var Type<TValue>
-     */
-    public readonly Type $valueType;
-
-    /**
-     * @internal
-     * @psalm-internal Typhoon\Type
      * @param Type<TKey> $keyType
      * @param Type<TValue> $valueType
      */
     public function __construct(
-        Type $keyType = MixedType::Type,
-        Type $valueType = MixedType::Type,
-    ) {
-        $this->valueType = $valueType;
-        $this->keyType = $keyType;
-    }
+        private readonly Type $keyType,
+        private readonly Type $valueType,
+    ) {}
 
     public function accept(TypeVisitor $visitor): mixed
     {
-        return $visitor->visitIterable($this);
+        return $visitor->iterable($this, $this->keyType, $this->valueType);
     }
 }

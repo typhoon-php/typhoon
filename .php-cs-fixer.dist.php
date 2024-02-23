@@ -7,13 +7,14 @@ use PhpCsFixer\Finder;
 use PHPyh\CodingStandard\PhpCsFixerCodingStandard;
 
 $finder = Finder::create()
-    ->in(__DIR__ . '/src')
-    ->notName([
-        'TypeVisitor.php',
-        'types.php',
+    ->in([
+        __DIR__ . '/src',
+        __DIR__ . '/tests',
     ])
-    ->append([__FILE__])
-    ->append(Finder::create()->in(__DIR__ . '/tests'));
+    ->append([
+        __FILE__,
+        __DIR__ . '/generate-type-matcher.php',
+    ]);
 
 $config = (new Config())
     ->setFinder($finder)
@@ -21,4 +22,9 @@ $config = (new Config())
 
 (new PhpCsFixerCodingStandard())->applyTo($config);
 
-return $config;
+$rules = $config->getRules();
+$rules['ordered_class_elements']['sort_algorithm'] = 'alpha';
+// $rules['phpdoc_var_without_name'] = false;
+$rules['final_public_method_for_abstract_class'] = false;
+
+return $config->setRules($rules);

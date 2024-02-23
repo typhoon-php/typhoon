@@ -11,22 +11,10 @@ namespace Typhoon\Type;
 final class ArrayElement
 {
     /**
-     * @var Type<TType>
-     */
-    public readonly Type $type;
-
-    public readonly bool $optional;
-
-    /**
-     * @internal
-     * @psalm-internal Typhoon\Type
      * @param Type<TType> $type
      */
     public function __construct(
-        Type $type,
-        bool $optional = false,
-    ) {
-        $this->optional = $optional;
-        $this->type = $type;
-    }
+        public readonly Type $type,
+        public readonly bool $optional = false,
+    ) {}
 }

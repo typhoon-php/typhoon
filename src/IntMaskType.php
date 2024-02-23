@@ -5,30 +5,22 @@ declare(strict_types=1);
 namespace Typhoon\Type;
 
 /**
- * @api
- * @template-covariant TIntMask of int<0, max>
+ * @internal
+ * @psalm-internal Typhoon\Type
+ * @template-covariant TIntMask of int
  * @implements Type<TIntMask>
  */
 final class IntMaskType implements Type
 {
     /**
-     * @var non-empty-list<int<0, max>>
-     */
-    public readonly array $ints;
-
-    /**
-     * @internal
-     * @psalm-internal Typhoon\Type
-     * @param non-empty-list<int<0, max>> $ints
+     * @param non-empty-list<int> $ints
      */
     public function __construct(
-        array $ints,
-    ) {
-        $this->ints = $ints;
-    }
+        private readonly array $ints,
+    ) {}
 
     public function accept(TypeVisitor $visitor): mixed
     {
-        return $visitor->visitIntMask($this);
+        return $visitor->intMask($this, $this->ints);
     }
 }

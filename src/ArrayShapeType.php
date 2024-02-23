@@ -5,34 +5,23 @@ declare(strict_types=1);
 namespace Typhoon\Type;
 
 /**
- * @api
+ * @internal
+ * @psalm-internal Typhoon\Type
  * @template-covariant TArray of array
  * @implements Type<TArray>
  */
 final class ArrayShapeType implements Type
 {
     /**
-     * @var array<ArrayElement>
-     */
-    public readonly array $elements;
-
-    public readonly bool $sealed;
-
-    /**
-     * @internal
-     * @psalm-internal Typhoon\Type
      * @param array<ArrayElement> $elements
      */
     public function __construct(
-        array $elements = [],
-        bool $sealed = true,
-    ) {
-        $this->elements = $elements;
-        $this->sealed = $sealed;
-    }
+        private readonly array $elements,
+        private readonly bool $sealed,
+    ) {}
 
     public function accept(TypeVisitor $visitor): mixed
     {
-        return $visitor->visitArrayShape($this);
+        return $visitor->arrayShape($this, $this->elements, $this->sealed);
     }
 }

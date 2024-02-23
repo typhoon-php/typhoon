@@ -5,38 +5,24 @@ declare(strict_types=1);
 namespace Typhoon\Type;
 
 /**
- * @api
+ * @internal
+ * @psalm-internal Typhoon\Type
  * @template-covariant TObject of object
  * @implements Type<TObject>
  */
 final class NamedObjectType implements Type
 {
     /**
-     * @var class-string<TObject>|non-empty-string
-     */
-    public readonly string $class;
-
-    /**
-     * @var list<Type>
-     */
-    public readonly array $templateArguments;
-
-    /**
-     * @internal
-     * @psalm-internal Typhoon\Type
      * @param class-string<TObject>|non-empty-string $class
      * @param list<Type> $templateArguments
      */
     public function __construct(
-        string $class,
-        array $templateArguments = [],
-    ) {
-        $this->templateArguments = $templateArguments;
-        $this->class = $class;
-    }
+        private readonly string $class,
+        private readonly array $templateArguments,
+    ) {}
 
     public function accept(TypeVisitor $visitor): mixed
     {
-        return $visitor->visitNamedObject($this);
+        return $visitor->namedObject($this, $this->class, $this->templateArguments);
     }
 }

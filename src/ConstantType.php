@@ -5,30 +5,22 @@ declare(strict_types=1);
 namespace Typhoon\Type;
 
 /**
- * @api
+ * @internal
+ * @psalm-internal Typhoon\Type
  * @template-covariant TConstant
  * @implements Type<TConstant>
  */
 final class ConstantType implements Type
 {
     /**
-     * @var non-empty-string
-     */
-    public readonly string $constant;
-
-    /**
-     * @internal
-     * @psalm-internal Typhoon\Type
-     * @param non-empty-string $constant
+     * @param non-empty-string $name
      */
     public function __construct(
-        string $constant,
-    ) {
-        $this->constant = $constant;
-    }
+        private readonly string $name,
+    ) {}
 
     public function accept(TypeVisitor $visitor): mixed
     {
-        return $visitor->visitConstant($this);
+        return $visitor->constant($this, $this->name);
     }
 }

@@ -5,37 +5,21 @@ declare(strict_types=1);
 namespace Typhoon\Type;
 
 /**
- * @api
+ * @internal
+ * @psalm-internal Typhoon\Type
  * @implements Type<mixed>
  */
 final class ConditionalType implements Type
 {
-    public readonly Argument|TemplateType $subject;
-
-    public readonly Type $if;
-
-    public readonly Type $then;
-
-    public readonly Type $else;
-
-    /**
-     * @internal
-     * @psalm-internal Typhoon\Type
-     */
     public function __construct(
-        Argument|TemplateType $subject,
-        Type $if,
-        Type $then,
-        Type $else,
-    ) {
-        $this->subject = $subject;
-        $this->if = $if;
-        $this->then = $then;
-        $this->else = $else;
-    }
+        private readonly Argument|TemplateType $subject,
+        private readonly Type $if,
+        private readonly Type $then,
+        private readonly Type $else,
+    ) {}
 
     public function accept(TypeVisitor $visitor): mixed
     {
-        return $visitor->visitConditional($this);
+        return $visitor->conditional($this, $this->subject, $this->if, $this->then, $this->else);
     }
 }

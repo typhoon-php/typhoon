@@ -7,20 +7,17 @@ namespace Typhoon\Type;
 /**
  * @internal
  * @psalm-internal Typhoon\Type
- * @template-covariant TType
- * @implements Type<TType>
+ * @implements Type<mixed>
  */
-final class AnyLiteralType implements Type
+final class OffsetOfType implements Type
 {
-    /**
-     * @param Type<TType> $type
-     */
     public function __construct(
         private readonly Type $type,
+        private readonly Type $offset,
     ) {}
 
     public function accept(TypeVisitor $visitor): mixed
     {
-        return $visitor->anyLiteral($this, $this->type);
+        return $visitor->offsetOf($this, $this->type, $this->offset);
     }
 }
