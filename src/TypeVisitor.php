@@ -232,7 +232,7 @@ interface TypeVisitor
     /**
      * @return TReturn
      */
-    public function offsetOf(Type $type, Type $innerType, Type $offset): mixed;
+    public function offset(Type $type, Type $innerType, Type $offset): mixed;
 
     /**
      * @param Type<resource> $type

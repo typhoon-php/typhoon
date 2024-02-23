@@ -166,7 +166,7 @@ abstract class DefaultTypeVisitor implements TypeVisitor
         return $this->default($type);
     }
 
-    public function offsetOf(Type $type, Type $innerType, Type $offset): mixed
+    public function offset(Type $type, Type $innerType, Type $offset): mixed
     {
         return $this->default($type);
     }

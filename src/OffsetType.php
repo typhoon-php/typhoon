@@ -9,7 +9,7 @@ namespace Typhoon\Type;
  * @psalm-internal Typhoon\Type
  * @implements Type<mixed>
  */
-final class OffsetOfType implements Type
+final class OffsetType implements Type
 {
     public function __construct(
         private readonly Type $type,
@@ -18,6 +18,6 @@ final class OffsetOfType implements Type
 
     public function accept(TypeVisitor $visitor): mixed
     {
-        return $visitor->offsetOf($this, $this->type, $this->offset);
+        return $visitor->offset($this, $this->type, $this->offset);
     }
 }

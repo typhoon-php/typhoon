@@ -348,17 +348,15 @@ enum types implements Type
      */
     public static function objectShape(array $properties = []): Type
     {
-        return new ObjectShapeType(
-            array_map(
-                static fn(Type|Property $property): Property => $property instanceof Type ? new Property($property) : $property,
-                $properties,
-            ),
-        );
+        return new ObjectShapeType(array_map(
+            static fn(Type|Property $property): Property => $property instanceof Type ? new Property($property) : $property,
+            $properties,
+        ));
     }
 
-    public static function offsetOf(Type $type, Type $offset): Type
+    public static function offset(Type $type, Type $offset): Type
     {
-        return new OffsetOfType($type, $offset);
+        return new OffsetType($type, $offset);
     }
 
     /**
