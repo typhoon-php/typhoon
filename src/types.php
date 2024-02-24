@@ -233,6 +233,7 @@ enum types implements Type
         }
 
         if ($min === $max) {
+            /** @var int $min */
             return self::literalValue($min);
         }
 
@@ -288,6 +289,16 @@ enum types implements Type
     public static function literalValue(bool|int|float|string $value): Type
     {
         return new LiteralValueType($value);
+    }
+
+    /**
+     * @template TType
+     * @param Type<TType> $type
+     * @return Type<TType>
+     */
+    public static function nonEmpty(Type $type): Type
+    {
+        return new NonEmptyType($type);
     }
 
     /**
