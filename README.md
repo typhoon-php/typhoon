@@ -38,7 +38,7 @@ $type = types::arrayShape([
             types::param(types::template('TSend', types::atClass(Generator::class)), hasDefault: true),
             types::param(types::scalar, variadic: true),
         ],
-        returnType: types::void,
+        return: types::void,
     ),
 ], sealed: false);
 ```

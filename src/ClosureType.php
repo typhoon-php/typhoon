@@ -16,11 +16,11 @@ final class ClosureType implements Type
      */
     public function __construct(
         private readonly array $parameters,
-        private readonly Type $returnType,
+        private readonly Type $return,
     ) {}
 
     public function accept(TypeVisitor $visitor): mixed
     {
-        return $visitor->closure($this, $this->parameters, $this->returnType);
+        return $visitor->closure($this, $this->parameters, $this->return);
     }
 }

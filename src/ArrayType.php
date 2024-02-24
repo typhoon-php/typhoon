@@ -14,16 +14,16 @@ namespace Typhoon\Type;
 final class ArrayType implements Type
 {
     /**
-     * @param Type<TKey> $keyType
-     * @param Type<TValue> $valueType
+     * @param Type<TKey> $key
+     * @param Type<TValue> $value
      */
     public function __construct(
-        private readonly Type $keyType,
-        private readonly Type $valueType,
+        private readonly Type $key,
+        private readonly Type $value,
     ) {}
 
     public function accept(TypeVisitor $visitor): mixed
     {
-        return $visitor->array($this, $this->keyType, $this->valueType);
+        return $visitor->array($this, $this->key, $this->value);
     }
 }

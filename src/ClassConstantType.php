@@ -15,12 +15,12 @@ final class ClassConstantType implements Type
      * @param non-empty-string $name
      */
     public function __construct(
-        private readonly Type $classType,
+        private readonly Type $class,
         private readonly string $name,
     ) {}
 
     public function accept(TypeVisitor $visitor): mixed
     {
-        return $visitor->classConstant($this, $this->classType, $this->name);
+        return $visitor->classConstant($this, $this->class, $this->name);
     }
 }

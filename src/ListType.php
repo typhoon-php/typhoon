@@ -13,14 +13,14 @@ namespace Typhoon\Type;
 final class ListType implements Type
 {
     /**
-     * @param Type<TValue> $valueType
+     * @param Type<TValue> $value
      */
     public function __construct(
-        private readonly Type $valueType,
+        private readonly Type $value,
     ) {}
 
     public function accept(TypeVisitor $visitor): mixed
     {
-        return $visitor->list($this, $this->valueType);
+        return $visitor->list($this, $this->value);
     }
 }

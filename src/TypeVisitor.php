@@ -15,231 +15,231 @@ interface TypeVisitor
      * @param non-empty-string $name
      * @return TReturn
      */
-    public function alias(Type $type, string $class, string $name): mixed;
+    public function alias(Type $self, string $class, string $name): mixed;
 
     /**
      * @return TReturn
      */
-    public function anyLiteral(Type $type, Type $innerType): mixed;
+    public function anyLiteral(Type $self, Type $type): mixed;
 
     /**
-     * @param Type<array<mixed>> $type
+     * @param Type<array<mixed>> $self
      * @return TReturn
      */
-    public function array(Type $type, Type $keyType, Type $valueType): mixed;
+    public function array(Type $self, Type $key, Type $value): mixed;
 
     /**
-     * @param Type<array<mixed>> $type
+     * @param Type<array<mixed>> $self
      * @param array<ArrayElement> $elements
      * @return TReturn
      */
-    public function arrayShape(Type $type, array $elements, bool $sealed): mixed;
+    public function arrayShape(Type $self, array $elements, bool $sealed): mixed;
 
     /**
-     * @param Type<bool> $type
+     * @param Type<bool> $self
      * @return TReturn
      */
-    public function bool(Type $type): mixed;
+    public function bool(Type $self): mixed;
 
     /**
-     * @param Type<callable> $type
+     * @param Type<callable> $self
      * @param list<Parameter> $parameters
      * @return TReturn
      */
-    public function callable(Type $type, array $parameters, Type $returnType): mixed;
+    public function callable(Type $self, array $parameters, Type $return): mixed;
 
     /**
      * @param non-empty-string $name
      * @return TReturn
      */
-    public function classConstant(Type $type, Type $classType, string $name): mixed;
+    public function classConstant(Type $self, Type $class, string $name): mixed;
 
     /**
-     * @param Type<class-string> $type
+     * @param Type<class-string> $self
      * @return TReturn
      */
-    public function classString(Type $type): mixed;
+    public function classString(Type $self): mixed;
 
     /**
-     * @param Type<non-empty-string> $type
+     * @param Type<non-empty-string> $self
      * @param non-empty-string $class
      * @return TReturn
      */
-    public function classStringLiteral(Type $type, string $class): mixed;
+    public function classStringLiteral(Type $self, string $class): mixed;
 
     /**
-     * @param Type<\Closure> $type
+     * @param Type<\Closure> $self
      * @param list<Parameter> $parameters
      * @return TReturn
      */
-    public function closure(Type $type, array $parameters, Type $returnType): mixed;
+    public function closure(Type $self, array $parameters, Type $return): mixed;
 
     /**
      * @return TReturn
      */
-    public function conditional(Type $type, Argument|Type $subject, Type $if, Type $then, Type $else): mixed;
+    public function conditional(Type $self, Argument|Type $subject, Type $if, Type $then, Type $else): mixed;
 
     /**
      * @param non-empty-string $name
      * @return TReturn
      */
-    public function constant(Type $type, string $name): mixed;
+    public function constant(Type $self, string $name): mixed;
 
     /**
-     * @param Type<float> $type
+     * @param Type<float> $self
      * @return TReturn
      */
-    public function float(Type $type): mixed;
+    public function float(Type $self): mixed;
 
     /**
-     * @param Type<int> $type
+     * @param Type<int> $self
      * @return TReturn
      */
-    public function int(Type $type): mixed;
+    public function int(Type $self): mixed;
 
     /**
      * @param non-empty-list<Type> $types
      * @return TReturn
      */
-    public function intersection(Type $type, array $types): mixed;
+    public function intersection(Type $self, array $types): mixed;
 
     /**
-     * @param Type<int> $type
+     * @param Type<int> $self
      * @return TReturn
      */
-    public function intMask(Type $type, Type $innerType): mixed;
+    public function intMask(Type $self, Type $type): mixed;
 
     /**
-     * @param Type<int> $type
+     * @param Type<int> $self
      * @return TReturn
      */
-    public function intRange(Type $type, ?int $min, ?int $max): mixed;
+    public function intRange(Type $self, ?int $min, ?int $max): mixed;
 
     /**
-     * @param Type<iterable<mixed>> $type
+     * @param Type<iterable<mixed>> $self
      * @return TReturn
      */
-    public function iterable(Type $type, Type $keyType, Type $valueType): mixed;
-
-    /**
-     * @return TReturn
-     */
-    public function key(Type $type, Type $innerType): mixed;
-
-    /**
-     * @param Type<list<mixed>> $type
-     * @return TReturn
-     */
-    public function list(Type $type, Type $valueType): mixed;
+    public function iterable(Type $self, Type $key, Type $value): mixed;
 
     /**
      * @return TReturn
      */
-    public function literal(Type $type, bool|int|float|string $value): mixed;
+    public function key(Type $self, Type $type): mixed;
+
+    /**
+     * @param Type<list<mixed>> $self
+     * @return TReturn
+     */
+    public function list(Type $self, Type $value): mixed;
 
     /**
      * @return TReturn
      */
-    public function mixed(Type $type): mixed;
+    public function literal(Type $self, bool|int|float|string $value): mixed;
 
     /**
-     * @param Type<non-empty-string> $type
      * @return TReturn
      */
-    public function namedClassString(Type $type, Type $objectType): mixed;
+    public function mixed(Type $self): mixed;
 
     /**
-     * @param Type<object> $type
+     * @param Type<non-empty-string> $self
+     * @return TReturn
+     */
+    public function namedClassString(Type $self, Type $object): mixed;
+
+    /**
+     * @param Type<object> $self
      * @param non-empty-string $class
      * @param list<Type> $templateArguments
      * @return TReturn
      */
-    public function namedObject(Type $type, string $class, array $templateArguments): mixed;
+    public function namedObject(Type $self, string $class, array $templateArguments): mixed;
 
     /**
-     * @param Type<never> $type
+     * @param Type<never> $self
      * @return TReturn
      */
-    public function never(Type $type): mixed;
+    public function never(Type $self): mixed;
 
     /**
      * @return TReturn
      */
-    public function nonEmpty(Type $type, Type $innerType): mixed;
+    public function nonEmpty(Type $self, Type $type): mixed;
 
     /**
-     * @param Type<null> $type
+     * @param Type<null> $self
      * @return TReturn
      */
-    public function null(Type $type): mixed;
+    public function null(Type $self): mixed;
 
     /**
-     * @param Type<numeric-string> $type
+     * @param Type<numeric-string> $self
      * @return TReturn
      */
-    public function numericString(Type $type): mixed;
+    public function numericString(Type $self): mixed;
 
     /**
-     * @param Type<object> $type
+     * @param Type<object> $self
      * @return TReturn
      */
-    public function object(Type $type): mixed;
+    public function object(Type $self): mixed;
 
     /**
-     * @param Type<object> $type
+     * @param Type<object> $self
      * @param array<string, Property> $properties
      * @return TReturn
      */
-    public function objectShape(Type $type, array $properties): mixed;
+    public function objectShape(Type $self, array $properties): mixed;
 
     /**
      * @return TReturn
      */
-    public function offset(Type $type, Type $innerType, Type $offset): mixed;
+    public function offset(Type $self, Type $type, Type $offset): mixed;
 
     /**
-     * @param Type<resource> $type
+     * @param Type<resource> $self
      * @return TReturn
      */
-    public function resource(Type $type): mixed;
+    public function resource(Type $self): mixed;
 
     /**
-     * @param Type<string> $type
+     * @param Type<string> $self
      * @return TReturn
      */
-    public function string(Type $type): mixed;
+    public function string(Type $self): mixed;
 
     /**
      * @param non-empty-string $name
      * @return TReturn
      */
-    public function template(Type $type, string $name, AtFunction|AtClass|AtMethod $declaredAt, Type $constraint): mixed;
+    public function template(Type $self, string $name, AtFunction|AtClass|AtMethod $declaredAt, Type $constraint): mixed;
 
     /**
-     * @param Type<truthy-string> $type
+     * @param Type<truthy-string> $self
      * @return TReturn
      */
-    public function truthyString(Type $type): mixed;
+    public function truthyString(Type $self): mixed;
 
     /**
      * @param non-empty-list<Type> $types
      * @return TReturn
      */
-    public function union(Type $type, array $types): mixed;
+    public function union(Type $self, array $types): mixed;
 
     /**
      * @return TReturn
      */
-    public function value(Type $type, Type $innerType): mixed;
+    public function value(Type $self, Type $type): mixed;
 
     /**
      * @return TReturn
      */
-    public function varianceAware(Type $type, Type $innerType, Variance $variance): mixed;
+    public function varianceAware(Type $self, Type $type, Variance $variance): mixed;
 
     /**
-     * @param Type<void> $type
+     * @param Type<void> $self
      * @return TReturn
      */
-    public function void(Type $type): mixed;
+    public function void(Type $self): mixed;
 }

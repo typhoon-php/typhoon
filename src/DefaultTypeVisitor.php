@@ -11,203 +11,203 @@ namespace Typhoon\Type;
  */
 abstract class DefaultTypeVisitor implements TypeVisitor
 {
-    public function alias(Type $type, string $class, string $name): mixed
+    public function alias(Type $self, string $class, string $name): mixed
     {
-        return $this->default($type);
+        return $this->default($self);
     }
 
-    public function anyLiteral(Type $type, Type $innerType): mixed
+    public function anyLiteral(Type $self, Type $type): mixed
     {
-        return $this->default($type);
+        return $this->default($self);
     }
 
-    public function array(Type $type, Type $keyType, Type $valueType): mixed
+    public function array(Type $self, Type $key, Type $value): mixed
     {
-        return $this->default($type);
+        return $this->default($self);
     }
 
-    public function arrayShape(Type $type, array $elements, bool $sealed): mixed
+    public function arrayShape(Type $self, array $elements, bool $sealed): mixed
     {
-        return $this->default($type);
+        return $this->default($self);
     }
 
-    public function bool(Type $type): mixed
+    public function bool(Type $self): mixed
     {
-        return $this->default($type);
+        return $this->default($self);
     }
 
-    public function callable(Type $type, array $parameters, ?Type $returnType): mixed
+    public function callable(Type $self, array $parameters, ?Type $return): mixed
     {
-        return $this->default($type);
+        return $this->default($self);
     }
 
-    public function classConstant(Type $type, Type $classType, string $name): mixed
+    public function classConstant(Type $self, Type $class, string $name): mixed
     {
-        return $this->default($type);
+        return $this->default($self);
     }
 
-    public function classString(Type $type): mixed
+    public function classString(Type $self): mixed
     {
-        return $this->default($type);
+        return $this->default($self);
     }
 
-    public function classStringLiteral(Type $type, string $class): mixed
+    public function classStringLiteral(Type $self, string $class): mixed
     {
-        return $this->default($type);
+        return $this->default($self);
     }
 
-    public function closure(Type $type, array $parameters, ?Type $returnType): mixed
+    public function closure(Type $self, array $parameters, ?Type $return): mixed
     {
-        return $this->default($type);
+        return $this->default($self);
     }
 
-    public function conditional(Type $type, Argument|Type $subject, Type $if, Type $then, Type $else): mixed
+    public function conditional(Type $self, Argument|Type $subject, Type $if, Type $then, Type $else): mixed
     {
-        return $this->default($type);
+        return $this->default($self);
     }
 
-    public function constant(Type $type, string $name): mixed
+    public function constant(Type $self, string $name): mixed
     {
-        return $this->default($type);
+        return $this->default($self);
     }
 
-    public function float(Type $type): mixed
+    public function float(Type $self): mixed
     {
-        return $this->default($type);
+        return $this->default($self);
     }
 
-    public function int(Type $type): mixed
+    public function int(Type $self): mixed
     {
-        return $this->default($type);
+        return $this->default($self);
     }
 
-    public function intersection(Type $type, array $types): mixed
+    public function intersection(Type $self, array $types): mixed
     {
-        return $this->default($type);
+        return $this->default($self);
     }
 
-    public function intMask(Type $type, Type $innerType): mixed
+    public function intMask(Type $self, Type $type): mixed
     {
-        return $this->default($type);
+        return $this->default($self);
     }
 
-    public function intRange(Type $type, ?int $min, ?int $max): mixed
+    public function intRange(Type $self, ?int $min, ?int $max): mixed
     {
-        return $this->default($type);
+        return $this->default($self);
     }
 
-    public function iterable(Type $type, Type $keyType, Type $valueType): mixed
+    public function iterable(Type $self, Type $key, Type $value): mixed
     {
-        return $this->default($type);
+        return $this->default($self);
     }
 
-    public function key(Type $type, Type $innerType): mixed
+    public function key(Type $self, Type $type): mixed
     {
-        return $this->default($type);
+        return $this->default($self);
     }
 
-    public function list(Type $type, Type $valueType): mixed
+    public function list(Type $self, Type $value): mixed
     {
-        return $this->default($type);
+        return $this->default($self);
     }
 
-    public function literal(Type $type, float|bool|int|string $value): mixed
+    public function literal(Type $self, float|bool|int|string $value): mixed
     {
-        return $this->default($type);
+        return $this->default($self);
     }
 
-    public function mixed(Type $type): mixed
+    public function mixed(Type $self): mixed
     {
-        return $this->default($type);
+        return $this->default($self);
     }
 
-    public function namedClassString(Type $type, Type $objectType): mixed
+    public function namedClassString(Type $self, Type $object): mixed
     {
-        return $this->default($type);
+        return $this->default($self);
     }
 
-    public function namedObject(Type $type, string $class, array $templateArguments): mixed
+    public function namedObject(Type $self, string $class, array $templateArguments): mixed
     {
-        return $this->default($type);
+        return $this->default($self);
     }
 
-    public function never(Type $type): mixed
+    public function never(Type $self): mixed
     {
-        return $this->default($type);
+        return $this->default($self);
     }
 
-    public function nonEmpty(Type $type, Type $innerType): mixed
+    public function nonEmpty(Type $self, Type $type): mixed
     {
-        return $this->default($type);
+        return $this->default($self);
     }
 
-    public function null(Type $type): mixed
+    public function null(Type $self): mixed
     {
-        return $this->default($type);
+        return $this->default($self);
     }
 
-    public function numericString(Type $type): mixed
+    public function numericString(Type $self): mixed
     {
-        return $this->default($type);
+        return $this->default($self);
     }
 
-    public function object(Type $type): mixed
+    public function object(Type $self): mixed
     {
-        return $this->default($type);
+        return $this->default($self);
     }
 
-    public function objectShape(Type $type, array $properties): mixed
+    public function objectShape(Type $self, array $properties): mixed
     {
-        return $this->default($type);
+        return $this->default($self);
     }
 
-    public function offset(Type $type, Type $innerType, Type $offset): mixed
+    public function offset(Type $self, Type $type, Type $offset): mixed
     {
-        return $this->default($type);
+        return $this->default($self);
     }
 
-    public function resource(Type $type): mixed
+    public function resource(Type $self): mixed
     {
-        return $this->default($type);
+        return $this->default($self);
     }
 
-    public function string(Type $type): mixed
+    public function string(Type $self): mixed
     {
-        return $this->default($type);
+        return $this->default($self);
     }
 
-    public function template(Type $type, string $name, AtClass|AtFunction|AtMethod $declaredAt, Type $constraint): mixed
+    public function template(Type $self, string $name, AtClass|AtFunction|AtMethod $declaredAt, Type $constraint): mixed
     {
-        return $this->default($type);
+        return $this->default($self);
     }
 
-    public function truthyString(Type $type): mixed
+    public function truthyString(Type $self): mixed
     {
-        return $this->default($type);
+        return $this->default($self);
     }
 
-    public function union(Type $type, array $types): mixed
+    public function union(Type $self, array $types): mixed
     {
-        return $this->default($type);
+        return $this->default($self);
     }
 
-    public function value(Type $type, Type $innerType): mixed
+    public function value(Type $self, Type $type): mixed
     {
-        return $this->default($type);
+        return $this->default($self);
     }
 
-    public function varianceAware(Type $type, Type $innerType, Variance $variance): mixed
+    public function varianceAware(Type $self, Type $type, Variance $variance): mixed
     {
-        return $this->default($type);
+        return $this->default($self);
     }
 
-    public function void(Type $type): mixed
+    public function void(Type $self): mixed
     {
-        return $this->default($type);
+        return $this->default($self);
     }
 
     /**
      * @return TReturn
      */
-    abstract protected function default(Type $type): mixed;
+    abstract protected function default(Type $self): mixed;
 }

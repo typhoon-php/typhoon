@@ -70,17 +70,17 @@ enum types implements Type
     /**
      * @template TKey
      * @template TValue
-     * @param Type<TKey> $keyType
-     * @param Type<TValue> $valueType
+     * @param Type<TKey> $key
+     * @param Type<TValue> $value
      * @return Type<array<TKey, TValue>>
      */
-    public static function array(Type $keyType = self::arrayKey, Type $valueType = self::mixed): Type
+    public static function array(Type $key = self::arrayKey, Type $value = self::mixed): Type
     {
-        if ($keyType === self::arrayKey && $valueType === self::mixed) {
+        if ($key === self::arrayKey && $value === self::mixed) {
             return self::array;
         }
 
-        return new ArrayType($keyType, $valueType);
+        return new ArrayType($key, $value);
     }
 
     /**
@@ -136,12 +136,12 @@ enum types implements Type
     /**
      * @template TReturn
      * @param list<Type|Parameter> $parameters
-     * @param Type<TReturn> $returnType
+     * @param Type<TReturn> $return
      * @return Type<callable>
      */
-    public static function callable(array $parameters = [], Type $returnType = self::mixed): Type
+    public static function callable(array $parameters = [], Type $return = self::mixed): Type
     {
-        if ($parameters === [] && $returnType === self::mixed) {
+        if ($parameters === [] && $return === self::mixed) {
             return self::callable;
         }
 
@@ -150,25 +150,25 @@ enum types implements Type
                 static fn(Type|Parameter $parameter): Parameter => $parameter instanceof Type ? new Parameter($parameter) : $parameter,
                 $parameters,
             ),
-            $returnType,
+            $return,
         );
     }
 
     /**
      * @param non-empty-string $name
      */
-    public static function classConstant(Type $classType, string $name): Type
+    public static function classConstant(Type $class, string $name): Type
     {
-        return new ClassConstantType($classType, $name);
+        return new ClassConstantType($class, $name);
     }
 
     /**
      * @template TObject of object
-     * @return ($objectType is Type<TObject> ? Type<class-string<TObject>> : Type<non-empty-string>)
+     * @return ($object is Type<TObject> ? Type<class-string<TObject>> : Type<non-empty-string>)
      */
-    public static function classString(Type $objectType): Type
+    public static function classString(Type $object): Type
     {
-        return new NamedClassStringType($objectType);
+        return new NamedClassStringType($object);
     }
 
     /**
@@ -185,9 +185,9 @@ enum types implements Type
      * @param list<Type|Parameter> $parameters
      * @return Type<\Closure>
      */
-    public static function closure(array $parameters = [], Type $returnType = self::mixed): Type
+    public static function closure(array $parameters = [], Type $return = self::mixed): Type
     {
-        if ($parameters === [] && $returnType === self::mixed) {
+        if ($parameters === [] && $return === self::mixed) {
             return self::closure;
         }
 
@@ -196,7 +196,7 @@ enum types implements Type
                 static fn(Type|Parameter $parameter): Parameter => $parameter instanceof Type ? new Parameter($parameter) : $parameter,
                 $parameters,
             ),
-            $returnType,
+            $return,
         );
     }
 
@@ -216,9 +216,9 @@ enum types implements Type
     /**
      * @no-named-arguments
      */
-    public static function intersection(Type $type1, Type $type2, Type ...$moreTypes): Type
+    public static function intersection(Type $type1, Type $type2, Type ...$types): Type
     {
-        return new IntersectionType([$type1, $type2, ...$moreTypes]);
+        return new IntersectionType([$type1, $type2, ...$types]);
     }
 
     /**
@@ -244,17 +244,17 @@ enum types implements Type
     /**
      * @template TKey
      * @template TValue
-     * @param Type<TKey> $keyType
-     * @param Type<TValue> $valueType
+     * @param Type<TKey> $key
+     * @param Type<TValue> $value
      * @return Type<iterable<TKey, TValue>>
      */
-    public static function iterable(Type $keyType = self::mixed, Type $valueType = self::mixed): Type
+    public static function iterable(Type $key = self::mixed, Type $value = self::mixed): Type
     {
-        if ($keyType === self::mixed && $valueType === self::mixed) {
+        if ($key === self::mixed && $value === self::mixed) {
             return self::iterable;
         }
 
-        return new IterableType($keyType, $valueType);
+        return new IterableType($key, $value);
     }
 
     public static function key(Type $type): Type
@@ -264,12 +264,12 @@ enum types implements Type
 
     /**
      * @template TValue
-     * @param Type<TValue> $valueType
+     * @param Type<TValue> $value
      * @return Type<list<TValue>>
      */
-    public static function list(Type $valueType = self::mixed): Type
+    public static function list(Type $value = self::mixed): Type
     {
-        return new ListType($valueType);
+        return new ListType($value);
     }
 
     /**
@@ -285,27 +285,27 @@ enum types implements Type
     /**
      * @template TKey
      * @template TValue
-     * @param Type<TKey> $keyType
-     * @param Type<TValue> $valueType
+     * @param Type<TKey> $key
+     * @param Type<TValue> $value
      * @return Type<non-empty-array<TKey, TValue>>
      * @psalm-suppress MoreSpecificReturnType, LessSpecificReturnStatement
      */
-    public static function nonEmptyArray(Type $keyType = self::arrayKey, Type $valueType = self::mixed): Type
+    public static function nonEmptyArray(Type $key = self::arrayKey, Type $value = self::mixed): Type
     {
         /** @phpstan-ignore return.type */
-        return new NonEmptyType(self::array($keyType, $valueType));
+        return new NonEmptyType(self::array($key, $value));
     }
 
     /**
      * @template TValue
-     * @param Type<TValue> $valueType
+     * @param Type<TValue> $value
      * @return Type<non-empty-list<TValue>>
      * @psalm-suppress InvalidReturnType, InvalidReturnStatement
      */
-    public static function nonEmptyList(Type $valueType = self::mixed): Type
+    public static function nonEmptyList(Type $value = self::mixed): Type
     {
         /** @phpstan-ignore return.type */
-        return new NonEmptyType(self::list($valueType));
+        return new NonEmptyType(self::list($value));
     }
 
     /**
@@ -379,12 +379,12 @@ enum types implements Type
      * @template TType
      * @param Type<TType> $type1
      * @param Type<TType> $type2
-     * @param Type<TType> ...$moreTypes
+     * @param Type<TType> ...$types
      * @return Type<TType>
      */
-    public static function union(Type $type1, Type $type2, Type ...$moreTypes): Type
+    public static function union(Type $type1, Type $type2, Type ...$types): Type
     {
-        return new UnionType([$type1, $type2, ...$moreTypes]);
+        return new UnionType([$type1, $type2, ...$types]);
     }
 
     public static function value(Type $type): Type

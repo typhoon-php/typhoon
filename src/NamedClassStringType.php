@@ -12,11 +12,11 @@ namespace Typhoon\Type;
 final class NamedClassStringType implements Type
 {
     public function __construct(
-        private readonly Type $objectType,
+        private readonly Type $object,
     ) {}
 
     public function accept(TypeVisitor $visitor): mixed
     {
-        return $visitor->namedClassString($this, $this->objectType);
+        return $visitor->namedClassString($this, $this->object);
     }
 }
