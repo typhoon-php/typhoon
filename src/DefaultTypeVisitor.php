@@ -16,11 +16,6 @@ abstract class DefaultTypeVisitor implements TypeVisitor
         return $this->default($self);
     }
 
-    public function anyLiteral(Type $self, Type $type): mixed
-    {
-        return $this->default($self);
-    }
-
     public function array(Type $self, Type $key, Type $value): mixed
     {
         return $this->default($self);
@@ -111,7 +106,12 @@ abstract class DefaultTypeVisitor implements TypeVisitor
         return $this->default($self);
     }
 
-    public function literal(Type $self, float|bool|int|string $value): mixed
+    public function literal(Type $self, Type $type): mixed
+    {
+        return $this->default($self);
+    }
+
+    public function literalValue(Type $self, float|bool|int|string $value): mixed
     {
         return $this->default($self);
     }

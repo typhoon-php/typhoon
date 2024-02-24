@@ -50,16 +50,6 @@ enum types implements Type
     }
 
     /**
-     * @template TType
-     * @param Type<TType> $type
-     * @return Type<TType>
-     */
-    public static function anyLiteral(Type $type): Type
-    {
-        return new AnyLiteralType($type);
-    }
-
-    /**
      * @param non-empty-string $name
      */
     public static function arg(string $name): Argument
@@ -273,13 +263,23 @@ enum types implements Type
     }
 
     /**
+     * @template TType
+     * @param Type<TType> $type
+     * @return Type<TType>
+     */
+    public static function literal(Type $type): Type
+    {
+        return new LiteralType($type);
+    }
+
+    /**
      * @template TValue of bool|int|float|string
      * @param TValue $value
      * @return Type<TValue>
      */
-    public static function literal(bool|int|float|string $value): Type
+    public static function literalValue(bool|int|float|string $value): Type
     {
-        return new LiteralType($value);
+        return new LiteralValueType($value);
     }
 
     /**
@@ -411,12 +411,12 @@ enum types implements Type
             self::callable => $visitor->callable($this, [], self::mixed),
             self::classString => $visitor->classString($this),
             self::closure => $visitor->closure($this, [], types::mixed),
-            self::false => $visitor->literal($this, false),
+            self::false => $visitor->literalValue($this, false),
             self::float => $visitor->float($this),
             self::int => $visitor->int($this),
             self::iterable => $visitor->iterable($this, self::mixed, self::mixed),
-            self::literalInt => $visitor->anyLiteral($this, self::int),
-            self::literalString => $visitor->anyLiteral($this, self::string),
+            self::literalInt => $visitor->literal($this, self::int),
+            self::literalString => $visitor->literal($this, self::string),
             self::mixed => $visitor->mixed($this),
             self::negativeInt => $visitor->intRange($this, null, -1),
             self::never => $visitor->never($this),
@@ -431,7 +431,7 @@ enum types implements Type
             self::resource => $visitor->resource($this),
             self::scalar => $visitor->union($this, [self::bool, self::int, self::float, self::string]),
             self::string => $visitor->string($this),
-            self::true => $visitor->literal($this, true),
+            self::true => $visitor->literalValue($this, true),
             self::truthyString => $visitor->truthyString($this),
             self::void => $visitor->void($this),
         };

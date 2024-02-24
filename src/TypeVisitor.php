@@ -18,11 +18,6 @@ interface TypeVisitor
     public function alias(Type $self, string $class, string $name): mixed;
 
     /**
-     * @return TReturn
-     */
-    public function anyLiteral(Type $self, Type $type): mixed;
-
-    /**
      * @param Type<array<mixed>> $self
      * @return TReturn
      */
@@ -135,7 +130,12 @@ interface TypeVisitor
     /**
      * @return TReturn
      */
-    public function literal(Type $self, bool|int|float|string $value): mixed;
+    public function literal(Type $self, Type $type): mixed;
+
+    /**
+     * @return TReturn
+     */
+    public function literalValue(Type $self, bool|int|float|string $value): mixed;
 
     /**
      * @return TReturn
