@@ -7,22 +7,20 @@ namespace Typhoon\Type;
 /**
  * @internal
  * @psalm-internal Typhoon\Type
- * @template-covariant TClassConstant
- * @implements Type<TClassConstant>
+ * @implements Type<mixed>
  */
 final class ClassConstantType implements Type
 {
     /**
-     * @param non-empty-string $class
      * @param non-empty-string $name
      */
     public function __construct(
-        private readonly string $class,
+        private readonly Type $classType,
         private readonly string $name,
     ) {}
 
     public function accept(TypeVisitor $visitor): mixed
     {
-        return $visitor->classConstant($this, $this->class, $this->name);
+        return $visitor->classConstant($this, $this->classType, $this->name);
     }
 }

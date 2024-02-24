@@ -7,10 +7,9 @@ namespace Typhoon\Type;
 /**
  * @internal
  * @psalm-internal Typhoon\Type
- * @template-covariant TType
- * @implements Type<TType>
+ * @implements Type<mixed>
  */
-final class ValueOfType implements Type
+final class ValueType implements Type
 {
     public function __construct(
         private readonly Type $type,
@@ -18,6 +17,6 @@ final class ValueOfType implements Type
 
     public function accept(TypeVisitor $visitor): mixed
     {
-        return $visitor->valueOf($this, $this->type);
+        return $visitor->value($this, $this->type);
     }
 }

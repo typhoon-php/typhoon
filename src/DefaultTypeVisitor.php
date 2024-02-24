@@ -41,7 +41,7 @@ abstract class DefaultTypeVisitor implements TypeVisitor
         return $this->default($type);
     }
 
-    public function classConstant(Type $type, string $class, string $name): mixed
+    public function classConstant(Type $type, Type $classType, string $name): mixed
     {
         return $this->default($type);
     }
@@ -86,12 +86,7 @@ abstract class DefaultTypeVisitor implements TypeVisitor
         return $this->default($type);
     }
 
-    public function intMask(Type $type, array $ints): mixed
-    {
-        return $this->default($type);
-    }
-
-    public function intMaskOf(Type $type, Type $innerType): mixed
+    public function intMask(Type $type, Type $innerType): mixed
     {
         return $this->default($type);
     }
@@ -106,7 +101,7 @@ abstract class DefaultTypeVisitor implements TypeVisitor
         return $this->default($type);
     }
 
-    public function keyOf(Type $type, Type $innerType): mixed
+    public function key(Type $type, Type $innerType): mixed
     {
         return $this->default($type);
     }
@@ -196,7 +191,7 @@ abstract class DefaultTypeVisitor implements TypeVisitor
         return $this->default($type);
     }
 
-    public function valueOf(Type $type, Type $innerType): mixed
+    public function value(Type $type, Type $innerType): mixed
     {
         return $this->default($type);
     }

@@ -7,13 +7,12 @@ namespace Typhoon\Type;
 /**
  * @internal
  * @psalm-internal Typhoon\Type
- * @template-covariant TObject of object
- * @implements Type<TObject>
+ * @implements Type<object>
  */
 final class NamedObjectType implements Type
 {
     /**
-     * @param class-string<TObject>|non-empty-string $class
+     * @param non-empty-string $class
      * @param list<Type> $templateArguments
      */
     public function __construct(

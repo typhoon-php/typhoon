@@ -155,22 +155,20 @@ enum types implements Type
     }
 
     /**
-     * @param non-empty-string $class
      * @param non-empty-string $name
      */
-    public static function classConstant(string $class, string $name): Type
+    public static function classConstant(Type $classType, string $name): Type
     {
-        return new ClassConstantType($class, $name);
+        return new ClassConstantType($classType, $name);
     }
 
     /**
      * @template TObject of object
-     * @param Type<TObject> $type
-     * @return Type<class-string<TObject>>
+     * @return ($objectType is Type<TObject> ? Type<class-string<TObject>> : Type<non-empty-string>)
      */
-    public static function classString(Type $type): Type
+    public static function classString(Type $objectType): Type
     {
-        return new NamedClassStringType($type);
+        return new NamedClassStringType($objectType);
     }
 
     /**
@@ -184,10 +182,8 @@ enum types implements Type
     }
 
     /**
-     * @template TReturn
      * @param list<Type|Parameter> $parameters
-     * @param Type<TReturn> $returnType
-     * @return Type<\Closure(): TReturn>
+     * @return Type<\Closure>
      */
     public static function closure(array $parameters = [], Type $returnType = self::mixed): Type
     {
@@ -226,22 +222,11 @@ enum types implements Type
     }
 
     /**
-     * @no-named-arguments
      * @return Type<int>
      */
-    public static function intMask(int $int, int ...$ints): Type
+    public static function intMask(Type $type): Type
     {
-        return new IntMaskType([$int, ...$ints]);
-    }
-
-    /**
-     * @template TIntMask of int
-     * @param Type<TIntMask> $type
-     * @return IntMaskOfType<TIntMask>
-     */
-    public static function intMaskOf(Type $type): IntMaskOfType
-    {
-        return new IntMaskOfType($type);
+        return new IntMaskType($type);
     }
 
     /**
@@ -272,9 +257,9 @@ enum types implements Type
         return new IterableType($keyType, $valueType);
     }
 
-    public static function keyOf(Type $type): Type
+    public static function key(Type $type): Type
     {
-        return new KeyOfType($type);
+        return new KeyType($type);
     }
 
     /**
@@ -307,7 +292,7 @@ enum types implements Type
      */
     public static function nonEmptyArray(Type $keyType = self::arrayKey, Type $valueType = self::mixed): Type
     {
-        /** @phpstan-ignore-next-line */
+        /** @phpstan-ignore return.type */
         return new NonEmptyType(self::array($keyType, $valueType));
     }
 
@@ -319,7 +304,7 @@ enum types implements Type
      */
     public static function nonEmptyList(Type $valueType = self::mixed): Type
     {
-        /** @phpstan-ignore-next-line */
+        /** @phpstan-ignore return.type */
         return new NonEmptyType(self::list($valueType));
     }
 
@@ -339,7 +324,6 @@ enum types implements Type
      * @template TObject of object
      * @param class-string<TObject>|non-empty-string $class
      * @return ($class is class-string ? Type<TObject> : Type<object>)
-     * @psalm-suppress MixedReturnTypeCoercion
      */
     public static function object(string $class, Type ...$templateArguments): Type
     {
@@ -403,9 +387,9 @@ enum types implements Type
         return new UnionType([$type1, $type2, ...$moreTypes]);
     }
 
-    public static function valueOf(Type $type): Type
+    public static function value(Type $type): Type
     {
-        return new ValueOfType($type);
+        return new ValueType($type);
     }
 
     /**

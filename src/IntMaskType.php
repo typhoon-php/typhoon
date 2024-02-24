@@ -7,20 +7,16 @@ namespace Typhoon\Type;
 /**
  * @internal
  * @psalm-internal Typhoon\Type
- * @template-covariant TIntMask of int
- * @implements Type<TIntMask>
+ * @implements Type<int>
  */
 final class IntMaskType implements Type
 {
-    /**
-     * @param non-empty-list<int> $ints
-     */
     public function __construct(
-        private readonly array $ints,
+        private readonly Type $type,
     ) {}
 
     public function accept(TypeVisitor $visitor): mixed
     {
-        return $visitor->intMask($this, $this->ints);
+        return $visitor->intMask($this, $this->type);
     }
 }

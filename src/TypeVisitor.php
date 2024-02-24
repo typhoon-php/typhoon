@@ -18,19 +18,12 @@ interface TypeVisitor
     public function alias(Type $type, string $class, string $name): mixed;
 
     /**
-     * @template TType
-     * @param Type<TType> $type
-     * @param Type<TType> $innerType
      * @return TReturn
      */
     public function anyLiteral(Type $type, Type $innerType): mixed;
 
     /**
-     * @template TKey
-     * @template TValue
-     * @param Type<array<TKey, TValue>> $type
-     * @param Type<TKey> $keyType
-     * @param Type<TValue> $valueType
+     * @param Type<array<mixed>> $type
      * @return TReturn
      */
     public function array(Type $type, Type $keyType, Type $valueType): mixed;
@@ -49,20 +42,17 @@ interface TypeVisitor
     public function bool(Type $type): mixed;
 
     /**
-     * @template TCallableReturn
-     * @param Type<callable(): TCallableReturn> $type
+     * @param Type<callable> $type
      * @param list<Parameter> $parameters
-     * @param Type<TCallableReturn> $returnType
      * @return TReturn
      */
     public function callable(Type $type, array $parameters, Type $returnType): mixed;
 
     /**
-     * @param non-empty-string $class
      * @param non-empty-string $name
      * @return TReturn
      */
-    public function classConstant(Type $type, string $class, string $name): mixed;
+    public function classConstant(Type $type, Type $classType, string $name): mixed;
 
     /**
      * @param Type<class-string> $type
@@ -71,18 +61,15 @@ interface TypeVisitor
     public function classString(Type $type): mixed;
 
     /**
-     * @template TClass of non-empty-string
-     * @param Type<TClass> $type
-     * @param TClass $class
+     * @param Type<non-empty-string> $type
+     * @param non-empty-string $class
      * @return TReturn
      */
     public function classStringLiteral(Type $type, string $class): mixed;
 
     /**
-     * @template TClosureReturn
-     * @param Type<\Closure(): TClosureReturn> $type
+     * @param Type<\Closure> $type
      * @param list<Parameter> $parameters
-     * @param Type<TClosureReturn> $returnType
      * @return TReturn
      */
     public function closure(Type $type, array $parameters, Type $returnType): mixed;
@@ -118,18 +105,9 @@ interface TypeVisitor
 
     /**
      * @param Type<int> $type
-     * @param non-empty-list<int> $ints
      * @return TReturn
      */
-    public function intMask(Type $type, array $ints): mixed;
-
-    /**
-     * @template TIntMask of int
-     * @param Type<TIntMask> $type
-     * @param Type<TIntMask> $innerType
-     * @return TReturn
-     */
-    public function intMaskOf(Type $type, Type $innerType): mixed;
+    public function intMask(Type $type, Type $innerType): mixed;
 
     /**
      * @param Type<int> $type
@@ -138,11 +116,7 @@ interface TypeVisitor
     public function intRange(Type $type, ?int $min, ?int $max): mixed;
 
     /**
-     * @template TKey
-     * @template TValue
-     * @param Type<iterable<TKey, TValue>> $type
-     * @param Type<TKey> $keyType
-     * @param Type<TValue> $valueType
+     * @param Type<iterable<mixed>> $type
      * @return TReturn
      */
     public function iterable(Type $type, Type $keyType, Type $valueType): mixed;
@@ -150,20 +124,15 @@ interface TypeVisitor
     /**
      * @return TReturn
      */
-    public function keyOf(Type $type, Type $innerType): mixed;
+    public function key(Type $type, Type $innerType): mixed;
 
     /**
-     * @template TValue
-     * @param Type<list<TValue>> $type
-     * @param Type<TValue> $valueType
+     * @param Type<list<mixed>> $type
      * @return TReturn
      */
     public function list(Type $type, Type $valueType): mixed;
 
     /**
-     * @template TValue of bool|int|float|string
-     * @param Type<TValue> $type
-     * @param TValue $value
      * @return TReturn
      */
     public function literal(Type $type, bool|int|float|string $value): mixed;
@@ -174,17 +143,14 @@ interface TypeVisitor
     public function mixed(Type $type): mixed;
 
     /**
-     * @template TObject
-     * @param Type<class-string<TObject>> $type
-     * @param Type<TObject> $objectType
+     * @param Type<non-empty-string> $type
      * @return TReturn
      */
     public function namedClassString(Type $type, Type $objectType): mixed;
 
     /**
-     * @template TObject of object
-     * @param Type<TObject> $type
-     * @param non-empty-string|class-string<TObject> $class
+     * @param Type<object> $type
+     * @param non-empty-string $class
      * @param list<Type> $templateArguments
      * @return TReturn
      */
@@ -197,9 +163,6 @@ interface TypeVisitor
     public function never(Type $type): mixed;
 
     /**
-     * @template TType
-     * @param Type<TType> $type
-     * @param Type<TType> $innerType
      * @return TReturn
      */
     public function nonEmpty(Type $type, Type $innerType): mixed;
@@ -259,9 +222,7 @@ interface TypeVisitor
     public function truthyString(Type $type): mixed;
 
     /**
-     * @template TType
-     * @param Type<TType> $type
-     * @param non-empty-list<Type<TType>> $types
+     * @param non-empty-list<Type> $types
      * @return TReturn
      */
     public function union(Type $type, array $types): mixed;
@@ -269,12 +230,9 @@ interface TypeVisitor
     /**
      * @return TReturn
      */
-    public function valueOf(Type $type, Type $innerType): mixed;
+    public function value(Type $type, Type $innerType): mixed;
 
     /**
-     * @template TType
-     * @param Type<TType> $type
-     * @param Type<TType> $innerType
      * @return TReturn
      */
     public function varianceAware(Type $type, Type $innerType, Variance $variance): mixed;

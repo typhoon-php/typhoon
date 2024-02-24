@@ -7,14 +7,12 @@ namespace Typhoon\Type;
 /**
  * @internal
  * @psalm-internal Typhoon\Type
- * @template-covariant TReturn
- * @implements Type<callable(): TReturn>
+ * @implements Type<callable>
  */
 final class CallableType implements Type
 {
     /**
      * @param list<Parameter> $parameters
-     * @param Type<TReturn> $returnType
      */
     public function __construct(
         private readonly array $parameters,

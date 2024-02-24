@@ -7,8 +7,7 @@ namespace Typhoon\Type;
 /**
  * @internal
  * @psalm-internal Typhoon\Type
- * @template-covariant TInt of int
- * @implements Type<TInt>
+ * @implements Type<int>
  */
 final class IntRangeType implements Type
 {

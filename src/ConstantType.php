@@ -7,8 +7,7 @@ namespace Typhoon\Type;
 /**
  * @internal
  * @psalm-internal Typhoon\Type
- * @template-covariant TConstant
- * @implements Type<TConstant>
+ * @implements Type<mixed>
  */
 final class ConstantType implements Type
 {

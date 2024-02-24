@@ -7,20 +7,16 @@ namespace Typhoon\Type;
 /**
  * @internal
  * @psalm-internal Typhoon\Type
- * @template-covariant TObject of object
- * @implements Type<class-string<TObject>>
+ * @implements Type<non-empty-string>
  */
 final class NamedClassStringType implements Type
 {
-    /**
-     * @param Type<TObject> $type
-     */
     public function __construct(
-        private readonly Type $type,
+        private readonly Type $objectType,
     ) {}
 
     public function accept(TypeVisitor $visitor): mixed
     {
-        return $visitor->namedClassString($this, $this->type);
+        return $visitor->namedClassString($this, $this->objectType);
     }
 }

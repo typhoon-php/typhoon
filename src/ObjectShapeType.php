@@ -7,8 +7,7 @@ namespace Typhoon\Type;
 /**
  * @internal
  * @psalm-internal Typhoon\Type
- * @template-covariant TObject of object
- * @implements Type<TObject>
+ * @implements Type<object>
  */
 final class ObjectShapeType implements Type
 {

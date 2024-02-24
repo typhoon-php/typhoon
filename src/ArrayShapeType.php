@@ -7,8 +7,7 @@ namespace Typhoon\Type;
 /**
  * @internal
  * @psalm-internal Typhoon\Type
- * @template-covariant TArray of array
- * @implements Type<TArray>
+ * @implements Type<array>
  */
 final class ArrayShapeType implements Type
 {

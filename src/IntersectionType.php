@@ -7,8 +7,7 @@ namespace Typhoon\Type;
 /**
  * @internal
  * @psalm-internal Typhoon\Type
- * @template-covariant TType
- * @implements Type<TType>
+ * @implements Type<mixed>
  */
 final class IntersectionType implements Type
 {
