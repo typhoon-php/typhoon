@@ -4,3 +4,4 @@ parameters:
         - src
         - tests
     checkGenericClassInNonGenericObjectType: false
+    tmpDir: var/phpstan
