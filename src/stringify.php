@@ -13,5 +13,5 @@ use Typhoon\Type\Type;
  */
 function stringify(Type $type): string
 {
-    return $type->accept(new TypeStringifier());
+    return $type->accept(new StringifyTypeVisitor());
 }
