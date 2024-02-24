@@ -28,11 +28,6 @@ final class TypeStringifier implements TypeVisitor
         return sprintf('%s from %s', $name, $class);
     }
 
-    public function anyLiteral(Type $self, Type $type): mixed
-    {
-        return 'literal-' . $type->accept($this);
-    }
-
     public function array(Type $self, Type $key, Type $value): mixed
     {
         if ($this->isArrayKey($key)) {
@@ -188,7 +183,12 @@ final class TypeStringifier implements TypeVisitor
         return $this->stringifyGenericType('list', [$value]);
     }
 
-    public function literal(Type $self, bool|int|float|string $value): mixed
+    public function literal(Type $self, Type $type): mixed
+    {
+        return 'literal-' . $type->accept($this);
+    }
+
+    public function literalValue(Type $self, bool|int|float|string $value): mixed
     {
         if ($value === true) {
             return 'true';
