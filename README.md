@@ -20,7 +20,7 @@ composer require typhoon/type
 use Typhoon\Type\types;
 
 /**
- * array{
+ * Equivalent to type array{
  *     a: non-empty-list,
  *     b?: int|float,
  *     c: Traversable<numeric-string, false>,
@@ -34,7 +34,7 @@ $type = types::arrayShape([
     'c' => types::object(Traversable::class, types::numericString, types::false),
     'd' => types::callable(
         parameters: [
-            types::classConstant(PDO::class, '*'),
+            types::classConstant(types::object(PDO::class), '*'),
             types::param(types::template('TSend', types::atClass(Generator::class)), hasDefault: true),
             types::param(types::scalar, variadic: true),
         ],
