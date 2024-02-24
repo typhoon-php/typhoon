@@ -44,16 +44,17 @@ final class TypeStringifier implements TypeVisitor
     public function arrayShape(Type $self, array $elements, bool $sealed): mixed
     {
         if ($elements === []) {
-            return $sealed ? 'array{}' : 'array';
+            return 'array{}';
         }
-
-        $isList = array_is_list($elements);
 
         return sprintf(
             'array{%s%s}',
             implode(', ', array_map(
-                function (int|string $key, ArrayElement $element) use ($isList): string {
-                    if ($isList && !$element->optional) {
+                function (int|string $key, ArrayElement $element) use ($elements): string {
+                    /** @var ?bool */
+                    static $isList = null;
+
+                    if (!$element->optional && ($isList ??= array_is_list($elements))) {
                         return $element->type->accept($this);
                     }
 
