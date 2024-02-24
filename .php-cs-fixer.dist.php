@@ -21,4 +21,7 @@ $config = (new Config())
 
 (new PhpCsFixerCodingStandard())->applyTo($config);
 
-return $config;
+$rules = $config->getRules();
+$rules['ordered_class_elements']['sort_algorithm'] = 'alpha';
+
+return $config->setRules($rules);
