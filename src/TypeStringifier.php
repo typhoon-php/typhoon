@@ -21,7 +21,7 @@ use Typhoon\Type\Variance;
  * @psalm-internal Typhoon\TypeStringifier
  * @implements TypeVisitor<non-empty-string>
  */
-final class StringifyTypeVisitor implements TypeVisitor
+final class TypeStringifier implements TypeVisitor
 {
     public function alias(Type $self, string $class, string $name): mixed
     {

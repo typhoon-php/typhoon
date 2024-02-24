@@ -10,8 +10,8 @@ use PHPUnit\Framework\TestCase;
 use Typhoon\Type\Type;
 use Typhoon\Type\types;
 
-#[CoversClass(StringifyTypeVisitor::class)]
-final class StringifyTypeVisitorTest extends TestCase
+#[CoversClass(TypeStringifier::class)]
+final class TypeStringifierTest extends TestCase
 {
     /**
      * @return \Generator<array-key, array{Type, string}>
@@ -119,7 +119,7 @@ final class StringifyTypeVisitorTest extends TestCase
     #[DataProvider('typesAndTheirStringRepresentations')]
     public function testItStringifiesTypeCorrectly(Type $type, string $expectedString): void
     {
-        $asString = $type->accept(new StringifyTypeVisitor());
+        $asString = $type->accept(new TypeStringifier());
 
         self::assertSame($expectedString, $asString);
     }
