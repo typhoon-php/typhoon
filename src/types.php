@@ -89,6 +89,10 @@ enum types implements Type
      */
     public static function arrayShape(array $elements = [], bool $sealed = true): Type
     {
+        if (!$sealed && $elements === []) {
+            return self::array;
+        }
+
         return new ArrayShapeType(
             array_map(
                 static fn(Type|ArrayElement $element): ArrayElement => $element instanceof Type ? new ArrayElement($element) : $element,
