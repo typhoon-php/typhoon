@@ -12,7 +12,7 @@ namespace Typhoon\Type;
 final class ObjectShapeType implements Type
 {
     /**
-     * @param array<string, Property> $properties
+     * @param non-empty-array<string, Property> $properties
      */
     public function __construct(
         private readonly array $properties,

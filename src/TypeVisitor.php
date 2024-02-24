@@ -187,7 +187,7 @@ interface TypeVisitor
 
     /**
      * @param Type<object> $self
-     * @param array<string, Property> $properties
+     * @param non-empty-array<string, Property> $properties
      * @return TReturn
      */
     public function objectShape(Type $self, array $properties): mixed;

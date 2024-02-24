@@ -336,6 +336,10 @@ enum types implements Type
      */
     public static function objectShape(array $properties = []): Type
     {
+        if ($properties === []) {
+            return self::object;
+        }
+
         return new ObjectShapeType(array_map(
             static fn(Type|Property $property): Property => $property instanceof Type ? new Property($property) : $property,
             $properties,
