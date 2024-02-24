@@ -40,7 +40,7 @@
         "sort-packages": true
     },
     "scripts": {
-        "fixcs": "vendor/bin/php-cs-fixer fix --verbose",
+        "fixcs": "vendor/bin/php-cs-fixer fix --diff --verbose",
         "phpstan": "vendor/bin/phpstan --verbose",
         "pre-command-run": "mkdir -p var",
         "psalm": "psalm --show-info --no-diff",
