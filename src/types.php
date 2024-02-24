@@ -232,6 +232,10 @@ enum types implements Type
             return self::int;
         }
 
+        if ($min === $max) {
+            return self::literalValue($min);
+        }
+
         return new IntRangeType($min, $max);
     }
 
