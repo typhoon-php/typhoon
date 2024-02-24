@@ -7,6 +7,7 @@ namespace Typhoon\TypeStringifier;
 use Typhoon\Type\Type;
 
 /**
+ * @api
  * @psalm-pure
  * @return non-empty-string
  * @psalm-suppress ImpureMethodCall

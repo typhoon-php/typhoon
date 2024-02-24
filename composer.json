@@ -27,7 +27,7 @@
             "Typhoon\\TypeStringifier\\": "src/"
         },
         "files": [
-            "src/stringify.php"
+            "src/functions.php"
         ]
     },
     "autoload-dev": {
