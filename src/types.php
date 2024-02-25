@@ -213,7 +213,7 @@ enum types implements Type
             0 => self::never,
             1 => $types[array_key_first($types)],
             /** @phpstan-ignore argument.type */
-            default => new UnionType(array_values($types)),
+            default => new IntersectionType(array_values($types)),
         };
     }
 
