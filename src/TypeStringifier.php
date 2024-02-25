@@ -58,11 +58,7 @@ final class TypeStringifier implements TypeVisitor
                         return $element->type->accept($this);
                     }
 
-                    if (\is_string($key) && ($key === '' || preg_match('/\W/', $key))) {
-                        $key = $this->escapeStringLiteral($key);
-                    }
-
-                    return sprintf('%s%s: %s', $key, $element->optional ? '?' : '', $element->type->accept($this));
+                    return sprintf('%s%s: %s', $this->stringifyKey($key), $element->optional ? '?' : '', $element->type->accept($this));
                 },
                 array_keys($elements),
                 $elements,
@@ -254,13 +250,12 @@ final class TypeStringifier implements TypeVisitor
     public function objectShape(Type $self, array $properties): mixed
     {
         return sprintf('object{%s}', implode(', ', array_map(
-            function (string $name, Property $property): string {
-                if ($name === '' || preg_match('/\W/', $name)) {
-                    $name = $this->escapeStringLiteral($name);
-                }
-
-                return sprintf('%s%s: %s', $name, $property->optional ? '?' : '', $property->type->accept($this));
-            },
+            fn(string $name, Property $property): string => sprintf(
+                '%s%s: %s',
+                $this->stringifyKey($name),
+                $property->optional ? '?' : '',
+                $property->type->accept($this),
+            ),
             array_keys($properties),
             $properties,
         )));
@@ -434,5 +429,21 @@ final class TypeStringifier implements TypeVisitor
             fn(Type $self): string => $self->accept($this),
             $templateArguments,
         )));
+    }
+
+    /**
+     * @return non-empty-string
+     */
+    private function stringifyKey(int|string $key): string
+    {
+        if (\is_int($key)) {
+            return (string) $key;
+        }
+
+        if ($key === '' || preg_match('/\W/', $key)) {
+            return $this->escapeStringLiteral($key);
+        }
+
+        return $key;
     }
 }
