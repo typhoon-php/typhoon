@@ -207,12 +207,14 @@ enum types implements Type
         return new ConstantType($name);
     }
 
-    /**
-     * @no-named-arguments
-     */
-    public static function intersection(Type $type1, Type $type2, Type ...$types): Type
+    public static function intersection(Type ...$types): Type
     {
-        return new IntersectionType([$type1, $type2, ...$types]);
+        return match (\count($types)) {
+            0 => self::never,
+            1 => $types[array_key_first($types)],
+            /** @phpstan-ignore argument.type */
+            default => new UnionType(array_values($types)),
+        };
     }
 
     /**
@@ -328,7 +330,6 @@ enum types implements Type
     }
 
     /**
-     * @no-named-arguments
      * @template TType
      * @param Type<TType> $type
      * @return Type<?TType>
@@ -339,14 +340,13 @@ enum types implements Type
     }
 
     /**
-     * @no-named-arguments
      * @template TObject of object
      * @param class-string<TObject>|non-empty-string $class
      * @return ($class is class-string ? Type<TObject> : Type<object>)
      */
     public static function object(string $class, Type ...$templateArguments): Type
     {
-        return new NamedObjectType($class, $templateArguments);
+        return new NamedObjectType($class, array_values($templateArguments));
     }
 
     /**
@@ -398,16 +398,18 @@ enum types implements Type
     }
 
     /**
-     * @no-named-arguments
      * @template TType
-     * @param Type<TType> $type1
-     * @param Type<TType> $type2
      * @param Type<TType> ...$types
      * @return Type<TType>
      */
-    public static function union(Type $type1, Type $type2, Type ...$types): Type
+    public static function union(Type ...$types): Type
     {
-        return new UnionType([$type1, $type2, ...$types]);
+        return match (\count($types)) {
+            0 => self::never,
+            1 => $types[array_key_first($types)],
+            /** @phpstan-ignore argument.type */
+            default => new UnionType(array_values($types)),
+        };
     }
 
     public static function value(Type $type): Type
