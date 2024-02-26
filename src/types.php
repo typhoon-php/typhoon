@@ -346,6 +346,10 @@ enum types implements Type
      */
     public static function object(string $class, Type ...$templateArguments): Type
     {
+        if ($class === \Closure::class && $templateArguments === []) {
+            return self::closure;
+        }
+
         return new NamedObjectType($class, array_values($templateArguments));
     }
 
