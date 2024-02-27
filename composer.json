@@ -16,10 +16,10 @@
         "ergebnis/composer-normalize": "^2.42.0",
         "friendsofphp/php-cs-fixer": "^3.50.0",
         "phpstan/phpstan": "^1.11@dev",
-        "phpunit/phpunit": "^10.5.10",
+        "phpunit/phpunit": "^10.5.11",
         "phpyh/coding-standard": "^2.6.0",
         "phpyh/psalm-tester": "^0.1.0",
-        "symfony/var-dumper": "^6.0 || ^7.0.3",
+        "symfony/var-dumper": "^6.0 || ^7.0.4",
         "typhoon/psalm-plugin": "^0.1.0",
         "vimeo/psalm": "^5.22.2"
     },
