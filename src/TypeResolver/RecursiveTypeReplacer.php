@@ -23,6 +23,14 @@ use Typhoon\Type\Variance;
  */
 abstract class RecursiveTypeReplacer extends DefaultTypeVisitor
 {
+    public function alias(Type $self, string $class, string $name, array $arguments): mixed
+    {
+        return types::alias($class, $name, ...array_map(
+            fn(Type $templateArgument): Type => $templateArgument->accept($this),
+            $arguments,
+        ));
+    }
+
     public function classConstant(Type $self, Type $class, string $name): mixed
     {
         return types::classConstant($class->accept($this), $name);
@@ -36,11 +44,6 @@ abstract class RecursiveTypeReplacer extends DefaultTypeVisitor
     public function literal(Type $self, Type $type): mixed
     {
         return types::literal($type->accept($this));
-    }
-
-    public function namedClassString(Type $self, Type $object): mixed
-    {
-        return types::classString($object->accept($this));
     }
 
     public function list(Type $self, Type $value): mixed
@@ -80,9 +83,12 @@ abstract class RecursiveTypeReplacer extends DefaultTypeVisitor
         ));
     }
 
-    public function template(Type $self, string $name, AtClass|AtFunction|AtMethod $declaredAt): mixed
+    public function template(Type $self, string $name, AtClass|AtFunction|AtMethod $declaredAt, array $arguments): mixed
     {
-        return types::template($name, $declaredAt);
+        return types::template($name, $declaredAt, ...array_map(
+            fn(Type $templateArgument): Type => $templateArgument->accept($this),
+            $arguments,
+        ));
     }
 
     public function varianceAware(Type $self, Type $type, Variance $variance): mixed

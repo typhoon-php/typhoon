@@ -25,7 +25,9 @@ use Typhoon\Reflection\PhpDocParser\PhpDoc;
 use Typhoon\Reflection\PhpDocParser\PhpDocParser;
 use Typhoon\Reflection\TemplateReflection;
 use Typhoon\Reflection\TypeContext\TypeContext;
-use Typhoon\Type;
+use Typhoon\Type\AtClass;
+use Typhoon\Type\AtMethod;
+use Typhoon\Type\Type;
 use Typhoon\Type\types;
 
 /**
@@ -475,7 +477,7 @@ final class ContextualPhpParserReflector
     /**
      * @param list<TypeNode> $throwsTypes
      */
-    private function reflectThrowsType(array $throwsTypes): ?Type\Type
+    private function reflectThrowsType(array $throwsTypes): ?Type
     {
         if ($throwsTypes === []) {
             return null;
@@ -520,7 +522,7 @@ final class ContextualPhpParserReflector
     }
 
     /**
-     * @return array<non-empty-string, Type\Type>
+     * @return array<non-empty-string, Type>
      */
     private function reflectTypeAliases(PhpDoc $phpDoc): array
     {
@@ -546,12 +548,23 @@ final class ContextualPhpParserReflector
         $types = [];
 
         foreach ($phpDoc->typeAliases() as $typeAlias) {
-            $types[$typeAlias->alias] = fn(): Type\Type => $this->phpDocTypeReflector->reflect($typeAlias->type);
+            $types[$typeAlias->alias] = function () use ($typeAlias): Type {
+                /** @var ?Type $type */
+                static $type = null;
+
+                return $type ??= $this->phpDocTypeReflector->reflect($typeAlias->type);
+            };
         }
 
         foreach ($phpDoc->typeAliasImports() as $typeImport) {
             $alias = $typeImport->importedAs ?? $typeImport->importedAlias;
-            $types[$alias] = fn(): Type\Type => types::alias($this->resolveNameAsClass($typeImport->importedFrom), $typeImport->importedAlias);
+            $types[$alias] = /** @param list<Type> $arguments */ function (array $arguments) use ($typeImport): Type {
+                /** @var ?non-empty-string $class */
+                static $class = null;
+                $class ??= $this->resolveNameAsClass($typeImport->importedFrom);
+
+                return types::alias($class, $typeImport->importedAlias, ...$arguments);
+            };
         }
 
         return $types;
@@ -560,12 +573,12 @@ final class ContextualPhpParserReflector
     /**
      * @return ContextTypes
      */
-    private function reflectTemplateTypes(Type\AtClass|Type\AtMethod $declaredAt, PhpDoc $phpDoc): array
+    private function reflectTemplateTypes(AtClass|AtMethod $declaredAt, PhpDoc $phpDoc): array
     {
         $types = [];
 
         foreach ($phpDoc->templates() as $template) {
-            $types[$template->name] = types::template($template->name, $declaredAt);
+            $types[$template->name] = /** @param list<Type> $arguments */ static fn(array $arguments): Type => types::template($template->name, $declaredAt, ...$arguments);
         }
 
         return $types;

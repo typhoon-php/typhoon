@@ -15,7 +15,7 @@ final class PropertyMetadata
      * @internal
      * @psalm-internal Typhoon\Reflection
      * @param non-empty-string $name
-     * @param class-string $class
+     * @param non-empty-string $class
      * @param non-empty-string|false $docComment
      * @param int-mask-of<\ReflectionProperty::IS_*> $modifiers
      * @param positive-int|false $startLine
@@ -38,7 +38,7 @@ final class PropertyMetadata
     ) {}
 
     /**
-     * @param class-string $class
+     * @param non-empty-string $class
      */
     public function withClass(string $class): self
     {

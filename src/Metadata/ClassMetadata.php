@@ -114,7 +114,12 @@ final class ClassMetadata extends RootMetadata
             return $this->resolvedProperties;
         }
 
-        $resolver = new PropertiesInheritanceResolver($this->name, $classMetadataReflector);
+        $resolver = new PropertiesInheritanceResolver(
+            classMetadataReflector: $classMetadataReflector,
+            class: $this->name,
+            parent: $this->parentClass(),
+            final: $this->finalNative(),
+        );
         $resolver->setOwn($this->ownProperties);
         $resolver->addUsed(...$this->traitTypes);
         if ($this->parentType !== null) {
@@ -134,7 +139,12 @@ final class ClassMetadata extends RootMetadata
             return $this->resolvedMethods;
         }
 
-        $resolver = new MethodsInheritanceResolver($this->name, $classMetadataReflector);
+        $resolver = new MethodsInheritanceResolver(
+            classMetadataReflector: $classMetadataReflector,
+            class: $this->name,
+            parent: $this->parentClass(),
+            final: $this->finalNative(),
+        );
         $resolver->setOwn($this->ownMethods);
         $resolver->addUsed($this->traitTypes, $this->traitMethodAliases, $this->traitMethodPrecedence);
         if ($this->parentType !== null) {

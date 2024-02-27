@@ -14,7 +14,7 @@ use Typhoon\Reflection\Metadata\ParameterMetadata;
 use Typhoon\Reflection\Metadata\PropertyMetadata;
 use Typhoon\Reflection\Metadata\TraitMethodAlias;
 use Typhoon\Reflection\Metadata\TypeMetadata;
-use Typhoon\Type;
+use Typhoon\Type\Type;
 use Typhoon\Type\types;
 
 /**
@@ -293,18 +293,18 @@ final class NativeReflector
     /**
      * @param ?class-string $class
      */
-    private function reflectNativeType(\ReflectionType $reflectionType, ?string $class): Type\Type
+    private function reflectNativeType(\ReflectionType $reflectionType, ?string $class): Type
     {
         if ($reflectionType instanceof \ReflectionUnionType) {
             return types::union(...array_map(
-                fn(\ReflectionType $child): Type\Type => $this->reflectNativeType($child, $class),
+                fn(\ReflectionType $child): Type => $this->reflectNativeType($child, $class),
                 $reflectionType->getTypes(),
             ));
         }
 
         if ($reflectionType instanceof \ReflectionIntersectionType) {
             return types::intersection(...array_map(
-                fn(\ReflectionType $child): Type\Type => $this->reflectNativeType($child, $class),
+                fn(\ReflectionType $child): Type => $this->reflectNativeType($child, $class),
                 $reflectionType->getTypes(),
             ));
         }

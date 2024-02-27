@@ -84,6 +84,7 @@ final class MethodReflection extends \ReflectionMethod
             $this->attributes = AttributeReflections::create(
                 $this->classReflector,
                 $this->metadata->attributes,
+                /** @psalm-suppress ArgumentTypeCoercion */
                 static fn(): array => (new \ReflectionMethod($class, $method))->getAttributes(),
             );
         }

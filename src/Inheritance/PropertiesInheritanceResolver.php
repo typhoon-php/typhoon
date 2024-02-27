@@ -22,12 +22,15 @@ final class PropertiesInheritanceResolver
     private array $properties = [];
 
     /**
-     * @param class-string $class
+     * @param non-empty-string $class
+     * @param ?non-empty-string $parent
      * @param ClassMetadataReflector $classMetadataReflector
      */
     public function __construct(
-        private readonly string $class,
         private readonly \Closure $classMetadataReflector,
+        private readonly string $class,
+        private readonly ?string $parent,
+        private readonly bool $final,
     ) {}
 
     /**
@@ -44,7 +47,13 @@ final class PropertiesInheritanceResolver
     {
         foreach ($names as $name) {
             $class = ($this->classMetadataReflector)($name->class);
-            $templateResolver = TemplateResolver::create($class->templates, $name->templateArguments);
+            $templateResolver = TemplateResolver::create(
+                templates: $class->templates,
+                templateArguments: $name->templateArguments,
+                self: $this->class,
+                parent: $this->parent,
+                resolveStatic: $this->final,
+            );
 
             foreach ($class->resolvedProperties($this->classMetadataReflector) as $property) {
                 $this->property($property->name)->addUsed($property, $templateResolver);
@@ -56,7 +65,13 @@ final class PropertiesInheritanceResolver
     {
         foreach ($names as $name) {
             $class = ($this->classMetadataReflector)($name->class);
-            $templateResolver = TemplateResolver::create($class->templates, $name->templateArguments);
+            $templateResolver = TemplateResolver::create(
+                templates: $class->templates,
+                templateArguments: $name->templateArguments,
+                self: $this->class,
+                parent: $this->parent,
+                resolveStatic: $this->final,
+            );
 
             foreach ($class->resolvedProperties($this->classMetadataReflector) as $property) {
                 $this->property($property->name)->addInherited($property, $templateResolver);

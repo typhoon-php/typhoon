@@ -12,7 +12,7 @@ use Typhoon\Type\types;
 /**
  * @internal
  * @psalm-internal Typhoon\Reflection
- * @psalm-type Types = array<non-empty-string, Type|\Closure(): Type>
+ * @psalm-type Types = array<non-empty-string, \Closure(list<Type>): Type>
  */
 final class TypeContext implements NameResolver
 {
@@ -48,11 +48,11 @@ final class TypeContext implements NameResolver
 
         $this->aliasTypes = $aliasTypes;
         $this->classTemplateTypes = $templateTypes;
-        $this->classTemplateTypes['static'] = types::template('static', types::atClass($name));
+        $this->classTemplateTypes['static'] = /** @param list<Type> $arguments */ static fn(array $arguments): Type => types::template('static', types::atClass($name), ...$arguments);
 
         if ($trait) {
-            $this->classTemplateTypes['self'] = types::template('self', types::atClass($name));
-            $this->classTemplateTypes['parent'] = types::template('parent', types::atClass($name));
+            $this->classTemplateTypes['self'] = /** @param list<Type> $arguments */ static fn(array $arguments): Type => types::template('self', types::atClass($name), ...$arguments);
+            $this->classTemplateTypes['parent'] = /** @param list<Type> $arguments */ static fn(array $arguments): Type => types::template('parent', types::atClass($name), ...$arguments);
         }
     }
 
@@ -90,41 +90,20 @@ final class TypeContext implements NameResolver
     }
 
     /**
-     * @param array<Type> $templateArguments
+     * @param list<Type> $templateArguments
      */
     public function resolveNameAsType(string $name, array $templateArguments = [], bool $classOnly = false): Type
     {
         if (isset($this->aliasTypes[$name])) {
-            /** @var non-empty-string $name */
-            $type = $this->aliasTypes[$name];
-
-            if ($type instanceof Type) {
-                return $type;
-            }
-
-            return $this->aliasTypes[$name] = $type();
+            return ($this->aliasTypes[$name])($templateArguments);
         }
 
         if (isset($this->classTemplateTypes[$name])) {
-            /** @var non-empty-string $name */
-            $type = $this->classTemplateTypes[$name];
-
-            if ($type instanceof Type) {
-                return $type;
-            }
-
-            return $this->classTemplateTypes[$name] = $type();
+            return ($this->classTemplateTypes[$name])($templateArguments);
         }
 
         if (isset($this->methodTemplateTypes[$name])) {
-            /** @var non-empty-string $name */
-            $type = $this->methodTemplateTypes[$name];
-
-            if ($type instanceof Type) {
-                return $type;
-            }
-
-            return $this->methodTemplateTypes[$name] = $type();
+            return ($this->methodTemplateTypes[$name])($templateArguments);
         }
 
         $class = $this->resolveNameAsClass($name);

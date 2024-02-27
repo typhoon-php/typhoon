@@ -24,12 +24,15 @@ final class MethodsInheritanceResolver
     private array $methods = [];
 
     /**
-     * @param class-string $class
+     * @param non-empty-string $class
+     * @param ?non-empty-string $parent
      * @param ClassMetadataReflector $classMetadataReflector
      */
     public function __construct(
-        private readonly string $class,
         private readonly \Closure $classMetadataReflector,
+        private readonly string $class,
+        private readonly ?string $parent,
+        private readonly bool $final,
     ) {}
 
     /**
@@ -51,7 +54,13 @@ final class MethodsInheritanceResolver
     {
         foreach (array_column($inheritedNames, null, 'class') as $inheritedName) {
             $trait = ($this->classMetadataReflector)($inheritedName->class);
-            $templateResolver = TemplateResolver::create($trait->templates, $inheritedName->templateArguments);
+            $templateResolver = TemplateResolver::create(
+                templates: $trait->templates,
+                templateArguments: $inheritedName->templateArguments,
+                self: $this->class,
+                parent: $this->parent,
+                resolveStatic: $this->final,
+            );
 
             foreach ($trait->resolvedMethods($this->classMetadataReflector) as $method) {
                 $name = $method->name;
@@ -76,7 +85,13 @@ final class MethodsInheritanceResolver
     {
         foreach ($inheritedNames as $inheritedName) {
             $class = ($this->classMetadataReflector)($inheritedName->class);
-            $templateResolver = TemplateResolver::create($class->templates, $inheritedName->templateArguments);
+            $templateResolver = TemplateResolver::create(
+                templates: $class->templates,
+                templateArguments: $inheritedName->templateArguments,
+                self: $this->class,
+                parent: $this->parent,
+                resolveStatic: $this->final,
+            );
 
             foreach ($class->resolvedMethods($this->classMetadataReflector) as $method) {
                 $this->method($method->name)->addInherited($method, $templateResolver);
