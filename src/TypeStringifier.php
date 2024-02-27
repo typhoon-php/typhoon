@@ -23,9 +23,9 @@ use Typhoon\Type\Variance;
  */
 final class TypeStringifier implements TypeVisitor
 {
-    public function alias(Type $self, string $class, string $name): mixed
+    public function alias(Type $self, string $class, string $name, array $arguments): mixed
     {
-        return sprintf('%s from %s', $name, $class);
+        return $this->stringifyGenericType(sprintf('%s:%s', $class, $name), $arguments);
     }
 
     public function array(Type $self, Type $key, Type $value): mixed
@@ -215,10 +215,6 @@ final class TypeStringifier implements TypeVisitor
 
     public function namedObject(Type $self, string $class, array $arguments): mixed
     {
-        if ($arguments === []) {
-            return $class;
-        }
-
         return $this->stringifyGenericType($class, $arguments);
     }
 
@@ -276,13 +272,16 @@ final class TypeStringifier implements TypeVisitor
         return 'string';
     }
 
-    public function template(Type $self, string $name, AtClass|AtFunction|AtMethod $declaredAt): mixed
+    public function template(Type $self, string $name, AtClass|AtFunction|AtMethod $declaredAt, array $arguments): mixed
     {
-        return sprintf('%s:%s', $name, match (true) {
-            $declaredAt instanceof AtFunction => $declaredAt->name . '()',
-            $declaredAt instanceof AtClass  => $declaredAt->name,
-            $declaredAt instanceof AtMethod  => sprintf('%s::%s()', $declaredAt->class, $declaredAt->name),
-        });
+        return $this->stringifyGenericType(
+            sprintf('%s:%s', $name, match (true) {
+                $declaredAt instanceof AtFunction => $declaredAt->name . '()',
+                $declaredAt instanceof AtClass  => $declaredAt->name,
+                $declaredAt instanceof AtMethod  => sprintf('%s::%s()', $declaredAt->class, $declaredAt->name),
+            }),
+            $arguments,
+        );
     }
 
     public function truthyString(Type $self): mixed
@@ -420,11 +419,16 @@ final class TypeStringifier implements TypeVisitor
     }
 
     /**
-     * @param non-empty-list<Type> $arguments
+     * @param non-empty-string $name
+     * @param list<Type> $arguments
      * @return non-empty-string
      */
     private function stringifyGenericType(string $name, array $arguments): string
     {
+        if ($arguments === []) {
+            return $name;
+        }
+
         return sprintf('%s<%s>', $name, implode(', ', array_map(
             fn(Type $self): string => $self->accept($this),
             $arguments,
