@@ -213,13 +213,13 @@ final class TypeStringifier implements TypeVisitor
         return sprintf('class-string<%s>', $object->accept($this));
     }
 
-    public function namedObject(Type $self, string $class, array $templateArguments): mixed
+    public function namedObject(Type $self, string $class, array $arguments): mixed
     {
-        if ($templateArguments === []) {
+        if ($arguments === []) {
             return $class;
         }
 
-        return $this->stringifyGenericType($class, $templateArguments);
+        return $this->stringifyGenericType($class, $arguments);
     }
 
     public function never(Type $self): mixed
@@ -276,7 +276,7 @@ final class TypeStringifier implements TypeVisitor
         return 'string';
     }
 
-    public function template(Type $self, string $name, AtClass|AtFunction|AtMethod $declaredAt, Type $constraint): mixed
+    public function template(Type $self, string $name, AtClass|AtFunction|AtMethod $declaredAt): mixed
     {
         return sprintf('%s:%s', $name, match (true) {
             $declaredAt instanceof AtFunction => $declaredAt->name . '()',
@@ -420,14 +420,14 @@ final class TypeStringifier implements TypeVisitor
     }
 
     /**
-     * @param non-empty-list<Type> $templateArguments
+     * @param non-empty-list<Type> $arguments
      * @return non-empty-string
      */
-    private function stringifyGenericType(string $name, array $templateArguments): string
+    private function stringifyGenericType(string $name, array $arguments): string
     {
         return sprintf('%s<%s>', $name, implode(', ', array_map(
             fn(Type $self): string => $self->accept($this),
-            $templateArguments,
+            $arguments,
         )));
     }
 
