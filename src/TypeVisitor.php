@@ -213,7 +213,7 @@ interface TypeVisitor
      * @param non-empty-string $name
      * @return TReturn
      */
-    public function template(Type $self, string $name, AtFunction|AtClass|AtMethod $declaredAt, Type $constraint): mixed;
+    public function template(Type $self, string $name, AtFunction|AtClass|AtMethod $declaredAt): mixed;
 
     /**
      * @param Type<truthy-string> $self

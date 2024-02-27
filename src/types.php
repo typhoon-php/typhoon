@@ -391,14 +391,11 @@ enum types implements Type
     }
 
     /**
-     * @template TType
      * @param non-empty-string $name
-     * @param Type<TType> $constraint
-     * @return Type<TType>
      */
-    public static function template(string $name, AtMethod|AtClass|AtFunction $declaredAt, Type $constraint = self::mixed): Type
+    public static function template(string $name, AtMethod|AtClass|AtFunction $declaredAt): Type
     {
-        return new TemplateType($name, $declaredAt, $constraint);
+        return new TemplateType($name, $declaredAt);
     }
 
     /**
