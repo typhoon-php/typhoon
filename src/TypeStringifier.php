@@ -82,9 +82,27 @@ final class TypeStringifier implements TypeVisitor
         return sprintf('%s::%s', $class->accept($this), $name);
     }
 
-    public function classString(Type $self): mixed
+    public function classString(Type $self, Type $object): mixed
     {
-        return 'class-string';
+        $isObject = $object->accept(
+            new /** @extends DefaultTypeVisitor<bool> */ class () extends DefaultTypeVisitor {
+                public function object(Type $self): mixed
+                {
+                    return true;
+                }
+
+                protected function default(Type $self): mixed
+                {
+                    return false;
+                }
+            },
+        );
+
+        if ($isObject) {
+            return 'class-string';
+        }
+
+        return sprintf('class-string<%s>', $object->accept($this));
     }
 
     public function classStringLiteral(Type $self, string $class): mixed
@@ -206,11 +224,6 @@ final class TypeStringifier implements TypeVisitor
     public function mixed(Type $self): mixed
     {
         return 'mixed';
-    }
-
-    public function namedClassString(Type $self, Type $object): mixed
-    {
-        return sprintf('class-string<%s>', $object->accept($this));
     }
 
     public function namedObject(Type $self, string $class, array $arguments): mixed

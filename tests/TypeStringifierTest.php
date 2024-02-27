@@ -101,7 +101,7 @@ final class TypeStringifierTest extends TestCase
         yield [types::template('T', types::atMethod(\stdClass::class, 'm')), 'T:stdClass::m()'];
         yield [types::literalString, 'literal-string'];
         yield [types::literalInt, 'literal-int'];
-        yield [types::classString(types::object), 'class-string<object>'];
+        yield [types::classString(types::template('T', types::atClass(\stdClass::class))), 'class-string<T:stdClass>'];
         yield [types::classString, 'class-string'];
         yield [types::objectShape(), 'object'];
         yield [types::objectShape(['name' => types::string, 'obj' => types::object(\stdClass::class)]), 'object{name: string, obj: stdClass}'];
