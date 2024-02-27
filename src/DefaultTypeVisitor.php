@@ -31,7 +31,7 @@ abstract class DefaultTypeVisitor implements TypeVisitor
         return $this->default($self);
     }
 
-    public function callable(Type $self, array $parameters, ?Type $return): mixed
+    public function callable(Type $self, array $parameters, Type $return): mixed
     {
         return $this->default($self);
     }
@@ -51,7 +51,7 @@ abstract class DefaultTypeVisitor implements TypeVisitor
         return $this->default($self);
     }
 
-    public function closure(Type $self, array $parameters, ?Type $return): mixed
+    public function closure(Type $self, array $parameters, Type $return): mixed
     {
         return $this->default($self);
     }
