@@ -344,13 +344,13 @@ enum types implements Type
      * @param class-string<TObject>|non-empty-string $class
      * @return ($class is class-string ? Type<TObject> : Type<object>)
      */
-    public static function object(string $class, Type ...$templateArguments): Type
+    public static function object(string $class, Type ...$arguments): Type
     {
-        if ($class === \Closure::class && $templateArguments === []) {
+        if ($class === \Closure::class && $arguments === []) {
             return self::closure;
         }
 
-        return new NamedObjectType($class, array_values($templateArguments));
+        return new NamedObjectType($class, array_values($arguments));
     }
 
     /**

@@ -13,15 +13,15 @@ final class NamedObjectType implements Type
 {
     /**
      * @param non-empty-string $class
-     * @param list<Type> $templateArguments
+     * @param list<Type> $arguments
      */
     public function __construct(
         private readonly string $class,
-        private readonly array $templateArguments,
+        private readonly array $arguments,
     ) {}
 
     public function accept(TypeVisitor $visitor): mixed
     {
-        return $visitor->namedObject($this, $this->class, $this->templateArguments);
+        return $visitor->namedObject($this, $this->class, $this->arguments);
     }
 }

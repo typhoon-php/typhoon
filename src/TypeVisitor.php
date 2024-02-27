@@ -151,10 +151,10 @@ interface TypeVisitor
     /**
      * @param Type<object> $self
      * @param non-empty-string $class
-     * @param list<Type> $templateArguments
+     * @param list<Type> $arguments
      * @return TReturn
      */
-    public function namedObject(Type $self, string $class, array $templateArguments): mixed;
+    public function namedObject(Type $self, string $class, array $arguments): mixed;
 
     /**
      * @param Type<never> $self
