@@ -41,7 +41,7 @@ abstract class DefaultTypeVisitor implements TypeVisitor
         return $this->default($self);
     }
 
-    public function classString(Type $self): mixed
+    public function classString(Type $self, Type $object): mixed
     {
         return $this->default($self);
     }
@@ -117,11 +117,6 @@ abstract class DefaultTypeVisitor implements TypeVisitor
     }
 
     public function mixed(Type $self): mixed
-    {
-        return $this->default($self);
-    }
-
-    public function namedClassString(Type $self, Type $object): mixed
     {
         return $this->default($self);
     }

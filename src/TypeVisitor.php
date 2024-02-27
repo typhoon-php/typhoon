@@ -51,10 +51,10 @@ interface TypeVisitor
     public function classConstant(Type $self, Type $class, string $name): mixed;
 
     /**
-     * @param Type<class-string> $self
+     * @param Type<non-empty-string> $self
      * @return TReturn
      */
-    public function classString(Type $self): mixed;
+    public function classString(Type $self, Type $object): mixed;
 
     /**
      * @param Type<non-empty-string> $self
@@ -142,12 +142,6 @@ interface TypeVisitor
      * @return TReturn
      */
     public function mixed(Type $self): mixed;
-
-    /**
-     * @param Type<non-empty-string> $self
-     * @return TReturn
-     */
-    public function namedClassString(Type $self, Type $object): mixed;
 
     /**
      * @param Type<object> $self

@@ -162,7 +162,7 @@ enum types implements Type
      */
     public static function classString(Type $object): Type
     {
-        return new NamedClassStringType($object);
+        return new ClassStringType($object);
     }
 
     /**
@@ -435,7 +435,7 @@ enum types implements Type
             self::arrayKey => $visitor->union($this, [self::int, self::string]),
             self::bool => $visitor->bool($this),
             self::callable => $visitor->callable($this, [], self::mixed),
-            self::classString => $visitor->classString($this),
+            self::classString => $visitor->classString($this, types::object),
             self::closure => $visitor->closure($this, [], types::mixed),
             self::false => $visitor->literalValue($this, false),
             self::float => $visitor->float($this),

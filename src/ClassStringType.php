@@ -9,7 +9,7 @@ namespace Typhoon\Type;
  * @psalm-internal Typhoon\Type
  * @implements Type<non-empty-string>
  */
-final class NamedClassStringType implements Type
+final class ClassStringType implements Type
 {
     public function __construct(
         private readonly Type $object,
@@ -17,6 +17,6 @@ final class NamedClassStringType implements Type
 
     public function accept(TypeVisitor $visitor): mixed
     {
-        return $visitor->namedClassString($this, $this->object);
+        return $visitor->classString($this, $this->object);
     }
 }
