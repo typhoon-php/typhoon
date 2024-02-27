@@ -13,9 +13,10 @@ interface TypeVisitor
     /**
      * @param non-empty-string $class
      * @param non-empty-string $name
+     * @param list<Type> $arguments
      * @return TReturn
      */
-    public function alias(Type $self, string $class, string $name): mixed;
+    public function alias(Type $self, string $class, string $name, array $arguments): mixed;
 
     /**
      * @param Type<array<mixed>> $self
@@ -211,9 +212,10 @@ interface TypeVisitor
 
     /**
      * @param non-empty-string $name
+     * @param list<Type> $arguments
      * @return TReturn
      */
-    public function template(Type $self, string $name, AtFunction|AtClass|AtMethod $declaredAt): mixed;
+    public function template(Type $self, string $name, AtFunction|AtClass|AtMethod $declaredAt, array $arguments): mixed;
 
     /**
      * @param Type<truthy-string> $self

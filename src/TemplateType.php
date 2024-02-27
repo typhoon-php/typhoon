@@ -13,14 +13,16 @@ final class TemplateType implements Type
 {
     /**
      * @param non-empty-string $name
+     * @param list<Type> $arguments
      */
     public function __construct(
         private readonly string $name,
         private readonly AtFunction|AtClass|AtMethod $declaredAt,
+        private readonly array $arguments,
     ) {}
 
     public function accept(TypeVisitor $visitor): mixed
     {
-        return $visitor->template($this, $this->name, $this->declaredAt);
+        return $visitor->template($this, $this->name, $this->declaredAt, $this->arguments);
     }
 }

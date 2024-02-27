@@ -44,9 +44,9 @@ enum types implements Type
      * @param non-empty-string $class
      * @param non-empty-string $name
      */
-    public static function alias(string $class, string $name): Type
+    public static function alias(string $class, string $name, Type ...$arguments): Type
     {
-        return new AliasType($class, $name);
+        return new AliasType($class, $name, array_values($arguments));
     }
 
     /**
@@ -393,9 +393,9 @@ enum types implements Type
     /**
      * @param non-empty-string $name
      */
-    public static function template(string $name, AtMethod|AtClass|AtFunction $declaredAt): Type
+    public static function template(string $name, AtMethod|AtClass|AtFunction $declaredAt, Type ...$arguments): Type
     {
-        return new TemplateType($name, $declaredAt);
+        return new TemplateType($name, $declaredAt, array_values($arguments));
     }
 
     /**

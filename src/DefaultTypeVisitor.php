@@ -11,7 +11,7 @@ namespace Typhoon\Type;
  */
 abstract class DefaultTypeVisitor implements TypeVisitor
 {
-    public function alias(Type $self, string $class, string $name): mixed
+    public function alias(Type $self, string $class, string $name, array $arguments): mixed
     {
         return $this->default($self);
     }
@@ -176,7 +176,7 @@ abstract class DefaultTypeVisitor implements TypeVisitor
         return $this->default($self);
     }
 
-    public function template(Type $self, string $name, AtClass|AtFunction|AtMethod $declaredAt): mixed
+    public function template(Type $self, string $name, AtClass|AtFunction|AtMethod $declaredAt, array $arguments): mixed
     {
         return $this->default($self);
     }

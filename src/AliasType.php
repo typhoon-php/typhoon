@@ -14,14 +14,16 @@ final class AliasType implements Type
     /**
      * @param non-empty-string $class
      * @param non-empty-string $name
+     * @param list<Type> $arguments
      */
     public function __construct(
         private readonly string $class,
         private readonly string $name,
+        private readonly array $arguments,
     ) {}
 
     public function accept(TypeVisitor $visitor): mixed
     {
-        return $visitor->alias($this, $this->class, $this->name);
+        return $visitor->alias($this, $this->class, $this->name, $this->arguments);
     }
 }
