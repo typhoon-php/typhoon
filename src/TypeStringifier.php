@@ -25,7 +25,7 @@ final class TypeStringifier implements TypeVisitor
 {
     public function alias(Type $self, string $class, string $name, array $arguments): mixed
     {
-        return $this->stringifyGenericType(sprintf('%s:%s', $class, $name), $arguments);
+        return $this->stringifyGenericType(sprintf('%s@%s', $name, $class), $arguments);
     }
 
     public function array(Type $self, Type $key, Type $value): mixed
@@ -288,7 +288,7 @@ final class TypeStringifier implements TypeVisitor
     public function template(Type $self, string $name, AtClass|AtFunction|AtMethod $declaredAt, array $arguments): mixed
     {
         return $this->stringifyGenericType(
-            sprintf('%s:%s', $name, match (true) {
+            sprintf('%s@%s', $name, match (true) {
                 $declaredAt instanceof AtFunction => $declaredAt->name . '()',
                 $declaredAt instanceof AtClass  => $declaredAt->name,
                 $declaredAt instanceof AtMethod  => sprintf('%s::%s()', $declaredAt->class, $declaredAt->name),

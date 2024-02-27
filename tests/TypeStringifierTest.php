@@ -96,12 +96,12 @@ final class TypeStringifierTest extends TestCase
         yield [types::closure([types::param(types::string, hasDefault: true)]), 'Closure(string=): mixed'];
         yield [types::closure([types::param(types::string, variadic: true)]), 'Closure(string...): mixed'];
         yield [types::closure([types::param(types::string, variadic: true)], types::never), 'Closure(string...): never'];
-        yield [types::template('T', types::atFunction('trim')), 'T:trim()'];
-        yield [types::template('T', types::atClass(\stdClass::class)), 'T:stdClass'];
-        yield [types::template('T', types::atMethod(\stdClass::class, 'm')), 'T:stdClass::m()'];
+        yield [types::template('T', types::atFunction('trim')), 'T@trim()'];
+        yield [types::template('T', types::atClass(\stdClass::class)), 'T@stdClass'];
+        yield [types::template('T', types::atMethod(\stdClass::class, 'm')), 'T@stdClass::m()'];
         yield [types::literalString, 'literal-string'];
         yield [types::literalInt, 'literal-int'];
-        yield [types::classString(types::template('T', types::atClass(\stdClass::class))), 'class-string<T:stdClass>'];
+        yield [types::classString(types::template('T', types::atClass(\stdClass::class))), 'class-string<T@stdClass>'];
         yield [types::classString, 'class-string'];
         yield [types::objectShape(), 'object'];
         yield [types::objectShape(['name' => types::string, 'obj' => types::object(\stdClass::class)]), 'object{name: string, obj: stdClass}'];
@@ -113,7 +113,7 @@ final class TypeStringifierTest extends TestCase
         yield [types::key(types::list()), 'key-of<list>'];
         yield [types::value(types::list()), 'value-of<list>'];
         yield [types::conditional(types::arg('a'), if: types::string, then: types::int, else: types::float), '($a is string ? int : float)'];
-        yield [types::conditional(types::template('T', types::atFunction('trim')), if: types::string, then: types::int, else: types::float), '(T:trim() is string ? int : float)'];
+        yield [types::conditional(types::template('T', types::atFunction('trim')), if: types::string, then: types::int, else: types::float), '(T@trim() is string ? int : float)'];
     }
 
     #[DataProvider('typesAndTheirStringRepresentations')]
