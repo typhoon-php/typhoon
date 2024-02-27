@@ -287,14 +287,11 @@ final class TypeStringifier implements TypeVisitor
 
     public function template(Type $self, string $name, AtClass|AtFunction|AtMethod $declaredAt, array $arguments): mixed
     {
-        return $this->stringifyGenericType(
-            sprintf('%s@%s', $name, match (true) {
-                $declaredAt instanceof AtFunction => $declaredAt->name . '()',
-                $declaredAt instanceof AtClass  => $declaredAt->name,
-                $declaredAt instanceof AtMethod  => sprintf('%s::%s()', $declaredAt->class, $declaredAt->name),
-            }),
-            $arguments,
-        );
+        return $this->stringifyGenericType($name, $arguments) . '@' . match (true) {
+            $declaredAt instanceof AtFunction => $declaredAt->name . '()',
+            $declaredAt instanceof AtClass  => $declaredAt->name,
+            $declaredAt instanceof AtMethod  => sprintf('%s::%s()', $declaredAt->class, $declaredAt->name),
+        };
     }
 
     public function truthyString(Type $self): mixed
