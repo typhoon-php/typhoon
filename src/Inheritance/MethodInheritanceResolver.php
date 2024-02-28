@@ -32,7 +32,7 @@ final class MethodInheritanceResolver
     private TypeInheritanceResolver $returnType;
 
     /**
-     * @param non-empty-string $class
+     * @param class-string $class
      */
     public function __construct(
         private readonly string $class,

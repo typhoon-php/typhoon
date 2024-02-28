@@ -30,7 +30,7 @@ final class QualifiedName
     /**
      * @param array<non-empty-string, UnqualifiedName|QualifiedName> $importTable
      */
-    public function resolve(null|UnqualifiedName|self $namespace = null, array $importTable = []): UnqualifiedName|self
+    public function resolve(null|UnqualifiedName|self $namespace = null, array $importTable = []): self
     {
         $firstSegment = $this->segments[0]->toString();
         $segmentsToAppend = $this->segments;

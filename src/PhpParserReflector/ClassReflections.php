@@ -30,17 +30,8 @@ final class ClassReflections
             return 0;
         }
 
-        $modifiers = ($node->isAbstract() ? ClassReflection::IS_EXPLICIT_ABSTRACT : 0)
-            | ($node->isFinal() ? ClassReflection::IS_FINAL : 0);
-
-        if (\PHP_VERSION_ID >= 80200 && $node->isReadonly()) {
-            /**
-             * @var int-mask-of<\ReflectionClass::IS_*>
-             * @psalm-suppress MixedOperand, UndefinedConstant, UnusedPsalmSuppress
-             */
-            $modifiers |= \ReflectionClass::IS_READONLY;
-        }
-
-        return $modifiers;
+        return ($node->isAbstract() ? ClassReflection::IS_EXPLICIT_ABSTRACT : 0)
+            | ($node->isFinal() ? ClassReflection::IS_FINAL : 0)
+            | ($node->isReadonly() ? ClassReflection::IS_READONLY : 0);
     }
 }

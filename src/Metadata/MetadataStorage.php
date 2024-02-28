@@ -46,7 +46,6 @@ final class MetadataStorage
             return $this->deferred[$key]->get();
         }
 
-        /** @psalm-suppress MixedAssignment */
         $metadata = $this->cache?->get(self::key($class, $name));
 
         if ($metadata instanceof MetadataCacheItem) {

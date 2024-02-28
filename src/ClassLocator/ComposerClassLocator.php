@@ -18,7 +18,7 @@ final class ComposerClassLocator implements ClassLocator
         return class_exists(Loader::class);
     }
 
-    public function locateClass(string $name): null|FileResource|\ReflectionClass
+    public function locateClass(string $name): null|FileResource
     {
         foreach (Loader::getRegisteredLoaders() as $loader) {
             $file = $loader->findFile($name);

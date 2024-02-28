@@ -8,7 +8,6 @@ use Psr\SimpleCache\CacheInterface;
 
 /**
  * @api
- * @psalm-suppress MixedAssignment
  */
 final class LruCache implements CacheInterface
 {

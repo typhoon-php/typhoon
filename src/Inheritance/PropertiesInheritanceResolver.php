@@ -22,7 +22,7 @@ final class PropertiesInheritanceResolver
     private array $properties = [];
 
     /**
-     * @param non-empty-string $class
+     * @param class-string $class
      * @param ?non-empty-string $parent
      * @param ClassMetadataReflector $classMetadataReflector
      */

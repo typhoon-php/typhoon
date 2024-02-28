@@ -15,14 +15,6 @@ final class RelativeName
         private readonly UnqualifiedName|QualifiedName $name,
     ) {}
 
-    /**
-     * @psalm-suppress PossiblyUnusedMethod
-     */
-    public function lastSegment(): UnqualifiedName
-    {
-        return $this->name->lastSegment();
-    }
-
     public function resolve(null|UnqualifiedName|QualifiedName $namespace = null): UnqualifiedName|QualifiedName
     {
         return $this->name->resolve($namespace);

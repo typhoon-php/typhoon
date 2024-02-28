@@ -92,11 +92,12 @@ final class TyphoonReflector implements ClassExistenceChecker, ClassReflector
             return true;
         }
 
+        // If $name is a valid anonymous class name, it must have passed the class_exists() check above.
         if (str_contains($name, '@')) {
             return false;
         }
 
-        /** @var non-empty-string $name */
+        /** @var non-empty-string $name Psalm */
         try {
             $this->reflectClassMetadata($name);
 

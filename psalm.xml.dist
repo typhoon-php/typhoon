@@ -46,12 +46,19 @@
     </ignoreExceptions>
 
     <issueHandlers>
+        <ArgumentTypeCoercion>
+            <errorLevel type="suppress">
+                <referencedFunction name="ReflectionClass::__construct"/>
+            </errorLevel>
+        </ArgumentTypeCoercion>
         <UnusedConstructor errorLevel="suppress"/>
+        <MissingImmutableAnnotation errorLevel="suppress"/>
         <MissingThrowsDocblock>
             <errorLevel type="suppress">
                 <directory name="tests"/>
             </errorLevel>
         </MissingThrowsDocblock>
+        <MixedAssignment errorLevel="suppress"/>
     </issueHandlers>
 
     <forbiddenFunctions>

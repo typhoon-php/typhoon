@@ -24,7 +24,7 @@ final class MethodsInheritanceResolver
     private array $methods = [];
 
     /**
-     * @param non-empty-string $class
+     * @param class-string $class
      * @param ?non-empty-string $parent
      * @param ClassMetadataReflector $classMetadataReflector
      */

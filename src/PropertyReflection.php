@@ -13,7 +13,7 @@ use Typhoon\Type\Type;
  * @api
  * @property-read non-empty-string $name
  * @property-read class-string $class
- * @psalm-suppress PropertyNotSetInConstructor, MissingImmutableAnnotation
+ * @psalm-suppress PropertyNotSetInConstructor
  */
 final class PropertyReflection extends \ReflectionProperty
 {
@@ -66,7 +66,6 @@ final class PropertyReflection extends \ReflectionProperty
             $this->attributes = AttributeReflections::create(
                 $this->classReflector,
                 $this->metadata->attributes,
-                /** @psalm-suppress ArgumentTypeCoercion */
                 static fn(): array => (new \ReflectionProperty($class, $property))->getAttributes(),
             );
         }
@@ -221,7 +220,6 @@ final class PropertyReflection extends \ReflectionProperty
     private function loadNative(): void
     {
         if (!$this->nativeLoaded) {
-            /** @psalm-suppress ArgumentTypeCoercion */
             parent::__construct($this->metadata->class, $this->metadata->name);
             $this->nativeLoaded = true;
         }

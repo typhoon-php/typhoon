@@ -178,7 +178,6 @@ final class NameContext implements NameResolver
             throw new \InvalidArgumentException(sprintf('%s cannot be used outside of the class scope.', $name));
         }
 
-        /** @var class-string */
         return self::parse($name)->resolve($this->namespace, $this->namespaceImportTable)->toString();
     }
 

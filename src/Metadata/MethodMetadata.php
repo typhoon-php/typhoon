@@ -22,7 +22,7 @@ final class MethodMetadata
 
     /**
      * @param non-empty-string $name
-     * @param non-empty-string $class
+     * @param class-string $class
      * @param list<TemplateReflection> $templates
      * @param list<ParameterMetadata> $parameters
      * @param non-empty-string|false $docComment
@@ -74,7 +74,7 @@ final class MethodMetadata
     }
 
     /**
-     * @param non-empty-string $class
+     * @param class-string $class
      */
     public function withClass(string $class): self
     {

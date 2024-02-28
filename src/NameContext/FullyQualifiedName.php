@@ -15,14 +15,6 @@ final class FullyQualifiedName
         private readonly UnqualifiedName|QualifiedName $name,
     ) {}
 
-    /**
-     * @psalm-suppress PossiblyUnusedMethod
-     */
-    public function lastSegment(): UnqualifiedName
-    {
-        return $this->name->lastSegment();
-    }
-
     public function resolve(): UnqualifiedName|QualifiedName
     {
         return $this->name;

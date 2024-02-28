@@ -22,7 +22,8 @@ final class UnqualifiedName
             throw new \InvalidArgumentException(sprintf('"%s" is not a valid PHP label.', $name));
         }
 
-        /** @var non-empty-string */
+        \assert($name !== '');
+
         $this->name = $name;
     }
 

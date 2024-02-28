@@ -42,12 +42,15 @@ final class AnonymousClassName
 
         /** @var ?class-string */
         $superType = $matches[1] === 'class' ? null : $matches[1];
-        /** @var non-empty-string */
+
         $file = $matches[2];
-        /** @var int<0, max> */
+        \assert($file !== '');
+
         $line = (int) $matches[3];
-        /** @var int<0, max> */
+        \assert($line >= 0);
+
         $rtdKeyCounter = hexdec($matches[4]);
+        \assert($rtdKeyCounter >= 0);
 
         return new self($file, $line, $superType, $rtdKeyCounter);
     }

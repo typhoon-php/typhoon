@@ -12,10 +12,9 @@ use Typhoon\Reflection\FileResource;
  */
 final class NativeReflectionFileLocator implements ClassLocator
 {
-    public function locateClass(string $name): null|FileResource|\ReflectionClass
+    public function locateClass(string $name): null|FileResource
     {
         try {
-            /** @psalm-suppress ArgumentTypeCoercion */
             $nativeReflection = new \ReflectionClass($name);
         } catch (\ReflectionException) {
             return null;

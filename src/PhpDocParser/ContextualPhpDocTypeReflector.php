@@ -328,8 +328,8 @@ final class ContextualPhpDocTypeReflector
         if ($node instanceof ConditionalTypeNode) {
             $subject = $this->reflect($node->subjectType);
         } else {
-            /** @var non-empty-string */
-            $name = substr($node->parameterName, 1);
+            $name = ltrim($node->parameterName, '$');
+            \assert($name !== '');
             $subject = types::arg($name);
         }
 

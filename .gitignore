@@ -1,3 +1,4 @@
+/tests/unit/Reflector/file_reflection_cache
 /var/
 /vendor/
 /.php-cs-fixer.php
@@ -5,4 +6,3 @@
 /infection.json
 /phpstan.neon
 /psalm.xml
-/tests/unit/Reflector/file_reflection_cache

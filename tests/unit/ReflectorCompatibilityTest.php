@@ -417,13 +417,11 @@ final class ReflectorCompatibilityTest extends TestCase
         $typhoonResult = null;
 
         try {
-            /** @psalm-suppress MixedAssignment */
             $nativeResult = $native();
         } catch (\Throwable $nativeException) {
         }
 
         try {
-            /** @psalm-suppress MixedAssignment */
             $typhoonResult =  $typhoon();
         } catch (\Throwable $typhoonException) {
         }

@@ -14,7 +14,7 @@ use Typhoon\Type\Type;
 /**
  * @api
  * @property-read non-empty-string $name
- * @psalm-suppress PropertyNotSetInConstructor, MissingImmutableAnnotation
+ * @psalm-suppress PropertyNotSetInConstructor
  */
 final class ParameterReflection extends \ReflectionParameter
 {

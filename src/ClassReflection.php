@@ -18,7 +18,7 @@ use Typhoon\Type\Type;
  * @template-covariant T of object
  * @extends \ReflectionClass<T>
  * @property-read class-string<T> $name
- * @psalm-suppress PropertyNotSetInConstructor, MissingImmutableAnnotation
+ * @psalm-suppress PropertyNotSetInConstructor
  */
 final class ClassReflection extends \ReflectionClass
 {
@@ -241,8 +241,10 @@ final class ClassReflection extends \ReflectionClass
             return $this->metadata->name;
         }
 
-        /** @var non-empty-string */
-        return substr($this->metadata->name, $lastSlashPosition + 1);
+        $shortName = substr($this->metadata->name, $lastSlashPosition + 1);
+        \assert($shortName !== '');
+
+        return $shortName;
     }
 
     public function getStartLine(): int|false

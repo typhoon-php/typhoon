@@ -18,7 +18,7 @@ final class PropertyInheritanceResolver
     private TypeInheritanceResolver $type;
 
     /**
-     * @param non-empty-string $class
+     * @param class-string $class
      */
     public function __construct(
         private readonly string $class,

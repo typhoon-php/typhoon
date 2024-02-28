@@ -9,7 +9,6 @@ use Typhoon\Reflection\Metadata\MetadataCacheItem;
 
 /**
  * @api
- * @psalm-suppress MixedAssignment
  */
 final class FreshCache implements CacheInterface
 {

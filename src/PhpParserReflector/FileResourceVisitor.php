@@ -25,7 +25,7 @@ final class FileResourceVisitor extends NodeVisitorAbstract
     public function enterNode(Node $node): ?int
     {
         if ($node instanceof ClassLike && $node->name !== null) {
-            /** @var class-string */
+            /** @var class-string This is proved, because this is a file where class is declared */
             $name = $this->reflector->resolveNameAsClass($node->name);
             $reflector = clone $this->reflector;
             $this->metadata->saveDeferred(

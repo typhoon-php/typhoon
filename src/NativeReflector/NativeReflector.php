@@ -86,10 +86,12 @@ final class NativeReflector
 
         foreach ($class->getProperties() as $property) {
             if ($property->class === $class->name) {
-                /** @var non-empty-string */
                 $name = $property->name;
+                \assert($name !== '', 'ReflectionClass always contains default (statically declared) properties with a non-empty name.');
+
                 /** @var int-mask-of<\ReflectionProperty::IS_*> */
                 $modifiers = $property->getModifiers();
+
                 $properties[] = new PropertyMetadata(
                     name: $name,
                     class: $property->class,
@@ -238,8 +240,8 @@ final class NativeReflector
     private function reflectParameters(\ReflectionFunctionAbstract $function, ?string $class): array
     {
         $parameters = [];
-        /** @var non-empty-string */
         $functionOrMethod = $function->name;
+        \assert($functionOrMethod !== '');
 
         foreach ($function->getParameters() as $parameter) {
             $parameters[] = new ParameterMetadata(
@@ -269,8 +271,8 @@ final class NativeReflector
         $attributes = [];
 
         foreach (array_values($reflectionAttributes) as $position => $attribute) {
-            /** @var class-string */
             $name = $attribute->getName();
+            \assert(class_exists($name));
             $attributes[] = new AttributeMetadata(
                 name: $name,
                 position: $position,

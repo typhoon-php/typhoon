@@ -11,7 +11,6 @@ use Typhoon\Reflection\Metadata\AttributeMetadata;
  * @api
  * @template TAttribute of object
  * @extends \ReflectionAttribute<TAttribute>
- * @psalm-suppress MissingImmutableAnnotation
  */
 final class AttributeReflection extends \ReflectionAttribute
 {
