@@ -76,7 +76,7 @@
 
     <stubs>
         <file name="tests/unit/Fixtures/classes.php" preloadClasses="true"/>
-        <file name="tests/unit/Fixtures/readonly_classes.php" preloadClasses="true"/>
+        <file name="tests/unit/Fixtures/classes_php82.php" preloadClasses="true"/>
         <file name="stubs/PhpParser/Node/Expr/Variable.phpstub"/>
         <file name="stubs/PhpParser/Node/Identifier.phpstub"/>
         <file name="stubs/PhpParser/Node/IntersectionType.phpstub"/>

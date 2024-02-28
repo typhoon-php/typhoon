@@ -18,9 +18,21 @@ namespace Simple
 
     enum JustEnum {}
 
-    enum IntEnum: int {}
+    enum EmptyIntEnum: int {}
 
-    enum StringEnum: string {}
+    enum IntEnum: int
+    {
+        case ONE = 1;
+        case TWO = 2;
+    }
+
+    enum EmptyStringEnum: string {}
+
+    enum StringEnum: string
+    {
+        case A = 'a';
+        case B = 'b';
+    }
 
     interface JustInterface {}
 
@@ -465,5 +477,17 @@ namespace Traits
         public function publicMethod(): void {}
 
         private function t2PublicAsPrivate(): void {}
+    }
+}
+
+namespace Constants
+{
+    class ClassWithConstants
+    {
+        const CONSTANT_WITHOUT_VISIBILITY = null;
+        public const PUBLIC_CONSTANT = 1;
+        protected const PROTECTED_CONSTANT = 'protected';
+        protected const PRIVATE_CONSTANT = 0.34;
+        final protected const FINAL_CONSTANT = true;
     }
 }

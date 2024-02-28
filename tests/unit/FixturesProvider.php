@@ -30,10 +30,10 @@ final class FixturesProvider
             ...self::loadFromFile(__DIR__ . '/Fixtures/classes.php'),
         ];
 
-        if (PHP_VERSION >= 80200) {
+        if (\PHP_VERSION_ID >= 80200) {
             self::$classes = [
                 ...self::$classes,
-                ...self::loadFromFile(__DIR__ . '/Fixtures/readonly_classes.php'),
+                ...self::loadFromFile(__DIR__ . '/Fixtures/classes_php82.php'),
             ];
         }
 

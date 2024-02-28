@@ -341,6 +341,10 @@ final class ReflectorCompatibilityTest extends TestCase
 
     private function canCreateMockObject(\ReflectionClass $class): bool
     {
+        if (method_exists($class, 'isReadonly') && $class->isReadonly()) {
+            return false;
+        }
+
         if ($class->isTrait()) {
             return false;
         }

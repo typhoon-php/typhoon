@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace ReadonlyClasses;
+namespace Classes\PHP82;
 
 readonly class ReadonlyClass {}
 
