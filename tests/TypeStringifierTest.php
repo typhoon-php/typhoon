@@ -9,6 +9,7 @@ use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Typhoon\Type\Type;
 use Typhoon\Type\types;
+use Typhoon\Type\Variance;
 
 #[CoversClass(TypeStringifier::class)]
 final class TypeStringifierTest extends TestCase
@@ -114,6 +115,7 @@ final class TypeStringifierTest extends TestCase
         yield [types::value(types::list()), 'value-of<list>'];
         yield [types::conditional(types::arg('a'), if: types::string, then: types::int, else: types::float), '($a is string ? int : float)'];
         yield [types::conditional(types::template('T', types::atFunction('trim')), if: types::string, then: types::int, else: types::float), '(T@trim() is string ? int : float)'];
+        yield [types::array(value: types::varianceAware(types::int, Variance::Covariant)), 'array<covariant int>'];
     }
 
     #[DataProvider('typesAndTheirStringRepresentations')]
