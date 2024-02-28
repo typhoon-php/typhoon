@@ -10,6 +10,7 @@ $finder = Finder::create()
     ->in(__DIR__ . '/src')
     ->notName([
         'AttributeReflection.php',
+        'ClassConstantReflection.php',
         'ClassReflection.php',
         'MethodReflection.php',
         'ParameterReflection.php',

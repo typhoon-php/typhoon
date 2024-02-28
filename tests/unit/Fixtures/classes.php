@@ -97,6 +97,30 @@ namespace Iterables
     }
 }
 
+namespace Constants
+{
+    class ClassWithConstants
+    {
+        /**
+         * Hello, I am constant.
+         */
+        const CONSTANT_WITH_PHPDOC = null;
+        const CONSTANT_WITHOUT_VISIBILITY = null;
+        public const PUBLIC_CONSTANT = 1;
+        protected const PROTECTED_CONSTANT = 'protected';
+        protected const PRIVATE_CONSTANT = 0.34;
+        final protected const FINAL_CONSTANT = true;
+    }
+
+    class ClassWithInheritedConstants extends ClassWithConstants {}
+
+    class ClassWithAlteredConstantVisibility extends ClassWithConstants
+    {
+        public const PROTECTED_CONSTANT = 'protected';
+        public const PRIVATE_CONSTANT = 0.34;
+    }
+}
+
 namespace Properties
 {
     class ClassWithProperties
@@ -477,17 +501,5 @@ namespace Traits
         public function publicMethod(): void {}
 
         private function t2PublicAsPrivate(): void {}
-    }
-}
-
-namespace Constants
-{
-    class ClassWithConstants
-    {
-        const CONSTANT_WITHOUT_VISIBILITY = null;
-        public const PUBLIC_CONSTANT = 1;
-        protected const PROTECTED_CONSTANT = 'protected';
-        protected const PRIVATE_CONSTANT = 0.34;
-        final protected const FINAL_CONSTANT = true;
     }
 }

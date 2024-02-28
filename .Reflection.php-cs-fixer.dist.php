@@ -9,6 +9,7 @@ use PHPyh\CodingStandard\PhpCsFixerCodingStandard;
 $finder = Finder::create()->append([
     __FILE__,
     __DIR__ . '/src/AttributeReflection.php',
+    __DIR__ . '/src/ClassConstantReflection.php',
     __DIR__ . '/src/ClassReflection.php',
     __DIR__ . '/src/MethodReflection.php',
     __DIR__ . '/src/ParameterReflection.php',

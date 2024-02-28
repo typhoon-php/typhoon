@@ -8,6 +8,7 @@ use Typhoon\Reflection\AttributeReflection\AttributeReflections;
 use Typhoon\Reflection\ClassReflection\ClassReflector;
 use Typhoon\Reflection\Exception\ClassDoesNotExistException;
 use Typhoon\Reflection\Exception\DefaultReflectionException;
+use Typhoon\Reflection\Metadata\ClassConstantMetadata;
 use Typhoon\Reflection\Metadata\ClassMetadata;
 use Typhoon\Reflection\Metadata\MethodMetadata;
 use Typhoon\Reflection\Metadata\PropertyMetadata;
@@ -219,18 +220,24 @@ final class ClassReflection extends \ReflectionClass
         return $this->getResolvedProperties()[$name] ?? throw new DefaultReflectionException();
     }
 
-    public function getReflectionConstant(string $name): \ReflectionClassConstant|false
+    public function getReflectionConstant(string $name): ClassConstantReflection|false
     {
-        $this->loadNative();
-
-        return parent::getReflectionConstant($name);
+        return $this->getResolvedConstants()[$name] ?? false;
     }
 
+    /**
+     * @return list<ClassConstantReflection>
+     */
     public function getReflectionConstants(?int $filter = null): array
     {
-        $this->loadNative();
+        if ($filter === null || $filter === 0) {
+            return array_values($this->getResolvedConstants());
+        }
 
-        return parent::getReflectionConstants($filter);
+        return array_values(array_filter(
+            $this->getResolvedConstants(),
+            static fn(ClassConstantReflection $constant): bool => ($filter & $constant->getModifiers()) !== 0,
+        ));
     }
 
     public function getShortName(): string
@@ -342,9 +349,7 @@ final class ClassReflection extends \ReflectionClass
 
     public function hasConstant(string $name): bool
     {
-        $this->loadNative();
-
-        return parent::hasConstant($name);
+        return isset($this->getResolvedConstants()[$name]);
     }
 
     public function hasMethod(string $name): bool
@@ -551,6 +556,20 @@ final class ClassReflection extends \ReflectionClass
         $this->loadNative();
 
         parent::setStaticPropertyValue($name, $value);
+    }
+
+    /**
+     * @return array<non-empty-string, ClassConstantReflection>
+     */
+    private function getResolvedConstants(): array
+    {
+        return array_map(
+            fn(ClassConstantMetadata $metadata): ClassConstantReflection => new ClassConstantReflection(
+                classReflector: $this->classReflector,
+                metadata: $metadata,
+            ),
+            $this->metadata->resolvedConstants($this->reflectClassMetadata(...)),
+        );
     }
 
     /**

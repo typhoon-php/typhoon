@@ -13,6 +13,7 @@ use PHPStan\PhpDocParser\Ast\Type\TypeNode;
 use PHPStan\PhpDocParser\Ast\Type\UnionTypeNode;
 use Typhoon\Reflection\FileResource;
 use Typhoon\Reflection\Metadata\AttributeMetadata;
+use Typhoon\Reflection\Metadata\ClassConstantMetadata;
 use Typhoon\Reflection\Metadata\ClassMetadata;
 use Typhoon\Reflection\Metadata\InheritedName;
 use Typhoon\Reflection\Metadata\MethodMetadata;
@@ -98,6 +99,7 @@ final class ContextualPhpParserReflector
                 traitTypes: $traitTypes,
                 traitMethodAliases: $traitMethodAliases,
                 traitMethodPrecedence: $traitMethodPrecedence,
+                ownConstants: $this->reflectOwnConstants($name, $node),
                 ownProperties: $this->reflectOwnProperties($name, $node),
                 ownMethods: $this->reflectOwnMethods($name, $node),
                 finalPhpDoc: $phpDoc->hasFinal(),
@@ -123,6 +125,49 @@ final class ContextualPhpParserReflector
             $name instanceof Name => $name->toCodeString(),
             default => (string) $name,
         });
+    }
+
+    /**
+     * @param class-string $class
+     * @return list<ClassConstantMetadata>
+     */
+    private function reflectOwnConstants(string $class, Stmt\ClassLike $classNode): array
+    {
+        $constants = [];
+
+        foreach ($classNode->stmts as $node) {
+            if ($node instanceof Stmt\ClassConst) {
+                $phpDoc = $this->parsePhpDoc($node);
+                $type = $this->reflectType($node->type, $phpDoc->varType());
+
+                foreach ($node->consts as $const) {
+                    $constants[] = new ClassConstantMetadata(
+                        name: $const->name->name,
+                        class: $class,
+                        modifiers: ClassConstantReflections::modifiers($node),
+                        type: $type,
+                        docComment: $this->reflectDocComment($node),
+                        startLine: $this->reflectLine($node->getStartLine()),
+                        endLine: $this->reflectLine($node->getEndLine()),
+                        attributes: $this->reflectAttributes($node->attrGroups, \Attribute::TARGET_CLASS_CONSTANT),
+                    );
+                }
+            } elseif ($node instanceof Stmt\EnumCase) {
+                $constants[] = new ClassConstantMetadata(
+                    name: $node->name->name,
+                    class: $class,
+                    modifiers: \ReflectionClassConstant::IS_PUBLIC,
+                    type: TypeMetadata::create(),
+                    docComment: $this->reflectDocComment($node),
+                    startLine: $this->reflectLine($node->getStartLine()),
+                    endLine: $this->reflectLine($node->getEndLine()),
+                    enumCase: true,
+                    attributes: $this->reflectAttributes($node->attrGroups, \Attribute::TARGET_CLASS_CONSTANT),
+                );
+            }
+        }
+
+        return $constants;
     }
 
     /**

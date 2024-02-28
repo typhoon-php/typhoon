@@ -7,6 +7,7 @@ namespace Typhoon\Reflection\NativeReflector;
 use Typhoon\Reflection\Exception\DefaultReflectionException;
 use Typhoon\Reflection\Metadata\AttributeMetadata;
 use Typhoon\Reflection\Metadata\ChangeDetector;
+use Typhoon\Reflection\Metadata\ClassConstantMetadata;
 use Typhoon\Reflection\Metadata\ClassMetadata;
 use Typhoon\Reflection\Metadata\InheritedName;
 use Typhoon\Reflection\Metadata\MethodMetadata;
@@ -61,6 +62,7 @@ final class NativeReflector
             ),
             traitMethodAliases: $traitMethodAliases,
             traitMethodPrecedence: $traitMethodPrecedence,
+            ownConstants: $this->reflectOwnConstants($class),
             ownProperties: $this->reflectOwnProperties($class),
             ownMethods: $this->reflectOwnMethods($class),
         );
@@ -75,6 +77,37 @@ final class NativeReflector
         }
 
         return new InheritedName($parentClass->name);
+    }
+
+    /**
+     * @return list<ClassConstantMetadata>
+     */
+    private function reflectOwnConstants(\ReflectionClass $class): array
+    {
+        $constants = [];
+
+        foreach ($class->getReflectionConstants() as $constant) {
+            if ($constant->class === $class->name) {
+                $type = null;
+
+                if (method_exists($constant, 'getType')) {
+                    /** @var ?\ReflectionType $type */
+                    $type = $constant->getType();
+                }
+
+                $constants[] = new ClassConstantMetadata(
+                    name: $constant->name,
+                    class: $constant->class,
+                    modifiers: $constant->getModifiers(),
+                    type: $this->reflectType($type, $constant->class),
+                    docComment: $constant->getDocComment(),
+                    enumCase: (bool) $constant->isEnumCase(),
+                    attributes: $this->reflectAttributes($constant->getAttributes()),
+                );
+            }
+        }
+
+        return $constants;
     }
 
     /**

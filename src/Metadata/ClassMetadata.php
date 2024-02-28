@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Typhoon\Reflection\Metadata;
 
 use Typhoon\Reflection\ClassReflection;
+use Typhoon\Reflection\Inheritance\ClassConstantsInheritanceResolver;
 use Typhoon\Reflection\Inheritance\MethodsInheritanceResolver;
 use Typhoon\Reflection\Inheritance\PropertiesInheritanceResolver;
 use Typhoon\Reflection\TemplateReflection;
@@ -21,6 +22,11 @@ use Typhoon\Type\Type;
  */
 final class ClassMetadata extends RootMetadata
 {
+    /**
+     * @var ?array<non-empty-string, ClassConstantMetadata>
+     */
+    private ?array $resolvedConstants = null;
+
     /**
      * @var ?array<non-empty-string, PropertyMetadata>
      */
@@ -46,6 +52,7 @@ final class ClassMetadata extends RootMetadata
      * @param list<InheritedName> $traitTypes
      * @param TraitMethodAliases $traitMethodAliases
      * @param TraitMethodPrecedence $traitMethodPrecedence
+     * @param list<ClassConstantMetadata> $ownConstants
      * @param list<PropertyMetadata> $ownProperties
      * @param list<MethodMetadata> $ownMethods
      */
@@ -72,6 +79,7 @@ final class ClassMetadata extends RootMetadata
         public readonly array $traitTypes = [],
         public readonly array $traitMethodAliases = [],
         public readonly array $traitMethodPrecedence = [],
+        public readonly array $ownConstants = [],
         public readonly array $ownProperties = [],
         public readonly array $ownMethods = [],
         public readonly bool $finalPhpDoc = false,
@@ -102,6 +110,31 @@ final class ClassMetadata extends RootMetadata
     public function traitClasses(): array
     {
         return array_column($this->traitTypes, 'class');
+    }
+
+    /**
+     * @param ClassMetadataReflector $classMetadataReflector
+     * @return array<non-empty-string, ClassConstantMetadata>
+     */
+    public function resolvedConstants(\Closure $classMetadataReflector): array
+    {
+        if ($this->resolvedConstants !== null) {
+            return $this->resolvedConstants;
+        }
+
+        $resolver = new ClassConstantsInheritanceResolver(
+            classMetadataReflector: $classMetadataReflector,
+            class: $this->name,
+            parent: $this->parentClass(),
+            final: $this->finalNative(),
+        );
+        $resolver->setOwn($this->ownConstants);
+        $resolver->addUsed(...$this->traitTypes);
+        if ($this->parentType !== null) {
+            $resolver->addInherited($this->parentType);
+        }
+
+        return $this->resolvedConstants = $resolver->resolve();
     }
 
     /**
@@ -168,7 +201,7 @@ final class ClassMetadata extends RootMetadata
     public function __serialize(): array
     {
         $data = get_object_vars($this);
-        unset($data['resolvedProperties'], $data['resolvedMethods']);
+        unset($data['resolvedProperties'], $data['resolvedMethods'], $data['resolvedConstants']);
 
         return $data;
     }

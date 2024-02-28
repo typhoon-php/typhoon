@@ -60,6 +60,26 @@
 | `newInstanceWithoutConstructor()` | ✅ Via native reflection              |
 | `setStaticPropertyValue()`        | ✅ Via native reflection              | 
 
+| `ReflectionClassConstant` | `Typhoon\Reflection\ClassConstantReflection` |
+|---------------------------|----------------------------------------------|
+| `$class`                  | ✅                                            |
+| `$name`                   | ✅                                            |
+| `__construct()`           | ❌ `@internal`                                |
+| `__toString()`            | ✅ Via native reflection                      |
+| `getAttributes()`         | ✅                                            |
+| `getDeclaringClass()`     | ✅                                            |
+| `getDocComment()`         | ✅                                            |
+| `getModifiers()`          | ✅                                            |
+| `getName()`               | ✅                                            |
+| `getType()`               | ✅ Via native reflection                      |
+| `getValue()`              | ✅ Via native reflection                      |
+| `hasType()`               | ✅                                            |
+| `isEnumCase()`            | ✅                                            |
+| `isFinal()`               | ✅                                            |
+| `isPrivate()`             | ✅                                            |
+| `isProtected()`           | ✅                                            |
+| `isPublic()`              | ✅                                            |
+
 | `ReflectionProperty`  | `Typhoon\Reflection\PropertyReflection` |
 |-----------------------|-----------------------------------------|
 | `$class`              | ✅                                       |

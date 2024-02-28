@@ -4,9 +4,9 @@ declare(strict_types=1);
 
 namespace Typhoon\Reflection\Inheritance;
 
+use Typhoon\Reflection\Metadata\ClassConstantMetadata;
 use Typhoon\Reflection\Metadata\ClassMetadata;
 use Typhoon\Reflection\Metadata\InheritedName;
-use Typhoon\Reflection\Metadata\PropertyMetadata;
 use Typhoon\Reflection\TypeResolver\TemplateResolver;
 
 /**
@@ -14,12 +14,12 @@ use Typhoon\Reflection\TypeResolver\TemplateResolver;
  * @psalm-internal Typhoon\Reflection
  * @psalm-import-type ClassMetadataReflector from ClassMetadata
  */
-final class PropertiesInheritanceResolver
+final class ClassConstantsInheritanceResolver
 {
     /**
-     * @var array<non-empty-string, PropertyInheritanceResolver>
+     * @var array<non-empty-string, ClassConstantInheritanceResolver>
      */
-    private array $properties = [];
+    private array $constants = [];
 
     /**
      * @param ClassMetadataReflector $classMetadataReflector
@@ -34,12 +34,12 @@ final class PropertiesInheritanceResolver
     ) {}
 
     /**
-     * @param iterable<PropertyMetadata> $properties
+     * @param iterable<ClassConstantMetadata> $constants
      */
-    public function setOwn(iterable $properties): void
+    public function setOwn(iterable $constants): void
     {
-        foreach ($properties as $property) {
-            $this->property($property->name)->setOwn($property);
+        foreach ($constants as $constant) {
+            $this->constant($constant->name)->setOwn($constant);
         }
     }
 
@@ -55,8 +55,8 @@ final class PropertiesInheritanceResolver
                 resolveStatic: $this->final,
             );
 
-            foreach ($class->resolvedProperties($this->classMetadataReflector) as $property) {
-                $this->property($property->name)->addUsed($property, $templateResolver);
+            foreach ($class->resolvedConstants($this->classMetadataReflector) as $constant) {
+                $this->constant($constant->name)->addUsed($constant, $templateResolver);
             }
         }
     }
@@ -73,21 +73,21 @@ final class PropertiesInheritanceResolver
                 resolveStatic: $this->final,
             );
 
-            foreach ($class->resolvedProperties($this->classMetadataReflector) as $property) {
-                $this->property($property->name)->addInherited($property, $templateResolver);
+            foreach ($class->resolvedConstants($this->classMetadataReflector) as $constant) {
+                $this->constant($constant->name)->addInherited($constant, $templateResolver);
             }
         }
     }
 
     /**
-     * @return array<non-empty-string, PropertyMetadata>
+     * @return array<non-empty-string, ClassConstantMetadata>
      */
     public function resolve(): array
     {
         return array_filter(
             array_map(
-                static fn(PropertyInheritanceResolver $resolver): ?PropertyMetadata => $resolver->resolve(),
-                $this->properties,
+                static fn(ClassConstantInheritanceResolver $resolver): ?ClassConstantMetadata => $resolver->resolve(),
+                $this->constants,
             ),
         );
     }
@@ -95,8 +95,8 @@ final class PropertiesInheritanceResolver
     /**
      * @param non-empty-string $name
      */
-    private function property(string $name): PropertyInheritanceResolver
+    private function constant(string $name): ClassConstantInheritanceResolver
     {
-        return $this->properties[$name] ??= new PropertyInheritanceResolver($this->class);
+        return $this->constants[$name] ??= new ClassConstantInheritanceResolver($this->class);
     }
 }

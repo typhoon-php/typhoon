@@ -110,5 +110,5 @@ $reflector = TyphoonReflector::build(
 
 ## TODO
 
-- [ ] class constants
+- [ ] enums, cases
 - [ ] functions

@@ -37,6 +37,13 @@ final class FixturesProvider
             ];
         }
 
+        if (\PHP_VERSION_ID >= 80300) {
+            self::$classes = [
+                ...self::$classes,
+                ...self::loadFromFile(__DIR__ . '/Fixtures/classes_php83.php'),
+            ];
+        }
+
         return self::$classes;
     }
 
