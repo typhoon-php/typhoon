@@ -23,9 +23,8 @@ jobs:
       - uses: ramsey/composer-install@v2
         with:
           composer-options: --optimize-autoloader
-      - run: |
-          composer validate --strict --ansi ${{ matrix.file }} ${{ matrix.file == '' && '--no-check-publish' || '' }}
-          composer normalize --dry-run --diff --ansi ${{ matrix.file }}
+      - run: composer validate --strict --ansi ${{ matrix.file }} ${{ matrix.file == '' && '--no-check-publish' || '' }}
+      - run: composer normalize --dry-run --diff --ansi ${{ matrix.file }}
 
   php-cs-fixer:
     runs-on: ubuntu-latest
