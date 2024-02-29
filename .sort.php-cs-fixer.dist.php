@@ -13,6 +13,11 @@ $config = (require_once __DIR__ . '/.php-cs-fixer.dist.php')
         __DIR__ . '/src/Reflection/MethodReflection.php',
         __DIR__ . '/src/Reflection/ParameterReflection.php',
         __DIR__ . '/src/Reflection/PropertyReflection.php',
+        __DIR__ . '/src/Reflection/TypeResolver/RecursiveTypeReplacer.php',
+        __DIR__ . '/src/Reflection/TypeResolver/TemplateResolver.php',
+        __DIR__ . '/src/Type/DefaultTypeVisitor.php',
+        __DIR__ . '/src/Type/types.php',
+        __DIR__ . '/src/Type/TypeVisitor.php',
     ]))
     ->setCacheFile(__DIR__ . '/var/' . basename(__FILE__) . '.cache');
 

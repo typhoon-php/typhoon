@@ -49,10 +49,10 @@
     },
     "scripts": {
         "fixcs": [
-            "vendor/bin/php-cs-fixer fix -v",
-            "vendor/bin/php-cs-fixer fix --config=.sort-reflection-elements.php-cs-fixer.dist.php -v"
+            "php-cs-fixer fix -v",
+            "php-cs-fixer fix --config=.sort.php-cs-fixer.dist.php -v"
         ],
-        "phpstan": "vendor/bin/phpstan -v",
+        "phpstan": "phpstan -v",
         "pre-command-run": "mkdir -p var",
         "psalm": "psalm --show-info --no-diff",
         "test": "phpunit"

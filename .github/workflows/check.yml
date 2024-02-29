@@ -44,7 +44,7 @@ jobs:
         with:
           composer-options: --optimize-autoloader
       - run: vendor/bin/php-cs-fixer fix -v --dry-run --format=checkstyle --ansi | cs2pr
-      - run: vendor/bin/php-cs-fixer fix -v --dry-run --format=checkstyle --ansi --config=.sort-reflection-elements.php-cs-fixer.dist.php | cs2pr
+      - run: vendor/bin/php-cs-fixer fix -v --dry-run --format=checkstyle --ansi --config=.sort.php-cs-fixer.dist.php | cs2pr
 
   psalm:
     runs-on: ubuntu-latest
