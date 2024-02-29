@@ -24,7 +24,7 @@ jobs:
         with:
           composer-options: --optimize-autoloader
       - run: |
-          composer validate --strict --ansi ${{ matrix.file }} ${{ matrix.file == '' && '--no-check-publish' }}
+          composer validate --strict --ansi ${{ matrix.file }} ${{ matrix.file == '' && '--no-check-publish' || '' }}
           composer normalize --dry-run --diff --ansi ${{ matrix.file }}
 
   php-cs-fixer:
