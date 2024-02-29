@@ -1,0 +1,30 @@
+deptrac:
+    analyser:
+        types:
+            - class
+            - class_superglobal
+            - file
+            - function
+            - function_call
+            - function_superglobal
+            - use
+
+    paths:
+        - src
+        - tests
+
+    exclude_files:
+        - tests/Reflection/Fixtures/classes_php83.php # https://github.com/qossmic/deptrac/issues/1371
+
+    layers:
+        - { name: Reflection,       collectors: [ { type: directory, value: src/Reflection/.* } ] }
+        - { name: Type,             collectors: [ { type: directory, value: src/Type/.* } ] }
+        - { name: TypeComparator,   collectors: [ { type: directory, value: src/TypeComparator/.* } ] }
+        - { name: TypeStringifier,  collectors: [ { type: directory, value: src/TypeStringifier/.* } ] }
+        # - { name: tests,            collectors: [ { type: directory, value: tests/.* } ] }
+
+    ruleset:
+        Reflection: [Type, TypeStringifier]
+        TypeComparator: [Type]
+        TypeStringifier: [Type]
+        # tests: [Reflection, Type, TypeComparator, TypeStringifier]
