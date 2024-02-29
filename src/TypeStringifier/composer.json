@@ -13,39 +13,12 @@
         "php": "^8.1",
         "typhoon/type": "^0.3@dev"
     },
-    "require-dev": {
-        "ergebnis/composer-normalize": "^2.42.0",
-        "friendsofphp/php-cs-fixer": "^3.50.0",
-        "phpstan/phpstan": "^1.11@dev",
-        "phpunit/phpunit": "^10.5.11",
-        "phpyh/coding-standard": "^2.6.0",
-        "psalm/plugin-phpunit": "^0.18.4",
-        "vimeo/psalm": "^5.22.2"
-    },
     "autoload": {
         "psr-4": {
-            "Typhoon\\TypeStringifier\\": "src/"
+            "Typhoon\\TypeStringifier\\": ""
         },
         "files": [
-            "src/functions.php"
+            "functions.php"
         ]
-    },
-    "autoload-dev": {
-        "psr-4": {
-            "Typhoon\\TypeStringifier\\": "tests/"
-        }
-    },
-    "config": {
-        "allow-plugins": {
-            "ergebnis/composer-normalize": true
-        },
-        "sort-packages": true
-    },
-    "scripts": {
-        "fixcs": "vendor/bin/php-cs-fixer fix --diff --verbose",
-        "phpstan": "vendor/bin/phpstan -v",
-        "pre-command-run": "mkdir -p var",
-        "psalm": "psalm --show-info --no-diff",
-        "test": "phpunit"
     }
 }

@@ -1,0 +1,59 @@
+{
+    "description": "Typhoon Monorepo",
+    "license": "MIT",
+    "type": "project",
+    "authors": [
+        {
+            "name": "Valentin Udaltsov",
+            "email": "udaltsov.valentin@gmail.com"
+        }
+    ],
+    "require": {
+        "php": "^8.1",
+        "nikic/php-parser": "^4.15",
+        "phpstan/phpdoc-parser": "^1.0",
+        "psr/simple-cache": "^3.0"
+    },
+    "require-dev": {
+        "ergebnis/composer-normalize": "^2.42.0",
+        "friendsofphp/php-cs-fixer": "^3.51.0",
+        "jetbrains/phpstorm-stubs": "^2023.3",
+        "mockery/mockery": "^1.6.7",
+        "phpstan/phpstan": "^1.11@dev",
+        "phpunit/phpunit": "^10.5.11",
+        "phpyh/coding-standard": "^2.6.1",
+        "psalm/plugin-phpunit": "^0.18.4",
+        "symfony/var-dumper": "^6.4.4 || ^7.0.4",
+        "typhoon/opcache": "^0.2.1",
+        "vimeo/psalm": "^5.22.2"
+    },
+    "autoload": {
+        "psr-4": {
+            "Typhoon\\": "src/"
+        },
+        "files": [
+            "src/TypeStringifier/functions.php"
+        ]
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "Typhoon\\": "tests/"
+        }
+    },
+    "config": {
+        "allow-plugins": {
+            "ergebnis/composer-normalize": true
+        },
+        "sort-packages": true
+    },
+    "scripts": {
+        "fixcs": [
+            "vendor/bin/php-cs-fixer fix -v",
+            "vendor/bin/php-cs-fixer fix --config=.sort-reflection-elements.php-cs-fixer.dist.php -v"
+        ],
+        "phpstan": "vendor/bin/phpstan -v",
+        "pre-command-run": "mkdir -p var",
+        "psalm": "psalm --show-info --no-diff",
+        "test": "phpunit"
+    }
+}

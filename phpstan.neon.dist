@@ -1,0 +1,11 @@
+includes:
+    - phar://phpstan.phar/conf/bleedingEdge.neon
+
+parameters:
+    level: 9
+    paths:
+        - src/Type
+        - src/TypeStringifier
+        - tests/TypeStringifier
+    checkGenericClassInNonGenericObjectType: false
+    tmpDir: var/phpstan
