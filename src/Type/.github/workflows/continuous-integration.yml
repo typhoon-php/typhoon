@@ -1,0 +1,109 @@
+name: Continuous Integration
+
+on:
+  pull_request: ~
+  push:
+    branches: ['main', '*.x']
+
+env:
+  COMPOSER_ROOT_VERSION: 0.3-dev
+
+jobs:
+  composer-validate:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        php: [8.1]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: shivammathur/setup-php@v2
+        with:
+          php-version: ${{ matrix.php }}
+          tools: composer:v2
+          coverage: none
+      - run: composer validate --strict --ansi
+
+  composer-normalize:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        php: [8.1]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: shivammathur/setup-php@v2
+        with:
+          php-version: ${{ matrix.php }}
+          tools: composer:v2
+          coverage: none
+      - uses: ramsey/composer-install@v2
+        with:
+          composer-options: --optimize-autoloader
+      - run: composer normalize --dry-run --diff --ansi
+
+  php-cs-fixer:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        php: [8.1]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: shivammathur/setup-php@v2
+        with:
+          php-version: ${{ matrix.php }}
+          tools: composer:v2, cs2pr
+          coverage: none
+      - uses: ramsey/composer-install@v2
+        with:
+          composer-options: --optimize-autoloader
+      - run: composer fixcs -- --dry-run --format=checkstyle --ansi | cs2pr
+
+  psalm:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        php: [8.1, 8.2, 8.3]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: shivammathur/setup-php@v2
+        with:
+          php-version: ${{ matrix.php }}
+          tools: composer:v2
+          coverage: none
+      - uses: ramsey/composer-install@v2
+        with:
+          composer-options: --optimize-autoloader
+      - run: composer psalm -- --php-version=${{ matrix.php }} --stats --output-format=github
+
+  phpstan:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        php: [8.1, 8.2, 8.3]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: shivammathur/setup-php@v2
+        with:
+          php-version: ${{ matrix.php }}
+          tools: composer:v2
+          coverage: none
+      - uses: ramsey/composer-install@v2
+        with:
+          composer-options: --optimize-autoloader
+      - run: composer phpstan
+
+  test:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        php: [8.1]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: shivammathur/setup-php@v2
+        with:
+          php-version: ${{ matrix.php }}
+          tools: composer:v2
+          coverage: none
+      - uses: ramsey/composer-install@v2
+        with:
+          composer-options: --optimize-autoloader
+      - run: composer test -- --colors=always --order-by=random
