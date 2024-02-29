@@ -58,11 +58,7 @@ enum types implements Type
     }
 
     /**
-     * @template TKey
-     * @template TValue
-     * @param Type<TKey> $key
-     * @param Type<TValue> $value
-     * @return Type<array<TKey, TValue>>
+     * @return Type<array<mixed>>
      */
     public static function array(Type $key = self::arrayKey, Type $value = self::mixed): Type
     {
@@ -70,7 +66,7 @@ enum types implements Type
             return self::array;
         }
 
-        return new ArrayType($key, $value);
+        return new ArrayType($key, $value, []);
     }
 
     /**
@@ -87,19 +83,12 @@ enum types implements Type
      * @param array<Type|ArrayElement> $elements
      * @return Type<array<mixed>>
      */
-    public static function arrayShape(array $elements = [], bool $sealed = true): Type
+    public static function arrayShape(array $elements = [], Type $key = self::arrayKey, Type $value = self::never): Type
     {
-        if (!$sealed && $elements === []) {
-            return self::array;
-        }
-
-        return new ArrayShapeType(
-            array_map(
-                static fn(Type|ArrayElement $element): ArrayElement => $element instanceof Type ? new ArrayElement($element) : $element,
-                $elements,
-            ),
-            $sealed,
-        );
+        return new ArrayType($key, $value, array_map(
+            static fn(Type|ArrayElement $element): ArrayElement => $element instanceof Type ? new ArrayElement($element) : $element,
+            $elements,
+        ));
     }
 
     /**
@@ -264,13 +253,23 @@ enum types implements Type
     }
 
     /**
-     * @template TValue
-     * @param Type<TValue> $value
-     * @return Type<list<TValue>>
+     * @return Type<list<mixed>>
      */
     public static function list(Type $value = self::mixed): Type
     {
-        return new ListType($value);
+        return new ListType($value, []);
+    }
+
+    /**
+     * @param array<int, Type|ArrayElement> $elements
+     * @return Type<list<mixed>>
+     */
+    public static function listShape(array $elements = [], Type $value = self::never): Type
+    {
+        return new ListType($value, array_map(
+            static fn(Type|ArrayElement $element): ArrayElement => $element instanceof Type ? new ArrayElement($element) : $element,
+            $elements,
+        ));
     }
 
     /**
@@ -304,11 +303,7 @@ enum types implements Type
     }
 
     /**
-     * @template TKey
-     * @template TValue
-     * @param Type<TKey> $key
-     * @param Type<TValue> $value
-     * @return Type<non-empty-array<TKey, TValue>>
+     * @return Type<non-empty-array<mixed>>
      * @psalm-suppress MoreSpecificReturnType, LessSpecificReturnStatement
      */
     public static function nonEmptyArray(Type $key = self::arrayKey, Type $value = self::mixed): Type
@@ -318,9 +313,7 @@ enum types implements Type
     }
 
     /**
-     * @template TValue
-     * @param Type<TValue> $value
-     * @return Type<non-empty-list<TValue>>
+     * @return Type<non-empty-list<mixed>>
      * @psalm-suppress InvalidReturnType, InvalidReturnStatement
      */
     public static function nonEmptyList(Type $value = self::mixed): Type
@@ -431,7 +424,7 @@ enum types implements Type
     public function accept(TypeVisitor $visitor): mixed
     {
         return match ($this) {
-            self::array => $visitor->array($this, self::arrayKey, self::mixed),
+            self::array => $visitor->array($this, self::arrayKey, self::mixed, []),
             self::arrayKey => $visitor->union($this, [self::int, self::string]),
             self::bool => $visitor->bool($this),
             self::callable => $visitor->callable($this, [], self::mixed),

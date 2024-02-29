@@ -46,28 +46,26 @@ abstract class RecursiveTypeReplacer extends DefaultTypeVisitor
         return types::literal($type->accept($this));
     }
 
-    public function list(Type $self, Type $value): mixed
+    public function list(Type $self, Type $value, array $elements): mixed
     {
-        return types::list($value->accept($this));
-    }
-
-    public function arrayShape(Type $self, array $elements, bool $sealed): mixed
-    {
-        return types::arrayShape(
-            array_map(
-                fn(ArrayElement $element): ArrayElement => types::arrayElement(
-                    $element->type->accept($this),
-                    $element->optional,
-                ),
-                $elements,
+        return types::listShape(array_map(
+            fn(ArrayElement $element): ArrayElement => types::arrayElement(
+                $element->type->accept($this),
+                $element->optional,
             ),
-            $sealed,
-        );
+            $elements,
+        ), $value->accept($this));
     }
 
-    public function array(Type $self, Type $key, Type $value): mixed
+    public function array(Type $self, Type $key, Type $value, array $elements): mixed
     {
-        return types::array($key->accept($this), $value->accept($this));
+        return types::arrayShape(array_map(
+            fn(ArrayElement $element): ArrayElement => types::arrayElement(
+                $element->type->accept($this),
+                $element->optional,
+            ),
+            $elements,
+        ), $key->accept($this), $value->accept($this));
     }
 
     public function iterable(Type $self, Type $key, Type $value): mixed

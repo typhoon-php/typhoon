@@ -45,11 +45,6 @@ final class ComparatorSelector extends DefaultTypeVisitor
         return new IsIntRange($min, $max);
     }
 
-    public function list(Type $self, Type $value): mixed
-    {
-        return new IsList($value);
-    }
-
     public function literal(Type $self, Type $type): mixed
     {
         return new IsLiteral($type);

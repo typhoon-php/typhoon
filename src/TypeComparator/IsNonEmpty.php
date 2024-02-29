@@ -16,21 +16,6 @@ final class IsNonEmpty extends Comparator
         private readonly Type $type,
     ) {}
 
-    public function arrayShape(Type $self, array $elements, bool $sealed): mixed
-    {
-        if (!isSubtype($self, $this->type)) {
-            return false;
-        }
-
-        foreach ($elements as $element) {
-            if (!$element->optional) {
-                return true;
-            }
-        }
-
-        return false;
-    }
-
     public function literalValue(Type $self, float|bool|int|string $value): mixed
     {
         return isSubtype($self, $this->type)

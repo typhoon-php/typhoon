@@ -20,16 +20,10 @@ interface TypeVisitor
 
     /**
      * @param Type<array<mixed>> $self
-     * @return TReturn
-     */
-    public function array(Type $self, Type $key, Type $value): mixed;
-
-    /**
-     * @param Type<array<mixed>> $self
      * @param array<ArrayElement> $elements
      * @return TReturn
      */
-    public function arrayShape(Type $self, array $elements, bool $sealed): mixed;
+    public function array(Type $self, Type $key, Type $value, array $elements): mixed;
 
     /**
      * @param Type<bool> $self
@@ -124,9 +118,10 @@ interface TypeVisitor
 
     /**
      * @param Type<list<mixed>> $self
+     * @param array<int, ArrayElement> $elements
      * @return TReturn
      */
-    public function list(Type $self, Type $value): mixed;
+    public function list(Type $self, Type $value, array $elements): mixed;
 
     /**
      * @return TReturn
