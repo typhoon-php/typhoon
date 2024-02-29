@@ -28,23 +28,10 @@ final class TypeStringifier implements TypeVisitor
         return $this->stringifyGenericType(sprintf('%s@%s', $name, $class), $arguments);
     }
 
-    public function array(Type $self, Type $key, Type $value): mixed
-    {
-        if ($this->isArrayKey($key)) {
-            if ($this->isMixed($value)) {
-                return 'array';
-            }
-
-            return $this->stringifyGenericType('array', [$value]);
-        }
-
-        return $this->stringifyGenericType('array', [$key, $value]);
-    }
-
-    public function arrayShape(Type $self, array $elements, bool $sealed): mixed
+    public function array(Type $self, Type $key, Type $value, array $elements): mixed
     {
         if ($elements === []) {
-            return 'array{}';
+            return 'array' . ($this->isNever($value) ? '{}' : $this->arrayGenericPart($key, $value));
         }
 
         return sprintf(
@@ -63,7 +50,7 @@ final class TypeStringifier implements TypeVisitor
                 array_keys($elements),
                 $elements,
             )),
-            $sealed ? '' : ', ...',
+            $this->isNever($value) ? '' : ', ...' . $this->arrayGenericPart($key, $value),
         );
     }
 
@@ -189,13 +176,30 @@ final class TypeStringifier implements TypeVisitor
         return $this->stringifyGenericType('key-of', [$type]);
     }
 
-    public function list(Type $self, Type $value): mixed
+    public function list(Type $self, Type $value, array $elements): mixed
     {
-        if ($this->isMixed($value)) {
-            return 'list';
+        if ($elements === []) {
+            return 'list' . ($this->isNever($value) ? '{}' : $this->arrayGenericPart(null, $value));
         }
 
-        return $this->stringifyGenericType('list', [$value]);
+        return sprintf(
+            'list{%s%s}',
+            implode(', ', array_map(
+                function (int $key, ArrayElement $element) use ($elements): string {
+                    /** @var ?bool */
+                    static $isList = null;
+
+                    if (!$element->optional && ($isList ??= array_is_list($elements))) {
+                        return $element->type->accept($this);
+                    }
+
+                    return sprintf('%d%s: %s', $key, $element->optional ? '?' : '', $element->type->accept($this));
+                },
+                array_keys($elements),
+                $elements,
+            )),
+            $this->isNever($value) ? '' : ', ...' . $this->arrayGenericPart(null, $value),
+        );
     }
 
     public function literal(Type $self, Type $type): mixed
@@ -343,6 +347,19 @@ final class TypeStringifier implements TypeVisitor
         return 'void';
     }
 
+    private function arrayGenericPart(?Type $key, Type $value): string
+    {
+        if ($key === null || $this->isArrayKey($key)) {
+            if ($this->isMixed($value)) {
+                return '';
+            }
+
+            return $this->stringifyGenericType('', [$value]);
+        }
+
+        return $this->stringifyGenericType('', [$key, $value]);
+    }
+
     /**
      * @return non-empty-string
      */
@@ -383,6 +400,23 @@ final class TypeStringifier implements TypeVisitor
                 }
             },
         ) === 0b11;
+    }
+
+    private function isNever(Type $type): bool
+    {
+        return $type->accept(
+            new /** @extends DefaultTypeVisitor<bool> */ class () extends DefaultTypeVisitor {
+                protected function default(Type $self): mixed
+                {
+                    return false;
+                }
+
+                public function never(Type $self): mixed
+                {
+                    return true;
+                }
+            },
+        );
     }
 
     private function isMixed(Type $type): bool
@@ -429,9 +463,8 @@ final class TypeStringifier implements TypeVisitor
     }
 
     /**
-     * @param non-empty-string $name
      * @param list<Type> $arguments
-     * @return non-empty-string
+     * @return ($name is non-empty-string ? non-empty-string : string)
      */
     private function stringifyGenericType(string $name, array $arguments): string
     {

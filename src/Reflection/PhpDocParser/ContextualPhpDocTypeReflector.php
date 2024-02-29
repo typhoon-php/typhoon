@@ -152,7 +152,7 @@ final class ContextualPhpDocTypeReflector
             'array' => match ($number = \count($genericTypes)) {
                 0 => types::array(),
                 1 => types::array(value: $this->reflect($genericTypes[0])),
-                2 => types::array(...array_map($this->reflect(...), $genericTypes)),
+                2 => types::array($this->reflect($genericTypes[0]), $this->reflect($genericTypes[1])),
                 default => throw new DefaultReflectionException(sprintf('array type should have at most 2 arguments, got %d.', $number)),
             },
             'iterable' => match ($number = \count($genericTypes)) {
@@ -219,7 +219,7 @@ final class ContextualPhpDocTypeReflector
             $elements[$key] = $type;
         }
 
-        return types::arrayShape($elements, $node->sealed);
+        return types::arrayShape($elements, value: $node->sealed ? types::never : types::mixed);
     }
 
     private function reflectObjectShape(ObjectShapeNode $node): Type

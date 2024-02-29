@@ -217,7 +217,7 @@ final class ParameterReflection extends \ReflectionParameter
     {
         return $this->metadata->type->native?->accept(
             new /** @extends DefaultTypeVisitor<bool> */ class () extends DefaultTypeVisitor {
-                public function array(Type $self, Type $key, Type $value): mixed
+                public function array(Type $self, Type $key, Type $value, array $elements): mixed
                 {
                     return true;
                 }
