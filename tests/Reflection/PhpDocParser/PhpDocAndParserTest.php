@@ -13,7 +13,7 @@ use PHPStan\PhpDocParser\Ast\Type\TypeNode;
 use PHPStan\PhpDocParser\Ast\Type\UnionTypeNode;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
-use Typhoon\Reflection\Variance;
+use Typhoon\Type\Variance;
 
 #[CoversClass(PhpDoc::class)]
 #[CoversClass(PhpDocParser::class)]
@@ -41,7 +41,7 @@ final class PhpDocAndParserTest extends TestCase
 
         $actualVariance = PhpDoc::templateTagVariance($templates[0]);
 
-        self::assertSame(Variance::COVARIANT, $actualVariance);
+        self::assertSame(Variance::Covariant, $actualVariance);
     }
 
     public function testHasDeprecatedReturnsFalseIfNoDeprecatedTag(): void
@@ -305,8 +305,8 @@ final class PhpDocAndParserTest extends TestCase
 
         self::assertEquals(
             [
-                $this->createTemplateTagValueNode('T', new IdentifierTypeNode('string'), Variance::INVARIANT),
-                $this->createTemplateTagValueNode('T2', new IdentifierTypeNode('mixed'), Variance::INVARIANT),
+                $this->createTemplateTagValueNode('T', new IdentifierTypeNode('string'), Variance::Invariant),
+                $this->createTemplateTagValueNode('T2', new IdentifierTypeNode('mixed'), Variance::Invariant),
             ],
             $templates,
         );
@@ -328,9 +328,9 @@ final class PhpDocAndParserTest extends TestCase
 
         self::assertEquals(
             [
-                $this->createTemplateTagValueNode('TInvariant', null, Variance::INVARIANT),
-                $this->createTemplateTagValueNode('TCovariant', null, Variance::COVARIANT),
-                $this->createTemplateTagValueNode('TContravariant', null, Variance::CONTRAVARIANT),
+                $this->createTemplateTagValueNode('TInvariant', null, Variance::Invariant),
+                $this->createTemplateTagValueNode('TCovariant', null, Variance::Covariant),
+                $this->createTemplateTagValueNode('TContravariant', null, Variance::Contravariant),
             ],
             $templates,
         );

@@ -10,6 +10,7 @@ use PHPUnit\Framework\Attributes\DataProviderExternal;
 use PHPUnit\Framework\TestCase;
 use Traits\Trait1;
 use Typhoon\Reflection\ClassLocator\NativeReflectionLocator;
+use Typhoon\Type\Variance;
 
 #[CoversClass(AttributeReflection::class)]
 #[CoversClass(ClassReflection::class)]

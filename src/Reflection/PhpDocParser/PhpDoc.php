@@ -19,7 +19,7 @@ use PHPStan\PhpDocParser\Ast\PhpDoc\UsesTagValueNode;
 use PHPStan\PhpDocParser\Ast\PhpDoc\VarTagValueNode;
 use PHPStan\PhpDocParser\Ast\Type\GenericTypeNode;
 use PHPStan\PhpDocParser\Ast\Type\TypeNode;
-use Typhoon\Reflection\Variance;
+use Typhoon\Type\Variance;
 
 /**
  * @internal
@@ -97,7 +97,7 @@ final class PhpDoc
     {
         $attribute = $tag->getAttribute(self::VARIANCE_ATTRIBUTE);
 
-        return $attribute instanceof Variance ? $attribute : Variance::INVARIANT;
+        return $attribute instanceof Variance ? $attribute : Variance::Invariant;
     }
 
     public function hasDeprecated(): bool
@@ -265,9 +265,9 @@ final class PhpDoc
         return $this->templates = array_map(
             static function (PhpDocTagNode $tag): TemplateTagValueNode {
                 $tag->value->setAttribute(self::VARIANCE_ATTRIBUTE, match (true) {
-                    str_ends_with($tag->name, 'covariant') => Variance::COVARIANT,
-                    str_ends_with($tag->name, 'contravariant') => Variance::CONTRAVARIANT,
-                    default => Variance::INVARIANT,
+                    str_ends_with($tag->name, 'covariant') => Variance::Covariant,
+                    str_ends_with($tag->name, 'contravariant') => Variance::Contravariant,
+                    default => Variance::Invariant,
                 });
 
                 return $tag->value;

@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Typhoon\Reflection;
 
 use Typhoon\Type\Type;
+use Typhoon\Type\Variance;
 
 /**
  * @api

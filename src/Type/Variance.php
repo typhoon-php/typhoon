@@ -9,8 +9,8 @@ namespace Typhoon\Type;
  */
 enum Variance
 {
-    case Bivariant;
-    case Contravariant;
-    case Covariant;
     case Invariant;
+    case Covariant;
+    case Contravariant;
+    case Bivariant;
 }
