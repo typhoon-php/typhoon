@@ -2,7 +2,13 @@
 
 declare(strict_types=1);
 
-namespace Typhoon\Type;
+namespace Typhoon\Type\Internal;
+
+use Typhoon\Type\AtClass;
+use Typhoon\Type\AtFunction;
+use Typhoon\Type\AtMethod;
+use Typhoon\Type\Type;
+use Typhoon\Type\TypeVisitor;
 
 /**
  * @internal
