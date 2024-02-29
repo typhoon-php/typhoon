@@ -1,0 +1,15 @@
+<?php
+
+declare(strict_types=1);
+
+namespace PhpParser\Node;
+
+use PhpParser\NodeAbstract;
+
+class Identifier extends NodeAbstract
+{
+    /**
+     * @var non-empty-string
+     */
+    public $name;
+}

@@ -1,0 +1,13 @@
+<?php declare(strict_types = 1);
+
+namespace PHPStan\PhpDocParser\Ast\Type;
+
+use PHPStan\PhpDocParser\Ast\NodeAttributes;
+use function array_map;
+use function implode;
+
+class UnionTypeNode implements TypeNode
+{
+	/** @var non-empty-list<TypeNode> */
+	public $types;
+}

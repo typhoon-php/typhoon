@@ -1,0 +1,15 @@
+<?php
+
+declare(strict_types = 1);
+
+namespace PHPStan\PhpDocParser\Ast\ConstExpr;
+
+use PHPStan\PhpDocParser\Ast\NodeAttributes;
+
+class ConstFetchNode implements ConstExprNode
+{
+	/**
+	 * @var non-empty-string
+	 */
+	public $name;
+}

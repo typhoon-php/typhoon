@@ -1,0 +1,13 @@
+<?php
+
+declare(strict_types=1);
+
+namespace PhpParser\Node\Stmt\TraitUseAdaptation;
+
+use PhpParser\Node;
+
+class Alias extends Node\Stmt\TraitUseAdaptation
+{
+    /** @var null|\ReflectionMethod::IS_PUBLIC|\ReflectionMethod::IS_PROTECTED|\ReflectionMethod::IS_PRIVATE */
+    public $newModifier;
+}

@@ -1,0 +1,13 @@
+<?php declare(strict_types = 1);
+
+namespace PHPStan\PhpDocParser\Ast\Type;
+
+use PHPStan\PhpDocParser\Ast\NodeAttributes;
+use function implode;
+use function sprintf;
+
+class GenericTypeNode implements TypeNode
+{
+	/** @var list<TypeNode> */
+	public $genericTypes;
+}

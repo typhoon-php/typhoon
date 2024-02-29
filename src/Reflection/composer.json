@@ -1,0 +1,67 @@
+{
+    "name": "typhoon/reflection",
+    "description": "Typhoon Reflection",
+    "license": "MIT",
+    "type": "library",
+    "authors": [
+        {
+            "name": "Valentin Udaltsov",
+            "email": "udaltsov.valentin@gmail.com"
+        }
+    ],
+    "require": {
+        "php": "^8.1",
+        "composer-runtime-api": "^2.0",
+        "nikic/php-parser": "^4.15",
+        "phpstan/phpdoc-parser": "^1.0",
+        "psr/simple-cache": "^3.0",
+        "typhoon/type": "^0.3@dev",
+        "typhoon/type-stringifier": "^0.3@dev"
+    },
+    "require-dev": {
+        "dragon-code/benchmark": "^2.6",
+        "ergebnis/composer-normalize": "^2.42.0",
+        "friendsofphp/php-cs-fixer": "^3.50.0",
+        "infection/infection": "^0.27.10",
+        "jetbrains/phpstorm-stubs": "^2023.3",
+        "mockery/mockery": "^1.6.7",
+        "phpunit/phpunit": "^10.5.11",
+        "phpyh/coding-standard": "^2.6.0",
+        "psalm/plugin-phpunit": "^0.18.4",
+        "symfony/var-dumper": "^6.4.2 || ^7.0.4",
+        "typhoon/opcache": "^0.2.1",
+        "typhoon/psalm-plugin": "^0.1.0",
+        "vimeo/psalm": "^5.22.2"
+    },
+    "autoload": {
+        "psr-4": {
+            "Typhoon\\Reflection\\": "src/"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "Typhoon\\Reflection\\": [
+                "tests/unit"
+            ]
+        }
+    },
+    "config": {
+        "allow-plugins": {
+            "ergebnis/composer-normalize": true,
+            "infection/extension-installer": true
+        },
+        "sort-packages": true
+    },
+    "scripts": {
+        "fixcs": [
+            "vendor/bin/php-cs-fixer fix -v",
+            "vendor/bin/php-cs-fixer fix --config=.RecursiveTypeReplacer.php-cs-fixer.dist.php -v",
+            "vendor/bin/php-cs-fixer fix --config=.Reflection.php-cs-fixer.dist.php -v",
+            "vendor/bin/php-cs-fixer fix --config=.TypeInheritanceResolver.php-cs-fixer.dist.php -v"
+        ],
+        "infection": "infection --threads=max --only-covered --show-mutations",
+        "pre-command-run": "mkdir -p var",
+        "psalm": "psalm --show-info=true --no-diff",
+        "test": "phpunit"
+    }
+}

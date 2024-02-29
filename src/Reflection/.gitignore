@@ -1,0 +1,8 @@
+/tests/unit/Reflector/file_reflection_cache
+/var/
+/vendor/
+/.php-cs-fixer.php
+/composer.lock
+/infection.json
+/phpstan.neon
+/psalm.xml

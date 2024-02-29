@@ -1,0 +1,97 @@
+<?xml version="1.0"?>
+<psalm
+    cacheDirectory="var/psalm"
+    checkForThrowsDocblock="true"
+    checkForThrowsInGlobalScope="true"
+    disableSuppressAll="true"
+    ensureArrayStringOffsetsExist="true"
+    errorLevel="1"
+    findUnusedBaselineEntry="true"
+    findUnusedCode="true"
+    findUnusedPsalmSuppress="true"
+    findUnusedVariablesAndParams="true"
+    memoizeMethodCallResults="true"
+    reportMixedIssues="true"
+    sealAllProperties="true"
+    sealAllMethods="true"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xmlns="https://getpsalm.org/schema/config"
+    xsi:schemaLocation="https://getpsalm.org/schema/config vendor/vimeo/psalm/config.xsd"
+>
+    <enableExtensions>
+        <extension name="random"/>
+    </enableExtensions>
+
+    <plugins>
+        <pluginClass class="Psalm\PhpUnitPlugin\Plugin"/>
+        <!--<pluginClass class="Typhoon\PsalmPlugin\TyphoonPlugin"/>-->
+    </plugins>
+
+    <projectFiles>
+        <directory name="src"/>
+        <directory name="tests"/>
+        <ignoreFiles>
+            <directory name="tests/unit/NameContext/functional"/>
+            <directory name="tests/unit/Fixtures"/>
+            <directory name="var"/>
+            <directory name="vendor"/>
+        </ignoreFiles>
+    </projectFiles>
+
+    <ignoreExceptions>
+        <classAndDescendants name="ReflectionException"/>
+        <classAndDescendants name="LogicException"/>
+        <classAndDescendants name="RuntimeException"/>
+        <classAndDescendants name="Psr\SimpleCache\InvalidArgumentException"/>
+    </ignoreExceptions>
+
+    <issueHandlers>
+        <ArgumentTypeCoercion>
+            <errorLevel type="suppress">
+                <referencedFunction name="ReflectionClass::__construct"/>
+            </errorLevel>
+        </ArgumentTypeCoercion>
+        <UnusedConstructor errorLevel="suppress"/>
+        <MissingImmutableAnnotation errorLevel="suppress"/>
+        <MissingThrowsDocblock>
+            <errorLevel type="suppress">
+                <directory name="tests"/>
+            </errorLevel>
+        </MissingThrowsDocblock>
+        <MixedAssignment errorLevel="suppress"/>
+    </issueHandlers>
+
+    <forbiddenFunctions>
+        <function name="dd"/>
+        <function name="die"/>
+        <function name="dump"/>
+        <function name="echo"/>
+        <function name="empty"/>
+        <function name="eval"/>
+        <function name="exit"/>
+        <function name="print"/>
+        <function name="sleep"/>
+        <function name="usleep"/>
+    </forbiddenFunctions>
+
+    <stubs>
+        <file name="tests/unit/Fixtures/classes.php" preloadClasses="true"/>
+        <file name="tests/unit/Fixtures/classes_php82.php" preloadClasses="true"/>
+        <file name="stubs/PhpParser/Node/Expr/Variable.phpstub"/>
+        <file name="stubs/PhpParser/Node/Identifier.phpstub"/>
+        <file name="stubs/PhpParser/Node/IntersectionType.phpstub"/>
+        <file name="stubs/PhpParser/Node/Name.phpstub"/>
+        <file name="stubs/PhpParser/Node/Stmt/TraitUseAdaptation/Alias.phpstub"/>
+        <file name="stubs/PhpParser/Node/UnionType.phpstub"/>
+        <file name="stubs/PHPStan/PhpDocParser/Ast/ConstExpr/ConstFetchNode.phpstub"/>
+        <file name="stubs/PHPStan/PhpDocParser/Ast/PhpDoc/PhpDocTagNode.phpstub"/>
+        <file name="stubs/PHPStan/PhpDocParser/Ast/PhpDoc/TemplateTagValueNode.phpstub"/>
+        <file name="stubs/PHPStan/PhpDocParser/Ast/PhpDoc/TypeAliasImportTagValueNode.phpstub"/>
+        <file name="stubs/PHPStan/PhpDocParser/Ast/PhpDoc/TypeAliasTagValueNode.phpstub"/>
+        <file name="stubs/PHPStan/PhpDocParser/Ast/Type/CallableTypeNode.phpstub"/>
+        <file name="stubs/PHPStan/PhpDocParser/Ast/Type/GenericTypeNode.phpstub"/>
+        <file name="stubs/PHPStan/PhpDocParser/Ast/Type/IdentifierTypeNode.phpstub"/>
+        <file name="stubs/PHPStan/PhpDocParser/Ast/Type/IntersectionTypeNode.phpstub"/>
+        <file name="stubs/PHPStan/PhpDocParser/Ast/Type/UnionTypeNode.phpstub"/>
+    </stubs>
+</psalm>
