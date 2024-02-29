@@ -68,7 +68,7 @@ final class TypeStringifierTest extends TestCase
         yield [types::nonEmptyArray(value: types::string), 'non-empty-array<string>'];
         yield [types::nonEmptyArray(types::string, types::int), 'non-empty-array<string, int>'];
         yield [types::array, 'array'];
-        yield [types::array(), 'array'];
+        yield [types::array(types::nonEmptyString), 'array<non-empty-string, mixed>'];
         yield [types::array(value: types::string), 'array<string>'];
         yield [types::array(types::string, types::int), 'array<string, int>'];
         yield [types::arrayShape(), 'array{}'];
@@ -127,6 +127,8 @@ final class TypeStringifierTest extends TestCase
         yield [types::conditional(types::arg('a'), if: types::string, then: types::int, else: types::float), '($a is string ? int : float)'];
         yield [types::conditional(types::template('T', types::atFunction('trim')), if: types::string, then: types::int, else: types::float), '(T@trim() is string ? int : float)'];
         yield [types::array(value: types::varianceAware(types::int, Variance::Covariant)), 'array<covariant int>'];
+        yield [types::offset(types::template('T', types::atClass('A')), types::literalValue('abc')), "T@A['abc']"];
+        yield [types::alias('A', 'Some'), "Some@A"];
     }
 
     #[DataProvider('typesAndTheirStringRepresentations')]
