@@ -359,7 +359,7 @@ final class PhpDocAndParserTest extends TestCase
             <<<'PHP'
                 /**
                  * @example
-                 * 
+                 *
                  * @extends C<int>
                  * @extends D<object>
                  * @extends D<mixed>
@@ -401,7 +401,7 @@ final class PhpDocAndParserTest extends TestCase
             <<<'PHP'
                 /**
                  * @example
-                 * 
+                 *
                  * @implements C<int>
                  * @implements D<object>
                  * @implements D<mixed>
@@ -443,7 +443,7 @@ final class PhpDocAndParserTest extends TestCase
             <<<'PHP'
                 /**
                  * @example
-                 * 
+                 *
                  * @use C<int>
                  * @use D<object>
                  * @use D<mixed>
@@ -485,7 +485,7 @@ final class PhpDocAndParserTest extends TestCase
             <<<'PHP'
                 /**
                  * @example
-                 * 
+                 *
                  * @psalm-type A = string
                  * @psalm-type B = object
                  * @psalm-type B = mixed
@@ -527,7 +527,7 @@ final class PhpDocAndParserTest extends TestCase
             <<<'PHP'
                 /**
                  * @example
-                 * 
+                 *
                  * @psalm-import-type A from string
                  * @psalm-import-type B from object
                  * @psalm-import-type B from mixed
