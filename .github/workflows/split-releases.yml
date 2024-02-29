@@ -1,0 +1,33 @@
+name: Split releases
+
+on:
+  release:
+    types: ['published']
+
+env:
+  GH_TOKEN: ${{ secrets.SPLITTER_ACCESS_TOKEN }}
+
+jobs:
+  split:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        package:
+          - { namespace: Reflection, repo: reflection }
+          - { namespace: Type, repo: type }
+          - { namespace: TypeStringifier, repo: type-stringifier }
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+      - run: |
+          split_sha=`git subtree split --prefix=src/${{ matrix.package.namespace }}`
+          repo_url="https://${{ secrets.SPLITTER_ACCESS_TOKEN }}@github.com/typhoon-php/${{ matrix.package.repo }}.git"
+          if [ -z $(git ls-remote --tags "$repo_url" | grep "$split_sha") ]; then \
+            gh release create ${{ github.ref_name }} \
+              --repo typhoon-php/${{ matrix.package.repo }} \
+              --target "$split_sha" \
+              --generate-notes \
+              --notes '[Full release information in Typhoon monorepo](https://github.com/typhoon-php/typhoon/releases/tag/${{ github.ref_name }}).'; \
+          fi
