@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Typhoon\TypeStringifier;
 
 use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\CoversFunction;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Typhoon\Type\Type;
@@ -12,12 +13,13 @@ use Typhoon\Type\types;
 use Typhoon\Type\Variance;
 
 #[CoversClass(TypeStringifier::class)]
+#[CoversFunction('Typhoon\TypeStringifier\stringify')]
 final class TypeStringifierTest extends TestCase
 {
     /**
      * @return \Generator<array-key, array{Type, string}>
      */
-    public static function typesAndTheirStringRepresentations(): \Generator
+    public static function types(): \Generator
     {
         yield [types::never, 'never'];
         yield [types::void, 'void'];
@@ -131,11 +133,11 @@ final class TypeStringifierTest extends TestCase
         yield [types::alias('A', 'Some'), 'Some@A'];
     }
 
-    #[DataProvider('typesAndTheirStringRepresentations')]
-    public function testItStringifiesTypeCorrectly(Type $type, string $expectedString): void
+    #[DataProvider('types')]
+    public function test(Type $type, string $expectedString): void
     {
-        $asString = $type->accept(new TypeStringifier());
+        $typeAsString = stringify($type);
 
-        self::assertSame($expectedString, $asString);
+        self::assertSame($expectedString, $typeAsString);
     }
 }
