@@ -10,6 +10,7 @@ use Typhoon\Type\TypeVisitor;
 /**
  * @internal
  * @psalm-internal Typhoon\Type
+ * @psalm-immutable
  * @implements Type<int>
  */
 final class IntRangeType implements Type

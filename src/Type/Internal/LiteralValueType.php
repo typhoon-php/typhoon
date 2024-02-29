@@ -10,6 +10,7 @@ use Typhoon\Type\TypeVisitor;
 /**
  * @internal
  * @psalm-internal Typhoon\Type
+ * @psalm-immutable
  * @template-covariant TValue of bool|int|float|string
  * @implements Type<TValue>
  */

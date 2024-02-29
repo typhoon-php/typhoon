@@ -6,6 +6,7 @@ namespace Typhoon\Type;
 
 /**
  * @api
+ * @psalm-immutable
  */
 final class AtMethod
 {

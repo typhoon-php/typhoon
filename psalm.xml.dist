@@ -50,6 +50,11 @@
                 <referencedFunction name="ReflectionClass::__construct"/>
             </errorLevel>
         </ArgumentTypeCoercion>
+        <ImpureMethodCall>
+            <errorLevel type="suppress">
+                <directory name="src/Type"/>
+            </errorLevel>
+        </ImpureMethodCall>
         <UnusedConstructor errorLevel="suppress"/>
         <MissingImmutableAnnotation errorLevel="suppress"/>
         <MissingThrowsDocblock>

@@ -10,6 +10,7 @@ use Typhoon\Type\TypeVisitor;
 /**
  * @internal
  * @psalm-internal Typhoon\Type
+ * @psalm-immutable
  * @implements Type<non-empty-string>
  */
 final class ClassStringType implements Type

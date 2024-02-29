@@ -10,7 +10,6 @@ use Typhoon\Type\Type;
  * @api
  * @psalm-pure
  * @return non-empty-string
- * @psalm-suppress ImpureMethodCall
  */
 function stringify(Type $type): string
 {

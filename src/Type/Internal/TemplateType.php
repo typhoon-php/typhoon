@@ -13,6 +13,7 @@ use Typhoon\Type\TypeVisitor;
 /**
  * @internal
  * @psalm-internal Typhoon\Type
+ * @psalm-immutable
  * @implements Type<mixed>
  */
 final class TemplateType implements Type

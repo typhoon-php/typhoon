@@ -11,6 +11,7 @@ use Typhoon\Type\TypeVisitor;
 /**
  * @internal
  * @psalm-internal Typhoon\Type
+ * @psalm-immutable
  * @implements Type<array<mixed>>
  */
 final class ArrayType implements Type

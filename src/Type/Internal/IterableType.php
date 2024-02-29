@@ -10,6 +10,7 @@ use Typhoon\Type\TypeVisitor;
 /**
  * @internal
  * @psalm-internal Typhoon\Type
+ * @psalm-immutable
  * @template-covariant TKey
  * @template-covariant TValue
  * @implements Type<iterable<TKey, TValue>>

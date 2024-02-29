@@ -11,6 +11,7 @@ use Typhoon\Type\TypeVisitor;
 /**
  * @internal
  * @psalm-internal Typhoon\Type
+ * @psalm-immutable
  * @implements Type<\Closure>
  */
 final class ClosureType implements Type

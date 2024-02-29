@@ -10,6 +10,7 @@ use Typhoon\Type\TypeVisitor;
 /**
  * @internal
  * @psalm-internal Typhoon\Type
+ * @psalm-immutable
  * @template-covariant TClass of non-empty-string
  * @implements Type<TClass>
  */

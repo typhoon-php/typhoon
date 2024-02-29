@@ -6,6 +6,7 @@ namespace Typhoon\Type;
 
 /**
  * @api
+ * @psalm-immutable
  * @implements Type<mixed>
  */
 enum types implements Type
