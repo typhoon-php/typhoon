@@ -32,6 +32,7 @@
             "Typhoon\\": "src/"
         },
         "files": [
+            "src/TypeComparator/functions.php",
             "src/TypeStringifier/functions.php"
         ]
     },

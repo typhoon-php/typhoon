@@ -5,7 +5,9 @@ parameters:
     level: 9
     paths:
         - src/Type
+        - src/TypeComparator
         - src/TypeStringifier
+        - tests/TypeComparator
         - tests/TypeStringifier
     checkGenericClassInNonGenericObjectType: false
     tmpDir: var/phpstan
