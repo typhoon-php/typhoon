@@ -12,7 +12,7 @@ use Typhoon\Type\Type;
  */
 final class IsString extends Comparator
 {
-    public function classString(Type $self, Type $object): mixed
+    public function classString(Type $self, Type $class): mixed
     {
         return true;
     }

@@ -17,7 +17,7 @@ final class IsTruthyString extends Comparator
         return true;
     }
 
-    public function classString(Type $self, Type $object): mixed
+    public function classString(Type $self, Type $class): mixed
     {
         return true;
     }

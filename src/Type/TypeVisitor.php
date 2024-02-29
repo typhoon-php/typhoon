@@ -48,7 +48,7 @@ interface TypeVisitor
      * @param Type<non-empty-string> $self
      * @return TReturn
      */
-    public function classString(Type $self, Type $object): mixed;
+    public function classString(Type $self, Type $class): mixed;
 
     /**
      * @param Type<non-empty-string> $self

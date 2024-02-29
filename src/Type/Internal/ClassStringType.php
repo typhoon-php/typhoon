@@ -15,11 +15,11 @@ use Typhoon\Type\TypeVisitor;
 final class ClassStringType implements Type
 {
     public function __construct(
-        private readonly Type $object,
+        private readonly Type $class,
     ) {}
 
     public function accept(TypeVisitor $visitor): mixed
     {
-        return $visitor->classString($this, $this->object);
+        return $visitor->classString($this, $this->class);
     }
 }

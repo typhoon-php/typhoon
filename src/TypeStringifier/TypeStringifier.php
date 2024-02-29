@@ -69,9 +69,9 @@ final class TypeStringifier implements TypeVisitor
         return sprintf('%s::%s', $class->accept($this), $name);
     }
 
-    public function classString(Type $self, Type $object): mixed
+    public function classString(Type $self, Type $class): mixed
     {
-        $isObject = $object->accept(
+        $isObject = $class->accept(
             new /** @extends DefaultTypeVisitor<bool> */ class () extends DefaultTypeVisitor {
                 public function object(Type $self): mixed
                 {
@@ -89,7 +89,7 @@ final class TypeStringifier implements TypeVisitor
             return 'class-string';
         }
 
-        return sprintf('class-string<%s>', $object->accept($this));
+        return sprintf('class-string<%s>', $class->accept($this));
     }
 
     public function classStringLiteral(Type $self, string $class): mixed
