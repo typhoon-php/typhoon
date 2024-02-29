@@ -39,7 +39,10 @@
     },
     "autoload-dev": {
         "psr-4": {
-            "Typhoon\\": "tests/"
+            "Typhoon\\": [
+                "dev/",
+                "tests/"
+            ]
         }
     },
     "config": {

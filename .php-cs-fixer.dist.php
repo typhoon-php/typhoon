@@ -10,6 +10,7 @@ $config = (new Config())
     ->setFinder(
         Finder::create()
             ->in(__DIR__ . '/src')
+            ->in(__DIR__ . '/dev')
             ->append([__FILE__])
             ->append(
                 Finder::create()

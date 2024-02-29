@@ -6,6 +6,10 @@ namespace Typhoon\Reflection\Metadata;
 
 use Typhoon\Type\Type;
 
+/**
+ * @internal
+ * @psalm-internal Typhoon\Reflection
+ */
 final class InheritedName
 {
     /**
