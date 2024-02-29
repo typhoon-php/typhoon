@@ -46,7 +46,7 @@ enum types implements Type
      */
     public static function alias(string $class, string $name, Type ...$arguments): Type
     {
-        return new AliasType($class, $name, array_values($arguments));
+        return new Internal\AliasType($class, $name, array_values($arguments));
     }
 
     /**
@@ -66,7 +66,7 @@ enum types implements Type
             return self::array;
         }
 
-        return new ArrayType($key, $value, []);
+        return new Internal\ArrayType($key, $value, []);
     }
 
     /**
@@ -85,7 +85,7 @@ enum types implements Type
      */
     public static function arrayShape(array $elements = [], Type $key = self::arrayKey, Type $value = self::never): Type
     {
-        return new ArrayType($key, $value, array_map(
+        return new Internal\ArrayType($key, $value, array_map(
             static fn(Type|ArrayElement $element): ArrayElement => $element instanceof Type ? new ArrayElement($element) : $element,
             $elements,
         ));
@@ -128,7 +128,7 @@ enum types implements Type
             return self::callable;
         }
 
-        return new CallableType(
+        return new Internal\CallableType(
             array_map(
                 static fn(Type|Parameter $parameter): Parameter => $parameter instanceof Type ? new Parameter($parameter) : $parameter,
                 $parameters,
@@ -142,7 +142,7 @@ enum types implements Type
      */
     public static function classConstant(Type $class, string $name): Type
     {
-        return new ClassConstantType($class, $name);
+        return new Internal\ClassConstantType($class, $name);
     }
 
     /**
@@ -151,7 +151,7 @@ enum types implements Type
      */
     public static function classString(Type $object): Type
     {
-        return new ClassStringType($object);
+        return new Internal\ClassStringType($object);
     }
 
     /**
@@ -161,7 +161,7 @@ enum types implements Type
      */
     public static function classStringLiteral(string $class): Type
     {
-        return new ClassStringLiteralType($class);
+        return new Internal\ClassStringLiteralType($class);
     }
 
     /**
@@ -174,7 +174,7 @@ enum types implements Type
             return self::closure;
         }
 
-        return new ClosureType(
+        return new Internal\ClosureType(
             array_map(
                 static fn(Type|Parameter $parameter): Parameter => $parameter instanceof Type ? new Parameter($parameter) : $parameter,
                 $parameters,
@@ -185,7 +185,7 @@ enum types implements Type
 
     public static function conditional(Argument|Type $subject, Type $if, Type $then, Type $else): Type
     {
-        return new ConditionalType($subject, $if, $then, $else);
+        return new Internal\ConditionalType($subject, $if, $then, $else);
     }
 
     /**
@@ -193,7 +193,7 @@ enum types implements Type
      */
     public static function constant(string $name): Type
     {
-        return new ConstantType($name);
+        return new Internal\ConstantType($name);
     }
 
     public static function intersection(Type ...$types): Type
@@ -202,7 +202,7 @@ enum types implements Type
             0 => self::never,
             1 => $types[array_key_first($types)],
             /** @phpstan-ignore argument.type */
-            default => new IntersectionType(array_values($types)),
+            default => new Internal\IntersectionType(array_values($types)),
         };
     }
 
@@ -211,7 +211,7 @@ enum types implements Type
      */
     public static function intMask(Type $type): Type
     {
-        return new IntMaskType($type);
+        return new Internal\IntMaskType($type);
     }
 
     /**
@@ -228,7 +228,7 @@ enum types implements Type
             return self::literalValue($min);
         }
 
-        return new IntRangeType($min, $max);
+        return new Internal\IntRangeType($min, $max);
     }
 
     /**
@@ -244,12 +244,12 @@ enum types implements Type
             return self::iterable;
         }
 
-        return new IterableType($key, $value);
+        return new Internal\IterableType($key, $value);
     }
 
     public static function key(Type $type): Type
     {
-        return new KeyType($type);
+        return new Internal\KeyType($type);
     }
 
     /**
@@ -257,7 +257,7 @@ enum types implements Type
      */
     public static function list(Type $value = self::mixed): Type
     {
-        return new ListType($value, []);
+        return new Internal\ListType($value, []);
     }
 
     /**
@@ -266,7 +266,7 @@ enum types implements Type
      */
     public static function listShape(array $elements = [], Type $value = self::never): Type
     {
-        return new ListType($value, array_map(
+        return new Internal\ListType($value, array_map(
             static fn(Type|ArrayElement $element): ArrayElement => $element instanceof Type ? new ArrayElement($element) : $element,
             $elements,
         ));
@@ -279,7 +279,7 @@ enum types implements Type
      */
     public static function literal(Type $type): Type
     {
-        return new LiteralType($type);
+        return new Internal\LiteralType($type);
     }
 
     /**
@@ -289,7 +289,7 @@ enum types implements Type
      */
     public static function literalValue(bool|int|float|string $value): Type
     {
-        return new LiteralValueType($value);
+        return new Internal\LiteralValueType($value);
     }
 
     /**
@@ -299,7 +299,7 @@ enum types implements Type
      */
     public static function nonEmpty(Type $type): Type
     {
-        return new NonEmptyType($type);
+        return new Internal\NonEmptyType($type);
     }
 
     /**
@@ -309,7 +309,7 @@ enum types implements Type
     public static function nonEmptyArray(Type $key = self::arrayKey, Type $value = self::mixed): Type
     {
         /** @phpstan-ignore return.type */
-        return new NonEmptyType(self::array($key, $value));
+        return new Internal\NonEmptyType(self::array($key, $value));
     }
 
     /**
@@ -319,7 +319,7 @@ enum types implements Type
     public static function nonEmptyList(Type $value = self::mixed): Type
     {
         /** @phpstan-ignore return.type */
-        return new NonEmptyType(self::list($value));
+        return new Internal\NonEmptyType(self::list($value));
     }
 
     /**
@@ -329,7 +329,7 @@ enum types implements Type
      */
     public static function nullable(Type $type): Type
     {
-        return new UnionType([self::null, $type]);
+        return new Internal\UnionType([self::null, $type]);
     }
 
     /**
@@ -343,7 +343,7 @@ enum types implements Type
             return self::closure;
         }
 
-        return new NamedObjectType($class, array_values($arguments));
+        return new Internal\NamedObjectType($class, array_values($arguments));
     }
 
     /**
@@ -356,7 +356,7 @@ enum types implements Type
             return self::object;
         }
 
-        return new ObjectShapeType(array_map(
+        return new Internal\ObjectShapeType(array_map(
             static fn(Type|Property $property): Property => $property instanceof Type ? new Property($property) : $property,
             $properties,
         ));
@@ -364,7 +364,7 @@ enum types implements Type
 
     public static function offset(Type $type, Type $offset): Type
     {
-        return new OffsetType($type, $offset);
+        return new Internal\OffsetType($type, $offset);
     }
 
     /**
@@ -388,7 +388,7 @@ enum types implements Type
      */
     public static function template(string $name, AtMethod|AtClass|AtFunction $declaredAt, Type ...$arguments): Type
     {
-        return new TemplateType($name, $declaredAt, array_values($arguments));
+        return new Internal\TemplateType($name, $declaredAt, array_values($arguments));
     }
 
     /**
@@ -402,13 +402,13 @@ enum types implements Type
             0 => self::never,
             1 => $types[array_key_first($types)],
             /** @phpstan-ignore argument.type */
-            default => new UnionType(array_values($types)),
+            default => new Internal\UnionType(array_values($types)),
         };
     }
 
     public static function value(Type $type): Type
     {
-        return new ValueType($type);
+        return new Internal\ValueType($type);
     }
 
     /**
@@ -418,7 +418,7 @@ enum types implements Type
      */
     public static function varianceAware(Type $type, Variance $variance): Type
     {
-        return new VarianceAwareType($type, $variance);
+        return new Internal\VarianceAwareType($type, $variance);
     }
 
     public function accept(TypeVisitor $visitor): mixed

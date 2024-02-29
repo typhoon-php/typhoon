@@ -2,7 +2,10 @@
 
 declare(strict_types=1);
 
-namespace Typhoon\Type;
+namespace Typhoon\Type\Internal;
+
+use Typhoon\Type\Type;
+use Typhoon\Type\TypeVisitor;
 
 /**
  * @internal
@@ -10,18 +13,17 @@ namespace Typhoon\Type;
  * @template-covariant TType
  * @implements Type<TType>
  */
-final class VarianceAwareType implements Type
+final class LiteralType implements Type
 {
     /**
      * @param Type<TType> $type
      */
     public function __construct(
         private readonly Type $type,
-        private readonly Variance $variance,
     ) {}
 
     public function accept(TypeVisitor $visitor): mixed
     {
-        return $visitor->varianceAware($this, $this->type, $this->variance);
+        return $visitor->literal($this, $this->type);
     }
 }

@@ -2,25 +2,24 @@
 
 declare(strict_types=1);
 
-namespace Typhoon\Type;
+namespace Typhoon\Type\Internal;
+
+use Typhoon\Type\Type;
+use Typhoon\Type\TypeVisitor;
 
 /**
  * @internal
  * @psalm-internal Typhoon\Type
- * @template-covariant TType
- * @implements Type<TType>
+ * @implements Type<mixed>
  */
-final class LiteralType implements Type
+final class KeyType implements Type
 {
-    /**
-     * @param Type<TType> $type
-     */
     public function __construct(
         private readonly Type $type,
     ) {}
 
     public function accept(TypeVisitor $visitor): mixed
     {
-        return $visitor->literal($this, $this->type);
+        return $visitor->key($this, $this->type);
     }
 }
