@@ -121,7 +121,7 @@ $reflector = TyphoonReflector::build(
 | `__toString()`                    | ✅ Via native reflection              |
 | `getAttributes()`                 | ✅                                    |
 | `getConstant()`                   | ✅ Via native reflection              |
-| `getConstants()`                  | ✅ Via native reflection. TODO        |
+| `getConstants()`                  | ✅ Via native reflection              |
 | `getConstructor()`                | ✅                                    |
 | `getDefaultProperties()`          | ✅ Via native reflection              |
 | `getDocComment()`                 | ✅️                                   |
@@ -139,8 +139,8 @@ $reflector = TyphoonReflector::build(
 | `getParentClass()`                | ✅                                    |
 | `getProperties()`                 | ✅                                    |
 | `getProperty()`                   | ✅                                    |
-| `getReflectionConstant()`         | ✅ Via native reflection. TODO        |
-| `getReflectionConstants()`        | ✅ Via native reflection. TODO        |
+| `getReflectionConstant()`         | ✅                                    |
+| `getReflectionConstants()`        | ✅                                    |
 | `getShortName()`                  | ✅                                    |
 | `getStartLine()`                  | ✅️                                   |
 | `getStaticProperties()`           | ✅ Via native reflection              |
@@ -148,7 +148,7 @@ $reflector = TyphoonReflector::build(
 | `getTraitAliases()`               | ✅                                    |
 | `getTraitNames()`                 | ✅                                    |
 | `getTraits()`                     | ✅                                    |
-| `hasConstant()`                   | ✅ Via native reflection. TODO        |
+| `hasConstant()`                   | ✅                                    |
 | `hasMethod()`                     | ✅                                    |
 | `hasProperty()`                   | ✅                                    |
 | `implementsInterface()`           | ✅                                    |
