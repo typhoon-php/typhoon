@@ -1,9 +1,8 @@
 # Typhoon Type
 
-Typhoon Type is an abstraction over the PHP static analysis types. It is the main building block of the whole project.
-Typhoon type system is compatible with the popular PHP static analyzers [Psalm](https://psalm.dev/) and [PHPStan](https://phpstan.org/).
+Typhoon Type is an abstraction for the PHP static type system, inspired by two popular analyzers [Psalm](https://psalm.dev/) and [PHPStan](https://phpstan.org/).
 
-This library will never have any dependencies. Once full and stable, it might be proposed as a [PSR](https://www.php-fig.org/psr/) or [PER](https://www.php-fig.org/per/).
+Once full and stable, Typhoon Type might be proposed as a [PSR](https://www.php-fig.org/psr/) or [PER](https://www.php-fig.org/per/).
 
 ## Installation
 
@@ -42,16 +41,18 @@ $type = types::arrayShape([
 ], sealed: false);
 ```
 
-Note that all classes that implement `Type` (except `types::` itself) are `@internal` and should not be instantiated directly.
+Note that all classes that implement `Type` (except `types::` itself) are `@internal` and should not be used outside the library.
 
 ## Analyzing types
 
-Types should be analyzed via [TypeVisitor](../src/Type/TypeVisitor.php) or [DefaultTypeVisitor](../src/Type/DefaultTypeVisitor.php). `instanceof`, `==` and `===` operators should not be used for this purpose,
-firstly because type classes are internal, secondly because types might be implicitly decorated.
+Typhoon types should be analyzed only via [TypeVisitors](../src/Type/TypeVisitor.php): `$type->accept(new MyVisitor())`. Comparison operators and `instanceof`
+should never be used with Typhoon types for two reasons:
+1. type classes are internal and not subject to backward compatibility,
+2. equal types might have different internal structure (e.g., one is decorated).
 
-## Checking type relations
+### Comparing types
 
-Typhoon team is currently working on a type comparator component. For now use [DefaultTypeVisitor](../src/Type/DefaultTypeVisitor.php) to check basic type relations:
+Typhoon team is currently working on a type comparator. Until it is released, you can use [DefaultTypeVisitor](../src/Type/DefaultTypeVisitor.php) for simple checks:
 
 ```php
 use Typhoon\Type\Type;

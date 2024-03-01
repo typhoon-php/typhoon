@@ -4,9 +4,9 @@ Typhoon Reflection is an alternative to [native PHP Reflection](https://www.php.
 - static,
 - fast (due to lazy loading and caching),
 - [99% compatible with native reflection](#compatibility-with-native-reflection),
-- supports most of the Psalm/PHPStan types,
+- supports most of the Psalm and PHPStan phpDoc types,
 - can resolve templates,
-- does not create circular object references (can be safely used with [zend.enable_gc=0](https://www.php.net/manual/en/info.configuration.php#ini.zend.enable-gc)).
+- can be safely used with [zend.enable_gc=0](https://www.php.net/manual/en/info.configuration.php#ini.zend.enable-gc).
 
 ## Installation
 
