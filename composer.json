@@ -15,6 +15,7 @@
         "psr/simple-cache": "^3.0"
     },
     "require-dev": {
+        "dragon-code/benchmark": "^2.6",
         "ergebnis/composer-normalize": "^2.42.0",
         "friendsofphp/php-cs-fixer": "^3.51.0",
         "jetbrains/phpstorm-stubs": "^2023.3",
