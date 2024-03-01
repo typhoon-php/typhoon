@@ -20,7 +20,7 @@ use Typhoon\Reflection\Metadata\MetadataStorage;
 use Typhoon\Reflection\NameContext\AnonymousClassName;
 use Typhoon\Reflection\NativeReflector\NativeReflector;
 use Typhoon\Reflection\PhpDocParser\PhpDocParser;
-use Typhoon\Reflection\PhpDocParser\PHPStanOverPsalmOverOthersTagPrioritizer;
+use Typhoon\Reflection\PhpDocParser\PrefixBasedTagPrioritizer;
 use Typhoon\Reflection\PhpDocParser\TagPrioritizer;
 use Typhoon\Reflection\PhpParserReflector\PhpParserReflector;
 use Typhoon\Reflection\TypeContext\ClassExistenceChecker;
@@ -41,7 +41,7 @@ final class TyphoonReflector implements ClassExistenceChecker, ClassReflector
     public static function build(
         ?ClassLocator $classLocator = null,
         CacheInterface $cache = new InMemoryCache(),
-        TagPrioritizer $tagPrioritizer = new PHPStanOverPsalmOverOthersTagPrioritizer(),
+        TagPrioritizer $tagPrioritizer = new PrefixBasedTagPrioritizer(),
         ?PhpParser $phpParser = null,
     ): self {
         return new self(

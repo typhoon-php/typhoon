@@ -17,7 +17,7 @@ use PHPStan\PhpDocParser\Parser\TypeParser;
 final class PhpDocParser
 {
     public function __construct(
-        private readonly TagPrioritizer $tagPrioritizer = new PHPStanOverPsalmOverOthersTagPrioritizer(),
+        private readonly TagPrioritizer $tagPrioritizer = new PrefixBasedTagPrioritizer(),
         private readonly PHPStanPhpDocParser $parser = new PHPStanPhpDocParser(
             typeParser: new TypeParser(new ConstExprParser()),
             constantExprParser: new ConstExprParser(),

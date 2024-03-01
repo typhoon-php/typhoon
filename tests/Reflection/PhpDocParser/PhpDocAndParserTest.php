@@ -486,11 +486,11 @@ final class PhpDocAndParserTest extends TestCase
                 /**
                  * @example
                  *
-                 * @psalm-type A = string
-                 * @psalm-type B = object
-                 * @psalm-type B = mixed
-                 * @phpstan-type A int
-                 * @phpstan-type A float
+                 * @phpstan-type A = string
+                 * @phpstan-type B = object
+                 * @phpstan-type B = mixed
+                 * @psalm-type A int
+                 * @psalm-type A float
                  */
                 PHP,
         )->typeAliases();
@@ -528,12 +528,12 @@ final class PhpDocAndParserTest extends TestCase
                 /**
                  * @example
                  *
-                 * @psalm-import-type A from string
-                 * @psalm-import-type B from object
-                 * @psalm-import-type B from mixed
-                 * @phpstan-import-type A from int
-                 * @phpstan-import-type A from float
-                 * @phpstan-import-type C from bool as A
+                 * @phpstan-import-type A from string
+                 * @phpstan-import-type B from object
+                 * @phpstan-import-type B from mixed
+                 * @psalm-import-type A from int
+                 * @psalm-import-type A from float
+                 * @psalm-import-type C from bool as A
                  */
                 PHP,
         )->typeAliasImports();

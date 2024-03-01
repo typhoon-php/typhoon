@@ -88,7 +88,7 @@ final class PhpDoc
     public static function empty(): self
     {
         return self::$empty ??= new self(
-            tagPrioritizer: new PHPStanOverPsalmOverOthersTagPrioritizer(),
+            tagPrioritizer: new PrefixBasedTagPrioritizer(),
             tags: [],
         );
     }
