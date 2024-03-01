@@ -1,9 +1,10 @@
 name: Check
 
 on:
-  pull_request: ~
+  workflow_dispatch: ~
   push:
     branches: ['*.x']
+  pull_request: ~
 
 jobs:
   composer-validate:
