@@ -302,10 +302,8 @@ final class NativeReflector
         $attributes = [];
 
         foreach (array_values($reflectionAttributes) as $position => $attribute) {
-            $name = $attribute->getName();
-            \assert(class_exists($name));
             $attributes[] = new AttributeMetadata(
-                name: $name,
+                name: $attribute->getName(),
                 position: $position,
                 target: $attribute->getTarget(),
                 repeated: $attribute->isRepeated(),
