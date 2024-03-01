@@ -27,7 +27,7 @@ final class ReflectorCompatibilityTest extends TestCase
     {
         \Mockery::setLoader(new RequireLoader(__DIR__ . '/../../var/mockery'));
         self::$defaultReflector = TyphoonReflector::build();
-        self::$nativeReflector = TyphoonReflector::build(classLocators: [new NativeReflectionLocator()]);
+        self::$nativeReflector = TyphoonReflector::build(new NativeReflectionLocator());
     }
 
     /**

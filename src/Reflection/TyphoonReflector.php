@@ -38,11 +38,8 @@ final class TyphoonReflector implements ClassExistenceChecker, ClassReflector
         private readonly MetadataStorage $metadataStorage,
     ) {}
 
-    /**
-     * @param ?array<ClassLocator> $classLocators
-     */
     public static function build(
-        ?array $classLocators = null,
+        ?ClassLocator $classLocator = null,
         CacheInterface $cache = new InMemoryCache(),
         TagPrioritizer $tagPrioritizer = new PHPStanOverPsalmOverOthersTagPrioritizer(),
         ?PhpParser $phpParser = null,
@@ -53,15 +50,12 @@ final class TyphoonReflector implements ClassExistenceChecker, ClassReflector
                 phpDocParser: new PhpDocParser($tagPrioritizer),
             ),
             nativeReflector: new NativeReflector(),
-            classLocator: new ClassLocatorChain($classLocators ?? self::defaultClassLocators()),
+            classLocator: $classLocator ?? self::defaultClassLocator(),
             metadataStorage: new MetadataStorage($cache),
         );
     }
 
-    /**
-     * @return non-empty-list<ClassLocator>
-     */
-    public static function defaultClassLocators(): array
+    public static function defaultClassLocator(): ClassLocator
     {
         $classLocators = [];
 
@@ -76,7 +70,7 @@ final class TyphoonReflector implements ClassExistenceChecker, ClassReflector
         $classLocators[] = new NativeReflectionFileLocator();
         $classLocators[] = new NativeReflectionLocator();
 
-        return $classLocators;
+        return new ClassLocatorChain($classLocators);
     }
 
     /**
