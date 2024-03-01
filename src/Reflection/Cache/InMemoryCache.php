@@ -82,7 +82,7 @@ final class InMemoryCache implements CacheInterface
     public function setMultiple(iterable $values, null|\DateInterval|int $ttl = null): bool
     {
         foreach ($values as $key => $value) {
-            \assert(\is_string($key));
+            \assert(\is_string($key), 'Cache key must be string');
             self::validateKey($key);
 
             unset($this->values[$key]);

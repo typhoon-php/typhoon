@@ -28,8 +28,8 @@ final class FileResource
 
     public function __construct(string $file, string|false $extension = false)
     {
-        \assert($file !== '');
-        \assert($extension !== '');
+        \assert($file !== '', 'File must not be empty');
+        \assert($extension !== '', 'Extension must not be empty');
 
         $this->extension = $extension;
         $this->file = $file;
