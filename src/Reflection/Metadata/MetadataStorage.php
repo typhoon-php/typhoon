@@ -18,7 +18,7 @@ final class MetadataStorage
     private array $deferred = [];
 
     public function __construct(
-        private readonly ?CacheInterface $cache,
+        private readonly CacheInterface $cache,
     ) {}
 
     /**
@@ -46,7 +46,7 @@ final class MetadataStorage
             return $this->deferred[$key]->get();
         }
 
-        $metadata = $this->cache?->get(self::key($class, $name));
+        $metadata = $this->cache->get(self::key($class, $name));
 
         if ($metadata instanceof MetadataCacheItem) {
             /** @var TMetadata */
@@ -58,7 +58,7 @@ final class MetadataStorage
 
     public function save(RootMetadata $metadata): void
     {
-        $this->cache?->set(self::key($metadata::class, $metadata->name), new MetadataCacheItem($metadata));
+        $this->cache->set(self::key($metadata::class, $metadata->name), new MetadataCacheItem($metadata));
     }
 
     /**
@@ -78,7 +78,7 @@ final class MetadataStorage
             return;
         }
 
-        $this->cache?->setMultiple($this->deferred);
+        $this->cache->setMultiple($this->deferred);
         $this->deferred = [];
     }
 }

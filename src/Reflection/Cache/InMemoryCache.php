@@ -9,7 +9,7 @@ use Psr\SimpleCache\CacheInterface;
 /**
  * @api
  */
-final class LruCache implements CacheInterface
+final class InMemoryCache implements CacheInterface
 {
     /**
      * @var array<string, mixed>

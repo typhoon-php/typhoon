@@ -7,7 +7,7 @@ namespace Typhoon\Reflection;
 use PhpParser\Parser as PhpParser;
 use PhpParser\ParserFactory;
 use Psr\SimpleCache\CacheInterface;
-use Typhoon\Reflection\Cache\LruCache;
+use Typhoon\Reflection\Cache\InMemoryCache;
 use Typhoon\Reflection\ClassLocator\ClassLocatorChain;
 use Typhoon\Reflection\ClassLocator\ComposerClassLocator;
 use Typhoon\Reflection\ClassLocator\NativeReflectionFileLocator;
@@ -43,7 +43,7 @@ final class TyphoonReflector implements ClassExistenceChecker, ClassReflector
      */
     public static function build(
         ?array $classLocators = null,
-        ?CacheInterface $cache = new LruCache(),
+        CacheInterface $cache = new InMemoryCache(),
         TagPrioritizer $tagPrioritizer = new PHPStanOverPsalmOverOthersTagPrioritizer(),
         ?PhpParser $phpParser = null,
     ): self {
