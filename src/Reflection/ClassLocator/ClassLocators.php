@@ -10,7 +10,7 @@ use Typhoon\Reflection\FileResource;
 /**
  * @api
  */
-final class ClassLocatorChain implements ClassLocator
+final class ClassLocators implements ClassLocator
 {
     /**
      * @param iterable<ClassLocator> $classLocators

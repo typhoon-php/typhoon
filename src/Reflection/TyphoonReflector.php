@@ -8,7 +8,7 @@ use PhpParser\Parser as PhpParser;
 use PhpParser\ParserFactory;
 use Psr\SimpleCache\CacheInterface;
 use Typhoon\Reflection\Cache\InMemoryCache;
-use Typhoon\Reflection\ClassLocator\ClassLocatorChain;
+use Typhoon\Reflection\ClassLocator\ClassLocators;
 use Typhoon\Reflection\ClassLocator\ComposerClassLocator;
 use Typhoon\Reflection\ClassLocator\NativeReflectionFileLocator;
 use Typhoon\Reflection\ClassLocator\NativeReflectionLocator;
@@ -70,7 +70,7 @@ final class TyphoonReflector implements ClassExistenceChecker, ClassReflector
         $classLocators[] = new NativeReflectionFileLocator();
         $classLocators[] = new NativeReflectionLocator();
 
-        return new ClassLocatorChain($classLocators);
+        return new ClassLocators($classLocators);
     }
 
     /**

@@ -93,7 +93,7 @@ You can implement your own locators and pass them to the `build` method:
 
 ```php
 use Typhoon\Reflection\ClassLocator;
-use Typhoon\Reflection\ClassLocator\ClassLocatorChain;
+use Typhoon\Reflection\ClassLocator\ClassLocators;
 use Typhoon\Reflection\TyphoonReflector;
 
 final class MyClassLocator implements ClassLocator
@@ -102,7 +102,7 @@ final class MyClassLocator implements ClassLocator
 }
 
 $reflector = TyphoonReflector::build(
-    classLocator: new ClassLocatorChain([
+    classLocator: new ClassLocators([
         new MyClassLocator(),
         TyphoonReflector::defaultClassLocator(),
     ]),
