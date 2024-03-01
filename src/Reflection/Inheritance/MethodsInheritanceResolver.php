@@ -54,9 +54,8 @@ final class MethodsInheritanceResolver
     {
         foreach (array_column($inheritedNames, null, 'class') as $inheritedName) {
             $trait = ($this->classMetadataReflector)($inheritedName->class);
-            $templateResolver = TemplateResolver::create(
-                templates: $trait->templates,
-                templateArguments: $inheritedName->templateArguments,
+            $templateResolver = new TemplateResolver(
+                templateArguments: TemplateResolver::prepareTemplateArguments($trait->templates, $inheritedName->arguments),
                 self: $this->class,
                 parent: $this->parent,
                 resolveStatic: $this->final,
@@ -85,9 +84,8 @@ final class MethodsInheritanceResolver
     {
         foreach ($inheritedNames as $inheritedName) {
             $class = ($this->classMetadataReflector)($inheritedName->class);
-            $templateResolver = TemplateResolver::create(
-                templates: $class->templates,
-                templateArguments: $inheritedName->templateArguments,
+            $templateResolver = new TemplateResolver(
+                templateArguments: TemplateResolver::prepareTemplateArguments($class->templates, $inheritedName->arguments),
                 self: $this->class,
                 parent: $this->parent,
                 resolveStatic: $this->final,

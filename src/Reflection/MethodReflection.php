@@ -9,7 +9,9 @@ use Typhoon\Reflection\ClassReflection\ClassReflector;
 use Typhoon\Reflection\Exception\DefaultReflectionException;
 use Typhoon\Reflection\Metadata\MethodMetadata;
 use Typhoon\Reflection\Metadata\ParameterMetadata;
+use Typhoon\Reflection\TypeResolver\TemplateResolver;
 use Typhoon\Type\Type;
+use Typhoon\Type\TypeVisitor;
 
 /**
  * @api
@@ -68,6 +70,17 @@ final class MethodReflection extends \ReflectionMethod
         $this->loadNative();
 
         return parent::__toString();
+    }
+
+    /**
+     * @param array<Type> $templateArguments
+     * @return TypeVisitor<Type>
+     */
+    public function createTypeResolver(array $templateArguments = []): TypeVisitor
+    {
+        return new TemplateResolver(
+            templateArguments: TemplateResolver::prepareTemplateArguments($this->getTemplates(), $templateArguments),
+        );
     }
 
     /**

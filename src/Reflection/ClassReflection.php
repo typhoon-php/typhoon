@@ -12,7 +12,9 @@ use Typhoon\Reflection\Metadata\ClassConstantMetadata;
 use Typhoon\Reflection\Metadata\ClassMetadata;
 use Typhoon\Reflection\Metadata\MethodMetadata;
 use Typhoon\Reflection\Metadata\PropertyMetadata;
+use Typhoon\Reflection\TypeResolver\TemplateResolver;
 use Typhoon\Type\Type;
+use Typhoon\Type\TypeVisitor;
 
 /**
  * @api
@@ -59,6 +61,19 @@ final class ClassReflection extends \ReflectionClass
         $this->loadNative();
 
         return parent::__toString();
+    }
+
+    /**
+     * @param array<Type> $templateArguments
+     * @return TypeVisitor<Type>
+     */
+    public function createTypeResolver(array $templateArguments = [], bool $resolveStatic = false): TypeVisitor
+    {
+        return new TemplateResolver(
+            templateArguments: TemplateResolver::prepareTemplateArguments($this->getTemplates(), $templateArguments),
+            self: $this->name,
+            resolveStatic: $resolveStatic,
+        );
     }
 
     /**

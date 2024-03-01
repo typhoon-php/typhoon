@@ -14,7 +14,7 @@ final class ParameterMetadata
     /**
      * @param ?class-string $class
      * @param non-empty-string $functionOrMethod
-     * @param int<0, max> $position
+     * @param non-negative-int $position
      * @param non-empty-string $name
      * @param positive-int|false $startLine
      * @param positive-int|false $endLine

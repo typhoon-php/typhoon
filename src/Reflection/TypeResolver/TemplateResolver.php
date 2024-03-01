@@ -19,58 +19,75 @@ final class TemplateResolver extends RecursiveTypeReplacer
 {
     /**
      * @param array<non-empty-string, Type> $templateArguments
-     * @param non-empty-string $self
+     * @param ?non-empty-string $self
      * @param ?non-empty-string $parent
      */
-    private function __construct(
-        private readonly array $templateArguments,
-        private readonly string $self,
+    public function __construct(
+        private readonly array $templateArguments = [],
+        private readonly ?string $self = null,
         private readonly ?string $parent = null,
         private readonly bool $resolveStatic = false,
-    ) {}
+    ) {
+        \assert(!$resolveStatic || $self !== null, 'static cannot be resolved without self');
+    }
 
     /**
      * @param array<TemplateReflection> $templates
-     * @param array<Type> $templateArguments
-     * @param non-empty-string $self
-     * @param ?non-empty-string $parent
+     * @param array<Type> $arguments
+     * @return array<non-empty-string, Type>
      */
-    public static function create(array $templates, array $templateArguments, string $self, ?string $parent = null, bool $resolveStatic = false): self
+    public static function prepareTemplateArguments(array $templates, array $arguments): array
     {
-        $resolvedTemplateArguments = [];
+        $resolvedArguments = [];
 
         foreach ($templates as $template) {
-            $resolvedTemplateArguments[$template->name] = $templateArguments[$template->name]
-                ?? $templateArguments[$template->getPosition()]
+            $resolvedArguments[$template->name] = $arguments[$template->name]
+                ?? $arguments[$template->getPosition()]
                 ?? $template->getConstraint();
         }
 
-        return new self($resolvedTemplateArguments, $self, $parent, $resolveStatic);
+        return $resolvedArguments;
     }
 
     public function template(Type $self, string $name, AtClass|AtFunction|AtMethod $declaredAt, array $arguments): mixed
     {
-        $arguments = array_map(
-            fn(Type $templateArgument): Type => $templateArgument->accept($this),
-            $arguments,
-        );
-
         if ($name === 'self') {
-            return types::object($this->self, ...$arguments);
+            if ($this->self === null) {
+                return $self;
+            }
+
+            return types::object($this->self, ...$this->resolveArguments($arguments));
         }
 
-        if ($name === 'parent' && $this->parent !== null) {
-            return types::object($this->parent, ...$arguments);
+        if ($name === 'parent') {
+            if ($this->parent === null) {
+                return $self;
+            }
+
+            return types::object($this->parent, ...$this->resolveArguments($arguments));
         }
 
         if ($name === 'static') {
+            if ($this->self === null) {
+                return $self;
+            }
+
             if ($this->resolveStatic) {
-                return types::object($this->self, ...$arguments);
+                return types::object($this->self, ...$this->resolveArguments($arguments));
             }
 
             return types::template($name, types::atClass($this->self), ...$arguments);
         }
 
         return $this->templateArguments[$name] ?? $self;
+    }
+
+    /**
+     * @param list<Type> $arguments
+     * @return list<Type>
+     */
+    private function resolveArguments(array $arguments): array
+    {
+        return array_map(fn(Type $argument): Type => $argument->accept($this), $arguments);
     }
 }

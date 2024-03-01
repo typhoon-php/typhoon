@@ -47,7 +47,7 @@ final class TemplateReflection
     }
 
     /**
-     * @return int<0, max>
+     * @return non-negative-int
      */
     public function getPosition(): int
     {

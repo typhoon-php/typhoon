@@ -14,10 +14,10 @@ final class InheritedName
 {
     /**
      * @param non-empty-string $class
-     * @param list<Type> $templateArguments
+     * @param list<Type> $arguments
      */
     public function __construct(
         public readonly string $class,
-        public readonly array $templateArguments = [],
+        public readonly array $arguments = [],
     ) {}
 }

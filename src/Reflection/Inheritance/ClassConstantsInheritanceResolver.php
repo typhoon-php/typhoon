@@ -47,9 +47,8 @@ final class ClassConstantsInheritanceResolver
     {
         foreach ($names as $name) {
             $class = ($this->classMetadataReflector)($name->class);
-            $templateResolver = TemplateResolver::create(
-                templates: $class->templates,
-                templateArguments: $name->templateArguments,
+            $templateResolver = new TemplateResolver(
+                templateArguments: TemplateResolver::prepareTemplateArguments($class->templates, $name->arguments),
                 self: $this->class,
                 parent: $this->parent,
                 resolveStatic: $this->final,
@@ -65,9 +64,8 @@ final class ClassConstantsInheritanceResolver
     {
         foreach ($names as $name) {
             $class = ($this->classMetadataReflector)($name->class);
-            $templateResolver = TemplateResolver::create(
-                templates: $class->templates,
-                templateArguments: $name->templateArguments,
+            $templateResolver = new TemplateResolver(
+                templateArguments: TemplateResolver::prepareTemplateArguments($class->templates, $name->arguments),
                 self: $this->class,
                 parent: $this->parent,
                 resolveStatic: $this->final,
