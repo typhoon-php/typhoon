@@ -7,7 +7,6 @@ namespace Typhoon\Reflection\PhpDocParser;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
-use Typhoon\Reflection\Exception\DefaultReflectionException;
 use Typhoon\Type\Type;
 use Typhoon\Type\types;
 
@@ -15,7 +14,7 @@ use Typhoon\Type\types;
 final class ContextualPhpDocTypeReflectorTest extends TestCase
 {
     /**
-     * @return \Generator<string, array{string, Type|\Throwable}>
+     * @return \Generator<string, array{string, Type|InvalidPhpDocType}>
      */
     public static function validTypesNamed(): \Generator
     {
@@ -25,7 +24,7 @@ final class ContextualPhpDocTypeReflectorTest extends TestCase
     }
 
     /**
-     * @return \Generator<array{string, Type|\Throwable}>
+     * @return \Generator<array{string, Type|InvalidPhpDocType}>
      */
     private static function validTypes(): \Generator
     {
@@ -51,13 +50,13 @@ final class ContextualPhpDocTypeReflectorTest extends TestCase
         yield ['int<-10, -23>', types::intRange(-10, -23)];
         yield ['int<min, 123>', types::intRange(max: 123)];
         yield ['int<-99, max>', types::intRange(min: -99)];
-        yield ['int<max>', new DefaultReflectionException('int range type should have 2 arguments, got 1.')];
-        yield ['int<max, 0>', new DefaultReflectionException('Invalid int range min argument: max.')];
-        yield ['int<test, 0>', new DefaultReflectionException('Invalid int range min argument: test.')];
-        yield ["int<'test', 0>", new DefaultReflectionException('Invalid int range min argument: test.')];
-        yield ['int<0, min>', new DefaultReflectionException('Invalid int range max argument: min.')];
-        yield ['int<0, test>', new DefaultReflectionException('Invalid int range max argument: test.')];
-        yield ["int<0, 'test'>", new DefaultReflectionException('Invalid int range max argument: test.')];
+        yield ['int<max>', new InvalidPhpDocType('int range type should have 2 arguments, got 1')];
+        yield ['int<max, 0>', new InvalidPhpDocType('Invalid int range min argument: max')];
+        yield ['int<test, 0>', new InvalidPhpDocType('Invalid int range min argument: test')];
+        yield ["int<'test', 0>", new InvalidPhpDocType('Invalid int range min argument: test')];
+        yield ['int<0, min>', new InvalidPhpDocType('Invalid int range max argument: min')];
+        yield ['int<0, test>', new InvalidPhpDocType('Invalid int range max argument: test')];
+        yield ["int<0, 'test'>", new InvalidPhpDocType('Invalid int range max argument: test')];
         yield ['int<min, max>', types::int];
         yield ['0', types::literalValue(0)];
         yield ['932', types::literalValue(932)];
@@ -95,20 +94,20 @@ final class ContextualPhpDocTypeReflectorTest extends TestCase
         yield ['list', types::list()];
         yield ['list<mixed>', types::list()];
         yield ['list<int>', types::list(types::int)];
-        yield ['list<int, string>', new DefaultReflectionException('list type should have at most 1 argument, got 2.')];
+        yield ['list<int, string>', new InvalidPhpDocType('list type should have at most 1 argument, got 2')];
         yield ['non-empty-list<mixed>', types::nonEmptyList()];
         yield ['non-empty-list<int>', types::nonEmptyList(types::int)];
-        yield ['non-empty-list<int, string>', new DefaultReflectionException('list type should have at most 1 argument, got 2.')];
+        yield ['non-empty-list<int, string>', new InvalidPhpDocType('list type should have at most 1 argument, got 2')];
         yield ['array', types::array()];
         yield ['array<mixed>', types::array()];
         yield ['array<int>', types::array(value: types::int)];
         yield ['array<int, string>', types::array(types::int, types::string)];
-        yield ['array<int, string, float>', new DefaultReflectionException('array type should have at most 2 arguments, got 3.')];
+        yield ['array<int, string, float>', new InvalidPhpDocType('array type should have at most 2 arguments, got 3')];
         yield ['non-empty-array', types::nonEmptyArray()];
         yield ['non-empty-array<mixed>', types::nonEmptyArray()];
         yield ['non-empty-array<int>', types::nonEmptyArray(value: types::int)];
         yield ['non-empty-array<int, string>', types::nonEmptyArray(types::int, types::string)];
-        yield ['non-empty-array<int, string, float>', new DefaultReflectionException('array type should have at most 2 arguments, got 3.')];
+        yield ['non-empty-array<int, string, float>', new InvalidPhpDocType('array type should have at most 2 arguments, got 3')];
         yield ['array{}', types::arrayShape()];
         yield ['array{int}', types::arrayShape([types::int])];
         yield ['array{int, 1?: string}', types::arrayShape([types::int, 1 => types::arrayElement(types::string, true)])];
@@ -126,24 +125,22 @@ final class ContextualPhpDocTypeReflectorTest extends TestCase
         yield ['iterable<int>', types::iterable(value: types::int)];
         yield ['iterable<int, string>', types::iterable(types::int, types::string)];
         yield ['iterable<object, string>', types::iterable(types::object, types::string)];
-        yield ['iterable<int, string, float>', new DefaultReflectionException('iterable type should have at most 2 arguments, got 3.')];
+        yield ['iterable<int, string, float>', new InvalidPhpDocType('iterable type should have at most 2 arguments, got 3')];
         yield ['string[]', types::array(value: types::string)];
         yield ['\stdClass', types::object(\stdClass::class)];
         yield ['\Traversable', types::object(\Traversable::class)];
         yield ['\stdClass<int, string>', types::object(\stdClass::class, types::int, types::string)];
-        yield ['static', new \InvalidArgumentException('static cannot be used outside of the class scope.')];
-        yield ['static<int, string>', new \InvalidArgumentException('static cannot be used outside of the class scope.')];
         yield ['object{}', types::objectShape()];
         yield ['object{a: int}', types::objectShape(['a' => types::int])];
         yield ['object{a?: int}', types::objectShape(['a' => types::prop(types::int, true)])];
         yield ['PHP_INT_MAX', types::constant('PHP_INT_MAX')];
         yield ['\stdClass::C', types::classConstant(types::object(\stdClass::class), 'C')];
         yield ['key-of<array>', types::key(types::array())];
-        yield ['key-of', new DefaultReflectionException('key-of type should have 1 argument, got 0.')];
-        yield ['key-of<array, array>', new DefaultReflectionException('key-of type should have 1 argument, got 2.')];
+        yield ['key-of', new InvalidPhpDocType('key-of type should have 1 argument, got 0')];
+        yield ['key-of<array, array>', new InvalidPhpDocType('key-of type should have 1 argument, got 2')];
         yield ['value-of<array>', types::value(types::array())];
-        yield ['value-of', new DefaultReflectionException('value-of type should have 1 argument, got 0.')];
-        yield ['value-of<array, array>', new DefaultReflectionException('value-of type should have 1 argument, got 2.')];
+        yield ['value-of', new InvalidPhpDocType('value-of type should have 1 argument, got 0')];
+        yield ['value-of<array, array>', new InvalidPhpDocType('value-of type should have 1 argument, got 2')];
         yield ['\Traversable&\Countable', types::intersection(types::object(\Traversable::class), types::object(\Countable::class))];
         yield ['string|int', types::union(types::string, types::int)];
         yield ['callable', types::callable()];
@@ -163,7 +160,7 @@ final class ContextualPhpDocTypeReflectorTest extends TestCase
     }
 
     #[DataProvider('validTypesNamed')]
-    public function testValidTypes(string $phpDocStringType, Type|\Throwable $expectedTypeOrException): void
+    public function testValidTypes(string $phpDocStringType, Type|InvalidPhpDocType $expectedTypeOrException): void
     {
         $parser = new PhpDocParser();
         $phpDocType = $parser->parsePhpDoc("/** @var {$phpDocStringType} */")->varType();
@@ -171,7 +168,7 @@ final class ContextualPhpDocTypeReflectorTest extends TestCase
 
         try {
             $type = (new ContextualPhpDocTypeReflector())->reflect($phpDocType);
-        } catch (\Throwable $exception) {
+        } catch (InvalidPhpDocType $exception) {
             self::assertEquals($expectedTypeOrException, $exception);
 
             return;

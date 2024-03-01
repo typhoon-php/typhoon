@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Typhoon\Reflection\Metadata;
 
-use Typhoon\Reflection\Exception\DefaultReflectionException;
+use Typhoon\Reflection\Exception\FileNotReadable;
 
 /**
  * @internal
@@ -14,6 +14,7 @@ abstract class ChangeDetector
 {
     /**
      * @param non-empty-string $file
+     * @throws FileNotReadable
      */
     final public static function fromFileContents(string $file, ?string $contents = null): self
     {
@@ -21,7 +22,7 @@ abstract class ChangeDetector
             $hash = md5_file($file);
 
             if ($hash === false) {
-                throw new DefaultReflectionException(sprintf('File %s does not exist or is not readable.', $file));
+                throw new FileNotReadable($file);
             }
         } else {
             $hash = md5($contents);
@@ -30,6 +31,9 @@ abstract class ChangeDetector
         return new FileChangeDetector($file, $hash);
     }
 
+    /**
+     * @throws FileNotReadable
+     */
     final public static function fromReflection(\ReflectionClass $reflection): self
     {
         $file = $reflection->getFileName();
@@ -38,20 +42,17 @@ abstract class ChangeDetector
             return self::fromFileContents($file);
         }
 
-        $extension = $reflection->getExtension();
+        $extensionName = $reflection->getExtensionName();
 
-        if ($extension !== null) {
-            $name = $extension->name;
-            \assert($name !== '');
-
-            return new PhpVersionChangeDetector($name, $extension->getVersion() ?? false);
+        if ($extensionName === false) {
+            $extensionName = null;
         }
 
-        if ($reflection->isInternal()) {
-            return new PhpVersionChangeDetector(null, PHP_VERSION);
+        if ($extensionName !== null || $reflection->isInternal()) {
+            return new PhpVersionChangeDetector($extensionName, phpversion($extensionName));
         }
 
-        throw new DefaultReflectionException();
+        return new NullChangeDetector();
     }
 
     abstract public function changed(): bool;

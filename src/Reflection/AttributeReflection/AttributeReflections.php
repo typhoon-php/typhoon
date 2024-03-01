@@ -6,7 +6,7 @@ namespace Typhoon\Reflection\AttributeReflection;
 
 use Typhoon\Reflection\AttributeReflection;
 use Typhoon\Reflection\ClassReflection\ClassReflector;
-use Typhoon\Reflection\Exception\ClassDoesNotExistException;
+use Typhoon\Reflection\Exception\ClassDoesNotExist;
 use Typhoon\Reflection\Metadata\AttributeMetadata;
 
 /**
@@ -37,13 +37,11 @@ final class AttributeReflections
             $classReflector,
             array_map(
                 static function (AttributeMetadata $attribute) use ($classReflector, $nativeAttributesFactory): AttributeReflection {
-                    $name = $attribute->name;
-
-                    if (!$classReflector->classExists($name)) {
-                        throw new ClassDoesNotExistException();
+                    if (!$classReflector->classExists($attribute->name)) {
+                        throw new ClassDoesNotExist($attribute->name);
                     }
 
-                    return new AttributeReflection($name, $attribute, $nativeAttributesFactory);
+                    return new AttributeReflection($attribute->name, $attribute, $nativeAttributesFactory);
                 },
                 $attributes,
             ),

@@ -4,8 +4,6 @@ declare(strict_types=1);
 
 namespace Typhoon\Reflection\NameContext;
 
-use Typhoon\Reflection\Exception\DefaultReflectionException;
-
 /**
  * Inspired by PhpParser\NameContext.
  * Designed according to https://www.php.net/manual/en/language.namespaces.rules.php.
@@ -46,6 +44,7 @@ final class NameContext implements NameResolver
 
     /**
      * @psalm-pure
+     * @throws InvalidName
      */
     private static function parse(string $name): UnqualifiedName|QualifiedName|RelativeName|FullyQualifiedName
     {
@@ -61,11 +60,12 @@ final class NameContext implements NameResolver
     /**
      * @psalm-pure
      * @param list<string> $segments
+     * @throws InvalidName
      */
     private static function segmentsToName(array $segments): UnqualifiedName|QualifiedName
     {
         if (\count($segments) === 0) {
-            throw new \InvalidArgumentException('Empty name.');
+            throw new InvalidName('Empty name');
         }
 
         if (\count($segments) === 1) {
@@ -87,14 +87,17 @@ final class NameContext implements NameResolver
         }
     }
 
+    /**
+     * @throws InvalidName|NameConflict
+     */
     public function addUse(string $name, ?string $alias = null): void
     {
         $resolvedName = self::parse($name)->resolve();
         $resolvedAlias = ($alias === null ? $resolvedName->lastSegment() : new UnqualifiedName($alias))->toString();
 
         if (isset($this->namespaceImportTable[$resolvedAlias])) {
-            throw new DefaultReflectionException(sprintf(
-                'Cannot use %s as %s because the name is already in use.',
+            throw new NameConflict(sprintf(
+                'Cannot use %s as %s because the name is already in use',
                 $name,
                 $resolvedAlias,
             ));
@@ -103,14 +106,17 @@ final class NameContext implements NameResolver
         $this->namespaceImportTable[$resolvedAlias] = $resolvedName;
     }
 
+    /**
+     * @throws InvalidName|NameConflict
+     */
     public function addConstantUse(string $name, ?string $alias = null): void
     {
         $resolvedName = self::parse($name)->resolve();
         $resolvedAlias = ($alias === null ? $resolvedName->lastSegment() : new UnqualifiedName($alias))->toString();
 
         if (isset($this->constantImportTable[$resolvedAlias])) {
-            throw new DefaultReflectionException(sprintf(
-                'Cannot use constant %s as %s because the name is already in use.',
+            throw new NameConflict(sprintf(
+                'Cannot use constant %s as %s because the name is already in use',
                 $name,
                 $resolvedAlias,
             ));
@@ -119,14 +125,17 @@ final class NameContext implements NameResolver
         $this->constantImportTable[$resolvedAlias] = $resolvedName;
     }
 
+    /**
+     * @throws InvalidName|NameConflict
+     */
     public function addFunctionUse(string $name, ?string $alias = null): void
     {
         $resolvedName = self::parse($name)->resolve();
         $resolvedAlias = ($alias === null ? $resolvedName->lastSegment() : new UnqualifiedName($alias))->toString();
 
         if (isset($this->functionImportTable[$resolvedAlias])) {
-            throw new DefaultReflectionException(sprintf(
-                'Cannot use constant %s as %s because the name is already in use.',
+            throw new NameConflict(sprintf(
+                'Cannot use constant %s as %s because the name is already in use',
                 $name,
                 $resolvedAlias,
             ));
@@ -175,7 +184,7 @@ final class NameContext implements NameResolver
     public function resolveNameAsClass(string $name): string
     {
         if (!$this->inClass && isset(self::SPECIAL[strtolower($name)])) {
-            throw new \InvalidArgumentException(sprintf('%s cannot be used outside of the class scope.', $name));
+            throw new InvalidName(sprintf('%s cannot be used outside of the class scope', $name));
         }
 
         return self::parse($name)->resolve($this->namespace, $this->namespaceImportTable)->toString();
@@ -184,7 +193,7 @@ final class NameContext implements NameResolver
     public function resolveNameAsConstant(string $name): array
     {
         if (strtolower($name) === self::STATIC) {
-            throw new \InvalidArgumentException('static is not a valid constant name.');
+            throw new InvalidName('static is not a valid constant name');
         }
 
         $name = self::parse($name);

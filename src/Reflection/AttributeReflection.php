@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace Typhoon\Reflection;
 
-use Typhoon\Reflection\Exception\DefaultReflectionException;
 use Typhoon\Reflection\Metadata\AttributeMetadata;
 
 /**
@@ -68,6 +67,6 @@ final class AttributeReflection extends \ReflectionAttribute
     private function native(): \ReflectionAttribute
     {
         /** @var \ReflectionAttribute<TAttribute> */
-        return ($this->nativeAttributesFactory)()[$this->metadata->position] ?? throw new DefaultReflectionException();
+        return ($this->nativeAttributesFactory)()[$this->metadata->position];
     }
 }

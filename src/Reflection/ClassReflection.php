@@ -6,8 +6,13 @@ namespace Typhoon\Reflection;
 
 use Typhoon\Reflection\AttributeReflection\AttributeReflections;
 use Typhoon\Reflection\ClassReflection\ClassReflector;
-use Typhoon\Reflection\Exception\ClassDoesNotExistException;
-use Typhoon\Reflection\Exception\DefaultReflectionException;
+use Typhoon\Reflection\Exception\ClassDoesNotExist;
+use Typhoon\Reflection\Exception\InterfaceDoesNotExist;
+use Typhoon\Reflection\Exception\MethodDoesNotExist;
+use Typhoon\Reflection\Exception\NotAnInterface;
+use Typhoon\Reflection\Exception\PropertyDoesNotExist;
+use Typhoon\Reflection\Exception\TemplateDoesNotExist;
+use Typhoon\Reflection\Exception\TypeAliasDoesNotExist;
 use Typhoon\Reflection\Metadata\ClassConstantMetadata;
 use Typhoon\Reflection\Metadata\ClassMetadata;
 use Typhoon\Reflection\Metadata\MethodMetadata;
@@ -47,7 +52,7 @@ final class ClassReflection extends \ReflectionClass
     {
         return match ($name) {
             'name' => $this->metadata->name,
-            default => new \OutOfBoundsException(sprintf('Property %s::$%s does not exist.', self::class, $name)),
+            default => new \LogicException(sprintf('Undefined property %s::$%s', self::class, $name)),
         };
     }
 
@@ -165,7 +170,7 @@ final class ClassReflection extends \ReflectionClass
 
     public function getMethod(string $name): MethodReflection
     {
-        return $this->getResolvedMethods()[$name] ?? throw new DefaultReflectionException();
+        return $this->getResolvedMethods()[$name] ?? throw new MethodDoesNotExist($name);
     }
 
     /**
@@ -232,7 +237,7 @@ final class ClassReflection extends \ReflectionClass
 
     public function getProperty(string $name): PropertyReflection
     {
-        return $this->getResolvedProperties()[$name] ?? throw new DefaultReflectionException();
+        return $this->getResolvedProperties()[$name] ?? throw new PropertyDoesNotExist($name);
     }
 
     public function getReflectionConstant(string $name): ClassConstantReflection|false
@@ -288,10 +293,13 @@ final class ClassReflection extends \ReflectionClass
         return parent::getStaticPropertyValue($name, $default);
     }
 
+    /**
+     * @throws TemplateDoesNotExist
+     */
     public function getTemplate(int|string $nameOrPosition): TemplateReflection
     {
         if (\is_int($nameOrPosition)) {
-            return $this->metadata->templates[$nameOrPosition] ?? throw new DefaultReflectionException();
+            return $this->metadata->templates[$nameOrPosition] ?? throw new TemplateDoesNotExist($nameOrPosition);
         }
 
         foreach ($this->metadata->templates as $template) {
@@ -300,7 +308,7 @@ final class ClassReflection extends \ReflectionClass
             }
         }
 
-        throw new DefaultReflectionException();
+        throw new TemplateDoesNotExist($nameOrPosition);
     }
 
     /**
@@ -349,9 +357,12 @@ final class ClassReflection extends \ReflectionClass
         return iterator_to_array($this->yieldTraits());
     }
 
+    /**
+     * @throws TypeAliasDoesNotExist
+     */
     public function getTypeAlias(string $name): Type
     {
-        return $this->metadata->typeAliases[$name] ?? throw new DefaultReflectionException();
+        return $this->metadata->typeAliases[$name] ?? throw new TypeAliasDoesNotExist($name);
     }
 
     /**
@@ -382,14 +393,14 @@ final class ClassReflection extends \ReflectionClass
         if (\is_string($interface)) {
             try {
                 $interface = $this->reflectClass($interface);
-            } catch (ClassDoesNotExistException) {
+            } catch (ClassDoesNotExist) {
                 /** @var string $interface */
-                throw new ClassDoesNotExistException(sprintf('Interface "%s" does not exist', DefaultReflectionException::normalizeClass($interface)));
+                throw new InterfaceDoesNotExist($interface);
             }
         }
 
         if (!$interface->isInterface()) {
-            throw new DefaultReflectionException(sprintf('%s is not an interface', DefaultReflectionException::normalizeClass($interface->name)));
+            throw new NotAnInterface($interface->name);
         }
 
         if ($this->metadata->name === $interface->name) {

@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Typhoon\Reflection;
 
+use Typhoon\Reflection\Exception\FileNotReadable;
 use Typhoon\Reflection\Metadata\ChangeDetector;
 
 /**
@@ -43,7 +44,7 @@ final class FileResource
         $contents = file_get_contents($this->file);
 
         if ($contents === false) {
-            throw new \RuntimeException(sprintf('Failed to read file %s.', $this->file));
+            throw new FileNotReadable($this->file);
         }
 
         return $this->contents = $contents;

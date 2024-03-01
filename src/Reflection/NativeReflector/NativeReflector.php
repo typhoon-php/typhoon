@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace Typhoon\Reflection\NativeReflector;
 
-use Typhoon\Reflection\Exception\DefaultReflectionException;
 use Typhoon\Reflection\Metadata\AttributeMetadata;
 use Typhoon\Reflection\Metadata\ChangeDetector;
 use Typhoon\Reflection\Metadata\ClassConstantMetadata;
@@ -99,7 +98,7 @@ final class NativeReflector
                     name: $constant->name,
                     class: $constant->class,
                     modifiers: $constant->getModifiers(),
-                    type: $this->reflectType($type, $constant->class),
+                    type: $this->reflectType($type, $class),
                     docComment: $constant->getDocComment(),
                     enumCase: (bool) $constant->isEnumCase(),
                     attributes: $this->reflectAttributes($constant->getAttributes()),
@@ -120,7 +119,7 @@ final class NativeReflector
         foreach ($class->getProperties() as $property) {
             if ($property->class === $class->name) {
                 $name = $property->name;
-                \assert($name !== '', 'ReflectionClass always contains default (statically declared) properties with a non-empty name.');
+                \assert($name !== '', 'ReflectionClass always contains default (statically declared) properties with a non-empty name');
 
                 /** @var int-mask-of<\ReflectionProperty::IS_*> */
                 $modifiers = $property->getModifiers();
@@ -129,7 +128,7 @@ final class NativeReflector
                     name: $name,
                     class: $property->class,
                     modifiers: $modifiers,
-                    type: $this->reflectType($property->getType(), $class->name),
+                    type: $this->reflectType($property->getType(), $class),
                     docComment: $property->getDocComment(),
                     hasDefaultValue: $property->hasDefaultValue(),
                     promoted: $property->isPromoted(),
@@ -154,8 +153,8 @@ final class NativeReflector
                     name: $method->name,
                     class: $method->class,
                     modifiers: $method->getModifiers(),
-                    parameters: $this->reflectParameters($method, $class->name),
-                    returnType: $this->reflectType($method->getReturnType(), $class->name),
+                    parameters: $this->reflectParameters($method, $class),
+                    returnType: $this->reflectType($method->getReturnType(), $class),
                     docComment: $method->getDocComment(),
                     internal: $method->isInternal(),
                     extension: $method->getExtensionName(),
@@ -267,10 +266,9 @@ final class NativeReflector
     }
 
     /**
-     * @param ?class-string $class
      * @return list<ParameterMetadata>
      */
-    private function reflectParameters(\ReflectionFunctionAbstract $function, ?string $class): array
+    private function reflectParameters(\ReflectionFunctionAbstract $function, ?\ReflectionClass $class): array
     {
         $parameters = [];
         $functionOrMethod = $function->name;
@@ -317,18 +315,16 @@ final class NativeReflector
         return $attributes;
     }
 
-    /**
-     * @param ?class-string $class
-     */
-    private function reflectType(?\ReflectionType $type, ?string $class): TypeMetadata
+    private function reflectType(?\ReflectionType $type, ?\ReflectionClass $class = null): TypeMetadata
     {
-        return TypeMetadata::create(native: $type === null ? null : $this->reflectNativeType($type, $class));
+        if ($type === null) {
+            return TypeMetadata::create();
+        }
+
+        return TypeMetadata::create(native: $this->reflectNativeType($type, $class));
     }
 
-    /**
-     * @param ?class-string $class
-     */
-    private function reflectNativeType(\ReflectionType $reflectionType, ?string $class): Type
+    private function reflectNativeType(\ReflectionType $reflectionType, ?\ReflectionClass $class): Type
     {
         if ($reflectionType instanceof \ReflectionUnionType) {
             return types::union(...array_map(
@@ -345,39 +341,38 @@ final class NativeReflector
         }
 
         if (!$reflectionType instanceof \ReflectionNamedType) {
-            throw new DefaultReflectionException(sprintf('Unknown reflection type %s.', $reflectionType::class));
+            throw new UnsupportedType(sprintf('Unknown reflection type %s', $reflectionType::class));
         }
 
         $name = $reflectionType->getName();
 
         if ($name === 'self') {
-            if ($class === null) {
-                throw new \LogicException('Cannot use type "self" outside of class scope.');
+            \assert($class !== null, 'Unexpected self type outside of class scope');
+
+            if ($class->isTrait()) {
+                return types::template($name, types::atClass($class->name));
             }
 
-            return types::object($class);
+            return types::object($class->name);
         }
 
         if ($name === 'parent') {
-            if ($class === null) {
-                throw new \LogicException('Cannot use type "parent" outside of class scope.');
+            \assert($class !== null, 'Unexpected parent type outside of class scope');
+
+            if ($class->isTrait()) {
+                return types::template($name, types::atClass($class->name));
             }
 
-            $parent = get_parent_class($class);
+            $parent = $class->getParentClass();
+            \assert($parent !== false, 'Unexpected parent type in a class without parent');
 
-            if ($parent === false) {
-                throw new \LogicException(sprintf('Cannot use type "parent": class %s does not have a parent.', $class));
-            }
-
-            return types::object($parent);
+            return types::object($parent->name);
         }
 
         if ($name === 'static') {
-            if ($class === null) {
-                throw new \LogicException('Cannot use type "static" outside of class scope.');
-            }
+            \assert($class !== null, 'Unexpected static type outside of class scope');
 
-            return types::template('static', types::atClass($class));
+            return types::template($name, types::atClass($class->name));
         }
 
         $type = match ($name) {
@@ -398,11 +393,7 @@ final class NativeReflector
             'resource' => types::resource,
             'mixed' => types::mixed,
             default => $reflectionType->isBuiltin()
-                ? throw new DefaultReflectionException(sprintf(
-                    '%s with name "%s" is not supported.',
-                    \ReflectionNamedType::class,
-                    $name,
-                ))
+                ? throw new UnsupportedType(sprintf('Built-in type "%s" is not supported', $name))
                 : types::object($reflectionType->getName()),
         };
 

@@ -50,7 +50,9 @@ final class NameContextFunctionalTester extends NodeVisitorAbstract
         $traverser = new NodeTraverser();
         $traverser->addVisitor(new NameContextVisitor($nameContext));
         $traverser->addVisitor($visitor);
-        $traverser->traverse($phpParser->parse(file_get_contents($file)) ?? throw new \LogicException());
+        $nodes = $phpParser->parse(file_get_contents($file));
+        \assert($nodes !== null);
+        $traverser->traverse($nodes);
 
         assertEmpty($visitor->expectedValues);
     }
@@ -80,7 +82,7 @@ final class NameContextFunctionalTester extends NodeVisitorAbstract
             assertSame(
                 array_shift($this->expectedValues),
                 $this->nameContext->resolveNameAsClass($value->class->toCodeString()),
-                sprintf('Failed to resolve class name at %s:%d.', $this->file, $node->getLine()),
+                sprintf('Failed to resolve class name at %s:%d', $this->file, $node->getLine()),
             );
 
             return null;
@@ -97,7 +99,7 @@ final class NameContextFunctionalTester extends NodeVisitorAbstract
                 assertSame(
                     array_shift($this->expectedValues),
                     \constant($constant),
-                    sprintf('Failed to resolve constant name at %s:%d.', $this->file, $node->getLine()),
+                    sprintf('Failed to resolve constant name at %s:%d', $this->file, $node->getLine()),
                 );
 
                 return null;

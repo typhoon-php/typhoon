@@ -14,7 +14,7 @@ use Typhoon\Reflection\ClassLocator\NativeReflectionFileLocator;
 use Typhoon\Reflection\ClassLocator\NativeReflectionLocator;
 use Typhoon\Reflection\ClassLocator\PhpStormStubsClassLocator;
 use Typhoon\Reflection\ClassReflection\ClassReflector;
-use Typhoon\Reflection\Exception\ClassDoesNotExistException;
+use Typhoon\Reflection\Exception\ClassDoesNotExist;
 use Typhoon\Reflection\Metadata\ClassMetadata;
 use Typhoon\Reflection\Metadata\MetadataStorage;
 use Typhoon\Reflection\NameContext\AnonymousClassName;
@@ -96,7 +96,7 @@ final class TyphoonReflector implements ClassExistenceChecker, ClassReflector
             $this->reflectClassMetadata($name);
 
             return true;
-        } catch (ClassDoesNotExistException) {
+        } catch (ClassDoesNotExist) {
             return false;
         }
     }
@@ -115,7 +115,7 @@ final class TyphoonReflector implements ClassExistenceChecker, ClassReflector
         }
 
         if ($name === '') {
-            throw new ClassDoesNotExistException('Class "" does not exist');
+            throw new ClassDoesNotExist($name);
         }
 
         return new ClassReflection($this, $this->reflectClassMetadata($name));
@@ -140,7 +140,7 @@ final class TyphoonReflector implements ClassExistenceChecker, ClassReflector
         }
 
         $location = $this->classLocator->locateClass($name)
-            ?? throw new ClassDoesNotExistException(sprintf('Class "%s" does not exist', ReflectionException::normalizeClass($name)));
+            ?? throw new ClassDoesNotExist($name);
 
         if ($location instanceof \ReflectionClass) {
             $metadata = $this->nativeReflector->reflectClass($location);
@@ -153,6 +153,6 @@ final class TyphoonReflector implements ClassExistenceChecker, ClassReflector
         $metadata = $this->metadataStorage->get(ClassMetadata::class, $name);
         $this->metadataStorage->commit();
 
-        return $metadata ?? throw new ClassDoesNotExistException(sprintf('Class "%s" does not exist', ReflectionException::normalizeClass($name)));
+        return $metadata ?? throw new ClassDoesNotExist($name);
     }
 }

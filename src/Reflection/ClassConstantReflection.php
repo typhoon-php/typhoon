@@ -37,7 +37,7 @@ final class ClassConstantReflection extends \ReflectionClassConstant
         return match ($name) {
             'name' => $this->metadata->name,
             'class' => $this->metadata->class,
-            default => new \OutOfBoundsException(sprintf('Property %s::$%s does not exist.', self::class, $name)),
+            default => new \LogicException(sprintf('Undefined property %s::$%s', self::class, $name)),
         };
     }
 
@@ -112,7 +112,7 @@ final class ClassConstantReflection extends \ReflectionClassConstant
     public function getType(): ?\ReflectionType
     {
         if (!method_exists(parent::class, 'getType')) {
-            throw new \BadMethodCallException();
+            return null;
         }
 
         $this->loadNative();

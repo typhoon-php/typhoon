@@ -68,6 +68,6 @@ final class FixNodeStartLineVisitor extends NodeVisitorAbstract
             $token = next($this->code);
         }
 
-        throw new \LogicException();
+        return -1;
     }
 }

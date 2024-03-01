@@ -19,7 +19,7 @@ final class UnqualifiedName
     public function __construct(string $name)
     {
         if (preg_match('/^[a-zA-Z_\x80-\xff][\w\x80-\xff]*$/', $name) !== 1) {
-            throw new \InvalidArgumentException(sprintf('"%s" is not a valid PHP label.', $name));
+            throw new InvalidName(sprintf('"%s" is not a valid PHP label', $name));
         }
 
         \assert($name !== '');

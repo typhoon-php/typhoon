@@ -37,7 +37,7 @@ final class PropertyReflection extends \ReflectionProperty
         return match ($name) {
             'name' => $this->metadata->name,
             'class' => $this->metadata->class,
-            default => new \OutOfBoundsException(sprintf('Property %s::$%s does not exist.', self::class, $name)),
+            default => new \LogicException(sprintf('Undefined property %s::$%s', self::class, $name)),
         };
     }
 

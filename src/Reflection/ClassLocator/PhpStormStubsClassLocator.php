@@ -18,7 +18,7 @@ final class PhpStormStubsClassLocator implements ClassLocator
     public function __construct()
     {
         $file = (new \ReflectionClass(PhpStormStubsMap::class))->getFileName();
-        \assert($file !== false, sprintf('Failed to locate class %s.', PhpStormStubsMap::class));
+        \assert($file !== false, sprintf('Failed to locate class %s', PhpStormStubsMap::class));
         $this->directory = \dirname($file);
     }
 

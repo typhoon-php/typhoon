@@ -13,6 +13,7 @@ use Typhoon\Reflection\ClassLocator\NativeReflectionLocator;
 use Typhoon\Type\Variance;
 
 #[CoversClass(AttributeReflection::class)]
+#[CoversClass(ClassConstantReflection::class)]
 #[CoversClass(ClassReflection::class)]
 #[CoversClass(MethodReflection::class)]
 #[CoversClass(ParameterReflection::class)]

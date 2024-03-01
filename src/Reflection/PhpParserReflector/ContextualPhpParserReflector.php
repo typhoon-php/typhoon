@@ -511,7 +511,7 @@ final class ContextualPhpParserReflector
         return $parameters;
     }
 
-    private function reflectType(?Node $native = null, ?TypeNode $phpDoc = null, bool $implicitlyNullable = false): TypeMetadata
+    private function reflectType(null|Node\Identifier|Name|Node\ComplexType $native = null, ?TypeNode $phpDoc = null, bool $implicitlyNullable = false): TypeMetadata
     {
         return TypeMetadata::create(
             native: $native === null ? null : NativeTypeReflections::reflect($this->typeContext, $native, $implicitlyNullable),

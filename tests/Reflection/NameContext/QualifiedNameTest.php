@@ -12,7 +12,7 @@ final class QualifiedNameTest extends TestCase
 {
     public function testItDoesNotAccept1Segment(): void
     {
-        $this->expectExceptionObject(new \InvalidArgumentException('Qualified name expects at least 2 segments, got 1.'));
+        $this->expectExceptionObject(new InvalidName('Qualified name expects at least 2 segments, got 1'));
 
         new QualifiedName([new UnqualifiedName('A')]);
     }

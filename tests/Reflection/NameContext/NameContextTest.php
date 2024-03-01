@@ -14,7 +14,7 @@ final class NameContextTest extends TestCase
     {
         $nameContext = new NameContext();
 
-        $this->expectExceptionObject(new \InvalidArgumentException('Empty name.'));
+        $this->expectExceptionObject(new InvalidName('Empty name'));
 
         $nameContext->resolveNameAsClass('');
     }

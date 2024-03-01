@@ -6,7 +6,6 @@ namespace Typhoon\Reflection;
 
 use Typhoon\Reflection\AttributeReflection\AttributeReflections;
 use Typhoon\Reflection\ClassReflection\ClassReflector;
-use Typhoon\Reflection\Exception\DefaultReflectionException;
 use Typhoon\Reflection\Metadata\ParameterMetadata;
 use Typhoon\Type\DefaultTypeVisitor;
 use Typhoon\Type\Type;
@@ -37,7 +36,7 @@ final class ParameterReflection extends \ReflectionParameter
     {
         return match ($name) {
             'name' => $this->metadata->name,
-            default => new \OutOfBoundsException(sprintf('Property %s::$%s does not exist.', self::class, $name)),
+            default => new \LogicException(sprintf('Undefined property %s::$%s', self::class, $name)),
         };
     }
 
@@ -150,7 +149,8 @@ final class ParameterReflection extends \ReflectionParameter
 
     public function getDeclaringFunction(): MethodReflection
     {
-        return $this->getDeclaringClass()?->getMethod($this->metadata->functionOrMethod) ?? throw new DefaultReflectionException();
+        return $this->getDeclaringClass()?->getMethod($this->metadata->functionOrMethod)
+            ?? throw new \LogicException('Functions are not supported yet');
     }
 
     public function getDefaultValue(): mixed

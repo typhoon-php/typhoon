@@ -18,7 +18,7 @@ final class QualifiedName
         public readonly array $segments,
     ) {
         if (\count($segments) < 2) {
-            throw new \InvalidArgumentException(sprintf('Qualified name expects at least 2 segments, got %d.', \count($segments)));
+            throw new InvalidName(sprintf('Qualified name expects at least 2 segments, got %d', \count($segments)));
         }
     }
 

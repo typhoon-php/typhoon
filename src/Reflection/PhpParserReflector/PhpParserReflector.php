@@ -4,10 +4,11 @@ declare(strict_types=1);
 
 namespace Typhoon\Reflection\PhpParserReflector;
 
+use PhpParser\Error;
 use PhpParser\NodeTraverser;
 use PhpParser\NodeVisitor;
 use PhpParser\Parser as PhpParser;
-use Typhoon\Reflection\Exception\DefaultReflectionException;
+use Typhoon\Reflection\Exception\ClassDoesNotExist;
 use Typhoon\Reflection\FileResource;
 use Typhoon\Reflection\Metadata\ClassMetadata;
 use Typhoon\Reflection\Metadata\MetadataStorage;
@@ -54,14 +55,18 @@ final class PhpParserReflector
         $nameContext = new NameContext();
         $visitor = new FindAnonymousClassVisitor($name);
         $this->parseAndTraverse($file->contents(), [new NameContextVisitor($nameContext), $visitor]);
-        $node = $visitor->node();
+
+        if ($visitor->node === null) {
+            throw new ClassDoesNotExist($name->toString());
+        }
+
         $reflector = new ContextualPhpParserReflector(
             phpDocParser: $this->phpDocParser,
             typeContext: new TypeContext($nameContext),
             file: $file,
         );
 
-        return $reflector->reflectClass($node, $name->toString());
+        return $reflector->reflectClass($visitor->node, $name->toString());
     }
 
     /**
@@ -74,6 +79,13 @@ final class PhpParserReflector
         foreach ($visitors as $visitor) {
             $traverser->addVisitor($visitor);
         }
-        $traverser->traverse($this->phpParser->parse($code) ?? throw new DefaultReflectionException('Failed to parse code.'));
+
+        try {
+            $nodes = $this->phpParser->parse($code) ?? throw new ParserError('Failed to parse code');
+        } catch (Error $error) {
+            throw new ParserError($error->getMessage(), previous: $error);
+        }
+
+        $traverser->traverse($nodes);
     }
 }

@@ -45,7 +45,7 @@ final class UnqualifiedNameTest extends TestCase
     #[DataProvider('invalidNames')]
     public function testItCannotBeCreatedFromInvalidNames(string $name): void
     {
-        $this->expectExceptionObject(new \InvalidArgumentException(sprintf('"%s" is not a valid PHP label.', $name)));
+        $this->expectExceptionObject(new InvalidName(sprintf('"%s" is not a valid PHP label', $name)));
 
         new UnqualifiedName($name);
     }

@@ -6,7 +6,10 @@ namespace Typhoon\Reflection;
 
 use Typhoon\Reflection\AttributeReflection\AttributeReflections;
 use Typhoon\Reflection\ClassReflection\ClassReflector;
-use Typhoon\Reflection\Exception\DefaultReflectionException;
+use Typhoon\Reflection\Exception\MethodDoesNotExist;
+use Typhoon\Reflection\Exception\MethodDoesNotHavePrototype;
+use Typhoon\Reflection\Exception\ParameterDoesNotExist;
+use Typhoon\Reflection\Exception\TemplateDoesNotExist;
 use Typhoon\Reflection\Metadata\MethodMetadata;
 use Typhoon\Reflection\Metadata\ParameterMetadata;
 use Typhoon\Reflection\TypeResolver\TemplateResolver;
@@ -44,11 +47,18 @@ final class MethodReflection extends \ReflectionMethod
     }
 
     /**
-     * @psalm-suppress MethodSignatureMismatch, UnusedPsalmSuppress, UnusedParam
+     * @throws MethodDoesNotExist
+     * @psalm-suppress MethodSignatureMismatch, UnusedPsalmSuppress
      */
-    public static function createFromMethodName(string $method): static
+    public static function createFromMethodName(string $method, ?TyphoonReflector $reflector = null): static
     {
-        throw new DefaultReflectionException('Not implemented.');
+        $parts = explode('::', $method);
+
+        if (\count($parts) !== 2) {
+            throw new MethodDoesNotExist($method);
+        }
+
+        return ($reflector ?? TyphoonReflector::build())->reflectClass($parts[0])->getMethod($parts[1]);
     }
 
     public function __get(string $name)
@@ -56,7 +66,7 @@ final class MethodReflection extends \ReflectionMethod
         return match ($name) {
             'name' => $this->metadata->name,
             'class' => $this->metadata->class,
-            default => new \OutOfBoundsException(sprintf('Property %s::$%s does not exist.', self::class, $name)),
+            default => new \LogicException(sprintf('Undefined property %s::$%s', self::class, $name)),
         };
     }
 
@@ -204,7 +214,7 @@ final class MethodReflection extends \ReflectionMethod
                 return $parameters[$nameOrPosition];
             }
 
-            throw new DefaultReflectionException();
+            throw new ParameterDoesNotExist($nameOrPosition);
         }
 
         foreach ($parameters as $parameter) {
@@ -213,7 +223,7 @@ final class MethodReflection extends \ReflectionMethod
             }
         }
 
-        throw new DefaultReflectionException();
+        throw new ParameterDoesNotExist($nameOrPosition);
     }
 
     /**
@@ -230,11 +240,7 @@ final class MethodReflection extends \ReflectionMethod
     public function getPrototype(): \ReflectionMethod
     {
         if ($this->metadata->prototype === null) {
-            throw new DefaultReflectionException(sprintf(
-                'Method %s::%s does not have a prototype',
-                ReflectionException::normalizeClass($this->currentClass),
-                $this->metadata->name,
-            ));
+            throw new MethodDoesNotHavePrototype($this->currentClass, $this->metadata->name);
         }
 
         [$class, $name] = $this->metadata->prototype;
@@ -274,10 +280,13 @@ final class MethodReflection extends \ReflectionMethod
         return parent::getStaticVariables();
     }
 
+    /**
+     * @throws TemplateDoesNotExist
+     */
     public function getTemplate(int|string $nameOrPosition): TemplateReflection
     {
         if (\is_int($nameOrPosition)) {
-            return $this->metadata->templates[$nameOrPosition] ?? throw new DefaultReflectionException();
+            return $this->metadata->templates[$nameOrPosition] ?? throw new TemplateDoesNotExist($nameOrPosition);
         }
 
         foreach ($this->metadata->templates as $template) {
@@ -286,7 +295,7 @@ final class MethodReflection extends \ReflectionMethod
             }
         }
 
-        throw new DefaultReflectionException();
+        throw new TemplateDoesNotExist($nameOrPosition);
     }
 
     /**
