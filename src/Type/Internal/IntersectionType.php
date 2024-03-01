@@ -20,9 +20,7 @@ final class IntersectionType implements Type
      */
     public function __construct(
         private readonly array $types,
-    ) {
-        \assert(\count($types) >= 2, 'Intersection type must contain at least 2 types.');
-    }
+    ) {}
 
     public function accept(TypeVisitor $visitor): mixed
     {

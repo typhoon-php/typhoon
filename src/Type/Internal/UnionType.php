@@ -21,9 +21,7 @@ final class UnionType implements Type
      */
     public function __construct(
         private readonly array $types,
-    ) {
-        \assert(\count($types) >= 2, 'Union type must contain at least 2 types.');
-    }
+    ) {}
 
     public function accept(TypeVisitor $visitor): mixed
     {

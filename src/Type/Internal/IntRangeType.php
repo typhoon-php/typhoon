@@ -18,9 +18,7 @@ final class IntRangeType implements Type
     public function __construct(
         private readonly ?int $min,
         private readonly ?int $max,
-    ) {
-        \assert($min !== null || $max !== null, 'Int range type must have at least one limit defined.');
-    }
+    ) {}
 
     public function accept(TypeVisitor $visitor): mixed
     {
