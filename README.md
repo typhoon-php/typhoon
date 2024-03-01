@@ -1,5 +1,5 @@
-# Typhoon Monorepo
+# Typhoon
 
-- [Type](src/Type/)
-- [Reflection](src/Reflection/)
-- [TypeStringifier](src/TypeStringifier/)
+- [Type](docs/Type.md)
+- [Reflection](docs/Reflection.md)
+- [TypeStringifier](docs/TypeStringifier.md)
