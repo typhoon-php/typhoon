@@ -27,9 +27,7 @@ final class TemplateResolver extends RecursiveTypeReplacer
         private readonly ?string $self = null,
         private readonly ?string $parent = null,
         private readonly bool $resolveStatic = false,
-    ) {
-        \assert(!$resolveStatic || $self !== null, 'static cannot be resolved without self');
-    }
+    ) {}
 
     /**
      * @param array<TemplateReflection> $templates
@@ -68,12 +66,18 @@ final class TemplateResolver extends RecursiveTypeReplacer
         }
 
         if ($name === 'static') {
-            if ($this->self === null) {
-                return $self;
+            if ($this->resolveStatic) {
+                if ($this->self !== null) {
+                    return types::object($this->self, ...$this->resolveArguments($arguments));
+                }
+
+                \assert($declaredAt instanceof AtClass, 'static template type is expected to be declared at class, got ' . $declaredAt::class);
+
+                return types::object($declaredAt->name, ...$this->resolveArguments($arguments));
             }
 
-            if ($this->resolveStatic) {
-                return types::object($this->self, ...$this->resolveArguments($arguments));
+            if ($this->self === null) {
+                return $self;
             }
 
             return types::template($name, types::atClass($this->self), ...$arguments);
