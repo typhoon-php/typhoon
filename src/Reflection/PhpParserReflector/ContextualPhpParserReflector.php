@@ -75,6 +75,9 @@ final class ContextualPhpParserReflector
 
         try {
             [$traitTypes, $traitMethodAliases, $traitMethodPrecedence] = $this->reflectTraits($node);
+            $enumType = $node instanceof Stmt\Enum_ && $node->scalarType !== null
+                ? NativeTypeReflections::reflect($this->typeContext, $node->scalarType)
+                : null;
 
             return new ClassMetadata(
                 name: $name,
@@ -101,7 +104,7 @@ final class ContextualPhpParserReflector
                 traitMethodPrecedence: $traitMethodPrecedence,
                 ownConstants: $this->reflectOwnConstants($name, $node),
                 ownProperties: $this->reflectOwnProperties($name, $node),
-                ownMethods: $this->reflectOwnMethods($name, $node),
+                ownMethods: $this->reflectOwnMethods($name, $node, $enumType),
                 finalPhpDoc: $phpDoc->hasFinal(),
                 readonlyPhpDoc: $phpDoc->hasReadonly(),
             );
@@ -425,7 +428,7 @@ final class ContextualPhpParserReflector
      * @param class-string $class
      * @return list<MethodMetadata>
      */
-    private function reflectOwnMethods(string $class, Stmt\ClassLike $classNode): array
+    private function reflectOwnMethods(string $class, Stmt\ClassLike $classNode, ?Type $enumType): array
     {
         $interface = $classNode instanceof Stmt\Interface_;
         $methods = [];
@@ -464,10 +467,9 @@ final class ContextualPhpParserReflector
         if ($classNode instanceof Stmt\Enum_) {
             $methods[] = EnumReflections::cases($class);
 
-            if ($classNode->scalarType !== null) {
-                $valueType = $this->reflectType($classNode->scalarType);
-                $methods[] = EnumReflections::from($class, $valueType);
-                $methods[] = EnumReflections::tryFrom($class, $valueType);
+            if ($enumType !== null) {
+                $methods[] = EnumReflections::from($class, $enumType);
+                $methods[] = EnumReflections::tryFrom($class, $enumType);
             }
         }
 

@@ -8,6 +8,7 @@ use Typhoon\Reflection\Metadata\MethodMetadata;
 use Typhoon\Reflection\Metadata\ParameterMetadata;
 use Typhoon\Reflection\Metadata\PropertyMetadata;
 use Typhoon\Reflection\Metadata\TypeMetadata;
+use Typhoon\Type\Type;
 use Typhoon\Type\types;
 
 /**
@@ -62,7 +63,7 @@ final class EnumReflections
     /**
      * @param class-string $class
      */
-    public static function from(string $class, TypeMetadata $valueType): MethodMetadata
+    public static function from(string $class, Type $enumType): MethodMetadata
     {
         return new MethodMetadata(
             name: 'from',
@@ -74,10 +75,13 @@ final class EnumReflections
                     name: 'value',
                     class: $class,
                     functionOrMethod: 'from',
-                    type: $valueType,
+                    type: TypeMetadata::create(
+                        native: types::union(types::string, types::int),
+                        phpDoc: $enumType,
+                    ),
                 ),
             ],
-            returnType: TypeMetadata::create(types::array(), types::list(types::object($class))),
+            returnType: TypeMetadata::create(types::template('static', types::atClass($class))),
             internal: true,
         );
     }
@@ -85,7 +89,7 @@ final class EnumReflections
     /**
      * @param class-string $class
      */
-    public static function tryFrom(string $class, TypeMetadata $valueType): MethodMetadata
+    public static function tryFrom(string $class, Type $enumType): MethodMetadata
     {
         return new MethodMetadata(
             name: 'tryFrom',
@@ -97,13 +101,13 @@ final class EnumReflections
                     name: 'value',
                     class: $class,
                     functionOrMethod: 'tryFrom',
-                    type: $valueType,
+                    type: TypeMetadata::create(
+                        native: types::union(types::string, types::int),
+                        phpDoc: $enumType,
+                    ),
                 ),
             ],
-            returnType: TypeMetadata::create(
-                types::nullable(types::array()),
-                types::nullable(types::list(types::object($class))),
-            ),
+            returnType: TypeMetadata::create(types::nullable(types::template('static', types::atClass($class)))),
             internal: true,
         );
     }

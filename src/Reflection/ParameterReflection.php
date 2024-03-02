@@ -7,6 +7,7 @@ namespace Typhoon\Reflection;
 use Typhoon\Reflection\AttributeReflection\AttributeReflections;
 use Typhoon\Reflection\ClassReflection\ClassReflector;
 use Typhoon\Reflection\Metadata\ParameterMetadata;
+use Typhoon\Reflection\TypeReflection\TypeConverter;
 use Typhoon\Type\DefaultTypeVisitor;
 use Typhoon\Type\Type;
 
@@ -195,9 +196,7 @@ final class ParameterReflection extends \ReflectionParameter
 
     public function getType(): ?\ReflectionType
     {
-        $this->loadNative();
-
-        return parent::getType();
+        return $this->metadata->type->native?->accept(new TypeConverter());
     }
 
     /**

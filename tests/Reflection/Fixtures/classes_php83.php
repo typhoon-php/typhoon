@@ -14,3 +14,8 @@ final class ClassWithTypedConstants
     public const float FLOAT_CONSTANT = 1.5;
     public const string STRING_CONSTANT = 'a';
 }
+
+class ClassWithDNFTypes
+{
+    public (\Countable&\Stringable)|false $dnf;
+}

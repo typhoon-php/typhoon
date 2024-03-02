@@ -7,6 +7,7 @@ namespace Typhoon\Reflection;
 use Typhoon\Reflection\AttributeReflection\AttributeReflections;
 use Typhoon\Reflection\ClassReflection\ClassReflector;
 use Typhoon\Reflection\Metadata\ClassConstantMetadata;
+use Typhoon\Reflection\TypeReflection\TypeConverter;
 use Typhoon\Type\Type;
 
 /**
@@ -111,14 +112,7 @@ final class ClassConstantReflection extends \ReflectionClassConstant
 
     public function getType(): ?\ReflectionType
     {
-        if (!method_exists(parent::class, 'getType')) {
-            return null;
-        }
-
-        $this->loadNative();
-
-        /** @var ?\ReflectionType */
-        return parent::getType();
+        return $this->metadata->type->native?->accept(new TypeConverter());
     }
 
     /**

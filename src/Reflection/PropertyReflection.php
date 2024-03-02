@@ -7,6 +7,7 @@ namespace Typhoon\Reflection;
 use Typhoon\Reflection\AttributeReflection\AttributeReflections;
 use Typhoon\Reflection\ClassReflection\ClassReflector;
 use Typhoon\Reflection\Metadata\PropertyMetadata;
+use Typhoon\Reflection\TypeReflection\TypeConverter;
 use Typhoon\Type\Type;
 
 /**
@@ -118,9 +119,7 @@ final class PropertyReflection extends \ReflectionProperty
 
     public function getType(): ?\ReflectionType
     {
-        $this->loadNative();
-
-        return parent::getType();
+        return $this->metadata->type->native?->accept(new TypeConverter());
     }
 
     /**

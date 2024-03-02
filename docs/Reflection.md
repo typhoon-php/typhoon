@@ -184,7 +184,7 @@ $reflector = TyphoonReflector::build(
 | `getDocComment()`         | ✅                                            |
 | `getModifiers()`          | ✅                                            |
 | `getName()`               | ✅                                            |
-| `getType()`               | ✅ Via native reflection                      |
+| `getType()`               | ✅                                            |
 | `getValue()`              | ✅ Via native reflection                      |
 | `hasType()`               | ✅                                            |
 | `isEnumCase()`            | ✅                                            |
@@ -205,7 +205,7 @@ $reflector = TyphoonReflector::build(
 | `getDocComment()`     | ✅️                                      |
 | `getModifiers()`      | ✅                                       |
 | `getName()`           | ✅                                       |
-| `getType()`           | ✅ Via native reflection                 |
+| `getType()`           | ✅                                       |
 | `getValue()`          | ✅ Via native reflection                 |
 | `hasDefaultValue()`   | ✅                                       |
 | `hasType()`           | ✅                                       |
@@ -246,11 +246,11 @@ $reflector = TyphoonReflector::build(
 | `getNumberOfRequiredParameters()`        | ✅                                            |
 | `getParameters()`                        | ✅                                            |
 | `getPrototype()`                         | ✅                                            |
-| `getReturnType()`                        | ✅ Via native reflection                      |
+| `getReturnType()`                        | ✅                                            |
 | `getShortName()`                         | ✅                                            |
 | `getStartLine()`                         | ✅️                                           |
 | `getStaticVariables()`                   | ✅️ Via native reflection                     |
-| `getTentativeReturnType()`               | ✅ Via native reflection                      |
+| `getTentativeReturnType()`               | ✅ Via native reflection TODO                 |
 | `hasPrototype()`                         | ✅                                            |
 | `hasReturnType()`                        | ✅ Via native reflection for internal methods |
 | `hasTentativeReturnType()`               | ✅ Via native reflection                      |
@@ -289,7 +289,7 @@ $reflector = TyphoonReflector::build(
 | `getDefaultValueConstantName()` | ✅ Via native reflection                  |
 | `getName()`                     | ✅                                        |
 | `getPosition()`                 | ✅                                        |
-| `getType()`                     | ✅ Via native reflection                  |
+| `getType()`                     | ✅                                        |
 | `hasType()`                     | ✅                                        |
 | `isArray()`                     | ✅                                        |
 | `isCallable()`                  | ✅                                        |

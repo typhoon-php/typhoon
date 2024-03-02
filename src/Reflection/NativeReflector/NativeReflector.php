@@ -344,6 +344,17 @@ final class NativeReflector
 
         $name = $reflectionType->getName();
 
+        if ($reflectionType->allowsNull() && $name !== 'null' && $name !== 'mixed') {
+            return types::nullable($this->reflectNamedType($reflectionType, $class));
+        }
+
+        return $this->reflectNamedType($reflectionType, $class);
+    }
+
+    private function reflectNamedType(\ReflectionNamedType $type, ?\ReflectionClass $class = null): Type
+    {
+        $name = $type->getName();
+
         if ($name === 'self') {
             \assert($class !== null, 'Unexpected self type outside of class scope');
 
@@ -373,7 +384,7 @@ final class NativeReflector
             return types::template($name, types::atClass($class->name));
         }
 
-        $type = match ($name) {
+        return match ($name) {
             'never' => types::never,
             'void' => types::void,
             'null' => types::null,
@@ -383,22 +394,16 @@ final class NativeReflector
             'int' => types::int,
             'float' => types::float,
             'string' => types::string,
-            'array' => types::array(),
+            'array' => types::array,
             'object' => types::object,
-            'Closure' => types::closure(),
-            'callable' => types::callable(),
-            'iterable' => types::iterable(),
+            'Closure' => types::closure,
+            'callable' => types::callable,
+            'iterable' => types::iterable,
             'resource' => types::resource,
             'mixed' => types::mixed,
-            default => $reflectionType->isBuiltin()
+            default => $type->isBuiltin()
                 ? throw new UnsupportedType(sprintf('Built-in type "%s" is not supported', $name))
-                : types::object($reflectionType->getName()),
+                : types::object($name),
         };
-
-        if ($reflectionType->allowsNull() && $name !== 'null' && $name !== 'mixed') {
-            return types::nullable($type);
-        }
-
-        return $type;
     }
 }

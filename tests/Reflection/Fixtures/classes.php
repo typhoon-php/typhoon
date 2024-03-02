@@ -503,3 +503,32 @@ namespace Traits
         private function t2PublicAsPrivate(): void {}
     }
 }
+
+namespace Types
+{
+    class ClassWithAllTypes extends \stdClass
+    {
+        public $noType;
+        public bool $bool;
+        public int $int;
+        public float $float;
+        public string $string;
+        public array $array;
+        public mixed $mixed;
+        public \Closure $closure;
+        public object $object;
+        public int|string $intOrString;
+        public float|string $floatOrString;
+        public null|string|object $nullOrStringOrObject;
+        public int|false $intOrFalse;
+        public ?string $nullableString;
+        public self $self;
+        public parent $parent;
+        public \Iterator&\Countable $iteratorAndCountable;
+        public \Countable&\Iterator $countableAndIterator;
+        public function static(): static {}
+        public function callable(): callable {}
+        public function never(): never {}
+        public function void(): void {}
+    }
+}

@@ -12,6 +12,7 @@ use Typhoon\Reflection\Exception\ParameterDoesNotExist;
 use Typhoon\Reflection\Exception\TemplateDoesNotExist;
 use Typhoon\Reflection\Metadata\MethodMetadata;
 use Typhoon\Reflection\Metadata\ParameterMetadata;
+use Typhoon\Reflection\TypeReflection\TypeConverter;
 use Typhoon\Reflection\TypeResolver\TemplateResolver;
 use Typhoon\Type\Type;
 use Typhoon\Type\TypeVisitor;
@@ -250,9 +251,7 @@ final class MethodReflection extends \ReflectionMethod
 
     public function getReturnType(): ?\ReflectionType
     {
-        $this->loadNative();
-
-        return parent::getReturnType();
+        return $this->metadata->returnType->native?->accept(new TypeConverter());
     }
 
     /**

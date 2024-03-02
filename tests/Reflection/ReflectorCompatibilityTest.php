@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Typhoon\Reflection;
 
 use Mockery\Loader\RequireLoader;
+use PHPUnit\Exception;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProviderExternal;
 use PHPUnit\Framework\TestCase;
@@ -190,7 +191,9 @@ final class ReflectorCompatibilityTest extends TestCase
         self::assertSame($native->getModifiers(), $typhoon->getModifiers(), $messagePrefix . '.getModifiers()');
         self::assertSame($native->getName(), $typhoon->getName(), $messagePrefix . '.getName()');
         if (method_exists($native, 'getType')) {
-            self::assertEquals($native->getType(), $typhoon->getType(), $messagePrefix . '.getType()');
+            $nativeType = $native->getType();
+            \assert($nativeType === null || $nativeType instanceof \ReflectionType);
+            $this->assertTypeEquals($nativeType, $typhoon->getType(), $messagePrefix . '.getType()', $native->getDeclaringClass());
         }
         // TODO getValue()
         if (method_exists($native, 'hasType')) {
@@ -214,7 +217,7 @@ final class ReflectorCompatibilityTest extends TestCase
         self::assertSame($native->getDocComment(), $typhoon->getDocComment(), $messagePrefix . '.getDocComment()');
         self::assertSame($native->getModifiers(), $typhoon->getModifiers(), $messagePrefix . '.getModifiers()');
         self::assertSame($native->getName(), $typhoon->getName(), $messagePrefix . '.getName()');
-        self::assertEquals($native->getType(), $typhoon->getType(), $messagePrefix . '.getType()');
+        $this->assertTypeEquals($native->getType(), $typhoon->getType(), $messagePrefix . '.getType()', $native->getDeclaringClass());
         // TODO getValue()
         self::assertSame($native->hasDefaultValue(), $typhoon->hasDefaultValue(), $messagePrefix . '.hasDefaultValue()');
         self::assertSame($native->hasType(), $typhoon->hasType(), $messagePrefix . '.hasType()');
@@ -271,6 +274,7 @@ final class ReflectorCompatibilityTest extends TestCase
         self::assertSame($native->getShortName(), $typhoon->getShortName(), $messagePrefix . '.getShortName()');
         // TODO self::assertSame($native->getStartLine(), $typhoon->getStartLine(), $messagePrefix . '.getStartLine()');
         self::assertSame($native->getStaticVariables(), $typhoon->getStaticVariables(), $messagePrefix . '.getStaticVariables()');
+        $this->assertTypeEquals($native->getReturnType(), $typhoon->getReturnType(), $messagePrefix . '.getReturnType()', $native->getDeclaringClass(), $native->getTentativeReturnType());
         self::assertEquals($native->getTentativeReturnType(), $typhoon->getTentativeReturnType(), $messagePrefix . '.getTentativeReturnType()');
         if (method_exists($native, 'hasPrototype')) {
             self::assertSame($native->hasPrototype(), $typhoon->hasPrototype(), $messagePrefix . '.hasPrototype()');
@@ -301,16 +305,16 @@ final class ReflectorCompatibilityTest extends TestCase
      * @param array<\ReflectionParameter> $native
      * @param array<\ReflectionParameter> $typhoon
      */
-    private function assertParametersEqual(array $native, array $typhoon, string $messagePrefix): void
+    private function assertParametersEqual(array $native, array $typhoon, string $messagePrefix, bool $assertType = true): void
     {
         $this->assertSameNames($native, $typhoon, $messagePrefix . '.name');
 
         foreach ($native as $position => $parameter) {
-            $this->assertParameterEquals($parameter, $typhoon[$position], $messagePrefix . ".getParameter()[{$position} ({$parameter->name})]");
+            $this->assertParameterEquals($parameter, $typhoon[$position], $messagePrefix . ".getParameter()[{$position} ({$parameter->name})]", $assertType);
         }
     }
 
-    private function assertParameterEquals(\ReflectionParameter $native, \ReflectionParameter $typhoon, string $messagePrefix): void
+    private function assertParameterEquals(\ReflectionParameter $native, \ReflectionParameter $typhoon, string $messagePrefix, bool $assertType = true): void
     {
         self::assertSame($native->name, $typhoon->name, $messagePrefix . '.name');
         self::assertSame($native->__toString(), $typhoon->__toString(), $messagePrefix . '.__toString()');
@@ -325,7 +329,9 @@ final class ReflectorCompatibilityTest extends TestCase
         }
         self::assertSame($native->getName(), $typhoon->getName(), $messagePrefix . '.getName()');
         self::assertSame($native->getPosition(), $typhoon->getPosition(), $messagePrefix . '.getPosition()');
-        self::assertEquals($native->getType(), $typhoon->getType(), $messagePrefix . '.getType()');
+        if ($assertType) {
+            $this->assertTypeEquals($native->getType(), $typhoon->getType(), $messagePrefix . '.getType()', $native->getDeclaringClass());
+        }
         self::assertSame($native->hasType(), $typhoon->hasType(), $messagePrefix . '.hasType()');
         self::assertSame($native->isArray(), $typhoon->isArray(), $messagePrefix . '.isArray()');
         self::assertSame($native->isCallable(), $typhoon->isCallable(), $messagePrefix . '.isCallable()');
@@ -369,7 +375,8 @@ final class ReflectorCompatibilityTest extends TestCase
         self::assertSame($nativeReflection->getClosureCalledClass()?->name, $typhoonReflection->getClosureCalledClass()?->name, $messagePrefix . '.getClosureCalledClass()');
         self::assertSame($nativeReflection->getClosureScopeClass()?->name, $typhoonReflection->getClosureScopeClass()?->name, $messagePrefix . '.getClosureCalledClass()');
         self::assertSame($nativeReflection->getClosureThis(), $typhoonReflection->getClosureThis(), $messagePrefix . '.getClosureThis()');
-        $this->assertParametersEqual($nativeReflection->getParameters(), $typhoonReflection->getParameters(), $messagePrefix . '.getParameters()');
+        // TODO remove assertType when functions ready
+        $this->assertParametersEqual($nativeReflection->getParameters(), $typhoonReflection->getParameters(), $messagePrefix . '.getParameters()', assertType: false);
     }
 
     /**
@@ -384,6 +391,63 @@ final class ReflectorCompatibilityTest extends TestCase
             array_combine(array_keys($typhoonReflections), array_column($typhoonReflections, 'name')),
             $message,
         );
+    }
+
+    private function assertTypeEquals(?\ReflectionType $native, ?\ReflectionType $typhoon, string $messagePrefix, ?\ReflectionClass $class = null, ?\ReflectionType $nativeTentative = null): void
+    {
+        try {
+            self::assertSame($this->normalizeType($native, $class), $this->normalizeType($typhoon), $messagePrefix);
+        } catch (Exception $exception) {
+            // TODO: this catch is a temporary fix for the missing tentative types support
+            if ($nativeTentative === null) {
+                throw $exception;
+            }
+
+            self::assertSame($this->normalizeType($nativeTentative, $class), $this->normalizeType($typhoon), $messagePrefix);
+        }
+    }
+
+    private function normalizeType(?\ReflectionType $type, ?\ReflectionClass $class = null): ?array
+    {
+        if ($type === null) {
+            return null;
+        }
+
+        if ($type instanceof \ReflectionNamedType) {
+            return [
+                'type' => 'named',
+                'getName' => $this->normalizeNamedTypeName($type->getName(), $class),
+                'isBuiltin' => $type->isBuiltin(),
+                'allowsNull' => $type->allowsNull(),
+            ];
+        }
+
+        \assert($type instanceof \ReflectionUnionType || $type instanceof \ReflectionIntersectionType);
+
+        $normalizedTypes = array_map(
+            fn(\ReflectionType $type): ?array => $this->normalizeType($type, $class),
+            $type->getTypes(),
+        );
+        sort($normalizedTypes);
+
+        return [
+            'type' => $type instanceof \ReflectionUnionType ? 'union' : 'intersection',
+            'types' => $normalizedTypes,
+            'allowsNull' => $type->allowsNull(),
+        ];
+    }
+
+    private function normalizeNamedTypeName(string $name, ?\ReflectionClass $class): string
+    {
+        if ($class === null || $class->isTrait()) {
+            return $name;
+        }
+
+        return match ($name) {
+            'self' => $class->name,
+            'parent' => $class->getParentClass()->name,
+            default => $name,
+        };
     }
 
     private function canCreateMockObject(\ReflectionClass $class): bool

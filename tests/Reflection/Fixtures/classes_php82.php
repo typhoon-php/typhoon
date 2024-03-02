@@ -2,29 +2,32 @@
 
 declare(strict_types=1);
 
-namespace ReadonlyClasses
-{
-    readonly class ReadonlyClass {}
+namespace Classes\PHP82;
 
-    abstract readonly class AbstractReadonlyClass {}
+readonly class ReadonlyClass {}
+
+abstract readonly class AbstractReadonlyClass {}
+
+trait TraitWithConstants
+{
+    const C = 1;
 }
 
-namespace TraitsWithConstants
+final class ClassUsingTraitWithConstants
 {
-    trait TraitWithConstants
-    {
-        const C = 1;
-    }
+    use TraitWithConstants;
+}
 
-    final class ClassUsingTraitWithConstants
-    {
-        use TraitWithConstants;
-    }
+final class ClassAlteringConstantFromTrait
+{
+    const C = 1;
 
-    final class ClassAlteringConstantFromTrait
-    {
-        const C = 1;
+    use TraitWithConstants;
+}
 
-        use TraitWithConstants;
-    }
+class ClassWith82Types
+{
+    public true $true;
+    public false $false;
+    public null $null;
 }
