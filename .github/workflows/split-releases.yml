@@ -4,6 +4,9 @@ on:
   release:
     types: ['published']
 
+concurrency:
+  group: split
+
 env:
   GH_TOKEN: ${{ secrets.SPLITTER_ACCESS_TOKEN }}
 

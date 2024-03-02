@@ -4,6 +4,9 @@ on:
   push:
     branches: ['*.x']
 
+concurrency:
+  group: split
+
 jobs:
   split:
     runs-on: ubuntu-latest
