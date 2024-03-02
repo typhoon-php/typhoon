@@ -29,7 +29,7 @@ final class UnionTypeReflection extends \ReflectionUnionType
     }
 
     /**
-     * @psalm-suppress InvalidReturnType, InvalidReturnStatement
+     * @psalm-suppress InvalidReturnType, InvalidReturnStatement, UnusedPsalmSuppress
      */
     public function getTypes(): array
     {
