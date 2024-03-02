@@ -54,7 +54,7 @@ final class EnumReflections
             class: $class,
             modifiers: \ReflectionMethod::IS_STATIC | \ReflectionMethod::IS_PUBLIC,
             parameters: [],
-            returnType: TypeMetadata::create(types::array(), types::list(types::object($class))),
+            returnType: TypeMetadata::create(types::array, types::list(types::object($class))),
             internal: true,
         );
     }
