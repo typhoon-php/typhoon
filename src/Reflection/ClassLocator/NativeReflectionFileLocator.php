@@ -9,6 +9,7 @@ use Typhoon\Reflection\FileResource;
 
 /**
  * @api
+ * @deprecated use TyphoonReflector::build($fallbackToNativeReflection) instead
  */
 final class NativeReflectionFileLocator implements ClassLocator
 {

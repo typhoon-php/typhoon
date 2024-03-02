@@ -9,3 +9,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Implemented `getType()`, `getReturnType()`, `getTentativeReturnType()`, `hasTentativeReturnType()`, `hasReturnType()`.
 - Deprecated `FileResource::changeDetector()`.
+- Introduced new parameter `TyphoonReflector::build($fallbackToNativeReflection = true)`.
+- Deprecated `NativeReflectionFileLocator`.
+- Deprecated `NativeReflectionLocator`.
+- Deprecated returning `ReflectionClass` from `ClassLocator::locateClass()`.

@@ -8,6 +8,7 @@ use Typhoon\Reflection\ClassLocator;
 
 /**
  * @api
+ * @deprecated use TyphoonReflector::build($fallbackToNativeReflection) instead
  */
 final class NativeReflectionLocator implements ClassLocator
 {
