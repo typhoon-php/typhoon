@@ -15,6 +15,7 @@ use Typhoon\Reflection\Metadata\ParameterMetadata;
 use Typhoon\Reflection\TypeReflection\TypeConverter;
 use Typhoon\Reflection\TypeResolver\TemplateResolver;
 use Typhoon\Type\Type;
+use Typhoon\Type\types;
 use Typhoon\Type\TypeVisitor;
 
 /**
@@ -56,7 +57,7 @@ final class MethodReflection extends \ReflectionMethod
         $parts = explode('::', $method);
 
         if (\count($parts) !== 2) {
-            throw new MethodDoesNotExist($method);
+            throw new MethodDoesNotExist(self::class, $method);
         }
 
         return ($reflector ?? TyphoonReflector::build())->reflectClass($parts[0])->getMethod($parts[1]);
@@ -215,7 +216,7 @@ final class MethodReflection extends \ReflectionMethod
                 return $parameters[$nameOrPosition];
             }
 
-            throw new ParameterDoesNotExist($nameOrPosition);
+            throw new ParameterDoesNotExist(types::atMethod($this->class, $this->name), $nameOrPosition);
         }
 
         foreach ($parameters as $parameter) {
@@ -224,7 +225,7 @@ final class MethodReflection extends \ReflectionMethod
             }
         }
 
-        throw new ParameterDoesNotExist($nameOrPosition);
+        throw new ParameterDoesNotExist(types::atMethod($this->class, $this->name), $nameOrPosition);
     }
 
     /**
@@ -285,7 +286,8 @@ final class MethodReflection extends \ReflectionMethod
     public function getTemplate(int|string $nameOrPosition): TemplateReflection
     {
         if (\is_int($nameOrPosition)) {
-            return $this->metadata->templates[$nameOrPosition] ?? throw new TemplateDoesNotExist($nameOrPosition);
+            return $this->metadata->templates[$nameOrPosition]
+                ?? throw new TemplateDoesNotExist(types::atMethod($this->class, $this->name), $nameOrPosition);
         }
 
         foreach ($this->metadata->templates as $template) {
@@ -294,7 +296,7 @@ final class MethodReflection extends \ReflectionMethod
             }
         }
 
-        throw new TemplateDoesNotExist($nameOrPosition);
+        throw new TemplateDoesNotExist(types::atMethod($this->class, $this->name), $nameOrPosition);
     }
 
     /**

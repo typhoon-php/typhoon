@@ -11,8 +11,11 @@ use Typhoon\Reflection\ReflectionException;
  */
 final class PropertyDoesNotExist extends ReflectionException
 {
-    public function __construct(string $name, ?\Throwable $previous = null)
+    /**
+     * @param class-string $class
+     */
+    public function __construct(string $class, string $name, ?\Throwable $previous = null)
     {
-        parent::__construct(sprintf('Property "%s" does not exist', $name), previous: $previous);
+        parent::__construct(sprintf('Property %s::$%s does not exist', self::normalizeClass($class), $name), previous: $previous);
     }
 }
