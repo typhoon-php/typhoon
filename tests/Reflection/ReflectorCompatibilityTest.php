@@ -62,8 +62,6 @@ final class ReflectorCompatibilityTest extends TestCase
         self::assertSame($native->name, $typhoon->name, 'class.name');
         self::assertSame($native->__toString(), $typhoon->__toString(), 'class.__toString()');
         self::assertAttributesEqual($native->getAttributes(), $typhoon->getAttributes(), 'class.getAttributes()');
-        // getConstant() see below
-        // getConstants() see below
         self::assertSame($native->getConstructor()?->name, $typhoon->getConstructor()?->name, 'class.getConstructor().name');
         self::assertSame($native->getDefaultProperties(), $typhoon->getDefaultProperties(), 'class.getDefaultProperties()');
         self::assertSame($native->getDocComment(), $typhoon->getDocComment(), 'class.getDocComment()');
@@ -73,26 +71,17 @@ final class ReflectorCompatibilityTest extends TestCase
         self::assertSame($native->getFileName(), $typhoon->getFileName(), 'class.getFileName()');
         self::assertSame($native->getInterfaceNames(), $typhoon->getInterfaceNames(), 'class.getInterfaceNames()');
         $this->assertSameNames($native->getInterfaces(), $typhoon->getInterfaces(), 'class.getInterfaces().name');
-        // getMethods() see below
-        // getMethod() see below
         self::assertSame($native->getModifiers(), $typhoon->getModifiers(), 'class.getModifiers()');
         self::assertSame($native->getName(), $typhoon->getName(), 'class.getName()');
         self::assertSame($native->getNamespaceName(), $typhoon->getNamespaceName(), 'class.getNamespaceName()');
         self::assertSame(($native->getParentClass() ?: null)?->name, ($typhoon->getParentClass() ?: null)?->name, 'class.getParentClass().name');
-        // getProperties() see below
-        // getProperty() see below
-        // getReflectionConstant() see below
-        // getReflectionConstants() see below
         self::assertSame($native->getShortName(), $typhoon->getShortName(), 'class.getShortName()');
         self::assertSame($native->getStartLine(), $typhoon->getStartLine(), 'class.getStartLine()');
         self::assertSame($native->getStaticProperties(), $typhoon->getStaticProperties(), 'class.getStaticProperties()');
-        // getStaticPropertyValue()
+        // TODO getStaticPropertyValue()
         self::assertSame($native->getTraitAliases(), $typhoon->getTraitAliases(), 'class.getTraitAliases()');
         self::assertSame($native->getTraitNames(), $typhoon->getTraitNames(), 'class.getTraitNames()');
         $this->assertSameNames($native->getTraits(), $typhoon->getTraits(), 'class.getTraits().name');
-        // hasConstant() see below
-        // hasMethod() see below
-        // hasProperty() see below
         foreach ($this->getClasses($native) as $class) {
             $this->assertResultOrExceptionEqual(
                 native: static fn(): bool => $native->implementsInterface($class),
@@ -133,6 +122,8 @@ final class ReflectorCompatibilityTest extends TestCase
         }
         // TODO setStaticPropertyValue()
 
+        // CONSTANTS
+
         self::assertSame($native->getConstants(), $typhoon->getConstants(), 'class.getConstants().name');
         self::assertSame($native->getConstants(\ReflectionClassConstant::IS_PUBLIC), $typhoon->getConstants(PropertyReflection::IS_PUBLIC), 'class.getConstants(IS_PUBLIC).name');
         self::assertSame($native->getConstants(\ReflectionClassConstant::IS_PROTECTED), $typhoon->getConstants(PropertyReflection::IS_PROTECTED), 'class.getConstants(IS_PROTECTED).name');
@@ -153,6 +144,8 @@ final class ReflectorCompatibilityTest extends TestCase
             $this->assertConstantEquals($nativeConstant, $typhoonConstant, "class.getReflectionConstant({$nativeConstant->name})");
         }
 
+        // PROPERTIES
+
         $this->assertSameNames($native->getProperties(), $typhoon->getProperties(), 'class.getProperties().name');
         $this->assertSameNames($native->getProperties(\ReflectionProperty::IS_PUBLIC), $typhoon->getProperties(PropertyReflection::IS_PUBLIC), 'class.getProperties(IS_PUBLIC).name');
         $this->assertSameNames($native->getProperties(\ReflectionProperty::IS_PROTECTED), $typhoon->getProperties(PropertyReflection::IS_PROTECTED), 'class.getProperties(IS_PROTECTED).name');
@@ -164,6 +157,8 @@ final class ReflectorCompatibilityTest extends TestCase
             self::assertTrue($typhoon->hasProperty($nativeProperty->name), "class.hasProperty({$nativeProperty->name})");
             $this->assertPropertyEquals($nativeProperty, $typhoon->getProperty($nativeProperty->name), "class.getProperty({$nativeProperty->name})");
         }
+
+        // METHODS
 
         $this->assertSameNames($native->getMethods(), $typhoon->getMethods(), 'class.getMethods().name');
         $this->assertSameNames($native->getMethods(\ReflectionMethod::IS_FINAL), $typhoon->getMethods(MethodReflection::IS_FINAL), 'class.getMethods(IS_FINAL).name');
