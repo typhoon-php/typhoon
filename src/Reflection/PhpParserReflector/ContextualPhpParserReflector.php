@@ -439,12 +439,16 @@ final class ContextualPhpParserReflector
             $this->typeContext->enterMethod($this->reflectTemplateTypes(types::atMethod($class, $name), $phpDoc));
 
             try {
+                $returnType = $this->reflectType($node->returnType, $phpDoc->returnType());
+                $isTentative = $this->isTentativeType($node->attrGroups);
+
                 $methods[] = new MethodMetadata(
                     name: $name,
                     class: $class,
                     modifiers: MethodReflections::modifiers($node, $interface),
                     parameters: $this->reflectParameters($node->params, $phpDoc, $class, $name),
-                    returnType: $this->reflectType($node->returnType, $phpDoc->returnType()),
+                    returnType: $isTentative ? TypeMetadata::create(phpDoc: $returnType->phpDoc) : $returnType,
+                    tentativeReturnType: $isTentative ? $returnType->native : null,
                     templates: $this->reflectTemplatesFromContext($phpDoc),
                     docComment: $this->reflectDocComment($node),
                     internal: $this->file->isInternal(),
@@ -585,6 +589,22 @@ final class ContextualPhpParserReflector
         }
 
         return $typeAliases;
+    }
+
+    /**
+     * @param array<Node\AttributeGroup> $attrGroups
+     */
+    private function isTentativeType(array $attrGroups): bool
+    {
+        foreach ($attrGroups as $attrGroup) {
+            foreach ($attrGroup->attrs as $attr) {
+                if ($attr->name->getLast() === 'TentativeType') {
+                    return $this->resolveNameAsClass($attr->name) === 'JetBrains\PhpStorm\Internal\TentativeType';
+                }
+            }
+        }
+
+        return false;
     }
 
     /**

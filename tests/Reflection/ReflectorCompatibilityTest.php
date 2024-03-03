@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace Typhoon\Reflection;
 
 use Mockery\Loader\RequireLoader;
-use PHPUnit\Exception;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProviderExternal;
 use PHPUnit\Framework\TestCase;
@@ -274,8 +273,8 @@ final class ReflectorCompatibilityTest extends TestCase
         self::assertSame($native->getShortName(), $typhoon->getShortName(), $messagePrefix . '.getShortName()');
         // TODO self::assertSame($native->getStartLine(), $typhoon->getStartLine(), $messagePrefix . '.getStartLine()');
         self::assertSame($native->getStaticVariables(), $typhoon->getStaticVariables(), $messagePrefix . '.getStaticVariables()');
-        $this->assertTypeEquals($native->getReturnType(), $typhoon->getReturnType(), $messagePrefix . '.getReturnType()', $native->getDeclaringClass(), $native->getTentativeReturnType());
-        self::assertEquals($native->getTentativeReturnType(), $typhoon->getTentativeReturnType(), $messagePrefix . '.getTentativeReturnType()');
+        $this->assertTypeEquals($native->getReturnType(), $typhoon->getReturnType(), $messagePrefix . '.getReturnType()', $native->getDeclaringClass());
+        $this->assertTypeEquals($native->getTentativeReturnType(), $typhoon->getTentativeReturnType(), $messagePrefix . '.getTentativeReturnType()');
         if (method_exists($native, 'hasPrototype')) {
             self::assertSame($native->hasPrototype(), $typhoon->hasPrototype(), $messagePrefix . '.hasPrototype()');
         }
@@ -393,18 +392,9 @@ final class ReflectorCompatibilityTest extends TestCase
         );
     }
 
-    private function assertTypeEquals(?\ReflectionType $native, ?\ReflectionType $typhoon, string $messagePrefix, ?\ReflectionClass $class = null, ?\ReflectionType $nativeTentative = null): void
+    private function assertTypeEquals(?\ReflectionType $native, ?\ReflectionType $typhoon, string $messagePrefix, ?\ReflectionClass $class = null): void
     {
-        try {
-            self::assertSame($this->normalizeType($native, $class), $this->normalizeType($typhoon), $messagePrefix);
-        } catch (Exception $exception) {
-            // TODO: this catch is a temporary fix for the missing tentative types support
-            if ($nativeTentative === null) {
-                throw $exception;
-            }
-
-            self::assertSame($this->normalizeType($nativeTentative, $class), $this->normalizeType($typhoon), $messagePrefix);
-        }
+        self::assertSame($this->normalizeType($native, $class), $this->normalizeType($typhoon), $messagePrefix);
     }
 
     private function normalizeType(?\ReflectionType $type, ?\ReflectionClass $class = null): ?array

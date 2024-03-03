@@ -307,9 +307,12 @@ final class MethodReflection extends \ReflectionMethod
 
     public function getTentativeReturnType(): ?\ReflectionType
     {
-        $this->loadNative();
+        return $this->metadata->tentativeReturnType?->accept(new TypeConverter());
+    }
 
-        return parent::getTentativeReturnType();
+    public function getTentativeReturnTyphoonType(): ?Type
+    {
+        return $this->metadata->tentativeReturnType;
     }
 
     public function getThrowsTyphoonType(): ?Type
@@ -324,20 +327,12 @@ final class MethodReflection extends \ReflectionMethod
 
     public function hasReturnType(): bool
     {
-        if ($this->isInternal()) {
-            $this->loadNative();
-
-            return parent::hasReturnType();
-        }
-
         return $this->metadata->returnType->native !== null;
     }
 
     public function hasTentativeReturnType(): bool
     {
-        $this->loadNative();
-
-        return parent::hasTentativeReturnType();
+        return $this->metadata->tentativeReturnType !== null;
     }
 
     public function inNamespace(): bool

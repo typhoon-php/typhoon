@@ -98,7 +98,7 @@ final class NativeReflector
                     name: $constant->name,
                     class: $constant->class,
                     modifiers: $constant->getModifiers(),
-                    type: $this->reflectType($type, $class),
+                    type: TypeMetadata::create(native: $this->reflectType($type, $class)),
                     docComment: $constant->getDocComment(),
                     enumCase: (bool) $constant->isEnumCase(),
                     attributes: $this->reflectAttributes($constant->getAttributes()),
@@ -128,7 +128,7 @@ final class NativeReflector
                     name: $name,
                     class: $property->class,
                     modifiers: $modifiers,
-                    type: $this->reflectType($property->getType(), $class),
+                    type: TypeMetadata::create(native: $this->reflectType($property->getType(), $class)),
                     docComment: $property->getDocComment(),
                     hasDefaultValue: $property->hasDefaultValue(),
                     promoted: $property->isPromoted(),
@@ -154,7 +154,8 @@ final class NativeReflector
                     class: $method->class,
                     modifiers: $method->getModifiers(),
                     parameters: $this->reflectParameters($method, $class),
-                    returnType: $this->reflectType($method->getReturnType(), $class),
+                    returnType: TypeMetadata::create(native: $this->reflectType($method->getReturnType(), $class)),
+                    tentativeReturnType: $this->reflectType($method->getTentativeReturnType(), $class),
                     docComment: $method->getDocComment(),
                     internal: $method->isInternal(),
                     extension: $method->getExtensionName(),
@@ -280,7 +281,7 @@ final class NativeReflector
                 name: $parameter->name,
                 class: $parameter->getDeclaringClass()?->name,
                 functionOrMethod: $functionOrMethod,
-                type: $this->reflectType($parameter->getType(), $class),
+                type: TypeMetadata::create(native: $this->reflectType($parameter->getType(), $class)),
                 passedByReference: $parameter->isPassedByReference(),
                 defaultValueAvailable: $parameter->isDefaultValueAvailable(),
                 optional: $parameter->isOptional(),
@@ -313,27 +314,25 @@ final class NativeReflector
         return $attributes;
     }
 
-    private function reflectType(?\ReflectionType $type, ?\ReflectionClass $class = null): TypeMetadata
+    /**
+     * @return ($reflectionType is null ? null : Type)
+     */
+    private function reflectType(?\ReflectionType $reflectionType, ?\ReflectionClass $class): ?Type
     {
-        if ($type === null) {
-            return TypeMetadata::create();
+        if ($reflectionType === null) {
+            return null;
         }
 
-        return TypeMetadata::create(native: $this->reflectNativeType($type, $class));
-    }
-
-    private function reflectNativeType(\ReflectionType $reflectionType, ?\ReflectionClass $class): Type
-    {
         if ($reflectionType instanceof \ReflectionUnionType) {
             return types::union(...array_map(
-                fn(\ReflectionType $child): Type => $this->reflectNativeType($child, $class),
+                fn(\ReflectionType $child): Type => $this->reflectType($child, $class),
                 $reflectionType->getTypes(),
             ));
         }
 
         if ($reflectionType instanceof \ReflectionIntersectionType) {
             return types::intersection(...array_map(
-                fn(\ReflectionType $child): Type => $this->reflectNativeType($child, $class),
+                fn(\ReflectionType $child): Type => $this->reflectType($child, $class),
                 $reflectionType->getTypes(),
             ));
         }

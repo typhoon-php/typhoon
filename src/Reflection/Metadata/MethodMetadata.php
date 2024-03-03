@@ -39,6 +39,7 @@ final class MethodMetadata
         public int $modifiers,
         public array $parameters,
         public TypeMetadata $returnType,
+        public ?Type $tentativeReturnType = null,
         public readonly array $templates = [],
         public readonly string|false $docComment = false,
         public readonly bool $internal = false,

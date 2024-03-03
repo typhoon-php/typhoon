@@ -7,4 +7,4 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-- Implemented *Reflection::get(Return)Type() methods.
+- Implemented `getType()`, `getReturnType()`, `getTentativeReturnType()`, `hasTentativeReturnType()`, `hasReturnType()`.
