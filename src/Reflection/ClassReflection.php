@@ -19,6 +19,7 @@ use Typhoon\Reflection\Metadata\MethodMetadata;
 use Typhoon\Reflection\Metadata\PropertyMetadata;
 use Typhoon\Reflection\TypeResolver\TemplateResolver;
 use Typhoon\Type\Type;
+use Typhoon\Type\types;
 use Typhoon\Type\TypeVisitor;
 
 /**
@@ -170,7 +171,7 @@ final class ClassReflection extends \ReflectionClass
 
     public function getMethod(string $name): MethodReflection
     {
-        return $this->getResolvedMethods()[$name] ?? throw new MethodDoesNotExist($name);
+        return $this->getResolvedMethods()[$name] ?? throw new MethodDoesNotExist($this->name, $name);
     }
 
     /**
@@ -237,7 +238,7 @@ final class ClassReflection extends \ReflectionClass
 
     public function getProperty(string $name): PropertyReflection
     {
-        return $this->getResolvedProperties()[$name] ?? throw new PropertyDoesNotExist($name);
+        return $this->getResolvedProperties()[$name] ?? throw new PropertyDoesNotExist($this->name, $name);
     }
 
     public function getReflectionConstant(string $name): ClassConstantReflection|false
@@ -299,7 +300,8 @@ final class ClassReflection extends \ReflectionClass
     public function getTemplate(int|string $nameOrPosition): TemplateReflection
     {
         if (\is_int($nameOrPosition)) {
-            return $this->metadata->templates[$nameOrPosition] ?? throw new TemplateDoesNotExist($nameOrPosition);
+            return $this->metadata->templates[$nameOrPosition]
+                ?? throw new TemplateDoesNotExist(types::atClass($this->name), $nameOrPosition);
         }
 
         foreach ($this->metadata->templates as $template) {
@@ -308,7 +310,7 @@ final class ClassReflection extends \ReflectionClass
             }
         }
 
-        throw new TemplateDoesNotExist($nameOrPosition);
+        throw new TemplateDoesNotExist(types::atClass($this->name), $nameOrPosition);
     }
 
     /**

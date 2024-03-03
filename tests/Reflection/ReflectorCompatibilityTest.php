@@ -152,6 +152,8 @@ final class ReflectorCompatibilityTest extends TestCase
         $this->assertSameNames($native->getProperties(\ReflectionProperty::IS_PRIVATE), $typhoon->getProperties(PropertyReflection::IS_PRIVATE), 'class.getProperties(IS_PRIVATE).name');
         $this->assertSameNames($native->getProperties(\ReflectionProperty::IS_STATIC), $typhoon->getProperties(PropertyReflection::IS_STATIC), 'class.getProperties(IS_STATIC).name');
         $this->assertSameNames($native->getProperties(\ReflectionProperty::IS_READONLY), $typhoon->getProperties(PropertyReflection::IS_READONLY), 'class.getProperties(IS_READONLY).name');
+        $this->assertResultOrExceptionEqual(static fn(): mixed => $native->getProperty(''), static fn(): mixed => $typhoon->getProperty(''), "class.getProperty('')");
+        $this->assertResultOrExceptionEqual(static fn(): mixed => $native->getProperty('__'), static fn(): mixed => $typhoon->getProperty('__'), "class.getProperty('__')");
 
         foreach ($native->getProperties() as $nativeProperty) {
             self::assertTrue($typhoon->hasProperty($nativeProperty->name), "class.hasProperty({$nativeProperty->name})");
@@ -167,6 +169,8 @@ final class ReflectorCompatibilityTest extends TestCase
         $this->assertSameNames($native->getMethods(\ReflectionMethod::IS_PROTECTED), $typhoon->getMethods(MethodReflection::IS_PROTECTED), 'class.getMethods(IS_PROTECTED).name');
         $this->assertSameNames($native->getMethods(\ReflectionMethod::IS_PRIVATE), $typhoon->getMethods(MethodReflection::IS_PRIVATE), 'class.getMethods(IS_PRIVATE).name');
         $this->assertSameNames($native->getMethods(\ReflectionMethod::IS_STATIC), $typhoon->getMethods(MethodReflection::IS_STATIC), 'class.getMethods(IS_STATIC).name');
+        $this->assertResultOrExceptionEqual(static fn(): mixed => $native->getMethod(''), static fn(): mixed => $typhoon->getMethod(''), "class.getMethod('')");
+        $this->assertResultOrExceptionEqual(static fn(): mixed => $native->getMethod('__'), static fn(): mixed => $typhoon->getMethod('__'), "class.getMethod('__')");
 
         foreach ($native->getMethods() as $nativeMethod) {
             self::assertTrue($typhoon->hasMethod($nativeMethod->name), "hasMethod({$nativeMethod->name})");
