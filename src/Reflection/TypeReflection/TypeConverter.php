@@ -19,76 +19,76 @@ final class TypeConverter extends DefaultTypeVisitor
 {
     public function string(Type $self): mixed
     {
-        return new NamedTypeReflection('string');
+        return NamedTypeReflection::string();
     }
 
     public function int(Type $self): mixed
     {
-        return new NamedTypeReflection('int');
+        return NamedTypeReflection::int();
     }
 
     public function float(Type $self): mixed
     {
-        return new NamedTypeReflection('float');
+        return NamedTypeReflection::float();
     }
 
     public function array(Type $self, Type $key, Type $value, array $elements): mixed
     {
-        return new NamedTypeReflection('array');
+        return NamedTypeReflection::array();
     }
 
     public function never(Type $self): mixed
     {
-        return new NamedTypeReflection('never');
+        return NamedTypeReflection::never();
     }
 
     public function void(Type $self): mixed
     {
-        return new NamedTypeReflection('void');
+        return NamedTypeReflection::void();
     }
 
     public function null(Type $self): mixed
     {
-        return new NamedTypeReflection('null', nullable: true);
+        return NamedTypeReflection::null();
     }
 
     public function bool(Type $self): mixed
     {
-        return new NamedTypeReflection('bool');
+        return NamedTypeReflection::bool();
     }
 
     public function namedObject(Type $self, string $class, array $arguments): mixed
     {
-        return new NamedTypeReflection($class, builtIn: false);
+        return NamedTypeReflection::namedObject($class);
     }
 
     public function literalValue(Type $self, float|bool|int|string $value): mixed
     {
         return match ($value) {
-            true => new NamedTypeReflection('true'),
-            false => new NamedTypeReflection('false'),
+            true => NamedTypeReflection::true(),
+            false => NamedTypeReflection::false(),
             default => throw new NonConvertableType($self),
         };
     }
 
     public function callable(Type $self, array $parameters, Type $return): mixed
     {
-        return new NamedTypeReflection('callable');
+        return NamedTypeReflection::callable();
     }
 
     public function object(Type $self): mixed
     {
-        return new NamedTypeReflection('object');
+        return NamedTypeReflection::object();
     }
 
     public function iterable(Type $self, Type $key, Type $value): mixed
     {
-        return new NamedTypeReflection('iterable');
+        return NamedTypeReflection::iterable();
     }
 
     public function closure(Type $self, array $parameters, Type $return): mixed
     {
-        return new NamedTypeReflection(\Closure::class, builtIn: false);
+        return NamedTypeReflection::namedObject(\Closure::class);
     }
 
     public function union(Type $self, array $types): mixed
@@ -117,7 +117,7 @@ final class TypeConverter extends DefaultTypeVisitor
                 return $convertedTypes[0]->toNullable();
             }
 
-            $convertedTypes[] = new NamedTypeReflection('null', nullable: true);
+            $convertedTypes[] = NamedTypeReflection::null();
         }
 
         \assert(\count($convertedTypes) > 1);
@@ -128,7 +128,7 @@ final class TypeConverter extends DefaultTypeVisitor
     public function template(Type $self, string $name, AtClass|AtFunction|AtMethod $declaredAt, array $arguments): mixed
     {
         if ($name === 'self' || $name === 'parent' || $name === 'static') {
-            return new NamedTypeReflection($name, builtIn: false);
+            return NamedTypeReflection::namedObject($name);
         }
 
         throw new NonConvertableType($self);
@@ -152,7 +152,7 @@ final class TypeConverter extends DefaultTypeVisitor
 
     public function mixed(Type $self): mixed
     {
-        return new NamedTypeReflection('mixed', nullable: true);
+        return NamedTypeReflection::mixed();
     }
 
     protected function default(Type $self): mixed

@@ -18,12 +18,90 @@ final class NamedTypeReflection extends \ReflectionNamedType
     /**
      * @param non-empty-string $name
      */
-    public function __construct(
+    private function __construct(
         string $name,
         private readonly bool $builtIn = true,
         private readonly bool $nullable = false,
     ) {
         $this->_name = $name;
+    }
+
+    public static function null(): self
+    {
+        return new self('null', nullable: true);
+    }
+
+    public static function true(): self
+    {
+        return new self('true');
+    }
+
+    public static function false(): self
+    {
+        return new self('false');
+    }
+
+    public static function bool(): self
+    {
+        return new self('bool');
+    }
+
+    public static function int(): self
+    {
+        return new self('int');
+    }
+
+    public static function float(): self
+    {
+        return new self('float');
+    }
+
+    public static function string(): self
+    {
+        return new self('string');
+    }
+
+    public static function array(): self
+    {
+        return new self('array');
+    }
+
+    public static function object(): self
+    {
+        return new self('object');
+    }
+
+    public static function iterable(): self
+    {
+        return new self('iterable');
+    }
+
+    public static function callable(): self
+    {
+        return new self('callable');
+    }
+
+    public static function mixed(): self
+    {
+        return new self('mixed', nullable: true);
+    }
+
+    public static function void(): self
+    {
+        return new self('void');
+    }
+
+    public static function never(): self
+    {
+        return new self('never');
+    }
+
+    /**
+     * @param non-empty-string $name
+     */
+    public static function namedObject(string $name): self
+    {
+        return new self($name, builtIn: false);
     }
 
     public function toNullable(): self
