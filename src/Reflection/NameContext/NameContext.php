@@ -17,7 +17,7 @@ final class NameContext implements NameResolver
     private const SELF = 'self';
     private const PARENT = 'parent';
     private const STATIC = 'static';
-    private const SPECIAL = [
+    private const RELATIVE_CLASS_NAMES = [
         self::SELF => true,
         self::PARENT => true,
         self::STATIC => true,
@@ -183,7 +183,7 @@ final class NameContext implements NameResolver
 
     public function resolveNameAsClass(string $name): string
     {
-        if (!$this->inClass && isset(self::SPECIAL[strtolower($name)])) {
+        if (!$this->inClass && isset(self::RELATIVE_CLASS_NAMES[strtolower($name)])) {
             throw new InvalidName(sprintf('%s cannot be used outside of the class scope', $name));
         }
 
