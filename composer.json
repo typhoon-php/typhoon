@@ -20,6 +20,7 @@
         "ergebnis/composer-normalize": "^2.42.0",
         "friendsofphp/php-cs-fixer": "^3.51.0",
         "jetbrains/phpstorm-stubs": "^2023.3",
+        "mikey179/vfsstream": "^1.6",
         "mockery/mockery": "^1.6.7",
         "phpstan/phpstan": "^1.11@dev",
         "phpunit/phpunit": "^10.5.11",

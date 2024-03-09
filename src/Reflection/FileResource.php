@@ -35,13 +35,16 @@ final class FileResource
         $this->file = $file;
     }
 
+    /**
+     * @throws FileNotReadable
+     */
     public function contents(): string
     {
         if ($this->contents !== null) {
             return $this->contents;
         }
 
-        $contents = file_get_contents($this->file);
+        $contents = @file_get_contents($this->file);
 
         if ($contents === false) {
             throw new FileNotReadable($this->file);
@@ -50,9 +53,12 @@ final class FileResource
         return $this->contents = $contents;
     }
 
+    /**
+     * @throws FileNotReadable
+     */
     public function changeDetector(): ChangeDetector
     {
-        return $this->changeDetector ??= ChangeDetector::fromFileContents($this->file, $this->contents);
+        return $this->changeDetector ??= ChangeDetector::fromFileContents($this->file, $this->contents());
     }
 
     public function isInternal(): bool
