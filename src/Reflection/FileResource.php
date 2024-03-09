@@ -54,10 +54,13 @@ final class FileResource
     }
 
     /**
+     * @deprecated will be removed in 0.4.0
      * @throws FileNotReadable
      */
     public function changeDetector(): ChangeDetector
     {
+        trigger_deprecation('typhoon/reflection', '0.3.1', 'Method %s() is deprecated and will be removed on 0.4.0.', __METHOD__);
+
         return $this->changeDetector ??= ChangeDetector::fromFileContents($this->file, $this->contents());
     }
 

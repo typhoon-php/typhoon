@@ -13,6 +13,7 @@ use PHPStan\PhpDocParser\Ast\Type\TypeNode;
 use PHPStan\PhpDocParser\Ast\Type\UnionTypeNode;
 use Typhoon\Reflection\FileResource;
 use Typhoon\Reflection\Metadata\AttributeMetadata;
+use Typhoon\Reflection\Metadata\ChangeDetector;
 use Typhoon\Reflection\Metadata\ClassConstantMetadata;
 use Typhoon\Reflection\Metadata\ClassMetadata;
 use Typhoon\Reflection\Metadata\InheritedName;
@@ -82,7 +83,7 @@ final class ContextualPhpParserReflector
             return new ClassMetadata(
                 name: $name,
                 modifiers: ClassReflections::modifiers($node),
-                changeDetector: $this->file->changeDetector(),
+                changeDetector: ChangeDetector::fromFileContents($this->file->file, $this->file->contents()),
                 internal: $this->file->isInternal(),
                 extension: $this->file->extension,
                 file: $this->file->isInternal() ? false : $this->file->file,
