@@ -9,7 +9,7 @@ use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProviderExternal;
 use PHPUnit\Framework\TestCase;
 use Traits\Trait1;
-use Typhoon\Reflection\ClassLocator\NativeReflectionLocator;
+use Typhoon\Reflection\ClassLocator\ClassLocators;
 use Typhoon\Type\Variance;
 
 #[CoversClass(AttributeReflection::class)]
@@ -28,7 +28,7 @@ final class ReflectorCompatibilityTest extends TestCase
     {
         \Mockery::setLoader(new RequireLoader(__DIR__ . '/../../var/mockery'));
         self::$defaultReflector = TyphoonReflector::build();
-        self::$nativeReflector = TyphoonReflector::build(new NativeReflectionLocator());
+        self::$nativeReflector = TyphoonReflector::build(new ClassLocators([]));
     }
 
     /**

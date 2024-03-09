@@ -10,8 +10,6 @@ use Psr\SimpleCache\CacheInterface;
 use Typhoon\Reflection\Cache\InMemoryCache;
 use Typhoon\Reflection\ClassLocator\ClassLocators;
 use Typhoon\Reflection\ClassLocator\ComposerClassLocator;
-use Typhoon\Reflection\ClassLocator\NativeReflectionFileLocator;
-use Typhoon\Reflection\ClassLocator\NativeReflectionLocator;
 use Typhoon\Reflection\ClassLocator\PhpStormStubsClassLocator;
 use Typhoon\Reflection\ClassReflection\ClassReflector;
 use Typhoon\Reflection\Exception\ClassDoesNotExist;
@@ -36,6 +34,7 @@ final class TyphoonReflector implements ClassExistenceChecker, ClassReflector
         private readonly NativeReflector $nativeReflector,
         private readonly ClassLocator $classLocator,
         private readonly MetadataStorage $metadataStorage,
+        private readonly bool $fallbackToNativeReflection,
     ) {}
 
     public static function build(
@@ -43,6 +42,7 @@ final class TyphoonReflector implements ClassExistenceChecker, ClassReflector
         CacheInterface $cache = new InMemoryCache(),
         TagPrioritizer $tagPrioritizer = new PrefixBasedTagPrioritizer(),
         ?PhpParser $phpParser = null,
+        bool $fallbackToNativeReflection = true,
     ): self {
         return new self(
             phpParserReflector: new PhpParserReflector(
@@ -52,6 +52,7 @@ final class TyphoonReflector implements ClassExistenceChecker, ClassReflector
             nativeReflector: new NativeReflector(),
             classLocator: $classLocator ?? self::defaultClassLocator(),
             metadataStorage: new MetadataStorage($cache),
+            fallbackToNativeReflection: $fallbackToNativeReflection,
         );
     }
 
@@ -66,9 +67,6 @@ final class TyphoonReflector implements ClassExistenceChecker, ClassReflector
         if (ComposerClassLocator::isSupported()) {
             $classLocators[] = new ComposerClassLocator();
         }
-
-        $classLocators[] = new NativeReflectionFileLocator();
-        $classLocators[] = new NativeReflectionLocator();
 
         return new ClassLocators($classLocators);
     }
@@ -139,20 +137,62 @@ final class TyphoonReflector implements ClassExistenceChecker, ClassReflector
             return $metadata;
         }
 
-        $location = $this->classLocator->locateClass($name)
-            ?? throw new ClassDoesNotExist($name);
+        $resource = $this->locateClass($name);
 
-        if ($location instanceof \ReflectionClass) {
-            $metadata = $this->nativeReflector->reflectClass($location);
+        if ($resource instanceof \ReflectionClass) {
+            $metadata = $this->nativeReflector->reflectClass($resource);
             $this->metadataStorage->save($metadata);
 
             return $metadata;
         }
 
-        $this->phpParserReflector->reflectFile($location, new WeakClassExistenceChecker($this), $this->metadataStorage);
+        $this->phpParserReflector->reflectFile($resource, new WeakClassExistenceChecker($this), $this->metadataStorage);
         $metadata = $this->metadataStorage->get(ClassMetadata::class, $name);
         $this->metadataStorage->commit();
 
         return $metadata ?? throw new ClassDoesNotExist($name);
+    }
+
+    /**
+     * @param non-empty-string $name
+     */
+    private function locateClass(string $name): FileResource|\ReflectionClass
+    {
+        $resource = $this->classLocator->locateClass($name);
+
+        if ($resource instanceof FileResource) {
+            return $resource;
+        }
+
+        if ($resource instanceof \ReflectionClass) {
+            trigger_deprecation(
+                'typhoon/reflection',
+                '0.3.1',
+                'Returning %s from %s is deprecated, use %s::build($fallbackToNativeReflection) instead.',
+                \ReflectionClass::class,
+                ClassLocator::class,
+                self::class,
+            );
+
+            return $resource;
+        }
+
+        if (!$this->fallbackToNativeReflection) {
+            throw new ClassDoesNotExist($name);
+        }
+
+        try {
+            $reflectionClass = new \ReflectionClass($name);
+        } catch (\ReflectionException) {
+            throw new ClassDoesNotExist($name);
+        }
+
+        $file = $reflectionClass->getFileName();
+
+        if ($file !== false) {
+            return new FileResource($file, $reflectionClass->getExtensionName());
+        }
+
+        return $reflectionClass;
     }
 }
