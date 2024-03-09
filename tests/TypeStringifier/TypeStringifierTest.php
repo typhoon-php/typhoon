@@ -125,7 +125,7 @@ final class TypeStringifierTest extends TestCase
         yield [types::constant('test'), 'test'];
         yield [types::classConstant(types::object(\stdClass::class), 'test'), 'stdClass::test'];
         yield [types::key(types::list()), 'key-of<list>'];
-        yield [types::value(types::list()), 'value-of<list>'];
+        yield [types::value(types::list()), 'list[key-of<list>]'];
         yield [types::conditional(types::arg('a'), if: types::string, then: types::int, else: types::float), '($a is string ? int : float)'];
         yield [types::conditional(types::template('T', types::atFunction('trim')), if: types::string, then: types::int, else: types::float), '(T@trim() is string ? int : float)'];
         yield [types::array(value: types::varianceAware(types::int, Variance::Covariant)), 'array<covariant int>'];

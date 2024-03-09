@@ -181,6 +181,9 @@ abstract class DefaultTypeVisitor implements TypeVisitor
         return $this->default($self);
     }
 
+    /**
+     * @deprecated will be removed in 0.4.0
+     */
     public function value(Type $self, Type $type): mixed
     {
         return $this->default($self);
