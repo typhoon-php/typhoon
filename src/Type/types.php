@@ -427,7 +427,7 @@ enum types implements Type
 
     public static function value(Type $type): Type
     {
-        return new Internal\ValueType($type);
+        return self::offset($type, self::key($type));
     }
 
     /**

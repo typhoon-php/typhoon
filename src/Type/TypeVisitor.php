@@ -219,6 +219,7 @@ interface TypeVisitor
     public function union(Type $self, array $types): mixed;
 
     /**
+     * @deprecated will be removed in 0.4.0
      * @return TReturn
      */
     public function value(Type $self, Type $type): mixed;
