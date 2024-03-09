@@ -26,8 +26,6 @@ abstract class ClassReflection
         public readonly ?int $startLine,
         public readonly ?int $endLine,
         public readonly ?string $extension,
-        public readonly array $interfaceNames,
-        public readonly array $traitNames,
         public readonly ?string $phpDoc,
     ) {}
 
