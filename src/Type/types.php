@@ -47,7 +47,13 @@ enum types implements Type
      */
     public static function alias(string $class, string $name, Type ...$arguments): Type
     {
-        return new Internal\AliasType($class, $name, array_values($arguments));
+        if (!array_is_list($arguments)) {
+            trigger_deprecation('typhoon/type', '0.3.1', 'Calling %s() with named arguments is deprecated.', __METHOD__);
+            /** @var list<Type> */
+            $arguments = array_values($arguments);
+        }
+
+        return new Internal\AliasType($class, $name, $arguments);
     }
 
     /**
@@ -344,7 +350,13 @@ enum types implements Type
             return self::closure;
         }
 
-        return new Internal\NamedObjectType($class, array_values($arguments));
+        if (!array_is_list($arguments)) {
+            trigger_deprecation('typhoon/type', '0.3.1', 'Calling %s() with named arguments is deprecated.', __METHOD__);
+            /** @var list<Type> */
+            $arguments = array_values($arguments);
+        }
+
+        return new Internal\NamedObjectType($class, $arguments);
     }
 
     /**
@@ -389,7 +401,13 @@ enum types implements Type
      */
     public static function template(string $name, AtMethod|AtClass|AtFunction $declaredAt, Type ...$arguments): Type
     {
-        return new Internal\TemplateType($name, $declaredAt, array_values($arguments));
+        if (!array_is_list($arguments)) {
+            trigger_deprecation('typhoon/type', '0.3.1', 'Calling %s() with named arguments is deprecated.', __METHOD__);
+            /** @var list<Type> */
+            $arguments = array_values($arguments);
+        }
+
+        return new Internal\TemplateType($name, $declaredAt, $arguments);
     }
 
     /**
