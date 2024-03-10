@@ -11,3 +11,5 @@ parameters:
         - tests/TypeStringifier
     checkGenericClassInNonGenericObjectType: false
     tmpDir: var/phpstan
+    ignoreErrors:
+        - { identifier: return.unusedType }
