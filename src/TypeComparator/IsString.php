@@ -12,12 +12,13 @@ use Typhoon\Type\Type;
  */
 final class IsString extends Comparator
 {
-    public function classString(Type $self, Type $class): mixed
+    public function classConstant(Type $self, Type $class, string $name): mixed
     {
-        return true;
+        // TODO full class constant support.
+        return $name === 'class';
     }
 
-    public function classStringLiteral(Type $self, string $class): mixed
+    public function classString(Type $self, Type $class): mixed
     {
         return true;
     }

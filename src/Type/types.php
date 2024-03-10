@@ -162,13 +162,13 @@ enum types implements Type
     }
 
     /**
-     * @template TClass of non-empty-string
-     * @param TClass $class
-     * @return Type<TClass>
+     * @param non-empty-string $class
+     * @return Type<non-empty-string>
+     * @psalm-suppress MixedReturnTypeCoercion
      */
     public static function classStringLiteral(string $class): Type
     {
-        return new Internal\ClassStringLiteralType($class);
+        return self::classConstant(self::object($class), 'class');
     }
 
     /**

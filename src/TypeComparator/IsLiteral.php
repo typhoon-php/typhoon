@@ -17,9 +17,10 @@ final class IsLiteral extends Comparator
         private readonly Type $type,
     ) {}
 
-    public function classStringLiteral(Type $self, string $class): mixed
+    public function classConstant(Type $self, Type $class, string $name): mixed
     {
-        return isSubtype(types::string, $this->type);
+        // TODO full class constant support.
+        return $name === 'class' && isSubtype(types::string, $this->type);
     }
 
     public function literal(Type $self, Type $type): mixed

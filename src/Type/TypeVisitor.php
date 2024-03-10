@@ -51,6 +51,7 @@ interface TypeVisitor
     public function classString(Type $self, Type $class): mixed;
 
     /**
+     * @deprecated will be removed in 0.4.0
      * @param Type<non-empty-string> $self
      * @param non-empty-string $class
      * @return TReturn

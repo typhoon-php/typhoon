@@ -20,11 +20,6 @@ final class ComparatorSelector extends DefaultTypeVisitor
         return new IsBool();
     }
 
-    public function classStringLiteral(Type $self, string $class): mixed
-    {
-        return new IsClassStringLiteral($class);
-    }
-
     public function float(Type $self): mixed
     {
         return new IsFloat();
