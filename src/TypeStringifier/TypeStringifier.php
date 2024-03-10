@@ -92,11 +92,6 @@ final class TypeStringifier implements TypeVisitor
         return sprintf('class-string<%s>', $class->accept($this));
     }
 
-    public function classStringLiteral(Type $self, string $class): mixed
-    {
-        return $class . '::class';
-    }
-
     public function closure(Type $self, array $parameters, Type $return): mixed
     {
         return $this->stringifyCallable('Closure', $parameters, $return);
@@ -321,11 +316,6 @@ final class TypeStringifier implements TypeVisitor
             fn(Type $type): string => $type->accept($isIntersection) ? sprintf('(%s)', $type->accept($this)) : $type->accept($this),
             $types,
         ));
-    }
-
-    public function value(Type $self, Type $type): mixed
-    {
-        return $this->stringifyGenericType('value-of', [$type]);
     }
 
     public function varianceAware(Type $self, Type $type, Variance $variance): mixed

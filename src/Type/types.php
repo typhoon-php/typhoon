@@ -42,16 +42,14 @@ enum types implements Type
     case void;
 
     /**
+     * @no-named-arguments
+     * @psalm-suppress RedundantCondition
      * @param non-empty-string $class
      * @param non-empty-string $name
      */
     public static function alias(string $class, string $name, Type ...$arguments): Type
     {
-        if (!array_is_list($arguments)) {
-            trigger_deprecation('typhoon/type', '0.3.1', 'Calling %s() with named arguments is deprecated.', __METHOD__);
-            /** @var list<Type> */
-            $arguments = array_values($arguments);
-        }
+        \assert(array_is_list($arguments), 'Template arguments do not support names.');
 
         return new Internal\AliasType($class, $name, $arguments);
     }
@@ -340,6 +338,8 @@ enum types implements Type
     }
 
     /**
+     * @no-named-arguments
+     * @psalm-suppress RedundantCondition
      * @template TObject of object
      * @param class-string<TObject>|non-empty-string $class
      * @return ($class is class-string ? Type<TObject> : Type<object>)
@@ -350,11 +350,7 @@ enum types implements Type
             return self::closure;
         }
 
-        if (!array_is_list($arguments)) {
-            trigger_deprecation('typhoon/type', '0.3.1', 'Calling %s() with named arguments is deprecated.', __METHOD__);
-            /** @var list<Type> */
-            $arguments = array_values($arguments);
-        }
+        \assert(array_is_list($arguments), 'Template arguments do not support names.');
 
         return new Internal\NamedObjectType($class, $arguments);
     }
@@ -397,15 +393,13 @@ enum types implements Type
     }
 
     /**
+     * @no-named-arguments
+     * @psalm-suppress RedundantCondition
      * @param non-empty-string $name
      */
     public static function template(string $name, AtMethod|AtClass|AtFunction $declaredAt, Type ...$arguments): Type
     {
-        if (!array_is_list($arguments)) {
-            trigger_deprecation('typhoon/type', '0.3.1', 'Calling %s() with named arguments is deprecated.', __METHOD__);
-            /** @var list<Type> */
-            $arguments = array_values($arguments);
-        }
+        \assert(array_is_list($arguments), 'Template arguments do not support names.');
 
         return new Internal\TemplateType($name, $declaredAt, $arguments);
     }

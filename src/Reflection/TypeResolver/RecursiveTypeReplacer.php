@@ -166,11 +166,6 @@ abstract class RecursiveTypeReplacer extends DefaultTypeVisitor
         return types::union(...array_map(fn(Type $part): Type => $part->accept($this), $types));
     }
 
-    public function value(Type $self, Type $type): mixed
-    {
-        return types::value($type->accept($this));
-    }
-
     public function varianceAware(Type $self, Type $type, Variance $variance): mixed
     {
         return types::varianceAware($type->accept($this), $variance);

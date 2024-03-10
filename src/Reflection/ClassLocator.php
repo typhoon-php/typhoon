@@ -12,5 +12,5 @@ interface ClassLocator
     /**
      * @param non-empty-string $name
      */
-    public function locateClass(string $name): null|\ReflectionClass|FileResource;
+    public function locateClass(string $name): ?FileResource;
 }

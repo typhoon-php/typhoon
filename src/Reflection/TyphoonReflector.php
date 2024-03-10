@@ -164,19 +164,6 @@ final class TyphoonReflector implements ClassExistenceChecker, ClassReflector
             return $resource;
         }
 
-        if ($resource instanceof \ReflectionClass) {
-            trigger_deprecation(
-                'typhoon/reflection',
-                '0.3.1',
-                'Returning %s from %s is deprecated, use %s::build($fallbackToNativeReflection) instead.',
-                \ReflectionClass::class,
-                ClassLocator::class,
-                self::class,
-            );
-
-            return $resource;
-        }
-
         if (!$this->fallbackToNativeReflection) {
             throw new ClassDoesNotExist($name);
         }

@@ -41,14 +41,6 @@ abstract class DefaultTypeVisitor implements TypeVisitor
         return $this->default($self);
     }
 
-    /**
-     * @deprecated will be removed in 0.4.0
-     */
-    public function classStringLiteral(Type $self, string $class): mixed
-    {
-        return $this->default($self);
-    }
-
     public function closure(Type $self, array $parameters, Type $return): mixed
     {
         return $this->default($self);
@@ -180,14 +172,6 @@ abstract class DefaultTypeVisitor implements TypeVisitor
     }
 
     public function union(Type $self, array $types): mixed
-    {
-        return $this->default($self);
-    }
-
-    /**
-     * @deprecated will be removed in 0.4.0
-     */
-    public function value(Type $self, Type $type): mixed
     {
         return $this->default($self);
     }

@@ -19,7 +19,7 @@ final class ClassLocators implements ClassLocator
         private readonly iterable $classLocators,
     ) {}
 
-    public function locateClass(string $name): null|FileResource|\ReflectionClass
+    public function locateClass(string $name): ?FileResource
     {
         foreach ($this->classLocators as $classLocator) {
             $file = $classLocator->locateClass($name);
