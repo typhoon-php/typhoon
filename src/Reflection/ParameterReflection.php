@@ -121,13 +121,11 @@ final class ParameterReflection extends \ReflectionParameter
 
                 public function namedObject(Type $self, string $class, array $arguments): mixed
                 {
-                    /** @psalm-suppress InternalMethod */
                     return $this->classReflector->reflectClass($class);
                 }
 
                 public function closure(Type $self, array $parameters, Type $return): mixed
                 {
-                    /** @psalm-suppress InternalMethod */
                     return $this->classReflector->reflectClass(\Closure::class);
                 }
 

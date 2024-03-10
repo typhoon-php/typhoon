@@ -20,16 +20,16 @@
         "ergebnis/composer-normalize": "^2.42.0",
         "friendsofphp/php-cs-fixer": "^3.51.0",
         "jetbrains/phpstorm-stubs": "^2023.3",
-        "mikey179/vfsstream": "^1.6",
+        "mikey179/vfsstream": "^1.6.11",
         "mockery/mockery": "^1.6.7",
         "phpstan/phpstan": "^1.11@dev",
-        "phpunit/phpunit": "^10.5.11",
+        "phpunit/phpunit": "^10.5.12",
         "phpyh/coding-standard": "^2.6.1",
         "psalm/plugin-phpunit": "^0.18.4",
         "qossmic/deptrac-shim": "^1.0.2",
         "symfony/var-dumper": "^6.4.4 || ^7.0.4",
         "typhoon/opcache": "^0.2.1",
-        "vimeo/psalm": "^5.22.2"
+        "vimeo/psalm": "^5.23.0"
     },
     "autoload": {
         "psr-4": {
