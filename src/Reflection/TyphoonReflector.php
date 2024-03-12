@@ -23,6 +23,8 @@ use Typhoon\Reflection\PhpDocParser\TagPrioritizer;
 use Typhoon\Reflection\PhpParserReflector\PhpParserReflector;
 use Typhoon\Reflection\TypeContext\ClassExistenceChecker;
 use Typhoon\Reflection\TypeContext\WeakClassExistenceChecker;
+use Typhoon\Type\Type;
+use Typhoon\Type\types;
 
 /**
  * @api
@@ -117,6 +119,34 @@ final class TyphoonReflector implements ClassExistenceChecker, ClassReflector
         }
 
         return new ClassReflection($this, $this->reflectClassMetadata($name));
+    }
+
+    public function reflectValue(mixed $value): Type
+    {
+        if ($value === null) {
+            return types::null;
+        }
+
+        if (\is_scalar($value)) {
+            return types::literalValue($value);
+        }
+
+        if (\is_array($value)) {
+            return types::arrayShape(array_map($this->reflectValue(...), $value));
+        }
+
+        if ($value instanceof \Closure) {
+            // TODO reflect parameters and return type
+            return types::closure;
+        }
+
+        if (\is_resource($value)) {
+            return types::resource;
+        }
+
+        \assert(\is_object($value), 'Unexpected value types ' . get_debug_type($value));
+
+        return types::object($value::class);
     }
 
     /**
