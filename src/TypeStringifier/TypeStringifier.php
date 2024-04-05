@@ -9,10 +9,12 @@ use Typhoon\Type\ArrayElement;
 use Typhoon\Type\AtClass;
 use Typhoon\Type\AtFunction;
 use Typhoon\Type\AtMethod;
+use Typhoon\Type\DeclaredAt;
 use Typhoon\Type\DefaultTypeVisitor;
 use Typhoon\Type\Parameter;
 use Typhoon\Type\Property;
 use Typhoon\Type\Type;
+use Typhoon\Type\types;
 use Typhoon\Type\TypeVisitor;
 use Typhoon\Type\Variance;
 
@@ -284,12 +286,14 @@ final class TypeStringifier implements TypeVisitor
         return 'string';
     }
 
-    public function template(Type $self, string $name, AtClass|AtFunction|AtMethod $declaredAt, array $arguments): mixed
+    public function template(Type $self, string $name, DeclaredAt $declaredAt, array $arguments): mixed
     {
         return $this->stringifyGenericType($name, $arguments) . '@' . match (true) {
             $declaredAt instanceof AtFunction => $declaredAt->name . '()',
             $declaredAt instanceof AtClass  => $declaredAt->name,
             $declaredAt instanceof AtMethod  => sprintf('%s::%s()', $declaredAt->class, $declaredAt->name),
+            $declaredAt === types::atAnonymousFunction  => 'anonymous-function',
+            $declaredAt === types::atAnonymousClass  => 'anonymous-class',
         };
     }
 

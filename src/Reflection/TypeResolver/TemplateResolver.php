@@ -6,8 +6,7 @@ namespace Typhoon\Reflection\TypeResolver;
 
 use Typhoon\Reflection\TemplateReflection;
 use Typhoon\Type\AtClass;
-use Typhoon\Type\AtFunction;
-use Typhoon\Type\AtMethod;
+use Typhoon\Type\DeclaredAt;
 use Typhoon\Type\Type;
 use Typhoon\Type\types;
 
@@ -47,7 +46,7 @@ final class TemplateResolver extends RecursiveTypeReplacer
         return $resolvedArguments;
     }
 
-    public function template(Type $self, string $name, AtClass|AtFunction|AtMethod $declaredAt, array $arguments): mixed
+    public function template(Type $self, string $name, DeclaredAt $declaredAt, array $arguments): mixed
     {
         if ($name === 'self') {
             if ($this->self === null) {

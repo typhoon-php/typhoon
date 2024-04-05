@@ -4,9 +4,7 @@ declare(strict_types=1);
 
 namespace Typhoon\Type\Internal;
 
-use Typhoon\Type\AtClass;
-use Typhoon\Type\AtFunction;
-use Typhoon\Type\AtMethod;
+use Typhoon\Type\DeclaredAt;
 use Typhoon\Type\Type;
 use Typhoon\Type\TypeVisitor;
 
@@ -24,7 +22,7 @@ final class TemplateType implements Type
      */
     public function __construct(
         private readonly string $name,
-        private readonly AtFunction|AtClass|AtMethod $declaredAt,
+        private readonly DeclaredAt $declaredAt,
         private readonly array $arguments,
     ) {}
 

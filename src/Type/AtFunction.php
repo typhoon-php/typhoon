@@ -8,7 +8,7 @@ namespace Typhoon\Type;
  * @api
  * @psalm-immutable
  */
-final class AtFunction
+final class AtFunction implements DeclaredAt
 {
     /**
      * @param non-empty-string $name
@@ -16,4 +16,9 @@ final class AtFunction
     public function __construct(
         public readonly string $name,
     ) {}
+
+    public function equals(DeclaredAt $at): bool
+    {
+        return $at instanceof self && $this->name === $at->name;
+    }
 }

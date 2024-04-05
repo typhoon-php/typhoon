@@ -6,9 +6,7 @@ namespace Typhoon\Reflection\TypeResolver;
 
 use Typhoon\Type\Argument;
 use Typhoon\Type\ArrayElement;
-use Typhoon\Type\AtClass;
-use Typhoon\Type\AtFunction;
-use Typhoon\Type\AtMethod;
+use Typhoon\Type\DeclaredAt;
 use Typhoon\Type\DefaultTypeVisitor;
 use Typhoon\Type\Parameter;
 use Typhoon\Type\Property;
@@ -153,7 +151,7 @@ abstract class RecursiveTypeReplacer extends DefaultTypeVisitor
         return types::offset($type->accept($this), $offset->accept($this));
     }
 
-    public function template(Type $self, string $name, AtClass|AtFunction|AtMethod $declaredAt, array $arguments): mixed
+    public function template(Type $self, string $name, DeclaredAt $declaredAt, array $arguments): mixed
     {
         return types::template($name, $declaredAt, ...array_map(
             fn(Type $templateArgument): Type => $templateArgument->accept($this),

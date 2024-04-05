@@ -113,6 +113,8 @@ final class TypeStringifierTest extends TestCase
         yield [types::template('T', types::atFunction('trim')), 'T@trim()'];
         yield [types::template('T', types::atClass(\stdClass::class)), 'T@stdClass'];
         yield [types::template('T', types::atMethod(\stdClass::class, 'm')), 'T@stdClass::m()'];
+        yield [types::template('T', types::atAnonymousClass), 'T@anonymous-class'];
+        yield [types::template('T', types::atAnonymousFunction), 'T@anonymous-function'];
         yield [types::literalString, 'literal-string'];
         yield [types::literalInt, 'literal-int'];
         yield [types::classString(types::template('T', types::atClass(\stdClass::class))), 'class-string<T@stdClass>'];

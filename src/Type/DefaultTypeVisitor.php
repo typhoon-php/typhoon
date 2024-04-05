@@ -161,7 +161,7 @@ abstract class DefaultTypeVisitor implements TypeVisitor
         return $this->default($self);
     }
 
-    public function template(Type $self, string $name, AtClass|AtFunction|AtMethod $declaredAt, array $arguments): mixed
+    public function template(Type $self, string $name, DeclaredAt $declaredAt, array $arguments): mixed
     {
         return $this->default($self);
     }
