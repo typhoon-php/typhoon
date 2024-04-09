@@ -451,7 +451,7 @@ enum types implements Type
             self::closure => $visitor->closure($this, [], types::mixed),
             self::false => $visitor->literalValue($this, false),
             self::float => $visitor->float($this),
-            self::int => $visitor->int($this),
+            self::int => $visitor->intRange($this, null, null),
             self::iterable => $visitor->iterable($this, self::mixed, self::mixed),
             self::literalInt => $visitor->literal($this, self::int),
             self::literalString => $visitor->literal($this, self::string),

@@ -22,9 +22,13 @@ final class TypeConverter extends DefaultTypeVisitor
         return NamedTypeReflection::string();
     }
 
-    public function int(Type $self): mixed
+    public function intRange(Type $self, ?int $min, ?int $max): mixed
     {
-        return NamedTypeReflection::int();
+        if ($min === null && $max === null) {
+            return NamedTypeReflection::int();
+        }
+
+        throw new NonConvertableType($self);
     }
 
     public function float(Type $self): mixed

@@ -17,6 +17,16 @@ final class IsIntRange extends Comparator
         private readonly ?int $max,
     ) {}
 
+    public function intMask(Type $self, Type $type): mixed
+    {
+        if ($this->min === null && $this->max === null) {
+            return true;
+        }
+
+        // TODO
+        return false;
+    }
+
     public function intRange(Type $self, ?int $min, ?int $max): mixed
     {
         return ($this->min === null || ($min !== null && $min >= $this->min))

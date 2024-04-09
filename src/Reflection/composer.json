@@ -15,8 +15,8 @@
         "phpstan/phpdoc-parser": "^1.0",
         "psr/simple-cache": "^3.0",
         "symfony/deprecation-contracts": "^3.4",
-        "typhoon/type": "^0.3",
-        "typhoon/type-stringifier": "^0.3"
+        "typhoon/type": "^0.3.3",
+        "typhoon/type-stringifier": "^0.3.3"
     },
     "autoload": {
         "psr-4": {

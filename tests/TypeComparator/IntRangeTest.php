@@ -14,6 +14,7 @@ final class IntRangeTest extends RelationTestCase
     protected static function xSubtypeOfY(): iterable
     {
         yield [types::never, types::intRange(-9, 10)];
+        yield [types::int, types::int];
         yield [types::intRange(-9, 10), types::intRange(-9, 10)];
         yield [types::intRange(-9, 10), types::intRange(-100, 100)];
         yield [types::intRange(-9, 10), types::intRange(max: 100)];

@@ -25,11 +25,6 @@ final class ComparatorSelector extends DefaultTypeVisitor
         return new IsFloat();
     }
 
-    public function int(Type $self): mixed
-    {
-        return new IsInt();
-    }
-
     public function intersection(Type $self, array $types): mixed
     {
         return new IsIntersection($types);

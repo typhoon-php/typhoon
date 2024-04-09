@@ -83,6 +83,7 @@ interface TypeVisitor
     public function float(Type $self): mixed;
 
     /**
+     * @deprecated will be removed in 0.4.0
      * @param Type<int> $self
      * @return TReturn
      */
