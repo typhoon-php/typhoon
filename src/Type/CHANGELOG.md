@@ -7,7 +7,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## 0.3.3
 
-- Deprecated `TypeVisitor::int()` in favor of `TypeVisitor::intRange()`.
+- Deprecated `TypeVisitor::int()` and `DefaultVisitor::int()` in favor of `TypeVisitor::intRange()` and `DefaultVisitor::intRange()`.
 
 ## 0.3.2
 
