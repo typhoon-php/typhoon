@@ -7,7 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## 0.3.3
 
-- Deprecated `TypeVisitor::int()` and `DefaultVisitor::int()` in favor of `TypeVisitor::intRange()` and `DefaultVisitor::intRange()`.
+- Added `TypeVisitor::int(?int $min, ?int $max)` parameters via a phpDoc.
+- Added `DefaultVisitor::int(?int $min = null, ?int $max = null)` parameters.
+- Deprecated not declaring `$min` and `$max` parameters in `TypeVisitor::int()`.
+- Deprecated `TypeVisitor::intRange()` and `DefaultVisitor::intRange()`.
 
 ## 0.3.2
 

@@ -10,7 +10,7 @@ use Typhoon\Type\Type;
  * @internal
  * @psalm-internal Typhoon\TypeComparator
  */
-final class IsIntRange extends Comparator
+final class IsInt extends Comparator
 {
     public function __construct(
         private readonly ?int $min,
@@ -27,7 +27,7 @@ final class IsIntRange extends Comparator
         return false;
     }
 
-    public function intRange(Type $self, ?int $min, ?int $max): mixed
+    public function int(Type $self, ?int $min = null, ?int $max = null): mixed
     {
         return ($this->min === null || ($min !== null && $min >= $this->min))
             && ($this->max === null || ($max !== null && $max <= $this->max));

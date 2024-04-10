@@ -235,7 +235,7 @@ enum types implements Type
             return self::literalValue($min);
         }
 
-        return new Internal\IntRangeType($min, $max);
+        return new Internal\IntType($min, $max);
     }
 
     /**
@@ -442,6 +442,7 @@ enum types implements Type
 
     public function accept(TypeVisitor $visitor): mixed
     {
+        /** @psalm-suppress TooManyArguments */
         return match ($this) {
             self::array => $visitor->array($this, self::arrayKey, self::mixed, []),
             self::arrayKey => $visitor->union($this, [self::int, self::string]),
@@ -451,21 +452,26 @@ enum types implements Type
             self::closure => $visitor->closure($this, [], types::mixed),
             self::false => $visitor->literalValue($this, false),
             self::float => $visitor->float($this),
-            self::int => $visitor->intRange($this, null, null),
+            /** @phpstan-ignore arguments.count */
+            self::int => $visitor->int($this, null, null),
             self::iterable => $visitor->iterable($this, self::mixed, self::mixed),
             self::literalInt => $visitor->literal($this, self::int),
             self::literalString => $visitor->literal($this, self::string),
             self::mixed => $visitor->mixed($this),
-            self::negativeInt => $visitor->intRange($this, null, -1),
+            /** @phpstan-ignore arguments.count */
+            self::negativeInt => $visitor->int($this, null, -1),
             self::never => $visitor->never($this),
             self::nonEmptyString => $visitor->nonEmpty($this, self::string),
-            self::nonNegativeInt => $visitor->intRange($this, 0, null),
-            self::nonPositiveInt => $visitor->intRange($this, null, 0),
+            /** @phpstan-ignore arguments.count */
+            self::nonNegativeInt => $visitor->int($this, 0, null),
+            /** @phpstan-ignore arguments.count */
+            self::nonPositiveInt => $visitor->int($this, null, 0),
             self::null => $visitor->null($this),
             self::numeric => $visitor->union($this, [self::int, self::float, self::numericString]),
             self::numericString => $visitor->numericString($this),
             self::object => $visitor->object($this),
-            self::positiveInt => $visitor->intRange($this, 1, null),
+            /** @phpstan-ignore arguments.count */
+            self::positiveInt => $visitor->int($this, 1, null),
             self::resource => $visitor->resource($this),
             self::scalar => $visitor->union($this, [self::bool, self::int, self::float, self::string]),
             self::string => $visitor->string($this),

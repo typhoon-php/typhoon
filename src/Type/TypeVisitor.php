@@ -83,11 +83,10 @@ interface TypeVisitor
     public function float(Type $self): mixed;
 
     /**
-     * @deprecated will be removed in 0.4.0
      * @param Type<int> $self
      * @return TReturn
      */
-    public function int(Type $self): mixed;
+    public function int(Type $self/** ?int $min, ?int $max */): mixed;
 
     /**
      * @param non-empty-list<Type> $types
@@ -102,6 +101,7 @@ interface TypeVisitor
     public function intMask(Type $self, Type $type): mixed;
 
     /**
+     * @deprecated will be removed in 0.4.0
      * @param Type<int> $self
      * @return TReturn
      */

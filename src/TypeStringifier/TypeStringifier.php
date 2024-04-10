@@ -123,9 +123,13 @@ final class TypeStringifier implements TypeVisitor
         return 'float';
     }
 
-    public function int(Type $self): mixed
+    public function int(Type $self, ?int $min = null, ?int $max = null): mixed
     {
-        return 'int';
+        if ($min === null && $max === null) {
+            return 'int';
+        }
+
+        return sprintf('int<%s, %s>', $min ?? 'min', $max ?? 'max');
     }
 
     public function intersection(Type $self, array $types): mixed
@@ -155,10 +159,6 @@ final class TypeStringifier implements TypeVisitor
 
     public function intRange(Type $self, ?int $min, ?int $max): mixed
     {
-        if ($min === null && $max === null) {
-            return 'int';
-        }
-
         return sprintf('int<%s, %s>', $min ?? 'min', $max ?? 'max');
     }
 
@@ -382,7 +382,7 @@ final class TypeStringifier implements TypeVisitor
                     return 0b100;
                 }
 
-                public function intRange(Type $self, ?int $min, ?int $max): mixed
+                public function int(Type $self, ?int $min = null, ?int $max = null): mixed
                 {
                     if ($min === null && $max === null) {
                         return 0b001;

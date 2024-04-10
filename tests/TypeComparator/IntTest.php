@@ -7,9 +7,9 @@ namespace Typhoon\TypeComparator;
 use PHPUnit\Framework\Attributes\CoversClass;
 use Typhoon\Type\types;
 
-#[CoversClass(IsIntRange::class)]
+#[CoversClass(IsInt::class)]
 #[CoversClass(ComparatorSelector::class)]
-final class IntRangeTest extends RelationTestCase
+final class IntTest extends RelationTestCase
 {
     protected static function xSubtypeOfY(): iterable
     {
