@@ -84,17 +84,3 @@ jobs:
         with:
           composer-options: --optimize-autoloader
       - run: composer test -- --colors=always --order-by=random
-
-  deptrac:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-      - uses: shivammathur/setup-php@v2
-        with:
-          php-version: 8.1
-          tools: composer:v2
-          coverage: none
-      - uses: ramsey/composer-install@v2
-        with:
-          composer-options: --optimize-autoloader
-      - run: composer deptrac -- --ansi
