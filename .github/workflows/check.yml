@@ -22,19 +22,19 @@ jobs:
       - run: composer validate-all
       - run: composer normalize-all -- --dry-run
 
-  php-cs-fixer:
+  lint:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
       - uses: shivammathur/setup-php@v2
         with:
           php-version: 8.1
-          tools: composer:v2, cs2pr
+          tools: composer:v2
           coverage: none
       - uses: ramsey/composer-install@v2
         with:
           composer-options: --optimize-autoloader
-      - run: composer fixcs -- --dry-run --format=checkstyle | cs2pr
+      - run: composer fixcs -- --dry-run --format=checkstyle
 
   psalm:
     runs-on: ubuntu-latest
