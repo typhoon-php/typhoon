@@ -69,7 +69,7 @@ abstract class DefaultTypeVisitor implements TypeVisitor
         return $this->default($self);
     }
 
-    public function int(Type $self, ?int $min = null, ?int $max = null): mixed
+    public function int(Type $self/** ?int $min, ?int $max */): mixed
     {
         return $this->default($self);
     }
