@@ -20,5 +20,9 @@
         "files": [
             "functions.php"
         ]
+    },
+    "config": {
+        "lock": false,
+        "vendor-dir": "../../var/TypeStringifier/vendor"
     }
 }

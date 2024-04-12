@@ -17,5 +17,9 @@
         "psr-4": {
             "Typhoon\\Type\\": ""
         }
+    },
+    "config": {
+        "lock": false,
+        "vendor-dir": "../../var/Type/vendor"
     }
 }

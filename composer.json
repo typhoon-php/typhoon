@@ -62,14 +62,34 @@
         }
     },
     "scripts": {
+        "check-require": [
+            "@composer install --working-dir=src/Reflection",
+            "tools/composer-require-checker/vendor/bin/composer-require-checker check src/Reflection/composer.json --config-file=src/Reflection/composer-require-checker.json",
+            "@composer install --working-dir=src/Type",
+            "tools/composer-require-checker/vendor/bin/composer-require-checker check src/Type/composer.json",
+            "@composer install --working-dir=src/TypeStringifier",
+            "tools/composer-require-checker/vendor/bin/composer-require-checker check src/TypeStringifier/composer.json"
+        ],
         "deptrac": "deptrac analyse --cache-file=var/.deptrac.cache",
         "fixcs": [
             "php-cs-fixer fix -v",
             "php-cs-fixer fix --config=.sort.php-cs-fixer.dist.php -v"
         ],
+        "normalize-all": [
+            "@composer normalize --diff",
+            "@composer normalize --diff src/Reflection/composer.json",
+            "@composer normalize --diff src/Type/composer.json",
+            "@composer normalize --diff src/TypeStringifier/composer.json"
+        ],
         "phpstan": "phpstan -v",
         "pre-command-run": "mkdir -p var",
         "psalm": "tools/psalm/vendor/bin/psalm --show-info --no-diff",
-        "test": "phpunit"
+        "test": "phpunit",
+        "validate-all": [
+            "@composer validate --strict --no-check-publish",
+            "@composer validate --strict src/Reflection/composer.json",
+            "@composer validate --strict src/Type/composer.json",
+            "@composer validate --strict src/TypeStringifier/composer.json"
+        ]
     }
 }

@@ -1,0 +1,6 @@
+{
+    "symbol-whitelist" : [
+        "Composer\\Autoload\\ClassLoader",
+        "JetBrains\\PHPStormStub\\PhpStormStubsMap"
+    ]
+}
