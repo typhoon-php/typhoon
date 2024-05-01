@@ -1,0 +1,24 @@
+{
+    "name": "typhoon/type-map",
+    "description": "Typhoon Type Map",
+    "license": "MIT",
+    "type": "library",
+    "authors": [
+        {
+            "name": "Valentin Udaltsov",
+            "email": "udaltsov.valentin@gmail.com"
+        }
+    ],
+    "require": {
+        "php": "^8.1"
+    },
+    "autoload": {
+        "psr-4": {
+            "Typhoon\\TypeMap\\": ""
+        }
+    },
+    "config": {
+        "lock": false,
+        "vendor-dir": "../../var/TypeMap/vendor"
+    }
+}

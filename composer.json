@@ -65,6 +65,8 @@
             "tools/composer-require-checker/vendor/bin/composer-require-checker check src/Reflection/composer.json --config-file=src/Reflection/composer-require-checker.json",
             "@composer install --working-dir=src/Type",
             "tools/composer-require-checker/vendor/bin/composer-require-checker check src/Type/composer.json",
+            "@composer install --working-dir=src/TypeMap",
+            "tools/composer-require-checker/vendor/bin/composer-require-checker check src/TypeMap/composer.json",
             "@composer install --working-dir=src/TypeStringifier",
             "tools/composer-require-checker/vendor/bin/composer-require-checker check src/TypeStringifier/composer.json"
         ],
@@ -76,6 +78,7 @@
             "@composer normalize --diff",
             "@composer normalize --diff src/Reflection/composer.json",
             "@composer normalize --diff src/Type/composer.json",
+            "@composer normalize --diff src/TypeMap/composer.json",
             "@composer normalize --diff src/TypeStringifier/composer.json",
             "@composer normalize --diff tools/composer-require-checker/composer.json",
             "@composer normalize --diff tools/psalm/composer.json"
@@ -88,6 +91,7 @@
             "@composer validate --strict --no-check-publish",
             "@composer validate --strict src/Reflection/composer.json",
             "@composer validate --strict src/Type/composer.json",
+            "@composer validate --strict src/TypeMap/composer.json",
             "@composer validate --strict src/TypeStringifier/composer.json"
         ]
     }
