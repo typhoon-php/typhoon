@@ -35,7 +35,7 @@ final class AnonymousClassId extends DeclarationId
 
     public function toString(): string
     {
-        return sprintf('anonymous-class(%s, %d)', $this->file, $this->line);
+        return sprintf('anonymous-class:%s:%s', $this->file, $this->line);
     }
 
     public function __serialize(): array

@@ -27,7 +27,7 @@ final class ClassId extends DeclarationId
 
     public function toString(): string
     {
-        return sprintf('class(%s)', $this->name);
+        return $this->name;
     }
 
     public function equals(DeclarationId $id): bool

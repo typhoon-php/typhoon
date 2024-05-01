@@ -20,7 +20,7 @@ final class MethodId extends DeclarationId
 
     public function toString(): string
     {
-        return sprintf('method(%s, %s)', $this->class->toString(), $this->name);
+        return sprintf('%s::%s()', $this->class->toString(), $this->name);
     }
 
     public function equals(DeclarationId $id): bool

@@ -19,7 +19,7 @@ final class FunctionId extends DeclarationId
 
     public function toString(): string
     {
-        return sprintf('function(%s)', $this->name);
+        return $this->name . '()';
     }
 
     public function equals(DeclarationId $id): bool

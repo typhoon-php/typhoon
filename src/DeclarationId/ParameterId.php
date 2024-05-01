@@ -20,7 +20,7 @@ final class ParameterId extends DeclarationId
 
     public function toString(): string
     {
-        return sprintf('parameter(%s, %s)', $this->function->toString(), $this->name);
+        return sprintf('%s$%s)', substr($this->function->toString(), 0, -1), $this->name);
     }
 
     public function equals(DeclarationId $id): bool
