@@ -12,6 +12,16 @@ abstract class DeclarationId
 {
     protected function __construct() {}
 
+    final public static function function(string $name): FunctionId
+    {
+        if (\function_exists($name) || self::isNameValid($name)) {
+            /** @psalm-suppress ArgumentTypeCoercion */
+            return new FunctionId($name);
+        }
+
+        throw new \InvalidArgumentException(sprintf('Invalid function name %s', $name));
+    }
+
     final public static function class(string $name): ClassId|AnonymousClassId
     {
         if (str_contains($name, '@')) {
@@ -24,26 +34,35 @@ abstract class DeclarationId
             $line = (int) $matches[2];
             \assert($line > 0);
 
-            return new AnonymousClassId($file, $line, class_exists($name, autoload: false) ? $name : null);
+            return new AnonymousClassId(
+                file: $file,
+                line: $line,
+                originalName: class_exists($name, autoload: false) ? $name : null,
+            );
         }
 
-        // simplified fast regex
-        if (preg_match('/^[a-zA-Z0-9\x80-\xff_\\\]+$/', $name) === 1) {
-            /** @var non-empty-string */
-            $name = ltrim($name, '\\');
-
+        if (class_exists($name, autoload: false)
+            || interface_exists($name, autoload: false)
+            || trait_exists($name, autoload: false)
+            || self::isNameValid($name)
+        ) {
+            /** @psalm-suppress ArgumentTypeCoercion */
             return new ClassId($name);
         }
 
         throw new \InvalidArgumentException(sprintf('Invalid class name %s', $name));
     }
 
-    /**
-     * @param non-empty-string $file
-     * @param positive-int $line
-     */
     final public static function anonymousClass(string $file, int $line): AnonymousClassId
     {
+        if ($file === '') {
+            throw new \InvalidArgumentException('File name must not be empty');
+        }
+
+        if ($line <= 0) {
+            throw new \InvalidArgumentException('Line number must not be a positive integer');
+        }
+
         return new AnonymousClassId($file, $line);
     }
 
@@ -53,7 +72,7 @@ abstract class DeclarationId
             $class = self::class($class);
         }
 
-        if (!self::isNameValid($name)) {
+        if (!self::isLabelValid($name)) {
             throw new \InvalidArgumentException(sprintf('Invalid class constant name %s', $name));
         }
 
@@ -66,7 +85,7 @@ abstract class DeclarationId
             $class = self::class($class);
         }
 
-        if (!self::isNameValid($name)) {
+        if (!self::isLabelValid($name)) {
             throw new \InvalidArgumentException(sprintf('Invalid property name %s', $name));
         }
 
@@ -79,7 +98,7 @@ abstract class DeclarationId
             $class = self::class($class);
         }
 
-        if (!self::isNameValid($name)) {
+        if (!self::isLabelValid($name)) {
             throw new \InvalidArgumentException(sprintf('Invalid method name %s', $name));
         }
 
@@ -88,7 +107,7 @@ abstract class DeclarationId
 
     final public static function parameter(MethodId $function, string $name): ParameterId
     {
-        if (!self::isNameValid($name)) {
+        if (!self::isLabelValid($name)) {
             throw new \InvalidArgumentException(sprintf('Invalid parameter name %s', $name));
         }
 
@@ -100,7 +119,15 @@ abstract class DeclarationId
      */
     private static function isNameValid(string $name): bool
     {
-        return preg_match('/^[a-zA-Z0-9\x80-\xff_]+$/', $name) === 1;
+        return preg_match('/^[a-zA-Z\x80-\xff_][a-zA-Z0-9\x80-\xff_]*(\\\[a-zA-Z\x80-\xff_][a-zA-Z0-9\x80-\xff_]*)*$/', $name) === 1;
+    }
+
+    /**
+     * @psalm-assert-if-true non-empty-string $name
+     */
+    private static function isLabelValid(string $name): bool
+    {
+        return preg_match('/^[a-zA-Z\x80-\xff_][a-zA-Z0-9\x80-\xff_]*$/', $name) === 1;
     }
 
     /**
