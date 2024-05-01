@@ -29,4 +29,10 @@ final class ClassId extends DeclarationId
     {
         return sprintf('class(%s)', $this->name);
     }
+
+    public function equals(DeclarationId $id): bool
+    {
+        return $id instanceof self
+            && $id->name === $this->name;
+    }
 }

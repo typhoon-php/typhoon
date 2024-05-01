@@ -46,4 +46,11 @@ final class AnonymousClassId extends DeclarationId
             'originalName' => null,
         ];
     }
+
+    public function equals(DeclarationId $id): bool
+    {
+        return $id instanceof self
+            && $id->file === $this->file
+            && $id->line === $this->line;
+    }
 }

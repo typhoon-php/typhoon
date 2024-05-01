@@ -10,18 +10,7 @@ namespace Typhoon\DeclarationId;
  */
 abstract class DeclarationId
 {
-    private const NAME_REGEX = '/^[a-zA-Z0-9\x80-\xff_]+$/';
-
     protected function __construct() {}
-
-    /**
-     * @param non-empty-string $file
-     * @param positive-int $line
-     */
-    public static function anonymousClass(string $file, int $line): AnonymousClassId
-    {
-        return new AnonymousClassId($file, $line);
-    }
 
     final public static function class(string $name): ClassId|AnonymousClassId
     {
@@ -49,17 +38,25 @@ abstract class DeclarationId
         throw new \InvalidArgumentException(sprintf('Invalid class name %s', $name));
     }
 
+    /**
+     * @param non-empty-string $file
+     * @param positive-int $line
+     */
+    final public static function anonymousClass(string $file, int $line): AnonymousClassId
+    {
+        return new AnonymousClassId($file, $line);
+    }
+
     final public static function classConstant(string|ClassId|AnonymousClassId $class, string $name): ClassConstantId
     {
         if (\is_string($class)) {
             $class = self::class($class);
         }
 
-        if (preg_match(self::NAME_REGEX, $name) !== 1) {
+        if (!self::isNameValid($name)) {
             throw new \InvalidArgumentException(sprintf('Invalid class constant name %s', $name));
         }
 
-        /** @var non-empty-string $name */
         return new ClassConstantId($class, $name);
     }
 
@@ -69,11 +66,10 @@ abstract class DeclarationId
             $class = self::class($class);
         }
 
-        if (preg_match(self::NAME_REGEX, $name) !== 1) {
+        if (!self::isNameValid($name)) {
             throw new \InvalidArgumentException(sprintf('Invalid property name %s', $name));
         }
 
-        /** @var non-empty-string $name */
         return new PropertyId($class, $name);
     }
 
@@ -83,22 +79,28 @@ abstract class DeclarationId
             $class = self::class($class);
         }
 
-        if (preg_match(self::NAME_REGEX, $name) !== 1) {
+        if (!self::isNameValid($name)) {
             throw new \InvalidArgumentException(sprintf('Invalid method name %s', $name));
         }
 
-        /** @var non-empty-string $name */
         return new MethodId($class, $name);
     }
 
     final public static function parameter(MethodId $function, string $name): ParameterId
     {
-        if (preg_match(self::NAME_REGEX, $name) !== 1) {
+        if (!self::isNameValid($name)) {
             throw new \InvalidArgumentException(sprintf('Invalid parameter name %s', $name));
         }
 
-        /** @var non-empty-string $name */
         return new ParameterId($function, $name);
+    }
+
+    /**
+     * @psalm-assert-if-true non-empty-string $name
+     */
+    private static function isNameValid(string $name): bool
+    {
+        return preg_match('/^[a-zA-Z0-9\x80-\xff_]+$/', $name) === 1;
     }
 
     /**
@@ -113,4 +115,6 @@ abstract class DeclarationId
      * @return non-empty-string
      */
     abstract public function toString(): string;
+
+    abstract public function equals(self $id): bool;
 }
