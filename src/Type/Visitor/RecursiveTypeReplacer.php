@@ -134,7 +134,7 @@ abstract class RecursiveTypeReplacer extends DefaultTypeVisitor
         return types::nonEmpty($type->accept($this));
     }
 
-    public function objectShape(Type $self, array $properties): mixed
+    public function object(Type $self, array $properties): mixed
     {
         return types::objectShape(
             array_map(

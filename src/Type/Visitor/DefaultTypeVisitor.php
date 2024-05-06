@@ -140,12 +140,7 @@ abstract class DefaultTypeVisitor implements TypeVisitor
         return $this->default($self);
     }
 
-    public function object(Type $self): mixed
-    {
-        return $this->default($self);
-    }
-
-    public function objectShape(Type $self, array $properties): mixed
+    public function object(Type $self, array $properties): mixed
     {
         return $this->default($self);
     }

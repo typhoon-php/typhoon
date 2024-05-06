@@ -79,7 +79,7 @@ final class ToNativeTypeConverter extends DefaultTypeVisitor
         return NamedTypeAdapter::callable();
     }
 
-    public function object(Type $self): mixed
+    public function object(Type $self, array $properties): mixed
     {
         return NamedTypeAdapter::object();
     }

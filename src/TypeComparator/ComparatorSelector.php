@@ -70,7 +70,7 @@ final class ComparatorSelector extends DefaultTypeVisitor
         return new IsNumericString();
     }
 
-    public function object(Type $self): mixed
+    public function object(Type $self, array $properties): mixed
     {
         return new IsObject();
     }

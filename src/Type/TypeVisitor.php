@@ -160,16 +160,10 @@ interface TypeVisitor
 
     /**
      * @param Type<object> $self
+     * @param array<string, Property> $properties
      * @return TReturn
      */
-    public function object(Type $self): mixed;
-
-    /**
-     * @param Type<object> $self
-     * @param non-empty-array<string, Property> $properties
-     * @return TReturn
-     */
-    public function objectShape(Type $self, array $properties): mixed;
+    public function object(Type $self, array $properties): mixed;
 
     /**
      * @return TReturn

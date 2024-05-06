@@ -340,7 +340,7 @@ enum types implements Type
             return self::object;
         }
 
-        return new Internal\ObjectShapeType(array_map(
+        return new Internal\ObjectType(array_map(
             static fn(Type|Property $property): Property => $property instanceof Type ? new Property($property) : $property,
             $properties,
         ));
@@ -477,7 +477,7 @@ enum types implements Type
             self::null => $visitor->null($this),
             self::numeric => $visitor->union($this, [self::int, self::float, self::numericString]),
             self::numericString => $visitor->numericString($this),
-            self::object => $visitor->object($this),
+            self::object => $visitor->object($this, []),
             self::positiveInt => $visitor->int($this, 1, null),
             self::resource => $visitor->resource($this),
             self::scalar => $visitor->union($this, [self::bool, self::int, self::float, self::string]),

@@ -14,7 +14,7 @@ use Typhoon\Type\TypeVisitor;
  * @psalm-immutable
  * @implements Type<object>
  */
-final class ObjectShapeType implements Type
+final class ObjectType implements Type
 {
     /**
      * @param non-empty-array<string, Property> $properties
@@ -25,6 +25,6 @@ final class ObjectShapeType implements Type
 
     public function accept(TypeVisitor $visitor): mixed
     {
-        return $visitor->objectShape($this, $this->properties);
+        return $visitor->object($this, $this->properties);
     }
 }

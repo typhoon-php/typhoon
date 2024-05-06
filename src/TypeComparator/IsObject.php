@@ -24,12 +24,7 @@ final class IsObject extends Comparator
         return true;
     }
 
-    public function object(Type $self): mixed
-    {
-        return true;
-    }
-
-    public function objectShape(Type $self, array $properties): mixed
+    public function object(Type $self, array $properties): mixed
     {
         return true;
     }

@@ -74,7 +74,7 @@ final class TypeStringifier implements TypeVisitor
     {
         $isObject = $class->accept(
             new /** @extends DefaultTypeVisitor<bool> */ class () extends DefaultTypeVisitor {
-                public function object(Type $self): mixed
+                public function object(Type $self, array $properties): mixed
                 {
                     return true;
                 }
@@ -250,13 +250,12 @@ final class TypeStringifier implements TypeVisitor
         return 'numeric-string';
     }
 
-    public function object(Type $self): mixed
+    public function object(Type $self, array $properties): mixed
     {
-        return 'object';
-    }
+        if ($properties === []) {
+            return 'object';
+        }
 
-    public function objectShape(Type $self, array $properties): mixed
-    {
         return sprintf('object{%s}', implode(', ', array_map(
             fn(string $name, Property $property): string => sprintf(
                 '%s%s: %s',
