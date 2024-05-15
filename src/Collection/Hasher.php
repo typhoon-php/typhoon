@@ -68,7 +68,7 @@ final class Hasher
     private static function objectNormalizer(string $class): false|callable
     {
         if (!self::$loaded) {
-            self::$objectNormalizers[\JsonSerializable::class] = static fn(object $object): object => $object;
+            self::$objectNormalizers[\JsonSerializable::class] = static fn(\JsonSerializable $object): mixed => $object->jsonSerialize();
             self::$loaded = true;
         }
 
