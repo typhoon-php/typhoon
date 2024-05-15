@@ -10,7 +10,7 @@ namespace Typhoon\Collection;
 final class Hasher
 {
     /**
-     * @var array<class-string, callable(object): string>
+     * @var array<class-string, false|callable(object): string>
      */
     private static array $objectNormalizers = [];
 
@@ -46,12 +46,37 @@ final class Hasher
             throw new \RuntimeException();
         }
 
-        $class = $value::class;
+        $objectNormalizer = self::objectNormalizer($value::class);
 
-        if (isset(self::$objectNormalizers[$class])) {
-            return self::$objectNormalizers[$class]($value);
+        if ($objectNormalizer === false) {
+            return $value;
         }
 
-        return $value;
+        return $objectNormalizer($value);
+    }
+
+    /**
+     * @param class-string $class
+     * @return false|callable(object): string
+     */
+    private static function objectNormalizer(string $class): false|callable
+    {
+        if (isset(self::$objectNormalizers[$class])) {
+            return self::$objectNormalizers[$class];
+        }
+
+        foreach (class_parents($class) as $parent) {
+            if (isset(self::$objectNormalizers[$parent])) {
+                return self::$objectNormalizers[$class] = self::$objectNormalizers[$parent];
+            }
+        }
+
+        foreach (class_implements($class) as $interface) {
+            if (isset(self::$objectNormalizers[$interface])) {
+                return self::$objectNormalizers[$class] = self::$objectNormalizers[$interface];
+            }
+        }
+
+        return self::$objectNormalizers[$class] = false;
     }
 }
