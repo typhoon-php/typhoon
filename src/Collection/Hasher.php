@@ -9,8 +9,10 @@ namespace Typhoon\Collection;
  */
 final class Hasher
 {
+    private static bool $loaded = false;
+
     /**
-     * @var array<class-string, false|callable(object): string>
+     * @var array<class-string, false|callable(object): mixed>
      */
     private static array $objectNormalizers = [];
 
@@ -19,7 +21,7 @@ final class Hasher
     /**
      * @template T of object
      * @param class-string<T> $class
-     * @param callable(T): string $normalizer
+     * @param callable(T): mixed $normalizer
      */
     public static function registerObjectNormalizer(string $class, callable $normalizer): void
     {
@@ -29,7 +31,7 @@ final class Hasher
 
     public static function hash(mixed $value): string
     {
-        return hash('xxh3', serialize(self::normalize($value)));
+        return json_encode(self::normalize($value));
     }
 
     private static function normalize(mixed $value): mixed
@@ -39,7 +41,7 @@ final class Hasher
         }
 
         if (\is_array($value)) {
-            return array_map(self::normalize(...), $value);
+            return ['a', array_map(self::normalize(...), $value)];
         }
 
         if (!\is_object($value)) {
@@ -48,19 +50,24 @@ final class Hasher
 
         $objectNormalizer = self::objectNormalizer($value::class);
 
-        if ($objectNormalizer === false) {
-            return $value;
+        if ($objectNormalizer !== false) {
+            return [$value::class, $objectNormalizer($value)];
         }
 
-        return $objectNormalizer($value);
+        return ['s', serialize($value)];
     }
 
     /**
      * @param class-string $class
-     * @return false|callable(object): string
+     * @return false|callable(object): mixed
      */
     private static function objectNormalizer(string $class): false|callable
     {
+        if (!self::$loaded) {
+            self::$objectNormalizers[\JsonSerializable::class] = static fn(object $object): object => $object;
+            self::$loaded = true;
+        }
+
         if (isset(self::$objectNormalizers[$class])) {
             return self::$objectNormalizers[$class];
         }
