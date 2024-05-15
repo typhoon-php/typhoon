@@ -25,6 +25,10 @@ final class Hasher
      */
     public static function registerObjectNormalizer(string $class, callable $normalizer): void
     {
+        if (self::$loaded) {
+            throw new \LogicException(sprintf('Please register all normalizers before using %s', self::class));
+        }
+
         /** @psalm-suppress InvalidPropertyAssignmentValue */
         self::$objectNormalizers[$class] = $normalizer;
     }
