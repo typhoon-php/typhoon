@@ -9,14 +9,30 @@ namespace Typhoon\Collection;
  */
 final class Hasher
 {
-    private static bool $loaded = false;
+    private static ?self $instance = null;
+
+    private bool $locked = false;
 
     /**
-     * @var array<class-string, false|callable(object): mixed>
+     * @var array<non-empty-string, false|callable>
      */
-    private static array $objectNormalizers = [];
+    private array $objectNormalizers;
 
-    private function __construct() {}
+    /**
+     * @var \WeakMap<object, string>
+     */
+    private \WeakMap $objectHashes;
+
+    private function __construct()
+    {
+        $this->objectNormalizers = [
+            \DateTimeInterface::class => static fn(\DateTimeInterface $object): string => $object->format('c.u'),
+            \UnitEnum::class => static fn(\UnitEnum $object): string => $object->name,
+            \JsonSerializable::class => static fn(\JsonSerializable $object): mixed => $object->jsonSerialize(),
+        ];
+        /** @var \WeakMap<object, string> */
+        $this->objectHashes = new \WeakMap();
+    }
 
     /**
      * @template T of object
@@ -25,69 +41,108 @@ final class Hasher
      */
     public static function registerObjectNormalizer(string $class, callable $normalizer): void
     {
-        if (self::$loaded) {
+        $instance = self::instance();
+
+        if ($instance->locked) {
             throw new \LogicException(sprintf('Please register all normalizers before using %s', self::class));
         }
 
-        /** @psalm-suppress InvalidPropertyAssignmentValue */
-        self::$objectNormalizers[$class] = $normalizer;
+        $instance->objectNormalizers[$class] = $normalizer;
     }
 
     public static function hash(mixed $value): string
     {
-        return json_encode(self::normalize($value));
+        $instance = self::instance();
+        $instance->locked = true;
+
+        return $instance->hashValue($value);
     }
 
-    private static function normalize(mixed $value): mixed
+    private static function instance(): self
     {
-        if ($value === null || \is_scalar($value)) {
-            return $value;
+        return self::$instance ??= new self();
+    }
+
+    private function hashValue(mixed $value): string
+    {
+        if ($value === null) {
+            return 'n';
+        }
+
+        if ($value === true) {
+            return 't';
+        }
+
+        if ($value === false) {
+            return 'f';
+        }
+
+        if (\is_int($value)) {
+            return 'i' . $value;
+        }
+
+        if (\is_float($value)) {
+            return 'd' . $value;
+        }
+
+        if (\is_string($value)) {
+            return '"' . addcslashes($value, '"') . '"';
         }
 
         if (\is_array($value)) {
-            return ['a', array_map(self::normalize(...), $value)];
+            $list = array_is_list($value);
+            $hash = '[';
+
+            foreach ($value as $key => $item) {
+                if (!$list) {
+                    $hash .= $this->hashValue($key);
+                }
+
+                $hash .= $this->hashValue($item);
+            }
+
+            return $hash . ']';
         }
 
-        if (!\is_object($value)) {
-            throw new \RuntimeException();
+        if (\is_object($value)) {
+            return $this->objectHashes[$value] ??= $this->hashObject($value);
         }
 
-        $objectNormalizer = self::objectNormalizer($value::class);
+        throw new \RuntimeException();
+    }
 
-        if ($objectNormalizer !== false) {
-            return [$value::class, $objectNormalizer($value)];
+    private function hashObject(object $value): string
+    {
+        $objectNormalizer = $this->objectNormalizerFor($value::class);
+
+        if ($objectNormalizer === false) {
+            return '(' . serialize($value) . ')';
         }
 
-        return ['s', serialize($value)];
+        return $value::class . '{' . $this->hashValue($objectNormalizer($value)) . '}';
     }
 
     /**
      * @param class-string $class
-     * @return false|callable(object): mixed
      */
-    private static function objectNormalizer(string $class): false|callable
+    private function objectNormalizerFor(string $class): false|callable
     {
-        if (!self::$loaded) {
-            self::$objectNormalizers[\JsonSerializable::class] = static fn(\JsonSerializable $object): mixed => $object->jsonSerialize();
-            self::$loaded = true;
-        }
-
-        if (isset(self::$objectNormalizers[$class])) {
-            return self::$objectNormalizers[$class];
+        if (isset($this->objectNormalizers[$class])) {
+            return $this->objectNormalizers[$class];
         }
 
         foreach (class_parents($class) as $parent) {
-            if (isset(self::$objectNormalizers[$parent])) {
-                return self::$objectNormalizers[$class] = self::$objectNormalizers[$parent];
+            if (isset($this->objectNormalizers[$parent])) {
+                return $this->objectNormalizers[$class] = $this->objectNormalizers[$parent];
             }
         }
 
         foreach (class_implements($class) as $interface) {
-            if (isset(self::$objectNormalizers[$interface])) {
-                return self::$objectNormalizers[$class] = self::$objectNormalizers[$interface];
+            if (isset($this->objectNormalizers[$interface])) {
+                return $this->objectNormalizers[$class] = $this->objectNormalizers[$interface];
             }
         }
 
-        return self::$objectNormalizers[$class] = false;
+        return $this->objectNormalizers[$class] = false;
     }
 }
