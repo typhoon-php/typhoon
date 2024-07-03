@@ -160,13 +160,6 @@ interface TypeVisitor
     public function callable(Type $self, array $parameters, Type $return): mixed;
 
     /**
-     * @param Type<\Closure> $self
-     * @param list<Parameter> $parameters
-     * @return TReturn
-     */
-    public function closure(Type $self, array $parameters, Type $return): mixed;
-
-    /**
      * @param non-empty-list<Type> $types
      * @return TReturn
      */

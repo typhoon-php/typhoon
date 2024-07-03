@@ -141,11 +141,6 @@ abstract class DefaultTypeVisitor implements TypeVisitor
         return $this->default($self);
     }
 
-    public function closure(Type $self, array $parameters, Type $return): mixed
-    {
-        return $this->default($self);
-    }
-
     public function union(Type $self, array $types): mixed
     {
         return $this->default($self);

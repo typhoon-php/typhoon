@@ -101,11 +101,6 @@ final class ToNativeTypeConverter extends DefaultTypeVisitor
         return NamedTypeAdapter::callable();
     }
 
-    public function closure(Type $self, array $parameters, Type $return): mixed
-    {
-        return NamedTypeAdapter::namedObject(\Closure::class);
-    }
-
     public function union(Type $self, array $types): mixed
     {
         // TODO use comparator

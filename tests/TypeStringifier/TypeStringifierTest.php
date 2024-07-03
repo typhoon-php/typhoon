@@ -41,7 +41,7 @@ final class TypeStringifierTest extends TestCase
         yield [types::float, 'float'];
         yield [types::floatValue(0.234), '0.234'];
         yield [types::floatValue(-0.234), '-0.234'];
-        yield [types::numeric, 'int|float|numeric-string'];
+        yield [types::numeric, 'numeric'];
         yield [types::arrayKey, 'int|string'];
         yield [types::numericString, 'numeric-string'];
         yield [types::nonEmptyString, 'non-empty-string'];
@@ -51,7 +51,7 @@ final class TypeStringifierTest extends TestCase
         yield [types::stringValue("a'bcd"), "'a\\'bcd'"];
         yield [types::stringValue("a\\\\'bcd"), "'a\\\\\\\\\\'bcd'"];
         yield [types::stringValue("\n"), "'\\n'"];
-        yield [types::scalar, 'bool|int|float|string'];
+        yield [types::scalar, 'scalar'];
         yield [types::resource, 'resource'];
         yield [types::nonEmptyList(), 'non-empty-list'];
         yield [types::nonEmptyList(types::string), 'non-empty-list<string>'];

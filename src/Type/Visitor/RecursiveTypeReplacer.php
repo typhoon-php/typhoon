@@ -63,23 +63,6 @@ abstract class RecursiveTypeReplacer extends DefaultTypeVisitor
         return types::classConstant($class->accept($this), $name);
     }
 
-    public function closure(Type $self, array $parameters, Type $return): mixed
-    {
-        return types::closure(
-            parameters: array_map(
-                fn(Parameter $parameter): Parameter => types::param(
-                    type: $parameter->type->accept($this),
-                    hasDefault: $parameter->hasDefault,
-                    variadic: $parameter->variadic,
-                    byReference: $parameter->byReference,
-                    name: $parameter->name,
-                ),
-                $parameters,
-            ),
-            return: $return->accept($this),
-        );
-    }
-
     public function conditional(Type $self, Argument|Type $subject, Type $if, Type $then, Type $else): mixed
     {
         return types::conditional($subject, $if->accept($this), $then->accept($this), $else->accept($this));

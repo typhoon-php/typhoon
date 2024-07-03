@@ -13,5 +13,11 @@ use Typhoon\Type\Type;
  */
 function stringify(Type $type): string
 {
-    return $type->accept(new TypeStringifier());
+    return strtr($type->accept(new TypeStringifier()), [
+        'true|false' => 'bool',
+        'true|false|int|float|string' => 'scalar',
+        'Closure&callable' => 'Closure',
+        'numeric&string' => 'numeric-string',
+        'truthy&string' => 'truthy-string',
+    ]);
 }
