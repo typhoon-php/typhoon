@@ -247,9 +247,9 @@ final class TypeStringifier implements TypeVisitor
         return 'null';
     }
 
-    public function numericString(Type $self): mixed
+    public function numeric(Type $self): mixed
     {
-        return 'numeric-string';
+        return 'numeric';
     }
 
     public function object(Type $self, array $properties): mixed
@@ -323,9 +323,9 @@ final class TypeStringifier implements TypeVisitor
         return $template->toString();
     }
 
-    public function truthyString(Type $self): mixed
+    public function truthy(Type $self): mixed
     {
-        return 'truthy-string';
+        return 'truthy';
     }
 
     public function union(Type $self, array $types): mixed

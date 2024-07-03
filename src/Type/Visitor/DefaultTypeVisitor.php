@@ -81,16 +81,6 @@ abstract class DefaultTypeVisitor implements TypeVisitor
         return $this->default($self);
     }
 
-    public function numericString(Type $self): mixed
-    {
-        return $this->default($self);
-    }
-
-    public function truthyString(Type $self): mixed
-    {
-        return $this->default($self);
-    }
-
     public function resource(Type $self): mixed
     {
         return $this->default($self);
@@ -167,6 +157,16 @@ abstract class DefaultTypeVisitor implements TypeVisitor
     }
 
     public function mixed(Type $self): mixed
+    {
+        return $this->default($self);
+    }
+
+    public function numeric(Type $self): mixed
+    {
+        return $this->default($self);
+    }
+
+    public function truthy(Type $self): mixed
     {
         return $this->default($self);
     }

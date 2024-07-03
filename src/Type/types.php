@@ -49,6 +49,7 @@ enum types implements Type
     case scalar;
     case string;
     case true;
+    case truthy;
     case truthyString;
     case void;
 
@@ -510,15 +511,16 @@ enum types implements Type
             self::nonNegativeInt => $visitor->int($this, 0, null),
             self::nonPositiveInt => $visitor->int($this, null, 0),
             self::null => $visitor->null($this),
-            self::numeric => $visitor->union($this, [self::int, self::float, self::numericString]),
-            self::numericString => $visitor->numericString($this),
+            self::numeric => $visitor->numeric($this),
+            self::numericString => $visitor->intersection($this, [self::string, self::numeric]),
             self::object => $visitor->object($this, []),
             self::positiveInt => $visitor->int($this, 1, null),
             self::resource => $visitor->resource($this),
             self::scalar => $visitor->union($this, [self::bool, self::int, self::float, self::string]),
             self::string => $visitor->string($this),
             self::true => $visitor->true($this),
-            self::truthyString => $visitor->truthyString($this),
+            self::truthy => $visitor->truthy($this),
+            self::truthyString => $visitor->intersection($this, [self::string, self::truthy]),
             self::void => $visitor->void($this),
         };
     }

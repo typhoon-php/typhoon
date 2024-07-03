@@ -85,18 +85,6 @@ interface TypeVisitor
     public function classString(Type $self, Type $class): mixed;
 
     /**
-     * @param Type<numeric-string> $self
-     * @return TReturn
-     */
-    public function numericString(Type $self): mixed;
-
-    /**
-     * @param Type<truthy-string> $self
-     * @return TReturn
-     */
-    public function truthyString(Type $self): mixed;
-
-    /**
      * @param Type<resource> $self
      * @return TReturn
      */
@@ -194,6 +182,17 @@ interface TypeVisitor
      * @return TReturn
      */
     public function mixed(Type $self): mixed;
+
+    /**
+     * @param Type<numeric> $self
+     * @return TReturn
+     */
+    public function numeric(Type $self): mixed;
+
+    /**
+     * @return TReturn
+     */
+    public function truthy(Type $self): mixed;
 
     /**
      * @return TReturn
