@@ -56,11 +56,6 @@ final class TypeStringifier implements TypeVisitor
         );
     }
 
-    public function bool(Type $self): mixed
-    {
-        return 'bool';
-    }
-
     public function callable(Type $self, array $parameters, Type $return): mixed
     {
         return $this->stringifyCallable('callable', $parameters, $return);
@@ -335,6 +330,10 @@ final class TypeStringifier implements TypeVisitor
 
     public function union(Type $self, array $types): mixed
     {
+        if ($this->isBool($self)) {
+            return 'bool';
+        }
+
         $isIntersection = new /** @extends DefaultTypeVisitor<bool> */ class () extends DefaultTypeVisitor {
             public function intersection(Type $self, array $types): mixed
             {
@@ -392,6 +391,39 @@ final class TypeStringifier implements TypeVisitor
     {
         /** @var non-empty-string */
         return str_replace("\n", '\n', var_export($literal, return: true));
+    }
+
+    private function isBool(Type $self): bool
+    {
+        return $self->accept(
+            new /** @extends DefaultTypeVisitor<int> */ class () extends DefaultTypeVisitor {
+                protected function default(Type $self): mixed
+                {
+                    return 0b100;
+                }
+
+                public function true(Type $self): mixed
+                {
+                    return 0b001;
+                }
+
+                public function false(Type $self): mixed
+                {
+                    return 0b010;
+                }
+
+                public function union(Type $self, array $types): mixed
+                {
+                    $value = 0;
+
+                    foreach ($types as $inner) {
+                        $value |= $inner->accept($this);
+                    }
+
+                    return $value;
+                }
+            },
+        ) === 0b11;
     }
 
     private function isArrayKey(Type $self): bool

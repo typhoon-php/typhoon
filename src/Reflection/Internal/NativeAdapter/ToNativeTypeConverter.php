@@ -7,6 +7,7 @@ namespace Typhoon\Reflection\Internal\NativeAdapter;
 use Typhoon\DeclarationId\ClassId;
 use Typhoon\DeclarationId\NamedClassId;
 use Typhoon\Type\Type;
+use Typhoon\Type\types;
 use Typhoon\Type\Visitor\DefaultTypeVisitor;
 
 /**
@@ -29,11 +30,6 @@ final class ToNativeTypeConverter extends DefaultTypeVisitor
     public function null(Type $self): mixed
     {
         return NamedTypeAdapter::null();
-    }
-
-    public function bool(Type $self): mixed
-    {
-        return NamedTypeAdapter::bool();
     }
 
     public function true(Type $self): mixed
@@ -112,6 +108,11 @@ final class ToNativeTypeConverter extends DefaultTypeVisitor
 
     public function union(Type $self, array $types): mixed
     {
+        // TODO use comparator
+        if ($self === types::bool) {
+            return NamedTypeAdapter::bool();
+        }
+
         $convertedTypes = [];
         $hasNull = false;
 

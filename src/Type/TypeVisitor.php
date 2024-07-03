@@ -35,12 +35,6 @@ interface TypeVisitor
     public function null(Type $self): mixed;
 
     /**
-     * @param Type<bool> $self
-     * @return TReturn
-     */
-    public function bool(Type $self): mixed;
-
-    /**
      * @return TReturn
      */
     public function true(Type $self): mixed;

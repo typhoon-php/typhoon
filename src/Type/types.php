@@ -493,7 +493,7 @@ enum types implements Type
         return match ($this) {
             self::array => $visitor->array($this, self::arrayKey, self::mixed, []),
             self::arrayKey => $visitor->union($this, [self::int, self::string]),
-            self::bool => $visitor->bool($this),
+            self::bool => $visitor->union($this, [self::true, self::false]),
             self::callable => $visitor->callable($this, [], self::mixed),
             self::classString => $visitor->classString($this, types::object),
             self::closure => $visitor->closure($this, [], types::mixed),
