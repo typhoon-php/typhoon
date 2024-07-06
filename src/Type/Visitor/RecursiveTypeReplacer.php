@@ -18,6 +18,7 @@ use Typhoon\Type\Variance;
 /**
  * @api
  * @extends DefaultTypeVisitor<Type>
+ * @todo optimize by using type classes directly
  */
 abstract class RecursiveTypeReplacer extends DefaultTypeVisitor
 {
@@ -112,11 +113,6 @@ abstract class RecursiveTypeReplacer extends DefaultTypeVisitor
         return types::object($class, ...$this->processTypes($arguments));
     }
 
-    public function nonEmpty(Type $self, Type $type): mixed
-    {
-        return types::nonEmpty($type->accept($this));
-    }
-
     public function object(Type $self, array $properties): mixed
     {
         return types::objectShape(
@@ -153,6 +149,11 @@ abstract class RecursiveTypeReplacer extends DefaultTypeVisitor
     public function union(Type $self, array $types): mixed
     {
         return types::union(...$this->processTypes($types));
+    }
+
+    public function not(Type $self, Type $type): mixed
+    {
+        return types::not($type->accept($this));
     }
 
     public function varianceAware(Type $self, Type $type, Variance $variance): mixed

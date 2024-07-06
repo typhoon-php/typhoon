@@ -135,6 +135,8 @@ final class PhpDocTypeReflector
             'string' => types::string,
             'non-falsy-string', 'truthy-string' => types::truthyString,
             'numeric-string' => types::numericString,
+            'lowercase-string' => types::lowercaseString,
+            'non-empty-lowercase-string' => types::intersection(types::nonEmptyString, types::lowercaseString),
             'class-string' => match (\count($genericTypes)) {
                 0 => types::classString,
                 1 => types::classString($this->reflectType($genericTypes[0])),
@@ -160,10 +162,21 @@ final class PhpDocTypeReflector
                 1 => types::list($this->reflectType($genericTypes[0])),
                 default => throw new InvalidPhpDocType(sprintf('list type should have at most 1 argument, got %d', $number)),
             },
+            'non-empty-list' => match ($number = \count($genericTypes)) {
+                0 => types::nonEmptyList(),
+                1 => types::nonEmptyList($this->reflectType($genericTypes[0])),
+                default => throw new InvalidPhpDocType(sprintf('list type should have at most 1 argument, got %d', $number)),
+            },
             'array' => match ($number = \count($genericTypes)) {
                 0 => types::array,
                 1 => types::array(value: $this->reflectType($genericTypes[0])),
                 2 => types::array($this->reflectType($genericTypes[0]), $this->reflectType($genericTypes[1])),
+                default => throw new InvalidPhpDocType(sprintf('array type should have at most 2 arguments, got %d', $number)),
+            },
+            'non-empty-array' => match ($number = \count($genericTypes)) {
+                0 => types::nonEmptyArray(),
+                1 => types::nonEmptyArray(value: $this->reflectType($genericTypes[0])),
+                2 => types::nonEmptyArray($this->reflectType($genericTypes[0]), $this->reflectType($genericTypes[1])),
                 default => throw new InvalidPhpDocType(sprintf('array type should have at most 2 arguments, got %d', $number)),
             },
             'iterable' => match ($number = \count($genericTypes)) {
@@ -178,10 +191,7 @@ final class PhpDocTypeReflector
             'void' => types::void,
             'scalar' => types::scalar,
             'never' => types::never,
-            default => match (true) {
-                str_starts_with($name, 'non-empty-') => types::nonEmpty($this->reflectIdentifier(substr($name, 10), $genericTypes)),
-                default => $this->typeContext->resolveType(NameParser::parse($name), array_map($this->reflectType(...), $genericTypes))
-            },
+            default => $this->typeContext->resolveType(NameParser::parse($name), array_map($this->reflectType(...), $genericTypes)),
         };
     }
 

@@ -173,8 +173,10 @@ final class TypeStringifier implements TypeVisitor
         /** @var non-empty-string */
         return strtr($string, [
             'Closure&callable' => 'Closure',
-            'numeric&string' => 'numeric-string',
-            'truthy&string' => 'truthy-string',
+            "string&!''&!'0'" => 'truthy-string',
+            "string&!''" => 'non-empty-string',
+            'string&numeric' => 'numeric-string',
+            '!array{}&array' => 'non-empty-array',
         ]);
     }
 
@@ -265,6 +267,11 @@ final class TypeStringifier implements TypeVisitor
         return $this->escapeStringLiteral($value);
     }
 
+    public function lowercaseString(Type $self): mixed
+    {
+        return 'lowercase-string';
+    }
+
     public function mixed(Type $self): mixed
     {
         return 'mixed';
@@ -280,19 +287,9 @@ final class TypeStringifier implements TypeVisitor
         return 'never';
     }
 
-    public function nonEmpty(Type $self, Type $type): mixed
-    {
-        return 'non-empty-' . $type->accept($this);
-    }
-
     public function null(Type $self): mixed
     {
         return 'null';
-    }
-
-    public function numeric(Type $self): mixed
-    {
-        return 'numeric';
     }
 
     public function object(Type $self, array $properties): mixed
@@ -326,6 +323,16 @@ final class TypeStringifier implements TypeVisitor
     public function string(Type $self): mixed
     {
         return 'string';
+    }
+
+    public function numeric(Type $self): mixed
+    {
+        return 'numeric';
+    }
+
+    public function not(Type $self, Type $type): mixed
+    {
+        return '!' . $type->accept($this);
     }
 
     public function self(Type $self, ?ClassId $resolvedClass, array $arguments): mixed
@@ -364,11 +371,6 @@ final class TypeStringifier implements TypeVisitor
     public function template(Type $self, TemplateId $template): mixed
     {
         return $template->toString();
-    }
-
-    public function truthy(Type $self): mixed
-    {
-        return 'truthy';
     }
 
     public function union(Type $self, array $types): mixed

@@ -51,11 +51,12 @@ final class TypeStringifierTest extends TestCase
         yield [types::stringValue("a'bcd"), "'a\\'bcd'"];
         yield [types::stringValue("a\\\\'bcd"), "'a\\\\\\\\\\'bcd'"];
         yield [types::stringValue("\n"), "'\\n'"];
+        yield [types::lowercaseString, 'lowercase-string'];
         yield [types::scalar, 'scalar'];
         yield [types::union(types::bool, types::int, types::float, types::string), 'scalar'];
         yield [types::resource, 'resource'];
-        yield [types::nonEmptyList(), 'non-empty-list'];
-        yield [types::nonEmptyList(types::string), 'non-empty-list<string>'];
+        yield [types::nonEmptyList(), 'list{mixed, ...}'];
+        yield [types::nonEmptyList(types::string), 'list{string, ...<string>}'];
         yield [types::list(), 'list'];
         yield [types::list(types::string), 'list<string>'];
         yield [types::listShape(), 'list{}'];

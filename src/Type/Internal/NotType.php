@@ -11,20 +11,16 @@ use Typhoon\Type\TypeVisitor;
  * @internal
  * @psalm-internal Typhoon\Type
  * @psalm-immutable
- * @template-covariant TType
- * @implements Type<TType>
+ * @implements Type<mixed>
  */
-final class NonEmptyType implements Type
+final class NotType implements Type
 {
-    /**
-     * @param Type<TType> $type
-     */
     public function __construct(
         private readonly Type $type,
     ) {}
 
     public function accept(TypeVisitor $visitor): mixed
     {
-        return $visitor->nonEmpty($this, $this->type);
+        return $visitor->not($this, $this->type);
     }
 }

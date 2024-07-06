@@ -33,7 +33,9 @@ enum types implements Type
     case int;
     case iterable;
     case literalInt;
+    case literalFloat;
     case literalString;
+    case lowercaseString;
     case mixed;
     case negativeInt;
     case never;
@@ -49,7 +51,6 @@ enum types implements Type
     case scalar;
     case string;
     case true;
-    case truthy;
     case truthyString;
     case void;
 
@@ -75,6 +76,14 @@ enum types implements Type
     public static function arg(string $name): Argument
     {
         return new Argument($name);
+    }
+
+    /**
+     * @return Type<non-empty-array<mixed>>
+     */
+    public static function nonEmptyArray(Type $key = self::arrayKey, Type $value = self::mixed): Type
+    {
+        return new Internal\NonEmptyArrayType($key, $value);
     }
 
     /**
@@ -300,37 +309,13 @@ enum types implements Type
     }
 
     /**
-     * @template TType
-     * @param Type<TType> $type
-     * @return Type<TType>
-     */
-    public static function nonEmpty(Type $type): Type
-    {
-        if ($type === self::string) {
-            return self::nonEmptyString;
-        }
-
-        return new Internal\NonEmptyType($type);
-    }
-
-    /**
-     * @return Type<non-empty-array<mixed>>
-     * @psalm-suppress MoreSpecificReturnType, LessSpecificReturnStatement
-     */
-    public static function nonEmptyArray(Type $key = self::arrayKey, Type $value = self::mixed): Type
-    {
-        /** @phpstan-ignore return.type */
-        return new Internal\NonEmptyType(self::array($key, $value));
-    }
-
-    /**
      * @return Type<non-empty-list<mixed>>
      * @psalm-suppress InvalidReturnType, InvalidReturnStatement
      */
     public static function nonEmptyList(Type $value = self::mixed): Type
     {
         /** @phpstan-ignore return.type */
-        return new Internal\NonEmptyType(self::list($value));
+        return new Internal\ListType($value, [new ArrayElement($value)]);
     }
 
     /**
@@ -497,6 +482,11 @@ enum types implements Type
         return new Internal\VarianceAwareType($type, $variance);
     }
 
+    public static function not(Type $type): Type
+    {
+        return new Internal\NotType($type);
+    }
+
     /**
      * @todo split to different enums?
      */
@@ -514,24 +504,32 @@ enum types implements Type
             self::int => $visitor->int($this, null, null),
             self::iterable => $visitor->iterable($this, self::mixed, self::mixed),
             self::literalInt => $visitor->literal($this, self::int),
+            self::literalFloat => $visitor->literal($this, self::float),
             self::literalString => $visitor->literal($this, self::string),
             self::mixed => $visitor->mixed($this),
             self::negativeInt => $visitor->int($this, null, -1),
             self::never => $visitor->never($this),
-            self::nonEmptyString => $visitor->nonEmpty($this, self::string),
+            self::nonEmptyString => $visitor->intersection($this, [
+                self::string,
+                new Internal\NotType(new Internal\StringValueType('')),
+            ]),
             self::nonNegativeInt => $visitor->int($this, 0, null),
             self::nonPositiveInt => $visitor->int($this, null, 0),
             self::null => $visitor->null($this),
             self::numeric => $visitor->numeric($this),
-            self::numericString => $visitor->intersection($this, [self::numeric, self::string]),
+            self::numericString => $visitor->intersection($this, [self::string, self::numeric]),
             self::object => $visitor->object($this, []),
             self::positiveInt => $visitor->int($this, 1, null),
             self::resource => $visitor->resource($this),
             self::scalar => $visitor->union($this, [self::bool, self::int, self::float, self::string]),
             self::string => $visitor->string($this),
+            self::lowercaseString => $visitor->lowercaseString($this),
             self::true => $visitor->true($this),
-            self::truthy => $visitor->truthy($this),
-            self::truthyString => $visitor->intersection($this, [self::truthy, self::string]),
+            self::truthyString => $visitor->intersection($this, [
+                self::string,
+                new Internal\NotType(new Internal\StringValueType('')),
+                new Internal\NotType(new Internal\StringValueType('0')),
+            ]),
             self::void => $visitor->void($this),
         };
     }

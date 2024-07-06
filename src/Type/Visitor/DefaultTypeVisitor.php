@@ -76,7 +76,17 @@ abstract class DefaultTypeVisitor implements TypeVisitor
         return $this->default($self);
     }
 
+    public function lowercaseString(Type $self): mixed
+    {
+        return $this->default($self);
+    }
+
     public function classString(Type $self, Type $class): mixed
+    {
+        return $this->default($self);
+    }
+
+    public function numeric(Type $self): mixed
     {
         return $this->default($self);
     }
@@ -156,22 +166,12 @@ abstract class DefaultTypeVisitor implements TypeVisitor
         return $this->default($self);
     }
 
-    public function numeric(Type $self): mixed
-    {
-        return $this->default($self);
-    }
-
-    public function truthy(Type $self): mixed
+    public function not(Type $self, Type $type): mixed
     {
         return $this->default($self);
     }
 
     public function literal(Type $self, Type $type): mixed
-    {
-        return $this->default($self);
-    }
-
-    public function nonEmpty(Type $self, Type $type): mixed
     {
         return $this->default($self);
     }

@@ -14,6 +14,7 @@ use Typhoon\Type\Visitor\DefaultTypeVisitor;
  * @internal
  * @psalm-internal Typhoon\Reflection
  * @extends DefaultTypeVisitor<\ReflectionType>
+ * @todo check array is array<array-key, mixed>?
  */
 final class ToNativeTypeConverter extends DefaultTypeVisitor
 {

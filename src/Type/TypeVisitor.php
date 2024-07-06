@@ -75,15 +75,28 @@ interface TypeVisitor
     public function string(Type $self): mixed;
 
     /**
+     * @param Type<string> $self
      * @return TReturn
      */
     public function stringValue(Type $self, string $value): mixed;
+
+    /**
+     * @param Type<lowercase-string> $self
+     * @return TReturn
+     */
+    public function lowercaseString(Type $self): mixed;
 
     /**
      * @param Type<non-empty-string> $self
      * @return TReturn
      */
     public function classString(Type $self, Type $class): mixed;
+
+    /**
+     * @param Type<numeric> $self
+     * @return TReturn
+     */
+    public function numeric(Type $self): mixed;
 
     /**
      * @param Type<resource> $self
@@ -181,25 +194,14 @@ interface TypeVisitor
     public function mixed(Type $self): mixed;
 
     /**
-     * @param Type<numeric> $self
      * @return TReturn
      */
-    public function numeric(Type $self): mixed;
-
-    /**
-     * @return TReturn
-     */
-    public function truthy(Type $self): mixed;
+    public function not(Type $self, Type $type): mixed;
 
     /**
      * @return TReturn
      */
     public function literal(Type $self, Type $type): mixed;
-
-    /**
-     * @return TReturn
-     */
-    public function nonEmpty(Type $self, Type $type): mixed;
 
     /**
      * @return TReturn
