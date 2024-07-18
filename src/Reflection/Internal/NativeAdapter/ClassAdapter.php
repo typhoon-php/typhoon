@@ -7,7 +7,7 @@ namespace Typhoon\Reflection\Internal\NativeAdapter;
 use Typhoon\DeclarationId\AnonymousClassId;
 use Typhoon\DeclarationId\Id;
 use Typhoon\DeclarationId\NamedClassId;
-use Typhoon\Reflection\ClassConstantReflection;
+use Typhoon\Reflection\ClassConstReflection;
 use Typhoon\Reflection\ClassKind;
 use Typhoon\Reflection\ClassReflection;
 use Typhoon\Reflection\Exception\DeclarationNotFound;
@@ -97,8 +97,8 @@ final class ClassAdapter extends \ReflectionClass
 
     public function getConstant(string $name): mixed
     {
-        return isset($this->reflection->constants()[$name])
-            ? $this->reflection->constants()[$name]->value()
+        return isset($this->reflection->consts()[$name])
+            ? $this->reflection->consts()[$name]->value()
             : false;
     }
 
@@ -106,9 +106,9 @@ final class ClassAdapter extends \ReflectionClass
     {
         return $this
             ->reflection
-            ->constants()
-            ->filter(static fn(ClassConstantReflection $constant): bool => $filter === null || ($constant->native()->getModifiers() & $filter) !== 0)
-            ->map(static fn(ClassConstantReflection $constant): mixed => $constant->value())
+            ->consts()
+            ->filter(static fn(ClassConstReflection $constant): bool => $filter === null || ($constant->native()->getModifiers() & $filter) !== 0)
+            ->map(static fn(ClassConstReflection $constant): mixed => $constant->value())
             ->toArray();
     }
 
@@ -247,15 +247,15 @@ final class ClassAdapter extends \ReflectionClass
 
     public function getReflectionConstant(string $name): \ReflectionClassConstant|false
     {
-        return ($this->reflection->constants()[$name] ?? null)?->native() ?? false;
+        return ($this->reflection->consts()[$name] ?? null)?->native() ?? false;
     }
 
     public function getReflectionConstants(?int $filter = null): array
     {
         return $this
             ->reflection
-            ->constants()
-            ->map(static fn(ClassConstantReflection $constant): \ReflectionClassConstant => $constant->native())
+            ->consts()
+            ->map(static fn(ClassConstReflection $constant): \ReflectionClassConstant => $constant->native())
             ->filter(static fn(\ReflectionClassConstant $constant): bool => $filter === null || ($constant->getModifiers() & $filter) !== 0)
             ->toList();
     }
@@ -323,7 +323,7 @@ final class ClassAdapter extends \ReflectionClass
 
     public function hasConstant(string $name): bool
     {
-        return isset($this->reflection->constants()[$name]);
+        return isset($this->reflection->consts()[$name]);
     }
 
     public function hasMethod(string $name): bool

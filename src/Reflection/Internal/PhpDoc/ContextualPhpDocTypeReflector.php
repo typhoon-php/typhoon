@@ -341,7 +341,7 @@ final class ContextualPhpDocTypeReflector
 
         if ($exprNode instanceof ConstFetchNode) {
             if ($exprNode->className === '') {
-                return types::constant($exprNode->name);
+                return types::const($exprNode->name);
             }
 
             $class = $this->typeContext->resolveType(NameParser::parse($exprNode->className));
@@ -350,7 +350,7 @@ final class ContextualPhpDocTypeReflector
                 return types::class($class);
             }
 
-            return types::classConstant($class, $exprNode->name);
+            return types::classConst($class, $exprNode->name);
         }
 
         throw new InvalidPhpDocType(sprintf('PhpDoc node %s is not supported', $exprNode::class));

@@ -54,6 +54,6 @@ final class ClassConstantFetch implements Expression
             return \constant($class . '::' . $name);
         }
 
-        return $reflector->reflect(Id::namedClass($class))->constants()[$name]->value();
+        return $reflector->reflect(Id::namedClass($class))->consts()[$name]->value();
     }
 }

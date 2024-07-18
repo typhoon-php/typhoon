@@ -6,13 +6,13 @@ namespace Typhoon\Reflection\Internal;
 
 use Typhoon\DeclarationId\AnonymousClassId;
 use Typhoon\DeclarationId\AnonymousFunctionId;
-use Typhoon\DeclarationId\ConstantId;
+use Typhoon\DeclarationId\ConstId;
 use Typhoon\DeclarationId\NamedClassId;
 use Typhoon\DeclarationId\NamedFunctionId;
 use Typhoon\Reflection\Exception\DeclarationNotFound;
 use Typhoon\Reflection\Exception\LocatorErrored;
 use Typhoon\Reflection\Locator\AnonymousLocator;
-use Typhoon\Reflection\Locator\ConstantLocator;
+use Typhoon\Reflection\Locator\ConstLocator;
 use Typhoon\Reflection\Locator\NamedClassLocator;
 use Typhoon\Reflection\Locator\NamedFunctionLocator;
 use Typhoon\Reflection\Resource;
@@ -24,9 +24,9 @@ use Typhoon\Reflection\Resource;
 final class Locator
 {
     /**
-     * @var list<ConstantLocator>
+     * @var list<ConstLocator>
      */
-    private array $constantLocators = [];
+    private array $constLocators = [];
 
     /**
      * @var list<NamedFunctionLocator>
@@ -44,7 +44,7 @@ final class Locator
     private array $anonymousLocators = [];
 
     /**
-     * @param iterable<ConstantLocator|NamedFunctionLocator|NamedClassLocator|AnonymousLocator> $locators
+     * @param iterable<ConstLocator|NamedFunctionLocator|NamedClassLocator|AnonymousLocator> $locators
      */
     public function __construct(iterable $locators)
     {
@@ -53,10 +53,10 @@ final class Locator
         }
     }
 
-    public function locate(ConstantId|NamedFunctionId|AnonymousFunctionId|NamedClassId|AnonymousClassId $id): Resource
+    public function locate(ConstId|NamedFunctionId|AnonymousFunctionId|NamedClassId|AnonymousClassId $id): Resource
     {
         $locators = match (true) {
-            $id instanceof ConstantId => $this->constantLocators,
+            $id instanceof ConstId => $this->constLocators,
             $id instanceof NamedFunctionId => $this->namedFunctionLocators,
             $id instanceof NamedClassId => $this->namedClassLocators,
             $id instanceof AnonymousFunctionId,
@@ -79,7 +79,7 @@ final class Locator
         throw new DeclarationNotFound($id);
     }
 
-    public function with(ConstantLocator|NamedFunctionLocator|NamedClassLocator|AnonymousLocator $locator): self
+    public function with(ConstLocator|NamedFunctionLocator|NamedClassLocator|AnonymousLocator $locator): self
     {
         $copy = clone $this;
         $copy->add($locator);
@@ -87,10 +87,10 @@ final class Locator
         return $copy;
     }
 
-    private function add(ConstantLocator|NamedFunctionLocator|NamedClassLocator|AnonymousLocator $locator): void
+    private function add(ConstLocator|NamedFunctionLocator|NamedClassLocator|AnonymousLocator $locator): void
     {
-        if ($locator instanceof ConstantLocator) {
-            $this->constantLocators[] = $locator;
+        if ($locator instanceof ConstLocator) {
+            $this->constLocators[] = $locator;
         }
 
         if ($locator instanceof NamedFunctionLocator) {

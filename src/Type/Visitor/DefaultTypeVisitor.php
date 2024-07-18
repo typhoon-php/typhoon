@@ -6,7 +6,7 @@ namespace Typhoon\Type\Visitor;
 
 use Typhoon\DeclarationId\AliasId;
 use Typhoon\DeclarationId\AnonymousClassId;
-use Typhoon\DeclarationId\ConstantId;
+use Typhoon\DeclarationId\ConstId;
 use Typhoon\DeclarationId\NamedClassId;
 use Typhoon\DeclarationId\TemplateId;
 use Typhoon\Type\Type;
@@ -180,17 +180,17 @@ abstract class DefaultTypeVisitor implements TypeVisitor
         return $this->default($type);
     }
 
-    public function constant(Type $type, ConstantId $constant): mixed
+    public function const(Type $type, ConstId $const): mixed
     {
         return $this->default($type);
     }
 
-    public function classConstant(Type $type, Type $classType, string $name): mixed
+    public function classConst(Type $type, Type $classType, string $name): mixed
     {
         return $this->default($type);
     }
 
-    public function classConstantMask(Type $type, Type $classType, string $namePrefix): mixed
+    public function classConstMask(Type $type, Type $classType, string $namePrefix): mixed
     {
         return $this->default($type);
     }

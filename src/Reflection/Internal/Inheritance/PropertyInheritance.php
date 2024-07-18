@@ -9,7 +9,7 @@ use Typhoon\Reflection\Internal\Data\Visibility;
 use Typhoon\Reflection\Internal\TypedMap\TypedMap;
 
 /**
- * Used for properties, class constants and method parameters.
+ * Used for class constants, properties and method parameters.
  *
  * @internal
  * @psalm-internal Typhoon\Reflection\Internal\Inheritance

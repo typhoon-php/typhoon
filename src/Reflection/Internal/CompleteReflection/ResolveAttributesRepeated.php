@@ -29,9 +29,9 @@ final class ResolveAttributesRepeated implements FunctionReflectionHook, ClassRe
         }
 
         return $data
-            ->withModifiedIfSet(Data::ClassConstants, fn(array $constants): array => array_map(
+            ->withModifiedIfSet(Data::ClassConsts, fn(array $consts): array => array_map(
                 $this->resolveAttributesRepeated(...),
-                $constants,
+                $consts,
             ))
             ->withModifiedIfSet(Data::Properties, fn(array $properties): array => array_map(
                 $this->resolveAttributesRepeated(...),

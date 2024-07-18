@@ -35,7 +35,7 @@ final class StringifyTest extends TestCase
         yield [types::intRange(max: 23), 'int<min, 23>'];
         yield [types::intRange(min: -100, max: 234), 'int<-100, 234>'];
         yield [types::intMaskOf(types::union(types::int(1), types::int(2), types::int(4))), 'int-mask-of<1|2|4>'];
-        yield [types::intMaskOf(types::classConstant(\RecursiveIteratorIterator::class, 'LEAVES_ONLY')), 'int-mask-of<RecursiveIteratorIterator::LEAVES_ONLY>'];
+        yield [types::intMaskOf(types::classConst(\RecursiveIteratorIterator::class, 'LEAVES_ONLY')), 'int-mask-of<RecursiveIteratorIterator::LEAVES_ONLY>'];
         yield [types::float, 'float'];
         yield [types::float(0.234), '0.234'];
         yield [types::float(-0.234), '-0.234'];
@@ -123,8 +123,8 @@ final class StringifyTest extends TestCase
         yield [types::objectShape(['name' => types::optional(types::string)]), 'object{name?: string}'];
         yield [types::objectShape(['n\'ame' => types::string]), "object{'n\\'ame': string}"];
         yield [types::objectShape(["\n" => types::string]), "object{'\\n': string}"];
-        yield [types::constant('test'), 'constant<test>'];
-        yield [types::classConstant(\stdClass::class, 'test'), 'stdClass::test'];
+        yield [types::const('test'), 'const<test>'];
+        yield [types::classConst(\stdClass::class, 'test'), 'stdClass::test'];
         yield [types::keyOf(types::list()), 'key-of<list>'];
         yield [types::valueOf(types::list()), 'list[key-of<list>]'];
         yield [types::conditional(types::arg('a'), if: types::string, then: types::int, else: types::float), '($a is string ? int : float)'];

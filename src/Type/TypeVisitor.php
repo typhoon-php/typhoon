@@ -6,7 +6,7 @@ namespace Typhoon\Type;
 
 use Typhoon\DeclarationId\AliasId;
 use Typhoon\DeclarationId\AnonymousClassId;
-use Typhoon\DeclarationId\ConstantId;
+use Typhoon\DeclarationId\ConstId;
 use Typhoon\DeclarationId\NamedClassId;
 use Typhoon\DeclarationId\TemplateId;
 
@@ -212,18 +212,18 @@ interface TypeVisitor
     /**
      * @return TReturn
      */
-    public function constant(Type $type, ConstantId $constant): mixed;
+    public function const(Type $type, ConstId $const): mixed;
 
     /**
      * @param non-empty-string $name
      * @return TReturn
      */
-    public function classConstant(Type $type, Type $classType, string $name): mixed;
+    public function classConst(Type $type, Type $classType, string $name): mixed;
 
     /**
      * @return TReturn
      */
-    public function classConstantMask(Type $type, Type $classType, string $namePrefix): mixed;
+    public function classConstMask(Type $type, Type $classType, string $namePrefix): mixed;
 
     /**
      * @param list<Type> $typeArguments

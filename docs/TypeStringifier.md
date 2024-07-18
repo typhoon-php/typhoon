@@ -19,7 +19,7 @@ echo stringify(
         'c' => types::object(Traversable::class, [types::numericString, types::false]),
         'd' => types::callable(
             parameters: [
-                types::classConstant(PDO::class, '*'),
+                types::classConst(PDO::class, '*'),
                 types::param(types::classTemplate('TSend', Generator::class), hasDefault: true),
                 types::param(types::scalar, variadic: true),
             ],

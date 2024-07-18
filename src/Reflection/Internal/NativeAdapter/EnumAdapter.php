@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace Typhoon\Reflection\Internal\NativeAdapter;
 
 use Typhoon\DeclarationId\NamedClassId;
-use Typhoon\Reflection\ClassConstantReflection;
+use Typhoon\Reflection\ClassConstReflection;
 use Typhoon\Reflection\ClassReflection;
 
 /**
@@ -73,7 +73,7 @@ final class EnumAdapter extends \ReflectionEnum
         return $this
             ->reflection
             ->enumCases()
-            ->map(static function (ClassConstantReflection $constant): \ReflectionEnumUnitCase {
+            ->map(static function (ClassConstReflection $constant): \ReflectionEnumUnitCase {
                 $native = $constant->native();
                 \assert($native instanceof \ReflectionEnumUnitCase);
 

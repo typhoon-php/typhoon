@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace Typhoon\Reflection\Internal\NativeAdapter;
 
 use Typhoon\DeclarationId\AnonymousClassId;
-use Typhoon\Reflection\ClassConstantReflection;
+use Typhoon\Reflection\ClassConstReflection;
 use Typhoon\Reflection\Internal\Data\Data;
 use Typhoon\Reflection\Kind;
 use Typhoon\Reflection\TyphoonReflector;
@@ -20,13 +20,13 @@ use Typhoon\Reflection\TyphoonReflector;
 final class ClassConstantAdapter extends \ReflectionClassConstant
 {
     private function __construct(
-        private readonly ClassConstantReflection $reflection,
+        private readonly ClassConstReflection $reflection,
         private readonly TyphoonReflector $reflector,
     ) {
         unset($this->name, $this->class);
     }
 
-    public static function create(ClassConstantReflection $reflection, TyphoonReflector $reflector): \ReflectionClassConstant
+    public static function create(ClassConstReflection $reflection, TyphoonReflector $reflector): \ReflectionClassConstant
     {
         $adapter = new self($reflection, $reflector);
 

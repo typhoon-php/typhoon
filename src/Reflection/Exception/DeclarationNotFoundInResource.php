@@ -6,7 +6,7 @@ namespace Typhoon\Reflection\Exception;
 
 use Typhoon\DeclarationId\AnonymousClassId;
 use Typhoon\DeclarationId\AnonymousFunctionId;
-use Typhoon\DeclarationId\ConstantId;
+use Typhoon\DeclarationId\ConstId;
 use Typhoon\DeclarationId\NamedClassId;
 use Typhoon\DeclarationId\NamedFunctionId;
 use Typhoon\Reflection\Internal\Data\Data;
@@ -19,7 +19,7 @@ final class DeclarationNotFoundInResource extends \LogicException implements Ref
 {
     public function __construct(
         public readonly Resource $resource,
-        public readonly ConstantId|NamedFunctionId|AnonymousFunctionId|NamedClassId|AnonymousClassId $id,
+        public readonly ConstId|NamedFunctionId|AnonymousFunctionId|NamedClassId|AnonymousClassId $id,
     ) {
         $file = $resource->baseData[Data::File];
 

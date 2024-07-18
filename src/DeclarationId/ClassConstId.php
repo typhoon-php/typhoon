@@ -7,7 +7,7 @@ namespace Typhoon\DeclarationId;
 /**
  * @api
  */
-final class ClassConstantId extends Id
+final class ClassConstId extends Id
 {
     /**
      * @param non-empty-string $name
@@ -46,6 +46,6 @@ final class ClassConstantId extends Id
 
     public function jsonSerialize(): array
     {
-        return [self::CODE_CLASS_CONSTANT, $this->class, $this->name];
+        return [self::CODE_CLASS_CONST, $this->class, $this->name];
     }
 }

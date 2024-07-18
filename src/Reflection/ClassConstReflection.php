@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Typhoon\Reflection;
 
-use Typhoon\DeclarationId\ClassConstantId;
+use Typhoon\DeclarationId\ClassConstId;
 use Typhoon\DeclarationId\NamedClassId;
 use Typhoon\Reflection\Internal\Data\Data;
 use Typhoon\Reflection\Internal\Data\Visibility;
@@ -15,9 +15,9 @@ use Typhoon\Type\Type;
 /**
  * @api
  */
-final class ClassConstantReflection
+final class ClassConstReflection
 {
-    public readonly ClassConstantId $id;
+    public readonly ClassConstId $id;
 
     /**
      * This internal property is public for testing purposes.
@@ -38,7 +38,7 @@ final class ClassConstantReflection
      * @psalm-internal Typhoon\Reflection
      */
     public function __construct(
-        ClassConstantId $id,
+        ClassConstId $id,
         TypedMap $data,
         private readonly TyphoonReflector $reflector,
     ) {

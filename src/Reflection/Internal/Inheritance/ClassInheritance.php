@@ -25,7 +25,7 @@ final class ClassInheritance
     /**
      * @var array<non-empty-string, PropertyInheritance>
      */
-    private array $constants = [];
+    private array $consts = [];
 
     /**
      * @var array<non-empty-string, PropertyInheritance>
@@ -77,8 +77,8 @@ final class ClassInheritance
 
     private function applyOwn(): void
     {
-        foreach ($this->data[Data::ClassConstants] as $name => $constant) {
-            $this->constant($name)->applyOwn($constant->with(Data::DeclaringClassId, $this->id));
+        foreach ($this->data[Data::ClassConsts] as $name => $constant) {
+            $this->const($name)->applyOwn($constant->with(Data::DeclaringClassId, $this->id));
         }
 
         foreach ($this->data[Data::Properties] as $name => $property) {
@@ -110,8 +110,8 @@ final class ClassInheritance
 
         $typeResolvers = $this->buildTypeResolvers($traitId, $traitData, $arguments);
 
-        foreach ($traitData[Data::ClassConstants] as $constantName => $constant) {
-            $this->constant($constantName)->applyUsed($constant, $typeResolvers);
+        foreach ($traitData[Data::ClassConsts] as $constantName => $constant) {
+            $this->const($constantName)->applyUsed($constant, $typeResolvers);
         }
 
         foreach ($traitData[Data::Properties] as $propertyName => $property) {
@@ -181,8 +181,8 @@ final class ClassInheritance
 
         $typeResolvers = $this->buildTypeResolvers($classId, $classData, $arguments);
 
-        foreach ($classData[Data::ClassConstants] as $constantName => $constant) {
-            $this->constant($constantName)->applyInherited($constant, $typeResolvers);
+        foreach ($classData[Data::ClassConsts] as $constantName => $constant) {
+            $this->const($constantName)->applyInherited($constant, $typeResolvers);
         }
 
         foreach ($classData[Data::Properties] as $propertyName => $property) {
@@ -201,9 +201,9 @@ final class ClassInheritance
             ->with(Data::UnresolvedChangeDetectors, $this->changeDetectors)
             ->with(Data::Parents, $this->parents)
             ->with(Data::Interfaces, [...$this->ownInterfaces, ...$this->inheritedInterfaces])
-            ->with(Data::ClassConstants, array_filter(array_map(
+            ->with(Data::ClassConsts, array_filter(array_map(
                 static fn(PropertyInheritance $resolver): ?TypedMap => $resolver->build(),
-                $this->constants,
+                $this->consts,
             )))
             ->with(Data::Properties, array_filter(array_map(
                 static fn(PropertyInheritance $resolver): ?TypedMap => $resolver->build(),
@@ -248,9 +248,9 @@ final class ClassInheritance
     /**
      * @param non-empty-string $name
      */
-    private function constant(string $name): PropertyInheritance
+    private function const(string $name): PropertyInheritance
     {
-        return $this->constants[$name] ??= new PropertyInheritance();
+        return $this->consts[$name] ??= new PropertyInheritance();
     }
 
     /**

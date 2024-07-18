@@ -9,7 +9,7 @@ use PhpParser\ParserFactory;
 use Psr\SimpleCache\CacheInterface;
 use Typhoon\DeclarationId\AliasId;
 use Typhoon\DeclarationId\AnonymousClassId;
-use Typhoon\DeclarationId\ClassConstantId;
+use Typhoon\DeclarationId\ClassConstId;
 use Typhoon\DeclarationId\Id;
 use Typhoon\DeclarationId\MethodId;
 use Typhoon\DeclarationId\NamedClassId;
@@ -38,7 +38,7 @@ use Typhoon\Reflection\Internal\ReflectionHook\ReflectionHooks;
 use Typhoon\Reflection\Internal\ReflectorSession;
 use Typhoon\Reflection\Locator\AnonymousLocator;
 use Typhoon\Reflection\Locator\ComposerLocator;
-use Typhoon\Reflection\Locator\ConstantLocator;
+use Typhoon\Reflection\Locator\ConstLocator;
 use Typhoon\Reflection\Locator\DeterministicLocator;
 use Typhoon\Reflection\Locator\DontAutoloadClassLocator;
 use Typhoon\Reflection\Locator\FileAnonymousLocator;
@@ -53,7 +53,7 @@ use Typhoon\Reflection\Locator\NativeReflectionFunctionLocator;
 final class TyphoonReflector
 {
     /**
-     * @param ?list<ConstantLocator|NamedFunctionLocator|NamedClassLocator|AnonymousLocator> $locators
+     * @param ?list<ConstLocator|NamedFunctionLocator|NamedClassLocator|AnonymousLocator> $locators
      */
     public static function build(
         ?array $locators = null,
@@ -86,7 +86,7 @@ final class TyphoonReflector
     }
 
     /**
-     * @return list<ConstantLocator|NamedFunctionLocator|NamedClassLocator|AnonymousLocator>
+     * @return list<ConstLocator|NamedFunctionLocator|NamedClassLocator|AnonymousLocator>
      */
     public static function defaultLocators(): array
     {
@@ -187,7 +187,7 @@ final class TyphoonReflector
      *     $id is NamedClassId ? ClassReflection<object, NamedClassId<class-string>> :
      *     $id is AnonymousClassId<null> ? ClassReflection<object, AnonymousClassId<null>> :
      *     $id is AnonymousClassId<class-string> ? ClassReflection<object, AnonymousClassId<class-string>> :
-     *     $id is ClassConstantId ? ClassConstantReflection :
+     *     $id is ClassConstId ? ClassConstReflection :
      *     $id is PropertyId ? PropertyReflection :
      *     $id is MethodId ? MethodReflection :
      *     $id is ParameterId ? ParameterReflection :
@@ -197,7 +197,7 @@ final class TyphoonReflector
      * )
      * @throws DeclarationNotFound
      */
-    public function reflect(Id $id): FunctionReflection|ClassReflection|ClassConstantReflection|PropertyReflection|MethodReflection|ParameterReflection|AliasReflection|TemplateReflection
+    public function reflect(Id $id): FunctionReflection|ClassReflection|ClassConstReflection|PropertyReflection|MethodReflection|ParameterReflection|AliasReflection|TemplateReflection
     {
         if ($id instanceof NamedFunctionId) {
             $data = ReflectorSession::reflectId(
@@ -226,7 +226,7 @@ final class TyphoonReflector
 
         return match (true) {
             $id instanceof PropertyId => $this->reflect($id->class)->properties()[$id->name],
-            $id instanceof ClassConstantId => $this->reflect($id->class)->constants()[$id->name],
+            $id instanceof ClassConstId => $this->reflect($id->class)->consts()[$id->name],
             $id instanceof MethodId => $this->reflect($id->class)->methods()[$id->name],
             $id instanceof ParameterId => $this->reflect($id->function)->parameters()[$id->name],
             $id instanceof AliasId => $this->reflect($id->class)->aliases()[$id->name],

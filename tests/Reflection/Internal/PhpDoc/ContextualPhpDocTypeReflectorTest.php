@@ -47,7 +47,7 @@ final class ContextualPhpDocTypeReflectorTest extends TestCase
         yield ['int-mask', types::intMaskOf(types::never)];
         yield ['int-mask<1>', types::intMask(1)];
         yield ['int-mask<1|2>', types::intMask(1, 2)];
-        yield ['int-mask-of<stdClass::CON_*>', types::intMaskOf(types::classConstantMask(\stdClass::class, 'CON_'))];
+        yield ['int-mask-of<stdClass::CON_*>', types::intMaskOf(types::classConstMask(\stdClass::class, 'CON_'))];
         yield ['int<0, 1>', types::intRange(0, 1)];
         yield ['int<-10, -23>', types::intRange(-10, -23)];
         yield ['int<min, 123>', types::intRange(max: 123)];
@@ -138,9 +138,9 @@ final class ContextualPhpDocTypeReflectorTest extends TestCase
         yield ['object{}', types::objectShape()];
         yield ['object{a: int}', types::objectShape(['a' => types::int])];
         yield ['object{a?: int}', types::objectShape(['a' => types::optional(types::int)])];
-        yield ['\stdClass::C', types::classConstant(types::object(\stdClass::class), 'C')];
-        yield ['\stdClass::*', types::classConstantMask(types::object(\stdClass::class))];
-        yield ['\stdClass::C_*', types::classConstantMask(types::object(\stdClass::class), 'C_')];
+        yield ['\stdClass::C', types::classConst(types::object(\stdClass::class), 'C')];
+        yield ['\stdClass::*', types::classConstMask(types::object(\stdClass::class))];
+        yield ['\stdClass::C_*', types::classConstMask(types::object(\stdClass::class), 'C_')];
         yield ['key-of<array>', types::keyOf(types::array())];
         yield ['key-of', new InvalidPhpDocType('key-of type should have 1 argument, got 0')];
         yield ['key-of<array, array>', new InvalidPhpDocType('key-of type should have 1 argument, got 2')];

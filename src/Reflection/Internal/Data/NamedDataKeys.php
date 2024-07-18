@@ -15,7 +15,7 @@ use Typhoon\Reflection\Internal\TypedMap\TypedMap;
 enum NamedDataKeys implements OptionalKey
 {
     case Aliases;
-    case ClassConstants;
+    case ClassConsts;
     case Methods;
     case Parameters;
     case Properties;

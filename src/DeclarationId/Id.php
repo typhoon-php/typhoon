@@ -10,14 +10,14 @@ namespace Typhoon\DeclarationId;
 abstract class Id implements \JsonSerializable
 {
     private const ANONYMOUS_CLOSURE_NAME = '{closure}';
-    protected const CODE_CONSTANT = 'c';
+    protected const CODE_CONST = 'c';
     protected const CODE_NAMED_FUNCTION = 'nf';
     protected const CODE_ANONYMOUS_FUNCTION = 'af';
     protected const CODE_NAMED_CLASS = 'nc';
     protected const CODE_ANONYMOUS_CLASS = 'ac';
     protected const CODE_ALIAS = 'a';
     protected const CODE_TEMPLATE = 't';
-    protected const CODE_CLASS_CONSTANT = 'cc';
+    protected const CODE_CLASS_CONST = 'cc';
     protected const CODE_PROPERTY = 'p';
     protected const CODE_METHOD = 'm';
     protected const CODE_PARAMETER = 'pa';
@@ -25,9 +25,9 @@ abstract class Id implements \JsonSerializable
     /**
      * @param non-empty-string $name
      */
-    final public static function constant(string $name): ConstantId
+    final public static function const(string $name): ConstId
     {
-        return new ConstantId($name);
+        return new ConstId($name);
     }
 
     /**
@@ -97,13 +97,13 @@ abstract class Id implements \JsonSerializable
      * @param non-empty-string|NamedClassId|AnonymousClassId $class
      * @param non-empty-string $name
      */
-    final public static function classConstant(string|NamedClassId|AnonymousClassId $class, string $name): ClassConstantId
+    final public static function classConst(string|NamedClassId|AnonymousClassId $class, string $name): ClassConstId
     {
         if (\is_string($class)) {
             $class = self::class($class);
         }
 
-        return new ClassConstantId($class, $name);
+        return new ClassConstId($class, $name);
     }
 
     /**
@@ -165,7 +165,7 @@ abstract class Id implements \JsonSerializable
      * @return (
      *     $reflection is \ReflectionFunction ? NamedFunctionId|AnonymousFunctionId :
      *     $reflection is \ReflectionClass ? NamedClassId|AnonymousClassId :
-     *     $reflection is \ReflectionClassConstant ? ClassConstantId :
+     *     $reflection is \ReflectionClassConstant ? ClassConstId :
      *     $reflection is \ReflectionProperty ? PropertyId :
      *     $reflection is \ReflectionMethod ? MethodId :
      *     $reflection is \ReflectionParameter ? ParameterId : never
@@ -176,7 +176,7 @@ abstract class Id implements \JsonSerializable
         return match (true) {
             $reflection instanceof \ReflectionFunction => $reflection->name === self::ANONYMOUS_CLOSURE_NAME ? AnonymousFunctionId::doFromReflection($reflection) : NamedFunctionId::doFromReflection($reflection),
             $reflection instanceof \ReflectionClass => $reflection->isAnonymous() ? AnonymousClassId::doFromReflection($reflection) : new NamedClassId($reflection->name),
-            $reflection instanceof \ReflectionClassConstant => new ClassConstantId(self::fromReflection($reflection->getDeclaringClass()), $reflection->name),
+            $reflection instanceof \ReflectionClassConstant => new ClassConstId(self::fromReflection($reflection->getDeclaringClass()), $reflection->name),
             $reflection instanceof \ReflectionProperty => PropertyId::doFromReflection($reflection),
             $reflection instanceof \ReflectionMethod => new MethodId(self::fromReflection($reflection->getDeclaringClass()), $reflection->name),
             $reflection instanceof \ReflectionParameter => new ParameterId(self::fromReflection($reflection->getDeclaringFunction()), $reflection->name),
@@ -200,14 +200,14 @@ abstract class Id implements \JsonSerializable
 
         /** @psalm-suppress MixedArgument, UnhandledMatchCondition */
         return match ($code) {
-            self::CODE_CONSTANT => new ConstantId(...$args),
+            self::CODE_CONST => new ConstId(...$args),
             self::CODE_NAMED_FUNCTION => new NamedFunctionId(...$args),
             self::CODE_ANONYMOUS_FUNCTION => new AnonymousFunctionId(...$args),
             self::CODE_NAMED_CLASS => new NamedClassId(...$args),
             self::CODE_ANONYMOUS_CLASS => new AnonymousClassId(...$args),
             self::CODE_ALIAS => new AliasId(...$args),
             self::CODE_TEMPLATE => new TemplateId(...$args),
-            self::CODE_CLASS_CONSTANT => new ClassConstantId(...$args),
+            self::CODE_CLASS_CONST => new ClassConstId(...$args),
             self::CODE_PROPERTY => new PropertyId(...$args),
             self::CODE_METHOD => new MethodId(...$args),
             self::CODE_PARAMETER => new ParameterId(...$args),

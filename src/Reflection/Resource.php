@@ -8,7 +8,7 @@ use Typhoon\ChangeDetector\FileChangeDetector;
 use Typhoon\Reflection\Exception\FileIsNotReadable;
 use Typhoon\Reflection\Internal\Data\Data;
 use Typhoon\Reflection\Internal\ReflectionHook\ClassReflectionHook;
-use Typhoon\Reflection\Internal\ReflectionHook\ConstantReflectionHook;
+use Typhoon\Reflection\Internal\ReflectionHook\ConstReflectionHook;
 use Typhoon\Reflection\Internal\ReflectionHook\FunctionReflectionHook;
 use Typhoon\Reflection\Internal\ReflectionHook\ReflectionHooks;
 use Typhoon\Reflection\Internal\TypedMap\TypedMap;
@@ -21,7 +21,7 @@ final class Resource
     public readonly ReflectionHooks $hooks;
 
     /**
-     * @param list<ConstantReflectionHook|FunctionReflectionHook|ClassReflectionHook> $hooks
+     * @param list<ConstReflectionHook|FunctionReflectionHook|ClassReflectionHook> $hooks
      */
     public function __construct(
         public readonly string $code,
@@ -32,7 +32,7 @@ final class Resource
     }
 
     /**
-     * @param list<ConstantReflectionHook|FunctionReflectionHook|ClassReflectionHook> $hooks
+     * @param list<ConstReflectionHook|FunctionReflectionHook|ClassReflectionHook> $hooks
      */
     public static function fromFile(string $file, TypedMap $baseData = new TypedMap(), array $hooks = []): self
     {

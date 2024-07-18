@@ -9,14 +9,14 @@ use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 
 #[CoversClass(Id::class)]
-#[CoversClass(ConstantId::class)]
+#[CoversClass(ConstId::class)]
 #[CoversClass(NamedFunctionId::class)]
 #[CoversClass(AnonymousFunctionId::class)]
 #[CoversClass(NamedClassId::class)]
 #[CoversClass(AnonymousClassId::class)]
 #[CoversClass(AliasId::class)]
 #[CoversClass(TemplateId::class)]
-#[CoversClass(ClassConstantId::class)]
+#[CoversClass(ClassConstId::class)]
 #[CoversClass(PropertyId::class)]
 #[CoversClass(MethodId::class)]
 #[CoversClass(ParameterId::class)]
@@ -27,7 +27,7 @@ final class DescribeTest extends TestCase
      */
     public static function ids(): \Generator
     {
-        yield [Id::constant('PHP_INT_MAX'), 'constant PHP_INT_MAX'];
+        yield [Id::const('PHP_INT_MAX'), 'constant PHP_INT_MAX'];
         yield [Id::namedFunction('trim'), 'function trim()'];
         yield [Id::anonymousFunction('/path/to/file', 10, 20), 'anonymous function at /path/to/file:10:20'];
         yield [Id::anonymousFunction('/path/to/file', 10), 'anonymous function at /path/to/file:10'];
@@ -41,8 +41,8 @@ final class DescribeTest extends TestCase
         yield [Id::property(Id::anonymousClass('/path/to/file', 12), 'prop'), 'property $prop of anonymous class at /path/to/file:12'];
         yield [Id::method(\ArrayObject::class, 'offsetExists'), 'method ArrayObject::offsetExists()'];
         yield [Id::method(Id::anonymousClass('/path/to/file', 12), 'offsetExists'), 'method offsetExists of anonymous class at /path/to/file:12'];
-        yield [Id::classConstant(\ArrayObject::class, 'ARRAY_AS_PROPS'), 'constant ArrayObject::ARRAY_AS_PROPS'];
-        yield [Id::classConstant(Id::anonymousClass('/path/to/file', 12), 'ARRAY_AS_PROPS'), 'constant ARRAY_AS_PROPS of anonymous class at /path/to/file:12'];
+        yield [Id::classConst(\ArrayObject::class, 'ARRAY_AS_PROPS'), 'constant ArrayObject::ARRAY_AS_PROPS'];
+        yield [Id::classConst(Id::anonymousClass('/path/to/file', 12), 'ARRAY_AS_PROPS'), 'constant ARRAY_AS_PROPS of anonymous class at /path/to/file:12'];
         yield [Id::alias(\ArrayObject::class, 'Key'), 'type alias Key of class ArrayObject'];
         yield [Id::alias(Id::anonymousClass('/path/to/file', 12), 'Key'), 'type alias Key of anonymous class at /path/to/file:12'];
         yield [Id::template(Id::anonymousClass('/path/to/file', 12), 'T'), 'template T of anonymous class at /path/to/file:12'];

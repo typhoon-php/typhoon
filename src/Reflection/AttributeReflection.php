@@ -6,7 +6,7 @@ namespace Typhoon\Reflection;
 
 use Typhoon\DeclarationId\AnonymousClassId;
 use Typhoon\DeclarationId\AnonymousFunctionId;
-use Typhoon\DeclarationId\ClassConstantId;
+use Typhoon\DeclarationId\ClassConstId;
 use Typhoon\DeclarationId\MethodId;
 use Typhoon\DeclarationId\NamedClassId;
 use Typhoon\DeclarationId\NamedFunctionId;
@@ -37,7 +37,7 @@ final class AttributeReflection
      * @param non-negative-int $index
      */
     public function __construct(
-        private readonly NamedFunctionId|AnonymousFunctionId|ParameterId|NamedClassId|AnonymousClassId|ClassConstantId|MethodId|PropertyId $targetId,
+        private readonly NamedFunctionId|AnonymousFunctionId|ParameterId|NamedClassId|AnonymousClassId|ClassConstId|MethodId|PropertyId $targetId,
         private readonly int $index,
         TypedMap $data,
         private readonly TyphoonReflector $reflector,
@@ -74,12 +74,12 @@ final class AttributeReflection
         return $this->reflector->reflectClass($this->className());
     }
 
-    public function targetId(): NamedFunctionId|AnonymousFunctionId|ParameterId|NamedClassId|AnonymousClassId|ClassConstantId|MethodId|PropertyId
+    public function targetId(): NamedFunctionId|AnonymousFunctionId|ParameterId|NamedClassId|AnonymousClassId|ClassConstId|MethodId|PropertyId
     {
         return $this->targetId;
     }
 
-    public function target(): FunctionReflection|ClassReflection|ClassConstantReflection|PropertyReflection|MethodReflection|ParameterReflection|AliasReflection|TemplateReflection
+    public function target(): FunctionReflection|ClassReflection|ClassConstReflection|PropertyReflection|MethodReflection|ParameterReflection|AliasReflection|TemplateReflection
     {
         return $this->reflector->reflect($this->targetId);
     }

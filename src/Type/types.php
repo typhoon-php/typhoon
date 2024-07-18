@@ -7,7 +7,7 @@ namespace Typhoon\Type;
 use Typhoon\DeclarationId\AliasId;
 use Typhoon\DeclarationId\AnonymousClassId;
 use Typhoon\DeclarationId\AnonymousFunctionId;
-use Typhoon\DeclarationId\ConstantId;
+use Typhoon\DeclarationId\ConstId;
 use Typhoon\DeclarationId\Id;
 use Typhoon\DeclarationId\NamedClassId;
 use Typhoon\DeclarationId\NamedFunctionId;
@@ -166,29 +166,29 @@ enum types implements Type
      * @param non-empty-string|NamedClassId|Type $class
      * @param non-empty-string $name
      */
-    public static function classConstant(string|NamedClassId|Type $class, string $name): Type
+    public static function classConst(string|NamedClassId|Type $class, string $name): Type
     {
         if (!$class instanceof Type) {
             $class = self::object($class);
         }
 
         if (str_ends_with($name, '*')) {
-            return new Internal\ClassConstantMaskType($class, substr($name, 0, -1));
+            return new Internal\ClassConstMaskType($class, substr($name, 0, -1));
         }
 
-        return new Internal\ClassConstantType($class, $name);
+        return new Internal\ClassConstType($class, $name);
     }
 
     /**
      * @param non-empty-string|NamedClassId|Type $class
      */
-    public static function classConstantMask(string|NamedClassId|Type $class, string $namePrefix = ''): Type
+    public static function classConstMask(string|NamedClassId|Type $class, string $namePrefix = ''): Type
     {
         if (!$class instanceof Type) {
             $class = self::object($class);
         }
 
-        return new Internal\ClassConstantMaskType($class, $namePrefix);
+        return new Internal\ClassConstMaskType($class, $namePrefix);
     }
 
     public static function classString(Type $object): Type
@@ -206,16 +206,7 @@ enum types implements Type
             return self::closure;
         }
 
-        return new Internal\IntersectionType([
-            self::closure,
-            new Internal\CallableType(
-                array_map(
-                    static fn(Type|Parameter $parameter): Parameter => $parameter instanceof Type ? new Parameter($parameter) : $parameter,
-                    $parameters,
-                ),
-                $return,
-            ),
-        ]);
+        return new Internal\IntersectionType([self::closure, self::callable($parameters, $return)]);
     }
 
     public static function conditional(Type $subject, Type $if, Type $then, Type $else): Type
@@ -224,15 +215,15 @@ enum types implements Type
     }
 
     /**
-     * @param non-empty-string|ConstantId $name
+     * @param non-empty-string|ConstId $name
      */
-    public static function constant(string|ConstantId $name): Type
+    public static function const(string|ConstId $name): Type
     {
-        if (!$name instanceof ConstantId) {
-            $name = Id::constant($name);
+        if (!$name instanceof ConstId) {
+            $name = Id::const($name);
         }
 
-        return new Internal\ConstantType($name);
+        return new Internal\ConstType($name);
     }
 
     /**
@@ -420,7 +411,7 @@ enum types implements Type
      */
     public static function class(string|NamedClassId|Type $class): Type
     {
-        return self::classConstant($class, 'class');
+        return self::classConst($class, 'class');
     }
 
     /**

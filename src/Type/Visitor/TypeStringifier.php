@@ -7,7 +7,7 @@ namespace Typhoon\Type\Visitor;
 use Typhoon\DeclarationId\AliasId;
 use Typhoon\DeclarationId\AnonymousClassId;
 use Typhoon\DeclarationId\AnonymousFunctionId;
-use Typhoon\DeclarationId\ConstantId;
+use Typhoon\DeclarationId\ConstId;
 use Typhoon\DeclarationId\MethodId;
 use Typhoon\DeclarationId\NamedClassId;
 use Typhoon\DeclarationId\NamedFunctionId;
@@ -389,17 +389,17 @@ enum TypeStringifier implements TypeVisitor
         );
     }
 
-    public function constant(Type $type, ConstantId $constant): mixed
+    public function const(Type $type, ConstId $const): mixed
     {
-        return sprintf('constant<%s>', $constant->name);
+        return sprintf('const<%s>', $const->name);
     }
 
-    public function classConstant(Type $type, Type $classType, string $name): mixed
+    public function classConst(Type $type, Type $classType, string $name): mixed
     {
         return sprintf('%s::%s', $classType->accept($this), $name);
     }
 
-    public function classConstantMask(Type $type, Type $classType, string $namePrefix): mixed
+    public function classConstMask(Type $type, Type $classType, string $namePrefix): mixed
     {
         return sprintf('%s::%s*', $classType->accept($this), $namePrefix);
     }

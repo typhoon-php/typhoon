@@ -4,13 +4,13 @@ declare(strict_types=1);
 
 namespace Typhoon\Reflection\Locator;
 
-use Typhoon\DeclarationId\ConstantId;
+use Typhoon\DeclarationId\ConstId;
 use Typhoon\Reflection\Resource;
 
 /**
  * @api
  */
-interface ConstantLocator
+interface ConstLocator
 {
-    public function locate(ConstantId $id): ?Resource;
+    public function locate(ConstId $id): ?Resource;
 }

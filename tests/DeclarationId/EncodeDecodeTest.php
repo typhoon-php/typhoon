@@ -9,14 +9,14 @@ use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 
 #[CoversClass(Id::class)]
-#[CoversClass(ConstantId::class)]
+#[CoversClass(ConstId::class)]
 #[CoversClass(NamedFunctionId::class)]
 #[CoversClass(AnonymousFunctionId::class)]
 #[CoversClass(NamedClassId::class)]
 #[CoversClass(AnonymousClassId::class)]
 #[CoversClass(AliasId::class)]
 #[CoversClass(TemplateId::class)]
-#[CoversClass(ClassConstantId::class)]
+#[CoversClass(ClassConstId::class)]
 #[CoversClass(PropertyId::class)]
 #[CoversClass(MethodId::class)]
 #[CoversClass(ParameterId::class)]
@@ -27,7 +27,7 @@ final class EncodeDecodeTest extends TestCase
      */
     public static function ids(): \Generator
     {
-        yield [Id::constant('CONST'), '["c","CONST"]'];
+        yield [Id::const('CONST'), '["c","CONST"]'];
         yield [Id::namedFunction('fn'), '["nf","fn"]'];
         yield [Id::anonymousFunction('file', 10, 20), '["af","file",10,20]'];
         yield [Id::anonymousFunction('file', 10), '["af","file",10]'];
@@ -39,7 +39,7 @@ final class EncodeDecodeTest extends TestCase
         yield [Id::parameter(Id::method(\stdClass::class, 'test'), 'a'), '["pa",["m",["nc","stdClass"],"test"],"a"]'];
         yield [Id::property('a-class', 'prop'), '["p",["nc","a-class"],"prop"]'];
         yield [Id::method('a-class', 'method'), '["m",["nc","a-class"],"method"]'];
-        yield [Id::classConstant('a-class', 'const'), '["cc",["nc","a-class"],"const"]'];
+        yield [Id::classConst('a-class', 'const'), '["cc",["nc","a-class"],"const"]'];
         yield [Id::alias('a-class', 'alias'), '["a",["nc","a-class"],"alias"]'];
         yield [Id::alias(Id::anonymousClass('file', 12), 'alias'), '["a",["ac","file",12],"alias"]'];
         yield [Id::template(Id::anonymousClass('file', 12), 'alias'), '["t",["ac","file",12],"alias"]'];

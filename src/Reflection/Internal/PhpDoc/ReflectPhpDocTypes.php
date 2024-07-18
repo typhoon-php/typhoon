@@ -86,9 +86,9 @@ final class ReflectPhpDocTypes implements AnnotatedTypesDriver, ClassReflectionH
         }
 
         return $data
-            ->withModifiedIfSet(Data::ClassConstants, fn(array $constants): array => array_map(
-                fn(TypedMap $constant): TypedMap => $this->reflectConstant($typeReflector, $constant),
-                $constants,
+            ->withModifiedIfSet(Data::ClassConsts, fn(array $consts): array => array_map(
+                fn(TypedMap $const): TypedMap => $this->reflectConst($typeReflector, $const),
+                $consts,
             ))
             ->withModifiedIfSet(Data::Properties, fn(array $properties): array => array_map(
                 fn(TypedMap $property): TypedMap => $this->reflectProperty($typeReflector, $property),
@@ -248,7 +248,7 @@ final class ReflectPhpDocTypes implements AnnotatedTypesDriver, ClassReflectionH
         return $data;
     }
 
-    private function reflectConstant(ContextualPhpDocTypeReflector $typeReflector, TypedMap $data): TypedMap
+    private function reflectConst(ContextualPhpDocTypeReflector $typeReflector, TypedMap $data): TypedMap
     {
         $phpDoc = $this->parsePhpDoc($data[Data::PhpDoc]);
 

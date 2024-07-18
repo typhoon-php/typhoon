@@ -13,7 +13,7 @@ use Typhoon\Type\TypeVisitor;
  * @psalm-immutable
  * @implements Type<mixed>
  */
-final class ClassConstantMaskType implements Type
+final class ClassConstMaskType implements Type
 {
     public function __construct(
         private readonly Type $class,
@@ -22,6 +22,6 @@ final class ClassConstantMaskType implements Type
 
     public function accept(TypeVisitor $visitor): mixed
     {
-        return $visitor->classConstantMask($this, $this->class, $this->namePrefix);
+        return $visitor->classConstMask($this, $this->class, $this->namePrefix);
     }
 }

@@ -50,9 +50,9 @@ final class ClassReflection
     private ?ListOf $attributes = null;
 
     /**
-     * @var ?NameMap<ClassConstantReflection>
+     * @var ?NameMap<ClassConstReflection>
      */
-    private ?NameMap $constants = null;
+    private ?NameMap $consts = null;
 
     /**
      * @var ?NameMap<PropertyReflection>
@@ -120,24 +120,24 @@ final class ClassReflection
     }
 
     /**
-     * @return ClassConstantReflection[]
-     * @psalm-return NameMap<ClassConstantReflection>
-     * @phpstan-return NameMap<ClassConstantReflection>
+     * @return ClassConstReflection[]
+     * @psalm-return NameMap<ClassConstReflection>
+     * @phpstan-return NameMap<ClassConstReflection>
      */
     public function enumCases(): NameMap
     {
-        return $this->constants()->filter(static fn(ClassConstantReflection $reflection): bool => $reflection->isEnumCase());
+        return $this->consts()->filter(static fn(ClassConstReflection $reflection): bool => $reflection->isEnumCase());
     }
 
     /**
-     * @return ClassConstantReflection[]
-     * @psalm-return NameMap<ClassConstantReflection>
-     * @phpstan-return NameMap<ClassConstantReflection>
+     * @return ClassConstReflection[]
+     * @psalm-return NameMap<ClassConstReflection>
+     * @phpstan-return NameMap<ClassConstReflection>
      */
-    public function constants(): NameMap
+    public function consts(): NameMap
     {
-        return $this->constants ??= (new NameMap($this->data[Data::ClassConstants]))->map(
-            fn(TypedMap $data, string $name): ClassConstantReflection => new ClassConstantReflection(Id::classConstant($this->id, $name), $data, $this->reflector),
+        return $this->consts ??= (new NameMap($this->data[Data::ClassConsts]))->map(
+            fn(TypedMap $data, string $name): ClassConstReflection => new ClassConstReflection(Id::classConst($this->id, $name), $data, $this->reflector),
         );
     }
 

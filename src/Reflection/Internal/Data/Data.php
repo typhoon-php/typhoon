@@ -14,7 +14,7 @@ enum Data
     public const AttributeClassName = AttributeClassNameKey::Key;
     public const AttributeRepeated = BoolKeys::AttributeRepeated;
     public const Attributes = AttributesKey::Key;
-    public const ClassConstants = NamedDataKeys::ClassConstants;
+    public const ClassConsts = NamedDataKeys::ClassConsts;
     public const ClassKind = ClassKindKey::Key;
     public const Namespace = NamespaceKey::Key;
     public const DeclaringClassId = DeclaringClassIdKey::Key;

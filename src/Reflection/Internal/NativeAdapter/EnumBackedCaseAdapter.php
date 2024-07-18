@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Typhoon\Reflection\Internal\NativeAdapter;
 
-use Typhoon\Reflection\ClassConstantReflection;
+use Typhoon\Reflection\ClassConstReflection;
 
 /**
  * @internal
@@ -17,7 +17,7 @@ final class EnumBackedCaseAdapter extends \ReflectionEnumBackedCase
 {
     public function __construct(
         private readonly ClassConstantAdapter $constant,
-        private readonly ClassConstantReflection $reflection,
+        private readonly ClassConstReflection $reflection,
     ) {
         unset($this->name, $this->class);
     }

@@ -16,7 +16,7 @@ use PhpParser\Node\Stmt\Trait_;
 use PhpParser\NodeVisitorAbstract;
 use Typhoon\DeclarationId\AliasId;
 use Typhoon\DeclarationId\AnonymousClassId;
-use Typhoon\DeclarationId\ClassConstantId;
+use Typhoon\DeclarationId\ClassConstId;
 use Typhoon\DeclarationId\Id;
 use Typhoon\DeclarationId\NamedClassId;
 use Typhoon\DeclarationId\TemplateId;
@@ -79,7 +79,7 @@ final class TypeContextVisitor extends NodeVisitorAbstract implements TypeContex
             if ($typeContext->id instanceof NamedClassId || $typeContext->id instanceof AnonymousClassId) {
                 $this->contextStack[] = new TypeContext(
                     nameContext: $this->nameContext,
-                    id: Id::classConstant($typeContext->id, $node->name->name),
+                    id: Id::classConst($typeContext->id, $node->name->name),
                     self: $typeContext->self,
                     parent: $typeContext->parent,
                     aliases: $typeContext->aliases,
@@ -146,7 +146,7 @@ final class TypeContextVisitor extends NodeVisitorAbstract implements TypeContex
         if ($node instanceof Const_) {
             $typeContext = $this->get();
 
-            if ($typeContext->id instanceof ClassConstantId
+            if ($typeContext->id instanceof ClassConstId
                 || $typeContext->id instanceof NamedClassId
                 || $typeContext->id instanceof AnonymousClassId
             ) {

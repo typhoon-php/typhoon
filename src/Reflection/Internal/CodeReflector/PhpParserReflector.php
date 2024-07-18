@@ -116,7 +116,7 @@ final class PhpParserReflector extends NodeVisitorAbstract
                 ->with(Data::Abstract, $node->isAbstract())
                 ->with(Data::NativeReadonly, $node->isReadonly())
                 ->with(Data::NativeFinal, $node->isFinal())
-                ->with(Data::ClassConstants, $this->reflectConstants($typeContext, $node->getConstants()))
+                ->with(Data::ClassConsts, $this->reflectConsts($typeContext, $node->getConstants()))
                 ->with(Data::Properties, $this->reflectProperties($typeContext, $node->getProperties()))
                 ->with(Data::Methods, $this->reflectMethods($node->getMethods()));
         }
@@ -125,7 +125,7 @@ final class PhpParserReflector extends NodeVisitorAbstract
             return $data
                 ->with(Data::ClassKind, ClassKind::Interface)
                 ->with(Data::UnresolvedInterfaces, $this->reflectInterfaces($node->extends))
-                ->with(Data::ClassConstants, $this->reflectConstants($typeContext, $node->getConstants()))
+                ->with(Data::ClassConsts, $this->reflectConsts($typeContext, $node->getConstants()))
                 ->with(Data::Methods, $this->reflectMethods($node->getMethods()));
         }
 
@@ -139,8 +139,8 @@ final class PhpParserReflector extends NodeVisitorAbstract
                 ->withMap($this->reflectTraitUses($node->getTraitUses()))
                 ->with(Data::NativeFinal, true)
                 ->with(Data::EnumBackingType, $backingType)
-                ->with(Data::ClassConstants, [
-                    ...$this->reflectConstants($typeContext, $node->getConstants()),
+                ->with(Data::ClassConsts, [
+                    ...$this->reflectConsts($typeContext, $node->getConstants()),
                     ...$this->reflectEnumCases($typeContext, array_filter(
                         $node->stmts,
                         static fn(Node $node): bool => $node instanceof EnumCase,
@@ -153,7 +153,7 @@ final class PhpParserReflector extends NodeVisitorAbstract
             return $data
                 ->with(Data::ClassKind, ClassKind::Trait)
                 ->withMap($this->reflectTraitUses($node->getTraitUses()))
-                ->with(Data::ClassConstants, $this->reflectConstants($typeContext, $node->getConstants()))
+                ->with(Data::ClassConsts, $this->reflectConsts($typeContext, $node->getConstants()))
                 ->with(Data::Properties, $this->reflectProperties($typeContext, $node->getProperties()))
                 ->with(Data::Methods, $this->reflectMethods($node->getMethods()));
         }
@@ -317,10 +317,10 @@ final class PhpParserReflector extends NodeVisitorAbstract
      * @param array<ClassConst> $nodes
      * @return array<non-empty-string, TypedMap>
      */
-    private function reflectConstants(TypeContext $typeContext, array $nodes): array
+    private function reflectConsts(TypeContext $typeContext, array $nodes): array
     {
         $compiler = $this->constantExpressionCompilerProvider->get();
-        $constants = [];
+        $consts = [];
 
         foreach ($nodes as $node) {
             $data = $this
@@ -331,11 +331,11 @@ final class PhpParserReflector extends NodeVisitorAbstract
                 ->with(Data::Visibility, $this->reflectVisibility($node->flags));
 
             foreach ($node->consts as $const) {
-                $constants[$const->name->name] = $data->with(Data::ValueExpression, $compiler->compile($const->value));
+                $consts[$const->name->name] = $data->with(Data::ValueExpression, $compiler->compile($const->value));
             }
         }
 
-        return $constants;
+        return $consts;
     }
 
     /**
@@ -357,7 +357,7 @@ final class PhpParserReflector extends NodeVisitorAbstract
                 ->with(Data::Attributes, $this->reflectAttributes($node->attrGroups))
                 ->with(Data::NativeFinal, false)
                 ->with(Data::EnumCase, true)
-                ->with(Data::Type, new TypeData(annotated: types::classConstant($enumType, $name)))
+                ->with(Data::Type, new TypeData(annotated: types::classConst($enumType, $name)))
                 ->with(Data::Visibility, Visibility::Public);
 
             if ($node->expr !== null) {
