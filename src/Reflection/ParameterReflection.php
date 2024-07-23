@@ -122,6 +122,9 @@ final class ParameterReflection
         return $this->data[Data::ByReference];
     }
 
+    /**
+     * @psalm-assert-if-true !null $this->promotedParameter()
+     */
     public function isPromoted(): bool
     {
         return $this->data[Data::Promoted];
@@ -138,6 +141,15 @@ final class ParameterReflection
     public function type(?DeclarationKind $kind = null): ?Type
     {
         return $this->data[Data::Type]->get($kind);
+    }
+
+    public function promotedProperty(): ?PropertyReflection
+    {
+        if ($this->isPromoted()) {
+            return $this->class()?->properties()[$this->id->name];
+        }
+
+        return null;
     }
 
     private ?ParameterAdapter $native = null;

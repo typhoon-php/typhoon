@@ -90,6 +90,9 @@ final class PropertyReflection
         return $this->data[Data::Static];
     }
 
+    /**
+     * @psalm-assert-if-true !null $this->promotedParameter()
+     */
     public function isPromoted(): bool
     {
         return $this->data[Data::Promoted];
@@ -137,6 +140,15 @@ final class PropertyReflection
     public function type(?DeclarationKind $kind = null): ?Type
     {
         return $this->data[Data::Type]->get($kind);
+    }
+
+    public function promotedParameter(): ?ParameterReflection
+    {
+        if ($this->isPromoted()) {
+            return $this->class()->methods()['__construct']->parameters()[$this->id->name];
+        }
+
+        return null;
     }
 
     private ?PropertyAdapter $native = null;
