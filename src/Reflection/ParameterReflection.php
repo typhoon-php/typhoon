@@ -122,6 +122,9 @@ final class ParameterReflection
         return $this->data[Data::ByReference];
     }
 
+    /**
+     * @psalm-assert-if-true !null $this->promotedParameter()
+     */
     public function isPromoted(): bool
     {
         return $this->data[Data::Promoted];
@@ -138,6 +141,16 @@ final class ParameterReflection
     public function type(?DeclarationKind $kind = null): ?Type
     {
         return $this->data[Data::Type]->get($kind);
+    }
+
+    public function isDeprecated(): bool
+    {
+        return $this->data[Data::Deprecation] !== null;
+    }
+
+    public function deprecation(): ?Deprecation
+    {
+        return $this->data[Data::Deprecation];
     }
 
     private ?ParameterAdapter $native = null;

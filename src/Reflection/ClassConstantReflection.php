@@ -150,6 +150,16 @@ final class ClassConstantReflection
         return $this->data[Data::Type]->get($kind);
     }
 
+    public function isDeprecated(): bool
+    {
+        return $this->data[Data::Deprecation] !== null;
+    }
+
+    public function deprecation(): ?Deprecation
+    {
+        return $this->data[Data::Deprecation];
+    }
+
     private ?\ReflectionClassConstant $native = null;
 
     public function toNativeReflection(): \ReflectionClassConstant

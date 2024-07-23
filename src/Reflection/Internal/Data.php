@@ -63,4 +63,5 @@ enum Data
     public const AnonymousClassColumns = Data\AnonymousClassColumnsKey::Key;
     public const Location = Data\LocationKey::Key;
     public const Code = Data\CodeKey::Key;
+    public const Deprecation = Data\DeprecationKey::Key;
 }

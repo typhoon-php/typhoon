@@ -203,6 +203,16 @@ final class MethodReflection
         return $this->data[Data::ThrowsType];
     }
 
+    public function isDeprecated(): bool
+    {
+        return $this->data[Data::Deprecation] !== null;
+    }
+
+    public function deprecation(): ?Deprecation
+    {
+        return $this->data[Data::Deprecation];
+    }
+
     private ?MethodAdapter $native = null;
 
     public function toNativeReflection(): \ReflectionMethod

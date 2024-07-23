@@ -174,6 +174,16 @@ final class FunctionReflection
         return $this->data[Data::ThrowsType];
     }
 
+    public function isDeprecated(): bool
+    {
+        return $this->data[Data::Deprecation] !== null;
+    }
+
+    public function deprecation(): ?Deprecation
+    {
+        return $this->data[Data::Deprecation];
+    }
+
     private ?FunctionAdapter $native = null;
 
     public function toNativeReflection(): \ReflectionFunction

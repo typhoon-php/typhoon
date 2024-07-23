@@ -15,7 +15,7 @@ use PHPUnit\Framework\TestCase;
 #[CoversClass(PhpDocParser::class)]
 final class PhpDocParserTest extends TestCase
 {
-    public function testHasDeprecatedReturnsFalseIfNoDeprecatedTag(): void
+    public function testDeprecatedMessageReturnsNullIfNoDeprecatedTag(): void
     {
         $parser = new PhpDocParser();
 
@@ -25,12 +25,12 @@ final class PhpDocParserTest extends TestCase
                  * @example
                  */
                 PHP,
-        )->hasDeprecated();
+        )->deprecatedMessage();
 
-        self::assertFalse($deprecated);
+        self::assertNull($deprecated);
     }
 
-    public function testHasDeprecatedReturnsTrueIfDeprecated(): void
+    public function testDeprecatedMessageReturnsEmptyStringIfDeprecatedWithoutMessage(): void
     {
         $parser = new PhpDocParser();
 
@@ -38,12 +38,28 @@ final class PhpDocParserTest extends TestCase
             <<<'PHP'
                 /**
                  * @example
-                 * @deprecated
+                 * @deprecated   
                  */
                 PHP,
-        )->hasDeprecated();
+        )->deprecatedMessage();
 
-        self::assertTrue($deprecated);
+        self::assertSame('', $deprecated);
+    }
+
+    public function testDeprecatedMessageReturnsStringIfDeprecatedWithMessage(): void
+    {
+        $parser = new PhpDocParser();
+
+        $deprecated = $parser->parse(
+            <<<'PHP'
+                /**
+                 * @example
+                 * @deprecated This is a God Class anti-pattern. Don't expand it.
+                 */
+                PHP,
+        )->deprecatedMessage();
+
+        self::assertSame("This is a God Class anti-pattern. Don't expand it.", $deprecated);
     }
 
     public function testHasFinalReturnsFalseIfNoFinalTag(): void

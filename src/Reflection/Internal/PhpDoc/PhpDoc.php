@@ -32,15 +32,15 @@ final class PhpDoc
         public readonly PhpDocNode $node,
     ) {}
 
-    public function hasDeprecated(): bool
+    public function deprecatedMessage(): ?string
     {
         foreach ($this->tags() as $tag) {
             if ($tag->value instanceof DeprecatedTagValueNode) {
-                return true;
+                return $tag->value->description;
             }
         }
 
-        return false;
+        return null;
     }
 
     public function hasFinal(): bool

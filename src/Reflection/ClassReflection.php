@@ -334,6 +334,16 @@ final class ClassReflection
         );
     }
 
+    public function isDeprecated(): bool
+    {
+        return $this->data[Data::Deprecation] !== null;
+    }
+
+    public function deprecation(): ?Deprecation
+    {
+        return $this->data[Data::Deprecation];
+    }
+
     /**
      * @var ?\ReflectionClass<TObject>
      */
