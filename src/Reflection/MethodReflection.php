@@ -14,6 +14,9 @@ use Typhoon\TypedMap\TypedMap;
 
 /**
  * @api
+ * @psalm-import-type Attributes from ReflectionCollections
+ * @psalm-import-type Templates from ReflectionCollections
+ * @psalm-import-type Parameters from ReflectionCollections
  */
 final class MethodReflection
 {
@@ -29,19 +32,19 @@ final class MethodReflection
     public readonly TypedMap $data;
 
     /**
-     * @var ?NameMap<TemplateReflection>
+     * @var ?Templates
      */
-    private ?NameMap $templates = null;
+    private ?Collection $templates = null;
 
     /**
-     * @var ?ListOf<AttributeReflection>
+     * @var ?Attributes
      */
-    private ?ListOf $attributes = null;
+    private ?Collection $attributes = null;
 
     /**
-     * @var ?NameMap<ParameterReflection>
+     * @var ?Parameters
      */
-    private ?NameMap $parameters;
+    private ?Collection $parameters;
 
     /**
      * @internal
@@ -58,38 +61,35 @@ final class MethodReflection
 
     /**
      * @return TemplateReflection[]
-     * @psalm-return NameMap<TemplateReflection>
-     * @phpstan-return NameMap<TemplateReflection>
+     * @psalm-return Templates
+     * @phpstan-return Templates
      */
-    public function templates(): NameMap
+    public function templates(): Collection
     {
-        return $this->templates ??= (new NameMap($this->data[Data::Templates]))->map(
-            fn(TypedMap $data, string $name): TemplateReflection => new TemplateReflection(Id::template($this->id, $name), $data),
-        );
+        return $this->templates ??= (new Collection($this->data[Data::Templates]))
+            ->map(fn(TypedMap $data, string $name): TemplateReflection => new TemplateReflection(Id::template($this->id, $name), $data));
     }
 
     /**
      * @return AttributeReflection[]
-     * @psalm-return ListOf<AttributeReflection>
-     * @phpstan-return ListOf<AttributeReflection>
+     * @psalm-return Attributes
+     * @phpstan-return Attributes
      */
-    public function attributes(): ListOf
+    public function attributes(): Collection
     {
-        return $this->attributes ??= (new ListOf($this->data[Data::Attributes]))->map(
-            fn(TypedMap $data, int $index): AttributeReflection => new AttributeReflection($this->id, $index, $data, $this->reflector),
-        );
+        return $this->attributes ??= (new Collection($this->data[Data::Attributes]))
+            ->map(fn(TypedMap $data, int $index): AttributeReflection => new AttributeReflection($this->id, $index, $data, $this->reflector));
     }
 
     /**
      * @return ParameterReflection[]
-     * @psalm-return NameMap<ParameterReflection>
-     * @phpstan-return NameMap<ParameterReflection>
+     * @psalm-return Parameters
+     * @phpstan-return Parameters
      */
-    public function parameters(): NameMap
+    public function parameters(): Collection
     {
-        return $this->parameters ??= (new NameMap($this->data[Data::Parameters]))->map(
-            fn(TypedMap $data, string $name): ParameterReflection => new ParameterReflection(Id::parameter($this->id, $name), $data, $this->reflector),
-        );
+        return $this->parameters ??= (new Collection($this->data[Data::Parameters]))
+            ->map(fn(TypedMap $data, string $name): ParameterReflection => new ParameterReflection(Id::parameter($this->id, $name), $data, $this->reflector));
     }
 
     /**
@@ -180,9 +180,7 @@ final class MethodReflection
 
     public function isVariadic(): bool
     {
-        $lastParameterName = array_key_last($this->parameters()->names());
-
-        return $lastParameterName !== null && $this->parameters()[$lastParameterName]->isVariadic();
+        return $this->parameters()->last()?->isVariadic() ?? false;
     }
 
     public function returnsReference(): bool

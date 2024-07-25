@@ -13,13 +13,15 @@ use Typhoon\DeclarationId\NamedFunctionId;
 use Typhoon\DeclarationId\ParameterId;
 use Typhoon\DeclarationId\PropertyId;
 use Typhoon\Reflection\AttributeReflection;
-use Typhoon\Reflection\ListOf;
+use Typhoon\Reflection\Collection;
+use Typhoon\Reflection\ReflectionCollections;
 
 /**
  * @internal
  * @psalm-internal Typhoon\Reflection
  * @template TAttribute of object
  * @extends \ReflectionAttribute<TAttribute>
+ * @psalm-import-type Attributes from ReflectionCollections
  */
 final class AttributeAdapter extends \ReflectionAttribute
 {
@@ -29,10 +31,10 @@ final class AttributeAdapter extends \ReflectionAttribute
 
     /**
      * @param ?non-empty-string $name
-     * @param ListOf<AttributeReflection> $attributes
+     * @param Attributes $attributes
      * @return list<\ReflectionAttribute>
      */
-    public static function fromList(ListOf $attributes, ?string $name, int $flags): array
+    public static function fromList(Collection $attributes, ?string $name, int $flags): array
     {
         if ($name !== null) {
             if ($flags & \ReflectionAttribute::IS_INSTANCEOF) {

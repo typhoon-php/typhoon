@@ -4,19 +4,28 @@ declare(strict_types=1);
 
 namespace Typhoon\Reflection;
 
+use function Typhoon\Reflection\Internal\array_value_first;
+use function Typhoon\Reflection\Internal\array_value_last;
+
 /**
  * @api
- * @template-covariant T
- * @implements \ArrayAccess<int|string, T>
- * @implements \IteratorAggregate<non-empty-string, T>
+ *
+ * @template TKey of array-key
+ * @template-covariant TValue
+ *
+ * It is valid to implement ArrayAccess with a covariant TValue, because we do not allow to call mutating offsetSet()
+ * and offsetUnset() methods.
  * @psalm-suppress InvalidTemplateParam
+ * @implements \ArrayAccess<TKey, TValue>
+ *
+ * @implements \IteratorAggregate<TKey, TValue>
  */
-final class NameMap implements \ArrayAccess, \IteratorAggregate, \Countable
+final class Collection implements \ArrayAccess, \IteratorAggregate, \Countable
 {
     /**
      * @internal
      * @psalm-internal Typhoon\Reflection
-     * @param array<non-empty-string, T> $values
+     * @param array<TKey, TValue> $values
      */
     public function __construct(
         private readonly array $values,
@@ -24,28 +33,18 @@ final class NameMap implements \ArrayAccess, \IteratorAggregate, \Countable
 
     public function offsetExists(mixed $offset): bool
     {
-        if (\is_int($offset)) {
-            return $offset >= 0 && $offset < $this->count();
-        }
-
         return isset($this->values[$offset]);
     }
 
     public function offsetGet(mixed $offset): mixed
     {
-        if (\is_int($offset)) {
-            $name = $this->names()[$offset] ?? throw new \RuntimeException(\sprintf('Offset %s is not set', $offset));
-
-            return $this->values[$name];
-        }
-
-        return $this->values[$offset] ?? throw new \RuntimeException(\sprintf('Offset %s is not set', $offset));
+        return $this->values[$offset] ?? throw new KeyIsNotDefined($offset);
     }
 
     /**
-     * @template TNew
-     * @param callable(T, non-empty-string): TNew $mapper
-     * @return self<TNew>
+     * @template TNewValue
+     * @param callable(TValue, TKey): TNewValue $mapper
+     * @return self<TKey, TNewValue>
      */
     public function map(callable $mapper): self
     {
@@ -59,8 +58,8 @@ final class NameMap implements \ArrayAccess, \IteratorAggregate, \Countable
     }
 
     /**
-     * @param callable(T, non-empty-string): bool $filter
-     * @return self<T>
+     * @param callable(TValue, TKey): bool $filter
+     * @return self<TKey, TValue>
      */
     public function filter(callable $filter): self
     {
@@ -76,23 +75,55 @@ final class NameMap implements \ArrayAccess, \IteratorAggregate, \Countable
     }
 
     /**
-     * @return list<non-empty-string>
+     * @return list<TKey>
      */
-    public function names(): array
+    public function keys(): array
     {
         return array_keys($this->values);
     }
 
     /**
-     * @return list<T>
+     * @return ?TKey
      */
-    public function toList(): array
+    public function firstKey(): null|int|string
     {
-        return array_values($this->values);
+        return array_key_first($this->values);
     }
 
     /**
-     * @return array<non-empty-string, T>
+     * @return ?TKey
+     */
+    public function lastKey(): null|int|string
+    {
+        return array_key_last($this->values);
+    }
+
+    /**
+     * @return ?TValue
+     */
+    public function first(): mixed
+    {
+        return array_value_first($this->values);
+    }
+
+    /**
+     * @return ?TValue
+     */
+    public function last(): mixed
+    {
+        return array_value_last($this->values);
+    }
+
+    /**
+     * @return self<non-negative-int, TValue>
+     */
+    public function toIndexed(): self
+    {
+        return new self(array_values($this->values));
+    }
+
+    /**
+     * @return array<TKey, TValue>
      */
     public function toArray(): array
     {
@@ -100,7 +131,15 @@ final class NameMap implements \ArrayAccess, \IteratorAggregate, \Countable
     }
 
     /**
-     * @param callable(T, non-empty-string): bool $predicate
+     * @return list<TValue>
+     */
+    public function toList(): array
+    {
+        return array_values($this->values);
+    }
+
+    /**
+     * @param callable(TValue, TKey): bool $predicate
      */
     public function any(callable $predicate): bool
     {
@@ -114,7 +153,7 @@ final class NameMap implements \ArrayAccess, \IteratorAggregate, \Countable
     }
 
     /**
-     * @param callable(T, non-empty-string): bool $predicate
+     * @param callable(TValue, TKey): bool $predicate
      */
     public function all(callable $predicate): bool
     {

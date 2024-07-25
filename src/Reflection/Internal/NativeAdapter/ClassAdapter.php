@@ -9,12 +9,13 @@ use Typhoon\DeclarationId\Id;
 use Typhoon\DeclarationId\NamedClassId;
 use Typhoon\Reflection\ClassConstantReflection;
 use Typhoon\Reflection\ClassReflection;
+use Typhoon\Reflection\Collection;
 use Typhoon\Reflection\DeclarationKind;
 use Typhoon\Reflection\Exception\DeclarationNotFound;
 use Typhoon\Reflection\Internal\Data;
 use Typhoon\Reflection\MethodReflection;
-use Typhoon\Reflection\NameMap;
 use Typhoon\Reflection\PropertyReflection;
+use Typhoon\Reflection\ReflectionCollections;
 use Typhoon\Reflection\TyphoonReflector;
 
 /**
@@ -24,6 +25,8 @@ use Typhoon\Reflection\TyphoonReflector;
  * @extends \ReflectionClass<T>
  * @property-read class-string<T> $name
  * @psalm-suppress PropertyNotSetInConstructor
+ * @psalm-import-type Properties from ReflectionCollections
+ * @psalm-import-type Methods from ReflectionCollections
  */
 final class ClassAdapter extends \ReflectionClass
 {
@@ -97,9 +100,13 @@ final class ClassAdapter extends \ReflectionClass
 
     public function getConstant(string $name): mixed
     {
-        return isset($this->reflection->constants()[$name])
-            ? $this->reflection->constants()[$name]->value()
-            : false;
+        if ($name === '') {
+            return false;
+        }
+
+        $constant = $this->reflection->constants()[$name] ?? null;
+
+        return $constant === null ? false : $constant->value();
     }
 
     public function getConstants(?int $filter = null): array
@@ -174,7 +181,13 @@ final class ClassAdapter extends \ReflectionClass
 
     public function getMethod(string $name): \ReflectionMethod
     {
-        return $this->nativeMethods()[$name]->toNativeReflection();
+        if ($name === '') {
+            throw new \ReflectionException(\sprintf('Method %s::() does not exist', $this->name));
+        }
+
+        return ($this->nativeMethods()[$name] ?? null)
+            ?->toNativeReflection()
+            ?? throw new \ReflectionException(\sprintf('Method %s::%s() does not exist', $this->name, $name));
     }
 
     public function getMethods(?int $filter = null): array
@@ -239,12 +252,24 @@ final class ClassAdapter extends \ReflectionClass
 
     public function getProperty(string $name): \ReflectionProperty
     {
-        return $this->nativeProperties()[$name]->toNativeReflection();
+        if ($name === '') {
+            throw new \ReflectionException(\sprintf('Property %s::$ does not exist', $this->name));
+        }
+
+        return ($this->nativeProperties()[$name] ?? null)
+            ?->toNativeReflection()
+            ?? throw new \ReflectionException(\sprintf('Property %s::$%s does not exist', $this->name, $name));
     }
 
     public function getReflectionConstant(string $name): \ReflectionClassConstant|false
     {
-        return ($this->reflection->constants()[$name] ?? null)?->toNativeReflection() ?? false;
+        if ($name === '') {
+            return false;
+        }
+
+        return ($this->reflection->constants()[$name] ?? null)
+            ?->toNativeReflection()
+            ?? false;
     }
 
     public function getReflectionConstants(?int $filter = null): array
@@ -320,17 +345,17 @@ final class ClassAdapter extends \ReflectionClass
 
     public function hasConstant(string $name): bool
     {
-        return isset($this->reflection->constants()[$name]);
+        return $name !== '' && $this->reflection->constants()->offsetExists($name);
     }
 
     public function hasMethod(string $name): bool
     {
-        return isset($this->nativeMethods()[$name]);
+        return $name !== '' && $this->nativeMethods()->offsetExists($name);
     }
 
     public function hasProperty(string $name): bool
     {
-        return isset($this->nativeProperties()[$name]);
+        return $name !== '' && $this->nativeProperties()->offsetExists($name);
     }
 
     public function implementsInterface(string|\ReflectionClass $interface): bool
@@ -510,9 +535,9 @@ final class ClassAdapter extends \ReflectionClass
     }
 
     /**
-     * @return NameMap<PropertyReflection>
+     * @return Properties
      */
-    private function nativeProperties(): NameMap
+    private function nativeProperties(): Collection
     {
         return $this
             ->reflection
@@ -521,9 +546,9 @@ final class ClassAdapter extends \ReflectionClass
     }
 
     /**
-     * @return NameMap<MethodReflection>
+     * @return Methods
      */
-    private function nativeMethods(): NameMap
+    private function nativeMethods(): Collection
     {
         return $this
             ->reflection

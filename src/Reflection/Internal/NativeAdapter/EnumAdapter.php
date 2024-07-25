@@ -62,7 +62,13 @@ final class EnumAdapter extends \ReflectionEnum
 
     public function getCase(string $name): \ReflectionEnumUnitCase
     {
-        $case = ($this->reflection->enumCases()[$name] ?? throw new \ReflectionException())->toNativeReflection();
+        if ($name === '') {
+            throw new \ReflectionException(\sprintf('Case %s:: does not exist', $this->name));
+        }
+
+        $case = ($this->reflection->enumCases()[$name] ?? null)
+            ?->toNativeReflection()
+            ?? throw new \ReflectionException(\sprintf('Case %s::%s does not exist', $this->name, $name));
         \assert($case instanceof \ReflectionEnumUnitCase);
 
         return $case;
@@ -224,7 +230,7 @@ final class EnumAdapter extends \ReflectionEnum
 
     public function hasCase(string $name): bool
     {
-        return isset($this->reflection->enumCases()[$name]);
+        return $name !== '' && $this->reflection->enumCases()->offsetExists($name);
     }
 
     public function hasConstant(string $name): bool

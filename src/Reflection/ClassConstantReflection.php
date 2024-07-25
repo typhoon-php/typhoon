@@ -14,6 +14,7 @@ use Typhoon\TypedMap\TypedMap;
 
 /**
  * @api
+ * @psalm-import-type Attributes from ReflectionCollections
  */
 final class ClassConstantReflection
 {
@@ -29,9 +30,9 @@ final class ClassConstantReflection
     public readonly TypedMap $data;
 
     /**
-     * @var ?ListOf<AttributeReflection>
+     * @var ?Attributes
      */
-    private ?ListOf $attributes = null;
+    private ?Collection $attributes = null;
 
     /**
      * @internal
@@ -48,14 +49,13 @@ final class ClassConstantReflection
 
     /**
      * @return AttributeReflection[]
-     * @psalm-return ListOf<AttributeReflection>
-     * @phpstan-return ListOf<AttributeReflection>
+     * @psalm-return Attributes
+     * @phpstan-return Attributes
      */
-    public function attributes(): ListOf
+    public function attributes(): Collection
     {
-        return $this->attributes ??= (new ListOf($this->data[Data::Attributes]))->map(
-            fn(TypedMap $data, int $index): AttributeReflection => new AttributeReflection($this->id, $index, $data, $this->reflector),
-        );
+        return $this->attributes ??= (new Collection($this->data[Data::Attributes]))
+            ->map(fn(TypedMap $data, int $index): AttributeReflection => new AttributeReflection($this->id, $index, $data, $this->reflector));
     }
 
     public function location(): ?Location
