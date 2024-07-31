@@ -212,6 +212,7 @@ final class NodeReflector
     private function reflectConstants(Context $context, array $nodes): array
     {
         $compiler = new ConstantExpressionCompiler($context);
+        $valueTypeReflector = new ConstantExpressionTypeReflector($context);
         $constants = [];
         $enumType = null;
 
@@ -222,11 +223,16 @@ final class NodeReflector
                     ->with(Data::Location, $this->reflectLocation($context, $node))
                     ->with(Data::Attributes, $this->reflectAttributes($context, $node->attrGroups))
                     ->with(Data::NativeFinal, $node->isFinal())
-                    ->with(Data::Type, new TypeData($this->reflectType($context, $node->type)))
                     ->with(Data::Visibility, $this->reflectVisibility($node->flags));
+                $nativeType = $this->reflectType($context, $node->type);
 
                 foreach ($node->consts as $const) {
-                    $constants[$const->name->name] = $data->with(Data::ValueExpression, $compiler->compile($const->value));
+                    $constants[$const->name->name] = $data
+                        ->with(Data::ValueExpression, $compiler->compile($const->value))
+                        ->with(Data::Type, new TypeData(
+                            native: $nativeType,
+                            value: $valueTypeReflector->reflect($const->value),
+                        ));
                 }
 
                 continue;
@@ -243,7 +249,7 @@ final class NodeReflector
                     ->with(Data::Location, $this->reflectLocation($context, $node))
                     ->with(Data::Attributes, $this->reflectAttributes($context, $node->attrGroups))
                     ->with(Data::EnumCase, true)
-                    ->with(Data::Type, new TypeData(annotated: types::classConstant($enumType, $node->name->name)))
+                    ->with(Data::Type, new TypeData(value: types::classConstant($enumType, $node->name->name)))
                     ->with(Data::Visibility, Visibility::Public)
                     ->with(Data::BackingValueExpression, $compiler->compile($node->expr));
 

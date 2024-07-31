@@ -12,4 +12,5 @@ enum TypeKind
     case Resolved;
     case Native;
     case Annotated;
+    case Value;
 }
