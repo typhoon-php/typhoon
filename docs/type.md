@@ -105,7 +105,7 @@ As you can see, creating types in Typhoon is a lot of fun, especially if you wor
 ## Design
 
 Unlike other solutions, Typhoon Type does not expose concrete type classes in its API. Instead, it provides only
-a [`Type`](../src/Type/Type.php) interface and a [`TypeVisitor`](../src/Type/TypeVisitor.php) with destructurization.
+a [common type interface `Type`](../src/Type/Type.php), a [type factory `types`](../src/Type/types.php), and a [type visitor with destructurization `TypeVisitor`](../src/Type/TypeVisitor.php).
 This approach gives several advantages:
 
 1. The visitor has only a minimal subset of type methods that must be implemented when describing a type algebra.
