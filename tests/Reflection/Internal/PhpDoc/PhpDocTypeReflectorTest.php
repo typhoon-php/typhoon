@@ -43,13 +43,6 @@ final class PhpDocTypeReflectorTest extends TestCase
         yield ['int<-10, -23>', types::intRange(-10, -23)];
         yield ['int<min, 123>', types::intRange(max: 123)];
         yield ['int<-99, max>', types::intRange(min: -99)];
-        yield ['int<max>', new InvalidPhpDocType('int range type should have 2 type arguments, got 1')];
-        yield ['int<max, 0>', new InvalidPhpDocType('Invalid int range min type argument: max')];
-        yield ['int<test, 0>', new InvalidPhpDocType('Invalid int range min type argument: test')];
-        yield ["int<'test', 0>", new InvalidPhpDocType('Invalid int range min type argument: test')];
-        yield ['int<0, min>', new InvalidPhpDocType('Invalid int range max type argument: min')];
-        yield ['int<0, test>', new InvalidPhpDocType('Invalid int range max type argument: test')];
-        yield ["int<0, 'test'>", new InvalidPhpDocType('Invalid int range max type argument: test')];
         yield ['int<min, max>', types::int];
         yield ['0', types::int(0)];
         yield ['932', types::int(932)];
@@ -68,13 +61,6 @@ final class PhpDocTypeReflectorTest extends TestCase
         yield ['float<10.0002, 231.00002>', types::floatRange(10.0002, 231.00002)];
         yield ['float<min, 123>', types::floatRange(max: 123)];
         yield ['float<-99, max>', types::floatRange(min: -99)];
-        yield ['float<max>', new InvalidPhpDocType('float range type should have 2 type arguments, got 1')];
-        yield ['float<max, 0>', new InvalidPhpDocType('Invalid float range min type argument: max')];
-        yield ['float<test, 0>', new InvalidPhpDocType('Invalid float range min type argument: test')];
-        yield ["float<'test', 0>", new InvalidPhpDocType('Invalid float range min type argument: test')];
-        yield ['float<0, min>', new InvalidPhpDocType('Invalid float range max type argument: min')];
-        yield ['float<0, test>', new InvalidPhpDocType('Invalid float range max type argument: test')];
-        yield ["float<0, 'test'>", new InvalidPhpDocType('Invalid float range max type argument: test')];
         yield ['literal-string', types::literalString];
         yield ['literal-float', types::literalFloat];
         yield ['numeric-string', types::numericString];

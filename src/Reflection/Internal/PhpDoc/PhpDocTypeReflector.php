@@ -240,43 +240,27 @@ final class PhpDocTypeReflector
     }
 
     /**
-     * @param 'min'|'max' $parameterName
+     * @param 'min'|'max' $name
      */
-    private function reflectIntLimit(TypeNode $type, string $parameterName): ?int
+    private function reflectIntLimit(TypeNode $type, string $name): Type
     {
-        if ($type instanceof IdentifierTypeNode && $type->name === $parameterName) {
-            return null;
+        if ($type instanceof IdentifierTypeNode && $type->name === $name) {
+            return $name === 'min' ? types::PHP_INT_MIN : types::PHP_INT_MAX;
         }
 
-        if (!$type instanceof ConstTypeNode) {
-            throw new InvalidPhpDocType(\sprintf('Invalid int range %s type argument: %s', $parameterName, $type));
-        }
-
-        if (!$type->constExpr instanceof ConstExprIntegerNode) {
-            throw new InvalidPhpDocType(\sprintf('Invalid int range %s type argument: %s', $parameterName, $type));
-        }
-
-        return (int) $type->constExpr->value;
+        return $this->reflectType($type);
     }
 
     /**
-     * @param 'min'|'max' $parameterName
+     * @param 'min'|'max' $name
      */
-    private function reflectFloatLimit(TypeNode $type, string $parameterName): ?float
+    private function reflectFloatLimit(TypeNode $type, string $name): Type
     {
-        if ($type instanceof IdentifierTypeNode && $type->name === $parameterName) {
-            return null;
+        if ($type instanceof IdentifierTypeNode && $type->name === $name) {
+            return $name === 'min' ? types::PHP_FLOAT_MIN : types::PHP_FLOAT_MAX;
         }
 
-        if (!$type instanceof ConstTypeNode) {
-            throw new InvalidPhpDocType(\sprintf('Invalid float range %s type argument: %s', $parameterName, $type));
-        }
-
-        if ($type->constExpr instanceof ConstExprFloatNode || $type->constExpr instanceof ConstExprIntegerNode) {
-            return (float) $type->constExpr->value;
-        }
-
-        throw new InvalidPhpDocType(\sprintf('Invalid float range %s type argument: %s', $parameterName, $type));
+        return $this->reflectType($type);
     }
 
     private function reflectListShape(ArrayShapeNode $node): Type

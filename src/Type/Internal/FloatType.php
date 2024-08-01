@@ -17,12 +17,12 @@ use Typhoon\Type\TypeVisitor;
 final class FloatType implements Type
 {
     public function __construct(
-        private readonly ?float $min,
-        private readonly ?float $max,
+        private readonly Type $minType,
+        private readonly Type $maxType,
     ) {}
 
     public function accept(TypeVisitor $visitor): mixed
     {
-        return $visitor->float($this, $this->min, $this->max);
+        return $visitor->float($this, $this->minType, $this->maxType);
     }
 }

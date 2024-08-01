@@ -51,7 +51,13 @@ interface TypeVisitor
      * @param Type<int> $type
      * @return TReturn
      */
-    public function int(Type $type, ?int $min, ?int $max): mixed;
+    public function int(Type $type, Type $minType, Type $maxType): mixed;
+
+    /**
+     * @param Type<int> $type
+     * @return TReturn
+     */
+    public function intValue(Type $type, int $value): mixed;
 
     /**
      * @param Type<positive-int> $type
@@ -63,7 +69,13 @@ interface TypeVisitor
      * @param Type<float> $type
      * @return TReturn
      */
-    public function float(Type $type, ?float $min, ?float $max): mixed;
+    public function float(Type $type, Type $minType, Type $maxType): mixed;
+
+    /**
+     * @param Type<float> $type
+     * @return TReturn
+     */
+    public function floatValue(Type $type, float $value): mixed;
 
     /**
      * @param Type<string> $type

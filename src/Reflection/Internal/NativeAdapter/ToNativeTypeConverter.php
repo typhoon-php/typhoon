@@ -43,16 +43,12 @@ final class ToNativeTypeConverter extends DefaultTypeVisitor
         return NamedTypeAdapter::false();
     }
 
-    public function int(Type $type, ?int $min, ?int $max): mixed
+    public function int(Type $type, Type $minType, Type $maxType): mixed
     {
-        if ($min === null && $max === null) {
-            return NamedTypeAdapter::int();
-        }
-
-        throw new NonConvertableType($type);
+        return NamedTypeAdapter::int();
     }
 
-    public function float(Type $type, ?float $min, ?float $max): mixed
+    public function float(Type $type, Type $minType, Type $maxType): mixed
     {
         return NamedTypeAdapter::float();
     }

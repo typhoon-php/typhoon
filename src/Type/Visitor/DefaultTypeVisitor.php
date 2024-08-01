@@ -46,7 +46,12 @@ abstract class DefaultTypeVisitor implements TypeVisitor
         return $this->default($type);
     }
 
-    public function int(Type $type, ?int $min, ?int $max): mixed
+    public function int(Type $type, Type $minType, Type $maxType): mixed
+    {
+        return $this->default($type);
+    }
+
+    public function intValue(Type $type, int $value): mixed
     {
         return $this->default($type);
     }
@@ -56,7 +61,12 @@ abstract class DefaultTypeVisitor implements TypeVisitor
         return $this->default($type);
     }
 
-    public function float(Type $type, ?float $min, ?float $max): mixed
+    public function float(Type $type, Type $minType, Type $maxType): mixed
+    {
+        return $this->default($type);
+    }
+
+    public function floatValue(Type $type, float $value): mixed
     {
         return $this->default($type);
     }

@@ -53,17 +53,22 @@ enum TypeStringifier implements TypeVisitor
         return 'false';
     }
 
-    public function int(Type $type, ?int $min, ?int $max): mixed
+    public function int(Type $type, Type $minType, Type $maxType): mixed
     {
-        if ($min === null && $max === null) {
+        $string = \sprintf('int<%s, %s>', $minType->accept($this), $maxType->accept($this));
+        /** @var non-empty-string */
+        $string = strtr($string, ['constant<PHP_INT_MIN>' => 'min', 'constant<PHP_INT_MAX>' => 'max']);
+
+        if ($string === 'int<min, max>') {
             return 'int';
         }
 
-        if ($min !== null && $max === $min) {
-            return (string) $min;
-        }
+        return $string;
+    }
 
-        return \sprintf('int<%s, %s>', $min ?? 'min', $max ?? 'max');
+    public function intValue(Type $type, int $value): mixed
+    {
+        return (string) $value;
     }
 
     public function intMask(Type $type, Type $ofType): mixed
@@ -71,17 +76,22 @@ enum TypeStringifier implements TypeVisitor
         return \sprintf('int-mask-of<%s>', $ofType->accept($this));
     }
 
-    public function float(Type $type, ?float $min, ?float $max): mixed
+    public function float(Type $type, Type $minType, Type $maxType): mixed
     {
-        if ($min === null && $max === null) {
+        $string = \sprintf('float<%s, %s>', $minType->accept($this), $maxType->accept($this));
+        /** @var non-empty-string */
+        $string = strtr($string, ['constant<PHP_FLOAT_MIN>' => 'min', 'constant<PHP_FLOAT_MAX>' => 'max']);
+
+        if ($string === 'float<min, max>') {
             return 'float';
         }
 
-        if ($min !== null && $max === $min) {
-            return (string) $min;
-        }
+        return $string;
+    }
 
-        return \sprintf('float<%s, %s>', $min ?? 'min', $max ?? 'max');
+    public function floatValue(Type $type, float $value): mixed
+    {
+        return (string) $value;
     }
 
     public function string(Type $type): mixed
