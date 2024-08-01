@@ -3,7 +3,7 @@
 Typhoon Type is an object abstraction over the modern PHP type system. Use this library to build tools that work with
 sophisticated types.
 
-Here are examples of potential use-cases:
+Here are some examples of potential use-cases:
 
 ```php
 use Typhoon\Type\types;
@@ -67,19 +67,6 @@ GetUserResponse:
 composer require typhoon/type
 ```
 
-## Design
-
-Unlike other solutions, Typhoon Type does not expose concrete type classes in its API. Instead, it provides only
-a [`Type`](../src/Type/Type.php) interface and a [`TypeVisitor`](../src/Type/TypeVisitor.php) with destructurization.
-This approach gives several advantages:
-
-1. The visitor has only a minimal subset of type methods that must be implemented when describing a type algebra.
-   Complexity of the other types is hidden and can be completely ignored.
-2. Memory efficient enums can be used for all atomic types and for aliases of commonly used compound types.
-3. Using of downcasting via the `instanceof` operator is automatically discouraged, since all `Type` implementations are
-   `@internal` (
-   see [PHPStan: Why Is instanceof *Type Wrong and Getting Deprecated?](https://phpstan.org/blog/why-is-instanceof-type-wrong-and-getting-deprecated)).
-
 ## Constructing types
 
 Typhoon types can be constructed via the `Typhoon\Type\types` static factory. Let's express this monstrous type via
@@ -114,6 +101,19 @@ $type = types::unsealedArrayShape([
 ```
 
 As you can see, creating types in Typhoon is a lot of fun, especially if you work in IDE with autocompletion 😉
+
+## Design
+
+Unlike other solutions, Typhoon Type does not expose concrete type classes in its API. Instead, it provides only
+a [`Type`](../src/Type/Type.php) interface and a [`TypeVisitor`](../src/Type/TypeVisitor.php) with destructurization.
+This approach gives several advantages:
+
+1. The visitor has only a minimal subset of type methods that must be implemented when describing a type algebra.
+   Complexity of the other types is hidden and can be completely ignored.
+2. Memory efficient enums can be used for all atomic types and for aliases of commonly used compound types.
+3. Using of downcasting via the `instanceof` operator is automatically discouraged, since all `Type` implementations are
+   `@internal` (
+   see [PHPStan: Why Is instanceof *Type Wrong and Getting Deprecated?](https://phpstan.org/blog/why-is-instanceof-type-wrong-and-getting-deprecated)).
 
 ## Printing types
 
