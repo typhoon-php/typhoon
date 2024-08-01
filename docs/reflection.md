@@ -24,6 +24,7 @@ and functions are reflected from native reflection without templates.
 
 ```php
 use Typhoon\Reflection\TyphoonReflector;
+use Typhoon\Type\types;
 use function Typhoon\Type\stringify;
 
 /**
@@ -40,9 +41,19 @@ final readonly class Article
 }
 
 $reflector = TyphoonReflector::build();
-$articleTagsType = $reflector->reflectClass(Article::class)->properties()['tags']->type();
+$class = $reflector->reflectClass(Article::class);
+$tagsType = $class->properties()['tags']->type();
 
-var_dump(stringify($articleTagsType)); // list<TTag#Article>
+var_dump(stringify($tagsType)); // "list<TTag#Article>"
+
+$templateResolver = $class->createTemplateResolver([
+    types::union(
+        types::string('PHP'),
+        types::string('Architecture'),
+    ),
+]);
+
+var_dump(stringify($tagsType->accept($templateResolver))); // "list<'PHP'|'Architecture'>"
 ```
 
 ## Documentation
@@ -52,3 +63,5 @@ var_dump(stringify($articleTagsType)); // list<TTag#Article>
 - [Reflecting PHPDoc properties and methods](reflection/php_doc_properties_and_methods.md)
 - [Implementing custom types](reflection/implementing_custom_types.md)
 - [Caching](reflection/caching.md)
+
+Documentation is still far from being complete. Don't hesitate to create issues to clarify how things work.
