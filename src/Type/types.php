@@ -49,7 +49,7 @@ enum types implements Type
     case iterable;
     case object;
     case callable;
-    case closure;
+    case Closure;
     case scalar;
     case mixed;
 
@@ -292,13 +292,13 @@ enum types implements Type
         }
 
         if ($class->name === \Closure::class && $arguments === []) {
-            return self::closure;
+            return self::Closure;
         }
 
         return new Internal\NamedObjectType($class, $arguments);
     }
 
-    public static function generator(Type $key = self::mixed, Type $value = self::mixed, Type $send = self::mixed, Type $return = self::mixed): Type
+    public static function Generator(Type $key = self::mixed, Type $value = self::mixed, Type $send = self::mixed, Type $return = self::mixed): Type
     {
         return new Internal\NamedObjectType(Id::namedClass(\Generator::class), [$key, $value, $send, $return]);
     }
@@ -403,14 +403,14 @@ enum types implements Type
      * @param list<Type|Parameter> $parameters
      * @return Type<\Closure>
      */
-    public static function closure(array $parameters = [], Type $return = self::mixed): Type
+    public static function Closure(array $parameters = [], Type $return = self::mixed): Type
     {
         if ($parameters === [] && $return === self::mixed) {
-            return self::closure;
+            return self::Closure;
         }
 
         return new Internal\IntersectionType([
-            self::closure,
+            self::Closure,
             new Internal\CallableType(
                 array_map(
                     static fn(Type|Parameter $parameter): Parameter => $parameter instanceof Type ? new Parameter($parameter) : $parameter,
@@ -646,7 +646,7 @@ enum types implements Type
             self::void => $visitor->void($this),
             self::never => $visitor->never($this),
             self::callable => $visitor->callable($this, [], self::mixed),
-            self::closure => $visitor->namedObject($this, Id::namedClass(\Closure::class), []),
+            self::Closure => $visitor->namedObject($this, Id::namedClass(\Closure::class), []),
             self::nonEmptyString => $visitor->intersection($this, [
                 self::string,
                 new Internal\NotType(new Internal\StringValueType('')),

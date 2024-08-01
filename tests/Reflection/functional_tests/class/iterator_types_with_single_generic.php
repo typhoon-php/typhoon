@@ -41,5 +41,5 @@ return static function (TyphoonReflector $reflector): void {
     assertEquals(types::object(\Traversable::class, [types::mixed, types::string]), $reflection->properties()['Traversable']->type());
     assertEquals(types::object(\Iterator::class, [types::mixed, types::string]), $reflection->properties()['Iterator']->type());
     assertEquals(types::object(\IteratorAggregate::class, [types::mixed, types::string]), $reflection->properties()['IteratorAggregate']->type());
-    assertEquals(types::generator(value: types::string), $reflection->properties()['Generator']->type());
+    assertEquals(types::Generator(value: types::string), $reflection->properties()['Generator']->type());
 };

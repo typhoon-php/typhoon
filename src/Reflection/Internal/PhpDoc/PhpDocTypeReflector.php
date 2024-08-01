@@ -230,8 +230,8 @@ final class PhpDocTypeReflector
                     default => throw new InvalidPhpDocType(\sprintf('%s type should have at most 2 type arguments, got %d', $class, $number)),
                 },
                 \Generator::class => match ($number = \count($typeArguments)) {
-                    1 => types::generator(value: $typeArguments[0]),
-                    0, 2, 3, 4 => types::generator(...$typeArguments),
+                    1 => types::Generator(value: $typeArguments[0]),
+                    0, 2, 3, 4 => types::Generator(...$typeArguments),
                     default => throw new InvalidPhpDocType(\sprintf('Generator type should have at most 4 type arguments, got %d', $number)),
                 },
                 default => $this->context->resolveNameAsType($name, $typeArguments)
@@ -428,7 +428,7 @@ final class PhpDocTypeReflector
         $class = $this->resolveClass($node->identifier);
 
         if ($class === \Closure::class) {
-            return types::closure(
+            return types::Closure(
                 parameters: $this->reflectCallableParameters($node->parameters),
                 return: $this->reflectType($node->returnType),
             );

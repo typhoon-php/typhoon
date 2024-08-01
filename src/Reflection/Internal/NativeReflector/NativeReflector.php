@@ -423,7 +423,7 @@ enum NativeReflector
             'string' => types::string,
             'array' => types::array,
             'object' => types::object,
-            'Closure' => types::closure,
+            'Closure' => types::Closure,
             'callable' => types::callable,
             'iterable' => types::iterable,
             'resource' => types::resource,

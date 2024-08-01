@@ -104,12 +104,12 @@ final class StringifyTest extends TestCase
         yield [types::callable([types::param(types::string, hasDefault: true)]), 'callable(string=): mixed'];
         yield [types::callable([types::param(types::string, variadic: true)]), 'callable(string...): mixed'];
         yield [types::callable([types::param(types::string, variadic: true)], types::never), 'callable(string...): never'];
-        yield [types::closure(), 'Closure'];
-        yield [types::closure(return: types::void), 'Closure(): void'];
-        yield [types::closure([types::string]), 'Closure(string): mixed'];
-        yield [types::closure([types::param(types::string, hasDefault: true)]), 'Closure(string=): mixed'];
-        yield [types::closure([types::param(types::string, variadic: true)]), 'Closure(string...): mixed'];
-        yield [types::closure([types::param(types::string, variadic: true)], types::never), 'Closure(string...): never'];
+        yield [types::Closure(), 'Closure'];
+        yield [types::Closure(return: types::void), 'Closure(): void'];
+        yield [types::Closure([types::string]), 'Closure(string): mixed'];
+        yield [types::Closure([types::param(types::string, hasDefault: true)]), 'Closure(string=): mixed'];
+        yield [types::Closure([types::param(types::string, variadic: true)]), 'Closure(string...): mixed'];
+        yield [types::Closure([types::param(types::string, variadic: true)], types::never), 'Closure(string...): never'];
         yield [types::functionTemplate('trim', 'T'), 'T#trim()'];
         yield [types::classTemplate(\stdClass::class, 'T'), 'T#stdClass'];
         yield [types::classTemplate(Id::anonymousClass('file', 1, 13), 'T'), 'T#anonymous:file:1:13'];

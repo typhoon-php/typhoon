@@ -64,7 +64,7 @@ use Typhoon\Type\types;
 use function Typhoon\Type\stringify;
 
 echo stringify(
-    types::generator(
+    types::Generator(
         key: types::nonNegativeInt,
         key: types::classTemplate(Foo::class, 'T'),
         send: types::scalar,
@@ -125,8 +125,8 @@ var_dump(types::callableString()->accept($isIntChecker)); // false
 | `iterable`              | `iterable`              | `types::iterable`                                                                         |
 | `object`                | `object`                | `types::object`                                                                           |
 | `Foo`                   | `Foo`                   | `types::object(Foo::class)`                                                               |
-| `Closure`               | `Closure`               | `types::closure` (an alias for `types::object(Closure::class)`)                           |
-| `Generator`             | `Generator`             | `types::generator()` (an alias for `types::object(Generator::class)`)                     |
+| `Closure`               | `Closure`               | `types::Closure` (an alias for `types::object(Closure::class)`)                           |
+| `Generator`             | `Generator`             | `types::Generator()` (an alias for `types::object(Generator::class)`)                     |
 | `self`                  | `self`                  | `types::self()`                                                                           |
 | `parent`                | `parent`                | `types::parent()`                                                                         |
 | `static`                | `static`                | `types::static()`                                                                         |
@@ -208,7 +208,7 @@ var_dump(types::callableString()->accept($isIntChecker)); // false
 | `TArray[TKey]`                                                   | `TArray[TKey]`                            | `types::offset($arrayType, $keyType)`                                                                               |
 | `iterable<object, string>`                                       | `iterable<object, string>`                | `types::iterable(types::object, types::string)`                                                                     |
 | `iterable<string>`                                               | `iterable<string>`                        | `types::iterable(value: types::string)`                                                                             |
-| `Generator<TKey, TValue, TSend, TReturn>`                        | `Generator<TKey, TValue, TSend, TReturn>` | `types::object(Generator::class, [$key, $value, $send, $return])`, `types::generator($key, $value, $send, $return)` |
+| `Generator<TKey, TValue, TSend, TReturn>`                        | `Generator<TKey, TValue, TSend, TReturn>` | `types::object(Generator::class, [$key, $value, $send, $return])`, `types::Generator($key, $value, $send, $return)` |
 | `callable&array`                                                 | `callable-array`                          | `types::callableArray()`                                                                                            |
 
 ### Objects
@@ -232,10 +232,10 @@ var_dump(types::callableString()->accept($isIntChecker)); // false
 | `callable(string=): mixed`   | `callable(string=): mixed`   | `types::callable([types::param(types::string, hasDefault: true)])`  |
 | `callable(...string): mixed` | `callable(...string): mixed` | `types::callable([types::param(types::string, variadic: true)])`    |
 | `callable(&string): mixed`   | `callable(&string): mixed`   | `types::callable([types::param(types::string, byReference: true)])` |
-| `Closure(string): void`      | `Closure(string): void`      | `types::closure([types::string], types::void)`                      |
-| `Closure(string=): mixed`    | `Closure(string=): mixed`    | `types::closure([types::param(types::string, hasDefault: true)])`   |
-| `Closure(...string): mixed`  | `Closure(...string): mixed`  | `types::closure([types::param(types::string, variadic: true)])`     |
-| `Closure(&string): mixed`    | `Closure(&string): mixed`    | `types::closure([types::param(types::string, byReference: true)])`  |
+| `Closure(string): void`      | `Closure(string): void`      | `types::Closure([types::string], types::void)`                      |
+| `Closure(string=): mixed`    | `Closure(string=): mixed`    | `types::Closure([types::param(types::string, hasDefault: true)])`   |
+| `Closure(...string): mixed`  | `Closure(...string): mixed`  | `types::Closure([types::param(types::string, variadic: true)])`     |
+| `Closure(&string): mixed`    | `Closure(&string): mixed`    | `types::Closure([types::param(types::string, byReference: true)])`  |
 | `pure-callable`              | `pure-callable`              | ❌                                                                   |
 
 ### Other
