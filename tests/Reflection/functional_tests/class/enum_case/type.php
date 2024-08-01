@@ -19,5 +19,5 @@ return static function (TyphoonReflector $reflector): void {
     assertEquals(types::classConstant('A', 'X'), $reflection->type());
     assertNull($reflection->type(TypeKind::Native));
     assertNull($reflection->type(TypeKind::Annotated));
-    assertEquals(types::classConstant('A', 'X'), $reflection->type(TypeKind::Value));
+    assertEquals(types::classConstant('A', 'X'), $reflection->type(TypeKind::Inferred));
 };

@@ -68,8 +68,8 @@ final class TypeData
         return match ($kind) {
             TypeKind::Resolved => $this->annotated ?? $this->value ?? $this->tentative ?? $this->native ?? types::mixed,
             TypeKind::Native => $this->native,
+            TypeKind::Inferred => $this->value,
             TypeKind::Annotated => $this->annotated,
-            TypeKind::Value => $this->value,
         };
     }
 }
