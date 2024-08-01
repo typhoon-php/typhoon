@@ -5,13 +5,14 @@ use Typhoon\Reflection\Annotated\CustomTypeResolver;
 use Typhoon\Reflection\Annotated\TypeContext;
 use Typhoon\Reflection\TyphoonReflector;
 use Typhoon\Type\Type;
+use Typhoon\Type\types;
 use Typhoon\Type\TypeVisitor;
 use function Typhoon\Type\stringify;
 
 /**
  * @implements Type<int|float>
  */
-enum binaryTypes: string implements Type, CustomTypeResolver
+enum binary: string implements Type, CustomTypeResolver
 {
     case int16 = 'int16';
     case int32 = 'int32';
@@ -26,11 +27,11 @@ enum binaryTypes: string implements Type, CustomTypeResolver
          * @psalm-suppress InvalidArgument
          */
         return match ($this) {
-            self::int16 => $visitor->int($this, -32768, 32767),
-            self::int32 => $visitor->int($this, -2147483648, 2147483647),
-            self::int64 => $visitor->int($this, null, null),
-            self::float32 => $visitor->float($this, -3.40282347E+38, 3.40282347E+38),
-            self::float64 => $visitor->float($this, null, null),
+            self::int16 => $visitor->int($this, types::int(-32768), types::int(32767)),
+            self::int32 => $visitor->int($this, types::int(-2147483648), types::int(2147483647)),
+            self::int64 => $visitor->int($this, types::PHP_INT_MIN, types::PHP_INT_MAX),
+            self::float32 => $visitor->float($this, types::float(-3.40282347E+38), types::float(3.40282347E+38)),
+            self::float64 => $visitor->float($this, types::PHP_FLOAT_MIN, types::PHP_FLOAT_MAX),
         };
     }
 
@@ -50,7 +51,7 @@ final readonly class Message
     ) {}
 }
 
-$reflector = TyphoonReflector::build(customTypeResolver: binaryTypes::int16);
+$reflector = TyphoonReflector::build(customTypeResolver: binary::int16);
 
 $propertyType = $reflector
     ->reflectClass(Message::class)

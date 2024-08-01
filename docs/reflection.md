@@ -5,10 +5,11 @@ is:
 
 - static (does not run or autoload reflected code),
 - fast (due to lazy loading and caching),
-- [99% compatible with native reflection](native_reflection_compatibility.md),
+- [fully compatible with native reflection](reflection/native_reflection_compatibility.md),
 - supports most of the Psalm and PHPStan phpDoc types,
 - can resolve templates,
-- can be safely used with [zend.enable_gc=0](https://www.php.net/manual/en/info.configuration.php#ini.zend.enable-gc).
+- does not leak memory and can be safely used
+  with [zend.enable_gc=0](https://www.php.net/manual/en/info.configuration.php#ini.zend.enable-gc).
 
 ## Installation
 
@@ -17,7 +18,7 @@ composer require typhoon/reflection typhoon/phpstorm-reflection-stubs
 ```
 
 `typhoon/phpstorm-reflection-stubs` is a bridge for `jetbrains/phpstorm-stubs`. Without this package internal classes
-and functions cannot not be reflected.
+and functions are reflected from native reflection without templates.
 
 ## Basic Usage
 
@@ -49,9 +50,8 @@ var_dump(stringify($articleTagsType)); // list<TTag#Article>
 By default, Typhoon Reflection uses in-memory LRU cache which should be enough for the majority of use cases.
 
 However, if you need persistent cache, you can use any [PSR-16](https://www.php-fig.org/psr/psr-16/) implementation. We
-highly recommend [Typhoon OPcache](https://github.com/typhoon-php/opcache).
-It stores values as php files that could be opcached. It is much faster than an average file cache implementation that
-uses `serialize`.
+highly recommend [Typhoon OPcache](https://github.com/typhoon-php/opcache). It stores values as php files that could be
+opcached.
 
 ```php
 use Typhoon\Reflection\TyphoonReflector;
@@ -77,9 +77,9 @@ $reflector = TyphoonReflector::build(
 
 ## Native reflection adapters
 
-All `*Reflection` classes have a `toNativeReflection()` method that can be used to obtain native PHP reflection adapters. These 
-adapters do not trigger autoloading for most of the operations. See [native_reflection_compatibility.md](native_reflection_compatibility.md)
-for details.
+All `*Reflection` classes have a `toNativeReflection()` method that can be used to obtain native PHP reflection
+adapters. These adapters do not trigger autoloading for most of the operations.
+See [this article](reflection/native_reflection_compatibility.md) for details.
 
 ```php
 use Typhoon\Reflection\TyphoonReflector;
