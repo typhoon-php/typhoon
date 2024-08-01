@@ -13,8 +13,6 @@ use Typhoon\DeclarationId\NamedClassId;
 use Typhoon\DeclarationId\NamedFunctionId;
 use Typhoon\DeclarationId\ParameterId;
 use Typhoon\DeclarationId\TemplateId;
-use Typhoon\Type\Internal\FloatValueType;
-use Typhoon\Type\Internal\IntValueType;
 
 /**
  * @api
@@ -66,7 +64,7 @@ enum types implements Type
      */
     public static function int(int $value): Type
     {
-        return new IntValueType($value);
+        return new Internal\IntValueType($value);
     }
 
     /**
@@ -81,8 +79,8 @@ enum types implements Type
             $min === 0 && $max === self::PHP_INT_MAX => self::nonNegativeInt,
             $min === 1 && $max === self::PHP_INT_MAX => self::positiveInt,
             default => new Internal\IntType(
-                minType: \is_int($min) ? new IntValueType($min) : $min,
-                maxType: \is_int($max) ? new IntValueType($max) : $max,
+                minType: \is_int($min) ? new Internal\IntValueType($min) : $min,
+                maxType: \is_int($max) ? new Internal\IntValueType($max) : $max,
             ),
         };
     }
@@ -96,7 +94,7 @@ enum types implements Type
     public static function intMask(int $value, int ...$values): Type
     {
         return new Internal\IntMaskType(self::union(...array_map(
-            static fn(int $value): Internal\IntValueType => new IntValueType($value),
+            static fn(int $value): Internal\IntValueType => new Internal\IntValueType($value),
             [$value, ...$values],
         )));
     }
@@ -116,7 +114,7 @@ enum types implements Type
      */
     public static function float(float $value): Type
     {
-        return new FloatValueType($value);
+        return new Internal\FloatValueType($value);
     }
 
     /**
@@ -130,13 +128,13 @@ enum types implements Type
 
         return new Internal\FloatType(
             minType: match (true) {
-                \is_int($min) => new IntValueType($min),
-                \is_float($min) => new FloatValueType($min),
+                \is_int($min) => new Internal\IntValueType($min),
+                \is_float($min) => new Internal\FloatValueType($min),
                 default => $min
             },
             maxType: match (true) {
-                \is_int($max) => new IntValueType($max),
-                \is_float($max) => new FloatValueType($max),
+                \is_int($max) => new Internal\IntValueType($max),
+                \is_float($max) => new Internal\FloatValueType($max),
                 default => $max
             },
         );
@@ -586,8 +584,8 @@ enum types implements Type
         return match (true) {
             $value === true => self::true,
             $value === false => self::false,
-            \is_int($value) => new IntValueType($value),
-            \is_float($value) => new FloatValueType($value),
+            \is_int($value) => new Internal\IntValueType($value),
+            \is_float($value) => new Internal\FloatValueType($value),
             default => new Internal\StringValueType($value),
         };
     }
@@ -670,10 +668,10 @@ enum types implements Type
             self::PHP_INT_MAX => $visitor->constant($this, Id::constant('PHP_INT_MAX')),
             self::PHP_FLOAT_MIN => $visitor->constant($this, Id::constant('PHP_FLOAT_MIN')),
             self::PHP_FLOAT_MAX => $visitor->constant($this, Id::constant('PHP_FLOAT_MAX')),
-            self::negativeInt => $visitor->int($this, self::PHP_INT_MIN, new IntValueType(-1)),
-            self::nonPositiveInt => $visitor->int($this, self::PHP_INT_MIN, new IntValueType(0)),
-            self::nonNegativeInt => $visitor->int($this, new IntValueType(0), self::PHP_INT_MAX),
-            self::positiveInt => $visitor->int($this, new IntValueType(1), self::PHP_INT_MAX),
+            self::negativeInt => $visitor->int($this, self::PHP_INT_MIN, new Internal\IntValueType(-1)),
+            self::nonPositiveInt => $visitor->int($this, self::PHP_INT_MIN, new Internal\IntValueType(0)),
+            self::nonNegativeInt => $visitor->int($this, new Internal\IntValueType(0), self::PHP_INT_MAX),
+            self::positiveInt => $visitor->int($this, new Internal\IntValueType(1), self::PHP_INT_MAX),
             self::classString => $visitor->classString($this, types::object),
             self::arrayKey => $visitor->union($this, [self::int, self::string]),
             self::numeric => $visitor->numeric($this),
