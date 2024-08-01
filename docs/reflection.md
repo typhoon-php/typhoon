@@ -47,6 +47,6 @@ var_dump(stringify($articleTagsType)); // list<TTag#Article>
 
 ## Documentation
 
-- [Caching](reflection/caching.md)
 - [Native reflection adapters](reflection/native_adapters.md)
 - [Implementing custom types](reflection/implementing_custom_types.md)
+- [Caching](reflection/caching.md)
