@@ -3,7 +3,7 @@
 Typhoon Reflection is an alternative to [native PHP Reflection](https://www.php.net/manual/en/book.reflection.php). It
 is:
 
-- static (does not run reflected code),
+- static (does not run or autoload reflected code),
 - fast (due to lazy loading and caching),
 - [99% compatible with native reflection](native_reflection_compatibility.md),
 - supports most of the Psalm and PHPStan phpDoc types,

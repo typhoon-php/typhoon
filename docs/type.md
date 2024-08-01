@@ -1,24 +1,84 @@
 # Typhoon Type
 
-Typhoon Type is an object abstraction over the PHP type system, used to express any sophisticated PHP type. It is mostly
-inspired by two popular static analyzers: [Psalm](https://psalm.dev/) and [PHPStan](https://phpstan.org/). Typhoon Type
-is the main building block for the other Typhoon components.
+Typhoon Type is an object abstraction over the modern PHP type system. Use this library to build tools that work with
+sophisticated types.
 
-Unlike other solutions, Typhoon Type does not expose concrete type classes in its API. Instead, it provides only
-a [`Type`](../src/Type/Type.php) interface and a [`TypeVisitor`](../src/Type/TypeVisitor.php) with destructurization.
-This approach gives several advantages:
+Here are examples of potential use-cases:
 
-1. Memory efficient enums can be used for all atomic types and for aliases of commonly used compound types.
-2. The visitor has only a minimal subset of type methods that must be implemented when describing a type algebra.
-   Complexity of the other types is hidden and can be completely ignored.
-3. Using of downcasting via the `instanceof` operator is automatically discouraged, since all `Type` implementations
-   are `@internal`.
+```php
+use Typhoon\Type\types;
+
+$data = (new MyAwesomeJsonDecoder())->decode(
+    json: '[1, 0.5, "213"]',
+    type: types::list(types::numeric),
+);
+
+var_dump($data);
+```
+
+```
+array(3) {
+  [0] => int(1)
+  [1] => float(0.5)
+  [2] => string(3) "213"
+}
+```
+
+Or:
+
+```php
+use Typhoon\Type\types;
+
+final readonly class GetUserResponse
+{
+    /**
+     * @param non-empty-string $name
+     * @param 'user'|'admin' $group
+     */
+    public function __construct(
+        public Uuid $id,
+        public string $name,
+        public string $group,
+    ) {}
+}
+
+echo (new MyAwesomeOpenApiGenerator())->generateSchema(types::object(GetUserResponse::class));
+```
+
+```yaml
+GetUserResponse:
+  type: object
+  properties:
+    id:
+      type: string
+      format: uuid
+      example: b609e6a9-bba6-4599-9faa-cc9977353bb4
+    name:
+      type: string
+      example: Hello world!
+    group:
+      type: string
+      enum: [ user, admin ]
+```
 
 ## Installation
 
 ```
 composer require typhoon/type
 ```
+
+## Design
+
+Unlike other solutions, Typhoon Type does not expose concrete type classes in its API. Instead, it provides only
+a [`Type`](../src/Type/Type.php) interface and a [`TypeVisitor`](../src/Type/TypeVisitor.php) with destructurization.
+This approach gives several advantages:
+
+1. The visitor has only a minimal subset of type methods that must be implemented when describing a type algebra.
+   Complexity of the other types is hidden and can be completely ignored.
+2. Memory efficient enums can be used for all atomic types and for aliases of commonly used compound types.
+3. Using of downcasting via the `instanceof` operator is automatically discouraged, since all `Type` implementations are
+   `@internal` (
+   see [PHPStan: Why Is instanceof *Type Wrong and Getting Deprecated?](https://phpstan.org/blog/why-is-instanceof-type-wrong-and-getting-deprecated)).
 
 ## Constructing types
 
@@ -84,8 +144,17 @@ use Typhoon\Type\Type;
 use Typhoon\Type\types;
 use Typhoon\Type\Visitor\DefaultTypeVisitor;
 
-$isIntChecker = new /** @extends DefaultTypeVisitor<bool> */ class () extends DefaultTypeVisitor {
-    public function int(Type $type, ?int $min, ?int $max): bool
+/**
+ * @extends DefaultTypeVisitor<bool>
+ */
+final class BasicIntChecker extends DefaultTypeVisitor
+{
+    public function int(Type $type, Type $minType, Type $maxType): mixed
+    {
+        return true;
+    }
+
+    public function intValue(Type $type, int $value): mixed
     {
         return true;
     }
@@ -99,10 +168,10 @@ $isIntChecker = new /** @extends DefaultTypeVisitor<bool> */ class () extends De
     {
         return false;
     }
-};
+}
 
-var_dump(types::positiveInt->accept($isIntChecker)); // true
-var_dump(types::callableString()->accept($isIntChecker)); // false
+var_dump(types::positiveInt->accept(new BasicIntChecker())); // bool(true)
+var_dump(types::callableString()->accept(new BasicIntChecker())); // bool(false)
 ```
 
 ## Compatibility with Psalm and PHPStan
