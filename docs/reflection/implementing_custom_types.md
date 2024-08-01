@@ -58,5 +58,5 @@ $propertyType = $reflector
     ->properties()['some16bitIntegers']
     ->type();
 
-echo stringify($propertyType), PHP_EOL; // list<int<-32768, 32767>>
+var_dump(stringify($propertyType)); // "list<int<-32768, 32767>>"
 ```

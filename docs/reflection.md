@@ -48,6 +48,7 @@ var_dump(stringify($articleTagsType)); // list<TTag#Article>
 ## Documentation
 
 - [Native reflection adapters](reflection/native_adapters.md)
+- [Reflecting Types](reflection/types.md)
 - [Reflecting PHPDoc properties and methods](reflection/php_doc_properties_and_methods.md)
 - [Implementing custom types](reflection/implementing_custom_types.md)
 - [Caching](reflection/caching.md)

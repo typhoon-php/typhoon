@@ -24,14 +24,14 @@ $property = $class->properties()['property'];
 var_dump($property->isAnnotated()); // true
 var_dump($property->isNative()); // false
 var_dump($property->isReadonly()); // true
-var_dump(stringify($property->type())); // non-empty-string
+var_dump(stringify($property->type())); // "non-empty-string"
 
 $method = $class->methods()['method'];
 
 var_dump($method->isAnnotated()); // true
 var_dump($method->isNative()); // false
-var_dump(stringify($method->returnType())); // TReturn#A::method()
-var_dump(stringify($method->parameters()['arg']->type())); // TArg#A::method()
-var_dump($method->parameters()['default']->defaultValue()); // A
+var_dump(stringify($method->returnType())); // "TReturn#A::method()"
+var_dump(stringify($method->parameters()['arg']->type())); // "TArg#A::method()"
+var_dump($method->parameters()['default']->defaultValue()); // "A"
 var_dump($method->parameters()['variadic']->isVariadic()); // true
 ```

@@ -5,42 +5,41 @@ Typhoon can reflect 4 type kinds (see the [TypeKind](../../src/Reflection/TypeKi
 - **Tentative** ([PHP 8.1: Return types in PHP built-in class methods and deprecation notices](https://php.watch/versions/8.1/internal-method-return-types))
 - **Annotated** (phpDocs by default)
 - **Inferred** from constant value
+- **Resolved** that equals `$annotated ?? $inferred ?? $tentative ?? $native ?? types::mixed`
 
-In addition to that **Resolved** type is 
+By default `type()` and `returnType()` reflection methods return the `TypeKind::Resolved` type. But you can get
+any type by passing the needed kind as a parameter.
 
-By default `type()` and `returnType()` reflection methods return a so-called resolved type. It returns the first
-non-null type in the following order:
-- annotated
-- inferred type
-- native type
+Here's an example:
 
 ```php
+use Typhoon\Reflection\TypeKind;
 use Typhoon\Reflection\TyphoonReflector;
 use function Typhoon\Type\stringify;
 
-/** 
- * @property-read non-empty-string $property
- * @method TReturn method<TArg, TReturn>(TArg $arg, string $default = __CLASS__, ...$variadic)
- */
-final class A {}
+final class A
+{
+    const int CONSTANT = 1;
+    
+    /**
+     * @var non-empty-string
+     */
+    public string $property;
+}
 
-$reflector = TyphoonReflector::build();
+$class = TyphoonReflector::build()->reflectClass(A::class);
 
-$class = $reflector->reflectClass('A');
+$constant = $class->constants()['CONSTANT'];
+
+var_dump(stringify($constant->type())); // "1"
+var_dump($constant->type(TypeKind::Annotated)); // null
+var_dump(stringify($constant->type(TypeKind::Inferred))); // "1"
+var_dump(stringify($constant->type(TypeKind::Native))); // "int"
 
 $property = $class->properties()['property'];
 
-var_dump($property->isAnnotated()); // true
-var_dump($property->isNative()); // false
-var_dump($property->isReadonly()); // true
-var_dump(stringify($property->type())); // non-empty-string
-
-$method = $class->methods()['method'];
-
-var_dump($method->isAnnotated()); // true
-var_dump($method->isNative()); // false
-var_dump(stringify($method->returnType())); // TReturn#A::method()
-var_dump(stringify($method->parameters()['arg']->type())); // TArg#A::method()
-var_dump($method->parameters()['default']->defaultValue()); // A
-var_dump($method->parameters()['variadic']->isVariadic()); // true
+var_dump(stringify($property->type())); // "non-empty-string"
+var_dump(stringify($property->type(TypeKind::Annotated))); // "non-empty-string"
+var_dump($property->type(TypeKind::Inferred)); // null
+var_dump(stringify($property->type(TypeKind::Native))); // "string"
 ```

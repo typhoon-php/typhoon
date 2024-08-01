@@ -123,15 +123,15 @@ To cast any type to string, use the `Typhoon\Type\stringify()` function:
 use Typhoon\Type\types;
 use function Typhoon\Type\stringify;
 
-echo stringify(
-    types::Generator(
-        key: types::nonNegativeInt,
-        key: types::classTemplate(Foo::class, 'T'),
-        send: types::scalar,
-    ),
-);
-
-// prints: Generator<int<0, max>, T#Foo, scalar, mixed>
+var_dump(
+   stringify(
+       types::Generator(
+           key: types::nonNegativeInt,
+           value: types::classTemplate(Foo::class, 'T'),
+           send: types::scalar,
+       ),
+   ),
+); // Generator<int<0, max>, T#Foo, scalar, mixed>
 ```
 
 ### Comparing types
@@ -170,8 +170,8 @@ final class BasicIntChecker extends DefaultTypeVisitor
     }
 }
 
-var_dump(types::positiveInt->accept(new BasicIntChecker())); // bool(true)
-var_dump(types::callableString()->accept(new BasicIntChecker())); // bool(false)
+var_dump(types::positiveInt->accept(new BasicIntChecker())); // true
+var_dump(types::callableString()->accept(new BasicIntChecker())); // false
 ```
 
 ## Compatibility with Psalm and PHPStan
