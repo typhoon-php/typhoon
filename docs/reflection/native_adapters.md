@@ -1,4 +1,19 @@
-## Typhoon Reflection adapters compatibility with native PHP reflection
+# Native reflection adapters
+
+All `*Reflection` classes have a `toNativeReflection()` method that can be used to obtain native PHP reflection
+adapters. These adapters are fully compatible with native reflection, however they do not trigger autoloading for most
+of the operations (see table below for details).
+
+```php
+use Typhoon\Reflection\TyphoonReflector;
+
+$isInstantiable = TyphoonReflector::build()
+    ->reflectClass(MyClass::class)
+    ->toNativeReflection()
+    ->isInstantiable();
+```
+
+## Compatibility with native reflection
 
 | `ReflectionClass`                 | `Typhoon\Reflection\ClassReflection` |
 |-----------------------------------|--------------------------------------|

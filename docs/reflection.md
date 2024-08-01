@@ -5,7 +5,7 @@ is:
 
 - static (does not run or autoload reflected code),
 - fast (due to lazy loading and caching),
-- [fully compatible with native reflection](reflection/native_reflection_compatibility.md),
+- [fully compatible with native reflection](reflection/native_adapters.md),
 - supports most of the Psalm and PHPStan phpDoc types,
 - can resolve templates,
 - does not leak memory and can be safely used
@@ -45,46 +45,8 @@ $articleTagsType = $reflector->reflectClass(Article::class)->properties()['tags'
 var_dump(stringify($articleTagsType)); // list<TTag#Article>
 ```
 
-## Caching
+## Documentation
 
-By default, Typhoon Reflection uses in-memory LRU cache which should be enough for the majority of use cases.
-
-However, if you need persistent cache, you can use any [PSR-16](https://www.php-fig.org/psr/psr-16/) implementation. We
-highly recommend [Typhoon OPcache](https://github.com/typhoon-php/opcache). It stores values as opcacheable php files.
-
-```php
-use Typhoon\Reflection\TyphoonReflector;
-use Typhoon\OPcache\TyphoonOPcache;
-
-$reflector = TyphoonReflector::build(
-    cache: new TyphoonOPcache('path/to/cache/dir'),
-);
-```
-
-To detect file changes during development, decorate your cache
-with [FreshCache](../src/Reflection/Cache/FreshCache.php).
-
-```php
-use Typhoon\Reflection\TyphoonReflector;
-use Typhoon\Reflection\Cache\FreshCache;
-use Typhoon\OPcache\TyphoonOPcache;
-
-$reflector = TyphoonReflector::build(
-    cache: new FreshCache(new TyphoonOPcache('path/to/cache/dir')),
-);
-```
-
-## Native reflection adapters
-
-All `*Reflection` classes have a `toNativeReflection()` method that can be used to obtain native PHP reflection
-adapters. These adapters do not trigger autoloading for most of the operations.
-See [this article](reflection/native_reflection_compatibility.md) for details.
-
-```php
-use Typhoon\Reflection\TyphoonReflector;
-
-$isInstantiable = TyphoonReflector::build()
-    ->reflectClass(MyClass::class)
-    ->toNativeReflection()
-    ->isInstantiable();
-```
+- [Caching](reflection/caching.md)
+- [Native reflection adapters](reflection/native_adapters.md)
+- [Implementing custom types](reflection/implementing_custom_types.md)
