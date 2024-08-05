@@ -578,15 +578,27 @@ enum types implements Type
         return new Internal\UnionType([self::null, $type]);
     }
 
+    /**
+     * @deprecated since 0.4.3 in favor of value()
+     */
     public static function scalar(bool|int|float|string $value): Type
     {
-        /** @psalm-suppress PossiblyInvalidArgument */
+        return self::value($value);
+    }
+
+    public static function value(mixed $value): Type
+    {
+        /** @phpstan-ignore match.unhandled */
         return match (true) {
+            $value === null => self::null,
             $value === true => self::true,
             $value === false => self::false,
             \is_int($value) => new Internal\IntValueType($value),
             \is_float($value) => new Internal\FloatValueType($value),
-            default => new Internal\StringValueType($value),
+            \is_string($value) => new Internal\StringValueType($value),
+            \is_array($value) => self::arrayShape(array_map(self::value(...), $value)),
+            \is_object($value) => self::object($value::class),
+            \is_resource($value) => self::resource,
         };
     }
 
