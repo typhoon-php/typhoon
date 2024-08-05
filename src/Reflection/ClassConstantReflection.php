@@ -84,7 +84,12 @@ final class ClassConstantReflection
         return $this->reflector->reflect($this->id->class);
     }
 
-    public function value(): mixed
+    /**
+     * This method returns the actual class constant's value and thus might trigger autoloading or throw errors.
+     *
+     * @see https://github.com/typhoon-php/typhoon/issues/64
+     */
+    public function evaluate(): mixed
     {
         if ($this->isEnumCase()) {
             \assert($this->id->class instanceof NamedClassId, 'Enum cannot be an anonymous class');
@@ -93,6 +98,16 @@ final class ClassConstantReflection
         }
 
         return $this->data[Data::ValueExpression]->evaluate($this->reflector);
+    }
+
+    /**
+     * @deprecated since 0.4.2 in favor of evaluate()
+     */
+    public function value(): mixed
+    {
+        trigger_deprecation('typhoon/reflection', '0.4.2', 'Calling %s is deprecated in favor of %s::evaluate()', __METHOD__, self::class);
+
+        return $this->evaluate();
     }
 
     public function isPrivate(): bool

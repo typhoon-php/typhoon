@@ -101,9 +101,22 @@ final class ParameterReflection
         return $this->data[Data::DefaultValueExpression] !== null;
     }
 
-    public function defaultValue(): mixed
+    /**
+     * This method returns the actual parameter's default value and thus might trigger autoloading or throw errors.
+     */
+    public function evaluateDefault(): mixed
     {
         return $this->data[Data::DefaultValueExpression]?->evaluate($this->reflector);
+    }
+
+    /**
+     * @deprecated since 0.4.2 in favor of evaluateDefault() instead
+     */
+    public function defaultValue(): mixed
+    {
+        trigger_deprecation('typhoon/reflection', '0.4.2', 'Calling %s is deprecated in favor of %s::evaluateDefault()', __METHOD__, self::class);
+
+        return $this->evaluateDefault();
     }
 
     public function isNative(): bool

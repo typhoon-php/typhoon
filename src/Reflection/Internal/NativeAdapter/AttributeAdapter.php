@@ -62,7 +62,7 @@ final class AttributeAdapter extends \ReflectionAttribute
 
     public function getArguments(): array
     {
-        return $this->reflection->arguments();
+        return $this->reflection->evaluateArguments();
     }
 
     public function getName(): string
@@ -93,6 +93,6 @@ final class AttributeAdapter extends \ReflectionAttribute
      */
     public function newInstance(): object
     {
-        return $this->reflection->newInstance();
+        return $this->reflection->evaluate();
     }
 }

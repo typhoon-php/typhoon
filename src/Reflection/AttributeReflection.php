@@ -96,15 +96,41 @@ final class AttributeReflection
         return $this->data[Data::AttributeRepeated];
     }
 
-    public function arguments(): array
+    /**
+     * This method returns the actual attribute's constructor arguments and thus might trigger autoloading or throw errors.
+     */
+    public function evaluateArguments(): array
     {
         return $this->data[Data::ArgumentsExpression]->evaluate($this->reflector);
     }
 
-    public function newInstance(): object
+    /**
+     * @deprecated since 0.4.2 in favor of evaluateArguments()
+     */
+    public function arguments(): array
+    {
+        trigger_deprecation('typhoon/reflection', '0.4.2', 'Calling %s is deprecated in favor of %s::evaluateArguments()', __METHOD__, self::class);
+
+        return $this->evaluateArguments();
+    }
+
+    /**
+     * This method returns the actual attribute object and thus might trigger autoloading or throw errors.
+     */
+    public function evaluate(): object
     {
         /** @psalm-suppress InvalidStringClass */
-        return new ($this->className())(...$this->arguments());
+        return new ($this->className())(...$this->evaluateArguments());
+    }
+
+    /**
+     * @deprecated since 0.4.2 in favor of evaluate()
+     */
+    public function newInstance(): object
+    {
+        trigger_deprecation('typhoon/reflection', '0.4.2', 'Calling %s is deprecated in favor of %s::evaluate()', __METHOD__, self::class);
+
+        return $this->evaluate();
     }
 
     private ?AttributeAdapter $native = null;

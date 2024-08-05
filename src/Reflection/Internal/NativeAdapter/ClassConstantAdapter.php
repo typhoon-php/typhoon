@@ -113,7 +113,7 @@ final class ClassConstantAdapter extends \ReflectionClassConstant
 
     public function getValue(): mixed
     {
-        return $this->reflection->value();
+        return $this->reflection->evaluate();
     }
 
     /**

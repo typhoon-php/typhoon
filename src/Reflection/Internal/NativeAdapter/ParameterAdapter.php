@@ -97,7 +97,7 @@ final class ParameterAdapter extends \ReflectionParameter
 
     public function getDefaultValue(): mixed
     {
-        return $this->reflection->defaultValue();
+        return $this->reflection->evaluateDefault();
     }
 
     public function getDefaultValueConstantName(): ?string

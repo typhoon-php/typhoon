@@ -32,6 +32,6 @@ var_dump($method->isAnnotated()); // true
 var_dump($method->isNative()); // false
 var_dump(stringify($method->returnType())); // "TReturn#A::method()"
 var_dump(stringify($method->parameters()['arg']->type())); // "TArg#A::method()"
-var_dump($method->parameters()['default']->defaultValue()); // "A"
+var_dump($method->parameters()['default']->evaluateDefault()); // "A"
 var_dump($method->parameters()['variadic']->isVariadic()); // true
 ```

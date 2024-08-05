@@ -75,7 +75,7 @@ final class PropertyAdapter extends \ReflectionProperty
 
     public function getDefaultValue(): mixed
     {
-        return $this->reflection->defaultValue();
+        return $this->reflection->evaluateDefault();
     }
 
     public function getDocComment(): string|false

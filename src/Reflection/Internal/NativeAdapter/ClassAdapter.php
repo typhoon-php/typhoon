@@ -106,7 +106,7 @@ final class ClassAdapter extends \ReflectionClass
 
         $constant = $this->reflection->constants()[$name] ?? null;
 
-        return $constant === null ? false : $constant->value();
+        return $constant === null ? false : $constant->evaluate();
     }
 
     public function getConstants(?int $filter = null): array
@@ -115,7 +115,7 @@ final class ClassAdapter extends \ReflectionClass
             ->reflection
             ->constants()
             ->filter(static fn(ClassConstantReflection $constant): bool => $filter === null || ($constant->toNativeReflection()->getModifiers() & $filter) !== 0)
-            ->map(static fn(ClassConstantReflection $constant): mixed => $constant->value())
+            ->map(static fn(ClassConstantReflection $constant): mixed => $constant->evaluate())
             ->toArray();
     }
 
@@ -129,7 +129,7 @@ final class ClassAdapter extends \ReflectionClass
         return $this
             ->nativeProperties()
             ->filter(static fn(PropertyReflection $property): bool => $property->hasDefaultValue())
-            ->map(static fn(PropertyReflection $property): mixed => $property->defaultValue())
+            ->map(static fn(PropertyReflection $property): mixed => $property->evaluateDefault())
             ->toArray();
     }
 

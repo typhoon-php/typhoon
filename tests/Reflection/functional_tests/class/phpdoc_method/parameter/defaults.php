@@ -25,11 +25,11 @@ return static function (TyphoonReflector $reflector): void {
         ->methods()['m']
         ->parameters();
 
-    assertSame($parameters['f']->defaultValue(), 'dir/file.php');
-    assertSame($parameters['d']->defaultValue(), 'dir');
-    assertSame($parameters['l']->defaultValue(), 3);
-    assertSame($parameters['c']->defaultValue(), 'A');
-    assertSame($parameters['m']->defaultValue(), 'A::m');
-    assertSame($parameters['func']->defaultValue(), 'm');
-    assertSame($parameters['str']->defaultValue(), "\"\n");
+    assertSame($parameters['f']->evaluateDefault(), 'dir/file.php');
+    assertSame($parameters['d']->evaluateDefault(), 'dir');
+    assertSame($parameters['l']->evaluateDefault(), 3);
+    assertSame($parameters['c']->evaluateDefault(), 'A');
+    assertSame($parameters['m']->evaluateDefault(), 'A::m');
+    assertSame($parameters['func']->evaluateDefault(), 'm');
+    assertSame($parameters['str']->evaluateDefault(), "\"\n");
 };
