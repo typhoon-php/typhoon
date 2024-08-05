@@ -87,9 +87,7 @@ enum types implements Type
 
     /**
      * @no-named-arguments
-     * @param positive-int $value
-     * @param positive-int ...$values
-     * @return Type<positive-int>
+     * @return Type<int>
      */
     public static function intMask(int $value, int ...$values): Type
     {

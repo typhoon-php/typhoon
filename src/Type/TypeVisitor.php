@@ -60,7 +60,7 @@ interface TypeVisitor
     public function intValue(Type $type, int $value): mixed;
 
     /**
-     * @param Type<positive-int> $type
+     * @param Type<int> $type
      * @return TReturn
      */
     public function intMask(Type $type, Type $ofType): mixed;
