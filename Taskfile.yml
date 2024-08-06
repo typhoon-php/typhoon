@@ -3,6 +3,7 @@ version: '3'
 vars:
   PHP: php
   COMPOSER: composer
+  PHPUNIT: "{{.PHP}} tools/phpunit/vendor/bin/phpunit"
   PACKAGES:
     sh: find src -type d -maxdepth 1 -mindepth 1 -exec basename {} ';'
 
@@ -44,7 +45,7 @@ tasks:
 
   test:
     deps: [var, install]
-    cmd: "{{.PHP}} vendor/bin/phpunit {{.CLI_ARGS}}"
+    cmd: "{{.PHPUNIT}} {{.CLI_ARGS}}"
 
   composer-normalize-fix:
     deps: [install]
