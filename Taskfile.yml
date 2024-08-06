@@ -3,6 +3,8 @@ version: '3'
 vars:
   PHP: php
   COMPOSER: composer
+  REQUIRE_CHECKER: "{{.PHP}} tools/composer-require-checker/vendor/bin/composer-require-checker"
+  PSALM: "{{.PHP}} tools/psalm/vendor/bin/psalm --show-info --no-diff --no-cache"
   PHPUNIT: "{{.PHP}} tools/phpunit/vendor/bin/phpunit"
   PACKAGES:
     sh: find src -type d -maxdepth 1 -mindepth 1 -exec basename {} ';'
@@ -37,7 +39,7 @@ tasks:
 
   psalm:
     deps: [install]
-    cmd: "{{.PHP}} tools/psalm/vendor/bin/psalm --show-info --no-diff --no-cache {{.CLI_ARGS}}"
+    cmd: "{{.PSALM}} {{.CLI_ARGS}}"
 
   phpstan:
     deps: [var, install]
@@ -67,17 +69,36 @@ tasks:
         cmd: "{{.COMPOSER}} validate --strict src/{{.PACKAGE}}/composer.json"
 
   composer-check-require:
-    deps: [var, install]
+    deps: [install]
+    cmd: "{{.REQUIRE_CHECKER}}"
+
+  check-packages:
+    deps: [install]
     cmds:
-      - "{{.COMPOSER}} install --working-dir=src/ChangeDetector"
-      - "{{.PHP}} tools/composer-require-checker/vendor/bin/composer-require-checker check src/ChangeDetector/composer.json --config-file=src/ChangeDetector/composer-require-checker.json"
-      - "{{.COMPOSER}} install --working-dir=src/DeclarationId"
-      - "{{.PHP}} tools/composer-require-checker/vendor/bin/composer-require-checker check src/DeclarationId/composer.json"
-      - "{{.COMPOSER}} install --working-dir=src/PhpStormReflectionStubs"
-      - "{{.PHP}} tools/composer-require-checker/vendor/bin/composer-require-checker check src/PhpStormReflectionStubs/composer.json"
-      - "{{.COMPOSER}} install --working-dir=src/Reflection"
-      - "{{.PHP}} tools/composer-require-checker/vendor/bin/composer-require-checker check src/Reflection/composer.json --config-file=src/Reflection/composer-require-checker.json"
-      - "{{.COMPOSER}} install --working-dir=src/Type"
-      - "{{.PHP}} tools/composer-require-checker/vendor/bin/composer-require-checker check src/Type/composer.json"
-      - "{{.COMPOSER}} install --working-dir=src/TypedMap"
-      - "{{.PHP}} tools/composer-require-checker/vendor/bin/composer-require-checker check src/TypedMap/composer.json"
+      - for: { var: PACKAGES, as: PACKAGE }
+        task: check-package
+        vars:
+          NAME: "{{.PACKAGE}}"
+
+  check-package:
+    deps: [install]
+    requires:
+      vars: [NAME]
+    vars:
+      PATH: var/{{.NAME}}.isolated.test
+    cmds:
+      - 'rm -rf {{.PATH}}'
+      - 'mkdir -p {{.PATH}}'
+      - 'ln -s ../../src/{{.NAME}} {{.PATH}}/src'
+      - 'ln -s ../../stubs {{.PATH}}/stubs'
+      - 'ln -s ../../tests/isolated_package_testing/psalm.xml {{.PATH}}/psalm.xml.dist'
+      - 'cat {{.PATH}}/src/composer.json | {{.PHP}} tests/isolated_package_testing/process_composer_json.php > {{.PATH}}/composer.json'
+      - '{{.COMPOSER}} --working-dir={{.PATH}} update --prefer-lowest --prefer-stable'
+      - '{{.REQUIRE_CHECKER}} check {{.PATH}}/composer.json'
+      - '{{.PSALM}} --root={{.PATH}}'
+      - |
+        if [ -d tests/{{.NAME}} ]; then
+          ln -s ../../tests/{{.NAME}} {{.PATH}}/tests
+          {{.PHPUNIT}} --bootstrap={{.PATH}}/vendor/autoload.php {{.PATH}}/tests
+        fi
+      - 'rm -rf {{.PATH}}'

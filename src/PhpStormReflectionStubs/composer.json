@@ -23,15 +23,9 @@
         "typhoon/type": "^0.4",
         "typhoon/typed-map": "^0.4"
     },
-    "minimum-stability": "dev",
-    "prefer-stable": true,
     "autoload": {
         "psr-4": {
             "Typhoon\\PhpStormReflectionStubs\\": ""
         }
-    },
-    "config": {
-        "lock": false,
-        "vendor-dir": "../../var/PhpStormReflectionStubs/vendor"
     }
 }

@@ -6,7 +6,7 @@
     ensureArrayStringOffsetsExist="true"
     errorLevel="1"
     findUnusedBaselineEntry="true"
-    findUnusedCode="true"
+    findUnusedCode="false"
     findUnusedPsalmSuppress="true"
     findUnusedVariablesAndParams="true"
     memoizeMethodCallResults="true"
@@ -15,7 +15,7 @@
     sealAllProperties="true"
     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
     xmlns="https://getpsalm.org/schema/config"
-    xsi:schemaLocation="https://getpsalm.org/schema/config tools/psalm/vendor/vimeo/psalm/config.xsd"
+    xsi:schemaLocation="https://getpsalm.org/schema/config ../../tools/psalm/vendor/vimeo/psalm/config.xsd"
 >
     <enableExtensions>
         <extension name="random"/>
@@ -23,21 +23,10 @@
 
     <projectFiles>
         <directory name="src"/>
-        <directory name="tests"/>
-        <directory name="tools/psalm/src"/>
         <ignoreFiles>
-            <directory name="tests/Reflection/Internal/NativeAdapter/Fixtures"/>
             <directory name="vendor"/>
         </ignoreFiles>
-        <ignoreFiles allowMissingFiles="true">
-            <directory name="var"/>
-        </ignoreFiles>
     </projectFiles>
-
-    <plugins>
-        <pluginClass class="Psalm\PhpUnitPlugin\Plugin"/>
-        <pluginClass class="Typhoon\Tools\Psalm\CheckVisibilityPlugin"/>
-    </plugins>
 
     <ignoreExceptions>
         <classAndDescendants name="ReflectionException"/>
@@ -47,12 +36,6 @@
     </ignoreExceptions>
 
     <issueHandlers>
-        <PluginIssue name="UnspecifiedVisibility">
-            <errorLevel type="suppress">
-                <directory name="tests"/>
-                <directory name="tools/psalm/src"/>
-            </errorLevel>
-        </PluginIssue>
         <ArgumentTypeCoercion>
             <errorLevel type="suppress">
                 <referencedFunction name="ReflectionClass::__construct"/>
@@ -60,18 +43,9 @@
         </ArgumentTypeCoercion>
         <DeprecatedConstant errorLevel="suppress"/>
         <MissingImmutableAnnotation errorLevel="suppress"/>
-        <MissingThrowsDocblock>
-            <errorLevel type="suppress">
-                <directory name="tests"/>
-            </errorLevel>
-        </MissingThrowsDocblock>
         <MixedAssignment errorLevel="suppress"/>
-        <PossiblyUnusedMethod>
-            <errorLevel type="suppress">
-                <directory name="tests"/>
-            </errorLevel>
-        </PossiblyUnusedMethod>
         <UnusedConstructor errorLevel="suppress"/>
+        <UnusedPsalmSuppress errorLevel="suppress"/>
     </issueHandlers>
 
     <forbiddenFunctions>
@@ -88,9 +62,6 @@
     </forbiddenFunctions>
 
     <stubs>
-        <file name="tests/Reflection/Internal/NativeAdapter/Fixtures/classes.php" preloadClasses="true"/>
-        <file name="tests/Reflection/Internal/NativeAdapter/Fixtures/classes_php82.php" preloadClasses="true"/>
-        <file name="tests/Reflection/Internal/NativeAdapter/Fixtures/classes_php83.php" preloadClasses="true"/>
         <file name="stubs/Reflection.phpstub"/>
         <file name="stubs/PhpParser/Comment.phpstub"/>
         <file name="stubs/PhpParser/Node/Expr/Variable.phpstub"/>

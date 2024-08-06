@@ -28,8 +28,6 @@
     "conflict": {
         "typhoon/phpstorm-reflection-stubs": "<0.4.3"
     },
-    "minimum-stability": "dev",
-    "prefer-stable": true,
     "autoload": {
         "psr-4": {
             "Typhoon\\Reflection\\": ""
@@ -37,9 +35,5 @@
         "files": [
             "Internal/functions.php"
         ]
-    },
-    "config": {
-        "lock": false,
-        "vendor-dir": "../../var/Reflection/vendor"
     }
 }
