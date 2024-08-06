@@ -40,7 +40,7 @@ final class PhpStormStubsLocator implements ConstantLocator, NamedFunctionLocato
     public function locate(ConstantId|NamedFunctionId|NamedClassId $id): ?Resource
     {
         $relativePath = match (true) {
-            $id instanceof ConstantId => PhpStormStubsMap::CONSTANTS[$id->name] ?? null,
+            $id instanceof ConstantId => defined($id->name) ? null : PhpStormStubsMap::CONSTANTS[$id->name] ?? null,
             $id instanceof NamedFunctionId => PhpStormStubsMap::FUNCTIONS[$id->name] ?? null,
             $id instanceof NamedClassId => PhpStormStubsMap::CLASSES[$id->name] ?? null,
         };
