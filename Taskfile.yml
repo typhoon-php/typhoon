@@ -11,7 +11,7 @@ tasks:
     cmd: "{{.COMPOSER}} install"
     sources:
       - composer.json
-      - composer.lock
+      - tools/*/composer.json
     generates:
       - vendor/autoload.php
 
