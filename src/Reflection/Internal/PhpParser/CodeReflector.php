@@ -8,6 +8,7 @@ use PhpParser\NodeTraverser;
 use PhpParser\NodeVisitor\NameResolver;
 use PhpParser\Parser;
 use Typhoon\DeclarationId\AnonymousClassId;
+use Typhoon\DeclarationId\ConstantId;
 use Typhoon\DeclarationId\Internal\IdMap;
 use Typhoon\DeclarationId\NamedClassId;
 use Typhoon\DeclarationId\NamedFunctionId;
@@ -29,7 +30,7 @@ final class CodeReflector
 
     /**
      * @param ?non-empty-string $file
-     * @return IdMap<NamedFunctionId|NamedClassId|AnonymousClassId, \Closure(): TypedMap>
+     * @return IdMap<ConstantId|NamedFunctionId|NamedClassId|AnonymousClassId, \Closure(): TypedMap>
      */
     public function reflectCode(string $code, ?string $file = null): IdMap
     {

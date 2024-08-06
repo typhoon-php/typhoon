@@ -5,8 +5,10 @@ declare(strict_types=1);
 namespace Typhoon\Reflection\Internal\PhpParser;
 
 use PhpParser\Node;
+use PhpParser\Node\Arg;
 use PhpParser\Node\AttributeGroup;
 use PhpParser\Node\ComplexType;
+use PhpParser\Node\Expr\FuncCall;
 use PhpParser\Node\Expr\Variable;
 use PhpParser\Node\FunctionLike;
 use PhpParser\Node\Identifier;
@@ -18,6 +20,7 @@ use PhpParser\Node\Stmt\Class_;
 use PhpParser\Node\Stmt\ClassConst;
 use PhpParser\Node\Stmt\ClassLike;
 use PhpParser\Node\Stmt\ClassMethod;
+use PhpParser\Node\Stmt\Const_;
 use PhpParser\Node\Stmt\Enum_;
 use PhpParser\Node\Stmt\EnumCase;
 use PhpParser\Node\Stmt\Function_;
@@ -55,6 +58,38 @@ use Typhoon\TypedMap\TypedMap;
  */
 final class NodeReflector
 {
+    public function reflectConstant(Const_ $node, int|string $key, Context $context): TypedMap
+    {
+        \assert(isset($node->consts[$key]));
+        $value = $node->consts[$key]->value;
+
+        $compiler = new ConstantExpressionCompiler($context);
+        $valueTypeReflector = new ConstantExpressionTypeReflector($context);
+
+        return (new TypedMap())
+            ->with(Data::Context, $context)
+            ->with(Data::PhpDoc, $node->getDocComment())
+            ->with(Data::Location, $this->reflectLocation($context, $node))
+            ->with(Data::Namespace, $context->namespace())
+            ->with(Data::ValueExpression, $compiler->compile($value))
+            ->with(Data::Type, new TypeData(inferred: $valueTypeReflector->reflect($value)));
+    }
+
+    public function reflectDefine(FuncCall $node, Context $context): TypedMap
+    {
+        $valueArg = $node->args[1] ?? $node->args['value'] ?? null;
+        \assert($valueArg instanceof Arg);
+
+        $compiler = new ConstantExpressionCompiler($context);
+        $valueTypeReflector = new ConstantExpressionTypeReflector($context);
+
+        return (new TypedMap())
+            ->with(Data::Location, $this->reflectLocation($context, $node))
+            ->with(Data::Namespace, $context->namespace())
+            ->with(Data::ValueExpression, $compiler->compile($valueArg->value))
+            ->with(Data::Type, new TypeData(inferred: $valueTypeReflector->reflect($valueArg->value)));
+    }
+
     public function reflectFunction(Function_ $node, Context $context): TypedMap
     {
         return $this
@@ -385,7 +420,7 @@ final class NodeReflector
     }
 
     /**
-     * @param array<Node\Arg> $nodes
+     * @param array<Arg> $nodes
      * @return Expression<array>
      */
     private function reflectArguments(ConstantExpressionCompiler $compiler, array $nodes): Expression

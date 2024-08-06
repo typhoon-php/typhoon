@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Typhoon\Reflection\Internal\ConstantExpression;
 
+use Typhoon\Reflection\Exception\DeclarationNotFound;
 use Typhoon\Reflection\TyphoonReflector;
 
 /**
@@ -25,13 +26,35 @@ final class ConstantFetch implements Expression
     /**
      * @return non-empty-string
      */
-    public function name(?TyphoonReflector $_reflector = null): string
+    public function name(?TyphoonReflector $reflector = null): string
     {
-        if ($this->globalName === null || \defined($this->namespacedName)) {
+        if (\defined($this->namespacedName)) {
             return $this->namespacedName;
         }
 
-        return $this->globalName;
+        if ($reflector !== null) {
+            try {
+                return $reflector->reflectConstant($this->namespacedName)->id->name;
+            } catch (DeclarationNotFound) {
+            }
+        }
+
+        if ($this->globalName === null) {
+            throw new \LogicException(\sprintf('Constant %s is not defined', $this->namespacedName));
+        }
+
+        if (\defined($this->globalName)) {
+            return $this->globalName;
+        }
+
+        if ($reflector !== null) {
+            try {
+                return $reflector->reflectConstant($this->globalName)->id->name;
+            } catch (DeclarationNotFound) {
+            }
+        }
+
+        throw new \LogicException(\sprintf('Constants %s and %s are not defined', $this->namespacedName, $this->globalName));
     }
 
     public function recompile(CompilationContext $context): Expression
@@ -41,7 +64,32 @@ final class ConstantFetch implements Expression
 
     public function evaluate(?TyphoonReflector $reflector = null): mixed
     {
-        // todo via reflection
-        return \constant($this->name($reflector));
+        if (\defined($this->namespacedName)) {
+            return \constant($this->namespacedName);
+        }
+
+        if ($reflector !== null) {
+            try {
+                return $reflector->reflectConstant($this->namespacedName);
+            } catch (DeclarationNotFound) {
+            }
+        }
+
+        if ($this->globalName === null) {
+            throw new \LogicException(\sprintf('Constant %s is not defined', $this->namespacedName));
+        }
+
+        if (\defined($this->globalName)) {
+            return \constant($this->globalName);
+        }
+
+        if ($reflector !== null) {
+            try {
+                return $reflector->reflectConstant($this->globalName);
+            } catch (DeclarationNotFound) {
+            }
+        }
+
+        throw new \LogicException(\sprintf('Constants %s and %s are not defined', $this->namespacedName, $this->globalName));
     }
 }

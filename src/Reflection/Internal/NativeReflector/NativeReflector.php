@@ -7,6 +7,7 @@ namespace Typhoon\Reflection\Internal\NativeReflector;
 use Typhoon\ChangeDetector\ChangeDetector;
 use Typhoon\ChangeDetector\PhpExtensionVersionChangeDetector;
 use Typhoon\ChangeDetector\PhpVersionChangeDetector;
+use Typhoon\DeclarationId\ConstantId;
 use Typhoon\DeclarationId\Id;
 use Typhoon\DeclarationId\NamedClassId;
 use Typhoon\DeclarationId\NamedFunctionId;
@@ -23,6 +24,7 @@ use Typhoon\Type\Type;
 use Typhoon\Type\types;
 use Typhoon\TypedMap\TypedMap;
 use function Typhoon\Reflection\Internal\class_like_exists;
+use function Typhoon\Reflection\Internal\get_namespace;
 
 /**
  * @internal
@@ -31,6 +33,23 @@ use function Typhoon\Reflection\Internal\class_like_exists;
 final class NativeReflector
 {
     private const CORE_EXTENSION = 'Core';
+
+    public function reflectConstant(ConstantId $id): ?TypedMap
+    {
+        if (!\defined($id->name)) {
+            return null;
+        }
+
+        $value = \constant($id->name);
+        $extension = $this->constantExtensions()[$id->name] ?? null;
+
+        return (new TypedMap())
+            ->with(Data::Type, new TypeData(inferred: types::value(\constant($id->name))))
+            ->with(Data::Namespace, get_namespace($id->name))
+            ->with(Data::ValueExpression, Value::from($value))
+            ->with(Data::PhpExtension, $extension)
+            ->with(Data::InternallyDefined, $extension !== null);
+    }
 
     public function reflectNamedFunction(NamedFunctionId $id): ?TypedMap
     {
@@ -424,5 +443,38 @@ final class NativeReflector
             'mixed' => types::mixed,
             default => types::object($name),
         };
+    }
+
+    /**
+     * @var ?array<non-empty-string, non-empty-string>
+     */
+    private ?array $constantExtensions = null;
+
+    /**
+     * @return array<non-empty-string, non-empty-string>
+     */
+    private function constantExtensions(): array
+    {
+        if ($this->constantExtensions !== null) {
+            return $this->constantExtensions;
+        }
+
+        $this->constantExtensions = [];
+
+        foreach (get_defined_constants(categorize: true) as $category => $constants) {
+            if ($category === 'user') {
+                continue;
+            }
+
+            foreach ($constants as $name => $_value) {
+                /**
+                 * @var non-empty-string $name
+                 * @var non-empty-string $category
+                 */
+                $this->constantExtensions[$name] = $category;
+            }
+        }
+
+        return $this->constantExtensions;
     }
 }

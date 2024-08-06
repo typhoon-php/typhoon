@@ -10,6 +10,7 @@ use Psr\SimpleCache\CacheInterface;
 use Typhoon\DeclarationId\AliasId;
 use Typhoon\DeclarationId\AnonymousClassId;
 use Typhoon\DeclarationId\ClassConstantId;
+use Typhoon\DeclarationId\ConstantId;
 use Typhoon\DeclarationId\Id;
 use Typhoon\DeclarationId\Internal\IdMap;
 use Typhoon\DeclarationId\MethodId;
@@ -136,7 +137,7 @@ final class TyphoonReflector
     }
 
     /**
-     * @param IdMap<NamedFunctionId|NamedClassId|AnonymousClassId, \Closure(self): TypedMap> $buffer
+     * @param IdMap<ConstantId|NamedFunctionId|NamedClassId|AnonymousClassId, \Closure(self): TypedMap> $buffer
      */
     private function __construct(
         private readonly CodeReflector $codeReflector,
@@ -146,6 +147,14 @@ final class TyphoonReflector
         private readonly NativeReflector $nativeReflector = new NativeReflector(),
         private IdMap $buffer = new IdMap(),
     ) {}
+
+    /**
+     * @param non-empty-string $name
+     */
+    public function reflectConstant(string $name): ConstantReflection
+    {
+        return $this->reflect(Id::constant($name));
+    }
 
     /**
      * @param non-empty-string $name
@@ -216,6 +225,7 @@ final class TyphoonReflector
     /**
      * @psalm-suppress InvalidReturnType, InvalidReturnStatement
      * @return (
+     *     $id is ConstantId ? ConstantReflection :
      *     $id is NamedFunctionId ? FunctionReflection :
      *     $id is NamedClassId ? ClassReflection<object, NamedClassId<class-string>> :
      *     $id is AnonymousClassId<null> ? ClassReflection<object, AnonymousClassId<null>> :
@@ -230,7 +240,7 @@ final class TyphoonReflector
      * )
      * @throws DeclarationNotFound
      */
-    public function reflect(Id $id): FunctionReflection|ClassReflection|ClassConstantReflection|PropertyReflection|MethodReflection|ParameterReflection|AliasReflection|TemplateReflection
+    public function reflect(Id $id): ConstantReflection|FunctionReflection|ClassReflection|ClassConstantReflection|PropertyReflection|MethodReflection|ParameterReflection|AliasReflection|TemplateReflection
     {
         try {
             if ($id instanceof NamedClassId || $id instanceof AnonymousClassId) {
@@ -240,6 +250,10 @@ final class TyphoonReflector
 
             if ($id instanceof NamedFunctionId) {
                 return new FunctionReflection($id, $this->reflectFunctionData($id), $this);
+            }
+
+            if ($id instanceof ConstantId) {
+                return new ConstantReflection($id, $this->reflectConstantData($id), $this);
             }
         } finally {
             if ($this->buffer->count() > self::BUFFER_SIZE) {
@@ -270,6 +284,39 @@ final class TyphoonReflector
             nativeReflector: $this->nativeReflector,
             buffer: $this->buffer->withMap($reflectedResource),
         );
+    }
+
+    private function reflectConstantData(ConstantId $id): TypedMap
+    {
+        $buffered = $this->buffer[$id] ?? null;
+
+        if ($buffered !== null) {
+            return $buffered($this);
+        }
+
+        $cachedData = $this->cache->get($id);
+
+        if ($cachedData !== null) {
+            return $cachedData;
+        }
+
+        $data = $this->nativeReflector->reflectConstant($id);
+
+        if ($data !== null) {
+            $this->cache->set($id, $data);
+
+            return $data;
+        }
+
+        $resource = $this->locators->locate($id);
+
+        if ($resource !== null) {
+            $this->buffer = $this->buffer->withMap($this->reflectResource($resource));
+
+            return ($this->buffer[$id] ?? throw new DeclarationNotFound($id))($this);
+        }
+
+        throw new DeclarationNotFound($id);
     }
 
     private function reflectFunctionData(NamedFunctionId $id): TypedMap
@@ -341,7 +388,7 @@ final class TyphoonReflector
     }
 
     /**
-     * @return IdMap<NamedFunctionId|NamedClassId|AnonymousClassId, \Closure(self): TypedMap>
+     * @return IdMap<ConstantId|NamedFunctionId|NamedClassId|AnonymousClassId, \Closure(self): TypedMap>
      */
     private function reflectResource(Resource $resource): IdMap
     {
@@ -352,7 +399,7 @@ final class TyphoonReflector
         $hooks = $this->hooks->merge($resource->hooks);
 
         $idReflectors = $this->codeReflector->reflectCode($code, $file)->map(
-            static fn(\Closure $idReflector, NamedFunctionId|NamedClassId|AnonymousClassId $id): \Closure =>
+            static fn(\Closure $idReflector, ConstantId|NamedFunctionId|NamedClassId|AnonymousClassId $id): \Closure =>
                 static function (self $reflector) use ($id, $idReflector, $baseData, $hooks): TypedMap {
                     static $started = false;
 
