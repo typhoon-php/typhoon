@@ -58,11 +58,6 @@
             </errorLevel>
         </ArgumentTypeCoercion>
         <DeprecatedConstant errorLevel="suppress"/>
-        <ImpureMethodCall>
-            <errorLevel type="suppress">
-                <directory name="src/Type"/>
-            </errorLevel>
-        </ImpureMethodCall>
         <UnusedConstructor errorLevel="suppress"/>
         <MissingImmutableAnnotation errorLevel="suppress"/>
         <MissingThrowsDocblock>

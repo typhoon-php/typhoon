@@ -13,5 +13,6 @@ use Typhoon\Type\Visitor\TypeStringifier;
  */
 function stringify(Type $type): string
 {
+    /** @psalm-suppress ImpureMethodCall */
     return $type->accept(TypeStringifier::Instance);
 }
