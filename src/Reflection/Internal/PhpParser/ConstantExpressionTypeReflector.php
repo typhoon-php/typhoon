@@ -68,7 +68,7 @@ final class ConstantExpressionTypeReflector
             ),
             $expr instanceof Expr\New_ => $this->reflectClassName($expr->class),
             // $expr instanceof Expr\Ternary => ,
-            default => $this->reflectValue($this->evaluator->evaluateSilently($expr)),
+            default => types::value($this->evaluator->evaluateSilently($expr)),
         };
     }
 
@@ -163,26 +163,6 @@ final class ConstantExpressionTypeReflector
 
         if (\is_string($name) && $name !== '') {
             return $name;
-        }
-
-        throw new ConstExprEvaluationException();
-    }
-
-    /**
-     * @throws ConstExprEvaluationException
-     */
-    private function reflectValue(mixed $value): Type
-    {
-        if ($value === null) {
-            return types::null;
-        }
-
-        if (\is_scalar($value)) {
-            return types::scalar($value);
-        }
-
-        if (\is_array($value)) {
-            return types::arrayShape(array_map($this->reflectValue(...), $value));
         }
 
         throw new ConstExprEvaluationException();
