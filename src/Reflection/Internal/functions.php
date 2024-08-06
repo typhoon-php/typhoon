@@ -61,30 +61,6 @@ function array_value_last(array $array): mixed
 /**
  * @internal
  * @psalm-internal Typhoon\Reflection
- * @param non-negative-int $position
- * @return positive-int
- */
-function line(string $string, int $position): int
-{
-    if ($position === 0) {
-        return 1;
-    }
-
-    $lineStartPosition = strrpos($string, "\n", $position - \strlen($string) - 1);
-
-    if ($lineStartPosition === false) {
-        return $position + 1;
-    }
-
-    $column = $position - $lineStartPosition;
-    \assert($column > 0);
-
-    return $column;
-}
-
-/**
- * @internal
- * @psalm-internal Typhoon\Reflection
  * @psalm-assert-if-true class-string $name
  */
 function class_like_exists(string $name, bool $autoload = true): bool
