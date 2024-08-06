@@ -1,0 +1,82 @@
+version: '3'
+
+vars:
+  PHP: php
+  COMPOSER: composer
+  PACKAGES:
+    sh: find src -type d -maxdepth 1 -mindepth 1 -exec basename {} ';'
+
+tasks:
+  install:
+    cmd: "{{.COMPOSER}} install"
+    sources:
+      - composer.json
+      - composer.lock
+    generates:
+      - vendor/autoload.php
+
+  var:
+    cmd: mkdir -p var
+    status:
+      - test -d var
+    silent: true
+    internal: true
+
+  fixcs:
+    deps: [var, install]
+    cmds:
+      - "{{.PHP}} vendor/bin/php-cs-fixer fix --verbose --config=.visitors.php-cs-fixer.dist.php {{.CLI_ARGS}}"
+      - "{{.PHP}} vendor/bin/php-cs-fixer fix --verbose {{.CLI_ARGS}}"
+
+  lint:
+    cmds:
+      - task: fixcs
+        vars:
+          CLI_ARGS: "--dry-run {{.CLI_ARGS}}"
+
+  psalm:
+    deps: [install]
+    cmd: "{{.PHP}} tools/psalm/vendor/bin/psalm --show-info --no-diff --no-cache {{.CLI_ARGS}}"
+
+  phpstan:
+    deps: [var, install]
+    cmd: "{{.PHP}} vendor/bin/phpstan --verbose {{.CLI_ARGS}}"
+
+  test:
+    deps: [var, install]
+    cmd: "{{.PHP}} vendor/bin/phpunit {{.CLI_ARGS}}"
+
+  composer-normalize-fix:
+    deps: [install]
+    cmds:
+      - "{{.COMPOSER}} normalize --diff {{.CLI_ARGS}}"
+      - for: { var: PACKAGES, as: PACKAGE }
+        cmd: "{{.COMPOSER}} normalize --diff src/{{.PACKAGE}}/composer.json {{.CLI_ARGS}}"
+      - "{{.COMPOSER}} normalize --diff tools/composer-require-checker/composer.json {{.CLI_ARGS}}"
+      - "{{.COMPOSER}} normalize --diff tools/psalm/composer.json {{.CLI_ARGS}}"
+
+  composer-validate:
+    deps: [install]
+    cmds:
+      - task: composer-normalize-fix
+        vars:
+          CLI_ARGS: --dry-run
+      - "{{.COMPOSER}} validate --strict --no-check-publish"
+      - for: { var: PACKAGES, as: PACKAGE }
+        cmd: "{{.COMPOSER}} validate --strict src/{{.PACKAGE}}/composer.json"
+
+  composer-check-require:
+    deps: [var, install]
+    cmds:
+      - "{{.COMPOSER}} install --working-dir=src/ChangeDetector"
+      - "{{.PHP}} tools/composer-require-checker/vendor/bin/composer-require-checker check src/ChangeDetector/composer.json --config-file=src/ChangeDetector/composer-require-checker.json"
+      - "{{.COMPOSER}} install --working-dir=src/DeclarationId"
+      - "{{.PHP}} tools/composer-require-checker/vendor/bin/composer-require-checker check src/DeclarationId/composer.json"
+      - "{{.COMPOSER}} install --working-dir=src/PhpStormReflectionStubs"
+      - "{{.PHP}} tools/composer-require-checker/vendor/bin/composer-require-checker check src/PhpStormReflectionStubs/composer.json"
+      - "{{.COMPOSER}} install --working-dir=src/Reflection"
+      - "{{.PHP}} tools/composer-require-checker/vendor/bin/composer-require-checker check src/Reflection/composer.json --config-file=src/Reflection/composer-require-checker.json"
+      - "{{.COMPOSER}} install --working-dir=src/Type"
+      - "{{.PHP}} tools/composer-require-checker/vendor/bin/composer-require-checker check src/Type/composer.json"
+      - "{{.COMPOSER}} install --working-dir=src/TypedMap"
+      - "{{.PHP}} tools/composer-require-checker/vendor/bin/composer-require-checker check src/TypedMap/composer.json"
