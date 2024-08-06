@@ -300,20 +300,20 @@ final class TyphoonReflector
             return $cachedData;
         }
 
-        $data = $this->nativeReflector->reflectConstant($id);
-
-        if ($data !== null) {
-            $this->cache->set($id, $data);
-
-            return $data;
-        }
-
         $resource = $this->locators->locate($id);
 
         if ($resource !== null) {
             $this->buffer = $this->buffer->withMap($this->reflectResource($resource));
 
             return ($this->buffer[$id] ?? throw new DeclarationNotFound($id))($this);
+        }
+
+        $nativeData = $this->nativeReflector->reflectConstant($id);
+
+        if ($nativeData !== null) {
+            $this->cache->set($id, $nativeData);
+
+            return $nativeData;
         }
 
         throw new DeclarationNotFound($id);
@@ -341,12 +341,12 @@ final class TyphoonReflector
             return ($this->buffer[$id] ?? throw new DeclarationNotFound($id))($this);
         }
 
-        $data = $this->nativeReflector->reflectNamedFunction($id);
+        $nativeData = $this->nativeReflector->reflectNamedFunction($id);
 
-        if ($data !== null) {
-            $this->cache->set($id, $data);
+        if ($nativeData !== null) {
+            $this->cache->set($id, $nativeData);
 
-            return $data;
+            return $nativeData;
         }
 
         throw new DeclarationNotFound($id);
@@ -375,12 +375,12 @@ final class TyphoonReflector
         }
 
         if ($id instanceof NamedClassId) {
-            $data = $this->nativeReflector->reflectNamedClass($id);
+            $nativeData = $this->nativeReflector->reflectNamedClass($id);
 
-            if ($data !== null) {
-                $this->cache->set($id, $data);
+            if ($nativeData !== null) {
+                $this->cache->set($id, $nativeData);
 
-                return $data;
+                return $nativeData;
             }
         }
 
