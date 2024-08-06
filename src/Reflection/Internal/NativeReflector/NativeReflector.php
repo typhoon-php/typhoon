@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Typhoon\Reflection\Internal\NativeReflector;
 
 use Typhoon\ChangeDetector\ChangeDetector;
+use Typhoon\ChangeDetector\ConstantChangeDetector;
 use Typhoon\ChangeDetector\PhpExtensionVersionChangeDetector;
 use Typhoon\ChangeDetector\PhpVersionChangeDetector;
 use Typhoon\DeclarationId\ConstantId;
@@ -44,10 +45,11 @@ final class NativeReflector
         $extension = $this->constantExtensions()[$id->name] ?? null;
 
         return (new TypedMap())
-            ->with(Data::Type, new TypeData(inferred: types::value(\constant($id->name))))
+            ->with(Data::Type, new TypeData(inferred: types::value($value)))
             ->with(Data::Namespace, get_namespace($id->name))
             ->with(Data::ValueExpression, Value::from($value))
             ->with(Data::PhpExtension, $extension)
+            ->with(Data::ChangeDetector, new ConstantChangeDetector(name: $id->name, exists: true, value: $value))
             ->with(Data::InternallyDefined, $extension !== null);
     }
 

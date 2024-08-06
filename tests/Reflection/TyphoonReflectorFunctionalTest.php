@@ -8,7 +8,7 @@ use PHPUnit\Framework\Attributes\CoversNothing;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Symfony\Component\Finder\Finder;
-use Typhoon\ChangeDetector\InMemoryChangeDetector;
+use Typhoon\ChangeDetector\ConstantChangeDetector;
 use Typhoon\DeclarationId\Id;
 use Typhoon\Type\types;
 use function Typhoon\Reflection\Internal\get_namespace;
@@ -83,6 +83,6 @@ final class TyphoonReflectorFunctionalTest extends TestCase
         self::assertNull($constant->location());
         self::assertNull($constant->deprecation());
         self::assertSame(get_namespace($name), $constant->namespace());
-        self::assertEquals(new InMemoryChangeDetector(), $constant->changeDetector());
+        self::assertEquals(ConstantChangeDetector::fromName($name), $constant->changeDetector());
     }
 }
