@@ -33,7 +33,7 @@ final class ConstantChangeDetector implements ChangeDetector
         }
 
         if ($this->name === 'NAN') {
-            return !is_nan($this->value);
+            return !(\is_float($this->value) && is_nan($this->value));
         }
 
         try {

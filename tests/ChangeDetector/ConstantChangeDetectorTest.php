@@ -34,11 +34,7 @@ final class ConstantChangeDetectorTest extends TestCase
 
     public function testItDetectsConstantDisappeared(): void
     {
-        $detector = new ConstantChangeDetector(
-            name: 'ABC',
-            exists: true,
-            value: 'abc',
-        );
+        $detector = new ConstantChangeDetector(name: 'ABC', exists: true, value: 'abc');
 
         $changed = $detector->changed();
 
@@ -54,13 +50,31 @@ final class ConstantChangeDetectorTest extends TestCase
         self::assertFalse($changed);
     }
 
-    public function testNan(): void
+    public function testItDetectsNanDoesNotChange(): void
     {
         $detector = ConstantChangeDetector::fromName('NAN');
 
         $changed = $detector->changed();
 
         self::assertFalse($changed);
+    }
+
+    public function testItDetectsSomeFloatNanChanged(): void
+    {
+        $detector = new ConstantChangeDetector(name: 'NAN', exists: true, value: 0.5);
+
+        $changed = $detector->changed();
+
+        self::assertTrue($changed);
+    }
+
+    public function testItDetectsNonFloatNanChanged(): void
+    {
+        $detector = new ConstantChangeDetector(name: 'NAN', exists: true, value: true);
+
+        $changed = $detector->changed();
+
+        self::assertTrue($changed);
     }
 
     public function testInf(): void
