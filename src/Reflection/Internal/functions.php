@@ -33,6 +33,7 @@ function map(iterable $iterable, callable $mapper): array
 /**
  * @internal
  * @psalm-internal Typhoon\Reflection
+ * @psalm-pure
  * @template TValue
  * @param array<TValue> $array
  * @return ($array is non-empty-array ? TValue : ?TValue)
@@ -47,6 +48,7 @@ function array_value_first(array $array): mixed
 /**
  * @internal
  * @psalm-internal Typhoon\Reflection
+ * @psalm-pure
  * @template TValue
  * @param array<TValue> $array
  * @return ($array is non-empty-array ? TValue : ?TValue)
