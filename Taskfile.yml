@@ -1,0 +1,89 @@
+version: '3'
+
+vars:
+  PHP: php
+  COMPOSER: composer
+
+tasks:
+  install:
+    cmd: "{{.COMPOSER}} install"
+    sources:
+      - composer.json
+      - composer.lock
+    generates:
+      - vendor/autoload.php
+
+  var:
+    cmd: mkdir -p var
+    status:
+      - test -d var
+    silent: true
+    internal: true
+
+  fixcs:
+    deps: [var, install]
+    cmds:
+      - "{{.PHP}} vendor/bin/php-cs-fixer fix --verbose --config=.visitors.php-cs-fixer.dist.php {{.CLI_ARGS}}"
+      - "{{.PHP}} vendor/bin/php-cs-fixer fix --verbose {{.CLI_ARGS}}"
+
+  lint:
+    cmds:
+      - task: fixcs
+        vars:
+          CLI_ARGS: "--dry-run {{.CLI_ARGS}}"
+
+  psalm:
+    deps: [install]
+    cmd: "{{.PHP}} tools/psalm/vendor/bin/psalm --show-info --no-diff --no-cache {{.CLI_ARGS}}"
+
+  phpstan:
+    deps: [var, install]
+    cmd: "{{.PHP}} vendor/bin/phpstan --verbose {{.CLI_ARGS}}"
+
+  test:
+    deps: [var, install]
+    cmd: "{{.PHP}} vendor/bin/phpunit {{.CLI_ARGS}}"
+
+  composer-normalize-fix:
+    deps: [install]
+    cmds:
+      - "{{.COMPOSER}} normalize --diff {{.CLI_ARGS}}"
+      - "{{.COMPOSER}} normalize --diff src/ChangeDetector/composer.json {{.CLI_ARGS}}"
+      - "{{.COMPOSER}} normalize --diff src/DeclarationId/composer.json {{.CLI_ARGS}}"
+      - "{{.COMPOSER}} normalize --diff src/PhpStormReflectionStubs/composer.json {{.CLI_ARGS}}"
+      - "{{.COMPOSER}} normalize --diff src/Reflection/composer.json {{.CLI_ARGS}}"
+      - "{{.COMPOSER}} normalize --diff src/Type/composer.json {{.CLI_ARGS}}"
+      - "{{.COMPOSER}} normalize --diff src/TypedMap/composer.json {{.CLI_ARGS}}"
+      - "{{.COMPOSER}} normalize --diff tools/composer-require-checker/composer.json {{.CLI_ARGS}}"
+      - "{{.COMPOSER}} normalize --diff tools/psalm/composer.json {{.CLI_ARGS}}"
+
+  composer-validate:
+    deps: [install]
+    cmds:
+      - task: composer-normalize-fix
+        vars:
+          CLI_ARGS: --dry-run
+      - "{{.COMPOSER}} validate --strict --no-check-publish"
+      - "{{.COMPOSER}} validate --strict src/ChangeDetector/composer.json"
+      - "{{.COMPOSER}} validate --strict src/DeclarationId/composer.json"
+      - "{{.COMPOSER}} validate --strict src/PhpStormReflectionStubs/composer.json"
+      - "{{.COMPOSER}} validate --strict src/Reflection/composer.json"
+      - "{{.COMPOSER}} validate --strict src/Type/composer.json"
+      - "{{.COMPOSER}} validate --strict src/TypedMap/composer.json"
+
+  composer-check-require:
+    deps: [var, install]
+    cmds:
+      - "{{.PHP}} tools/composer-require-checker/vendor/bin/composer-require-checker check --config-file=composer-require-checker.json"
+      - "{{.COMPOSER}} install --working-dir=src/ChangeDetector"
+      - "{{.PHP}} tools/composer-require-checker/vendor/bin/composer-require-checker check src/ChangeDetector/composer.json --config-file=src/ChangeDetector/composer-require-checker.json"
+      - "{{.COMPOSER}} install --working-dir=src/DeclarationId"
+      - "{{.PHP}} tools/composer-require-checker/vendor/bin/composer-require-checker check src/DeclarationId/composer.json"
+      - "{{.COMPOSER}} install --working-dir=src/PhpStormReflectionStubs"
+      - "{{.PHP}} tools/composer-require-checker/vendor/bin/composer-require-checker check src/PhpStormReflectionStubs/composer.json"
+      - "{{.COMPOSER}} install --working-dir=src/Reflection"
+      - "{{.PHP}} tools/composer-require-checker/vendor/bin/composer-require-checker check src/Reflection/composer.json --config-file=src/Reflection/composer-require-checker.json"
+      - "{{.COMPOSER}} install --working-dir=src/Type"
+      - "{{.PHP}} tools/composer-require-checker/vendor/bin/composer-require-checker check src/Type/composer.json"
+      - "{{.COMPOSER}} install --working-dir=src/TypedMap"
+      - "{{.PHP}} tools/composer-require-checker/vendor/bin/composer-require-checker check src/TypedMap/composer.json"

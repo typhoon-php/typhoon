@@ -1,3 +1,4 @@
+/.task/
 /**/vendor/
 /var/
 /.php-cs-fixer.php
