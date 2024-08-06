@@ -9,6 +9,7 @@ use Typhoon\DeclarationId\NamedFunctionId;
 use Typhoon\Reflection\FunctionReflection;
 use Typhoon\Reflection\ParameterReflection;
 use Typhoon\Reflection\TypeKind;
+use function Typhoon\Reflection\Internal\get_short_name;
 
 /**
  * @internal
@@ -171,14 +172,8 @@ final class FunctionAdapter extends \ReflectionFunction
             return self::ANONYMOUS_FUNCTION_SHORT_NAME;
         }
 
-        $name = $id->name;
-        $lastSlashPosition = strrpos($name, '\\');
+        $shortName = get_short_name($id->name);
 
-        if ($lastSlashPosition === false) {
-            return $name;
-        }
-
-        $shortName = substr($name, $lastSlashPosition + 1);
         \assert($shortName !== '', 'A valid function name must not end with a backslash');
 
         return $shortName;

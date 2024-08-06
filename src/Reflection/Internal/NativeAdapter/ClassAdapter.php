@@ -17,6 +17,8 @@ use Typhoon\Reflection\ModifierKind;
 use Typhoon\Reflection\PropertyReflection;
 use Typhoon\Reflection\ReflectionCollections;
 use Typhoon\Reflection\TyphoonReflector;
+use function Typhoon\Reflection\Internal\get_namespace;
+use function Typhoon\Reflection\Internal\get_short_name;
 
 /**
  * @internal
@@ -227,13 +229,7 @@ final class ClassAdapter extends \ReflectionClass
             return '';
         }
 
-        $lastSlashPosition = strrpos($name, '\\');
-
-        if ($lastSlashPosition === false) {
-            return '';
-        }
-
-        return substr($name, 0, $lastSlashPosition);
+        return get_namespace($name);
     }
 
     public function getParentClass(): \ReflectionClass|false
@@ -290,13 +286,8 @@ final class ClassAdapter extends \ReflectionClass
             return '{anonymous-class}';
         }
 
-        $lastSlashPosition = strrpos($name, '\\');
+        $shortName = get_short_name($name);
 
-        if ($lastSlashPosition === false) {
-            return $name;
-        }
-
-        $shortName = substr($name, $lastSlashPosition + 1);
         \assert($shortName !== '', 'A valid class name must not end with a backslash');
 
         return $shortName;

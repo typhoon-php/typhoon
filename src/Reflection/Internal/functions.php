@@ -69,3 +69,35 @@ function class_like_exists(string $name, bool $autoload = true): bool
 {
     return class_exists($name, $autoload) || interface_exists($name, $autoload) || trait_exists($name, $autoload);
 }
+
+/**
+ * @internal
+ * @psalm-internal Typhoon\Reflection
+ * @psalm-pure
+ */
+function get_namespace(string $name): string
+{
+    $lastSlashPosition = strrpos($name, '\\');
+
+    if ($lastSlashPosition === false) {
+        return '';
+    }
+
+    return substr($name, 0, $lastSlashPosition);
+}
+
+/**
+ * @internal
+ * @psalm-internal Typhoon\Reflection
+ * @psalm-pure
+ */
+function get_short_name(string $name): string
+{
+    $lastSlashPosition = strrpos($name, '\\');
+
+    if ($lastSlashPosition === false) {
+        return $name;
+    }
+
+    return substr($name, $lastSlashPosition + 1);
+}
