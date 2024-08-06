@@ -18,6 +18,7 @@ use PHPStan\PhpDocParser\Ast\PhpDoc\TypeAliasTagValueNode;
 use PHPStan\PhpDocParser\Ast\Type\TypeNode;
 use Typhoon\DeclarationId\AnonymousClassId;
 use Typhoon\DeclarationId\AnonymousFunctionId;
+use Typhoon\DeclarationId\ConstantId;
 use Typhoon\DeclarationId\NamedClassId;
 use Typhoon\DeclarationId\NamedFunctionId;
 use Typhoon\Reflection\Annotated\CustomTypeResolver;
@@ -32,6 +33,7 @@ use Typhoon\Reflection\Internal\Data\PassedBy;
 use Typhoon\Reflection\Internal\Data\TypeData;
 use Typhoon\Reflection\Internal\Data\Visibility;
 use Typhoon\Reflection\Internal\Hook\ClassHook;
+use Typhoon\Reflection\Internal\Hook\ConstantHook;
 use Typhoon\Reflection\Internal\Hook\FunctionHook;
 use Typhoon\Reflection\Location;
 use Typhoon\Reflection\TyphoonReflector;
@@ -45,7 +47,7 @@ use function Typhoon\Reflection\Internal\map;
  * @internal
  * @psalm-internal Typhoon\Reflection
  */
-final class PhpDocReflector implements AnnotatedDeclarationsDiscoverer, FunctionHook, ClassHook
+final class PhpDocReflector implements AnnotatedDeclarationsDiscoverer, ConstantHook, FunctionHook, ClassHook
 {
     public function __construct(
         private readonly CustomTypeResolver $customTypeResolver = new NullCustomTypeResolver(),
@@ -84,6 +86,17 @@ final class PhpDocReflector implements AnnotatedDeclarationsDiscoverer, Function
     public function priority(): int
     {
         return 500;
+    }
+
+    public function processConstant(ConstantId $id, TypedMap $data, TyphoonReflector $reflector): TypedMap
+    {
+        $phpDoc = $this->parsePhpDoc($data[Data::PhpDoc]);
+
+        if ($phpDoc !== null) {
+            $data = $data->with(Data::Type, $this->addAnnotatedType($data[Data::Context], $data[Data::Type], $phpDoc->varType()));
+        }
+
+        return $data;
     }
 
     public function processFunction(NamedFunctionId|AnonymousFunctionId $id, TypedMap $data, TyphoonReflector $reflector): TypedMap
