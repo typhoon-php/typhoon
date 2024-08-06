@@ -9,7 +9,7 @@ namespace Typhoon\TypedMap;
  * @psalm-immutable
  * @implements \ArrayAccess<Key, mixed>
  */
-final class TypedMap implements \ArrayAccess
+final class TypedMap implements \ArrayAccess, \Countable
 {
     /**
      * @var array<non-empty-string, mixed>
@@ -133,5 +133,10 @@ final class TypedMap implements \ArrayAccess
     public function __unserialize(array $data): void
     {
         $this->values = $data;
+    }
+
+    public function count(): int
+    {
+        return \count($this->values);
     }
 }

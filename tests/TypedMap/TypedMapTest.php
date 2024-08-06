@@ -20,4 +20,13 @@ final class TypedMapTest extends TestCase
         self::assertSame($merged[Keys::A], 'a2');
         self::assertSame($merged[Keys::B], 'b');
     }
+
+    public function testMapCount(): void
+    {
+        $map = new TypedMap();
+        $map2 = TypedMap::one(Keys::A, 'a2');
+
+        self::assertCount(0, $map);
+        self::assertCount(1, $map2);
+    }
 }
