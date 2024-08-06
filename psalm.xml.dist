@@ -27,6 +27,10 @@
         <directory name="tools/psalm/src"/>
         <ignoreFiles>
             <directory name="tests/Reflection/Internal/NativeAdapter/Fixtures"/>
+            <directory name="vendor"/>
+        </ignoreFiles>
+        <ignoreFiles allowMissingFiles="true">
+            <directory name="var"/>
         </ignoreFiles>
     </projectFiles>
 
