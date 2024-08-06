@@ -3,6 +3,8 @@ version: '3'
 vars:
   PHP: php
   COMPOSER: composer
+  PACKAGES:
+    sh: find src -type d -maxdepth 1 -mindepth 1 -exec basename {} ';'
 
 tasks:
   install:
@@ -48,12 +50,8 @@ tasks:
     deps: [install]
     cmds:
       - "{{.COMPOSER}} normalize --diff {{.CLI_ARGS}}"
-      - "{{.COMPOSER}} normalize --diff src/ChangeDetector/composer.json {{.CLI_ARGS}}"
-      - "{{.COMPOSER}} normalize --diff src/DeclarationId/composer.json {{.CLI_ARGS}}"
-      - "{{.COMPOSER}} normalize --diff src/PhpStormReflectionStubs/composer.json {{.CLI_ARGS}}"
-      - "{{.COMPOSER}} normalize --diff src/Reflection/composer.json {{.CLI_ARGS}}"
-      - "{{.COMPOSER}} normalize --diff src/Type/composer.json {{.CLI_ARGS}}"
-      - "{{.COMPOSER}} normalize --diff src/TypedMap/composer.json {{.CLI_ARGS}}"
+      - for: { var: PACKAGES, as: PACKAGE }
+        cmd: "{{.COMPOSER}} normalize --diff src/{{.PACKAGE}}/composer.json {{.CLI_ARGS}}"
       - "{{.COMPOSER}} normalize --diff tools/composer-require-checker/composer.json {{.CLI_ARGS}}"
       - "{{.COMPOSER}} normalize --diff tools/psalm/composer.json {{.CLI_ARGS}}"
 
@@ -64,17 +62,12 @@ tasks:
         vars:
           CLI_ARGS: --dry-run
       - "{{.COMPOSER}} validate --strict --no-check-publish"
-      - "{{.COMPOSER}} validate --strict src/ChangeDetector/composer.json"
-      - "{{.COMPOSER}} validate --strict src/DeclarationId/composer.json"
-      - "{{.COMPOSER}} validate --strict src/PhpStormReflectionStubs/composer.json"
-      - "{{.COMPOSER}} validate --strict src/Reflection/composer.json"
-      - "{{.COMPOSER}} validate --strict src/Type/composer.json"
-      - "{{.COMPOSER}} validate --strict src/TypedMap/composer.json"
+      - for: { var: PACKAGES, as: PACKAGE }
+        cmd: "{{.COMPOSER}} validate --strict src/{{.PACKAGE}}/composer.json"
 
   composer-check-require:
     deps: [var, install]
     cmds:
-      - "{{.PHP}} tools/composer-require-checker/vendor/bin/composer-require-checker check --config-file=composer-require-checker.json"
       - "{{.COMPOSER}} install --working-dir=src/ChangeDetector"
       - "{{.PHP}} tools/composer-require-checker/vendor/bin/composer-require-checker check src/ChangeDetector/composer.json --config-file=src/ChangeDetector/composer-require-checker.json"
       - "{{.COMPOSER}} install --working-dir=src/DeclarationId"
