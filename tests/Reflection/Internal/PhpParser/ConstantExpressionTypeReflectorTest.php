@@ -14,6 +14,7 @@ use PhpParser\ParserFactory;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
+use Typhoon\Reflection\Internal\Context\Context;
 use Typhoon\Reflection\Internal\Context\ContextVisitor;
 use Typhoon\Type\Type;
 use Typhoon\Type\types;
@@ -22,6 +23,15 @@ use Typhoon\Type\types;
 final class ConstantExpressionTypeReflectorTest extends TestCase
 {
     private static ?Parser $parser = null;
+
+    public function testItReturnsNullForNullExpression(): void
+    {
+        $reflector = new ConstantExpressionTypeReflector(Context::start(''));
+
+        $type = $reflector->reflect(null);
+
+        self::assertNull($type);
+    }
 
     /**
      * @return \Generator<array-key, array{string, Type}>
@@ -58,6 +68,26 @@ final class ConstantExpressionTypeReflectorTest extends TestCase
         );
 
         self::assertEquals([$expectedType], $types);
+    }
+
+    public function testItReflectsImportedGlobalConstantInNamespaceAsConstantType(): void
+    {
+        $types = $this->reflect(
+            '<?php namespace X; use const PHP_INT_MIN; PHP_INT_MIN;',
+            static fn(Node $node): \Generator => $node instanceof StmtExpr ? yield $node->expr : null,
+        );
+
+        self::assertEquals([types::constant('PHP_INT_MIN')], $types);
+    }
+
+    public function testItReflectsGlobalConstantInNamespaceAsUnresolvedConstantType(): void
+    {
+        $types = $this->reflect(
+            '<?php namespace X; PHP_INT_MIN;',
+            static fn(Node $node): \Generator => $node instanceof StmtExpr ? yield $node->expr : null,
+        );
+
+        self::assertEquals([new UnresolvedConstantType('X\PHP_INT_MIN', 'PHP_INT_MIN')], $types);
     }
 
     /**

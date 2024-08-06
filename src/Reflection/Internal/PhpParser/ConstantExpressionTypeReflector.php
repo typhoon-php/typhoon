@@ -121,7 +121,7 @@ final class ConstantExpressionTypeReflector
         $namespacedName = $name->getAttribute('namespacedName');
 
         if ($namespacedName instanceof FullyQualified) {
-            throw new ConstExprEvaluationException();
+            return new UnresolvedConstantType($namespacedName->toString(), $name->toString());
         }
 
         return types::constant($name->toString());
