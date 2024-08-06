@@ -1,6 +1,5 @@
 <?xml version="1.0"?>
 <psalm
-    cacheDirectory="var/psalm"
     checkForThrowsDocblock="true"
     checkForThrowsInGlobalScope="true"
     disableSuppressAll="true"
