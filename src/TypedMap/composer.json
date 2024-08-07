@@ -20,9 +20,5 @@
         "psr-4": {
             "Typhoon\\TypedMap\\": ""
         }
-    },
-    "config": {
-        "lock": false,
-        "vendor-dir": "../../var/TypedMap/vendor"
     }
 }

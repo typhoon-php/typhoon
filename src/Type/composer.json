@@ -17,8 +17,6 @@
         "php": "^8.1",
         "typhoon/declaration-id": "^0.4"
     },
-    "minimum-stability": "dev",
-    "prefer-stable": true,
     "autoload": {
         "psr-4": {
             "Typhoon\\Type\\": ""
@@ -26,9 +24,5 @@
         "files": [
             "functions.php"
         ]
-    },
-    "config": {
-        "lock": false,
-        "vendor-dir": "../../var/Type/vendor"
     }
 }
