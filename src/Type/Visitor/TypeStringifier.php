@@ -107,7 +107,7 @@ enum TypeStringifier implements TypeVisitor
     public function classString(Type $type, Type $classType): mixed
     {
         $isObject = $classType->accept(
-            new /** @extends DefaultTypeVisitor<bool> */ class () extends DefaultTypeVisitor {
+            new /** @extends DefaultTypeVisitor<bool> */ class extends DefaultTypeVisitor {
                 public function object(Type $type, array $properties): mixed
                 {
                     return true;
@@ -360,7 +360,7 @@ enum TypeStringifier implements TypeVisitor
 
     public function union(Type $type, array $ofTypes): mixed
     {
-        $isIntersection = new /** @extends DefaultTypeVisitor<bool> */ class () extends DefaultTypeVisitor {
+        $isIntersection = new /** @extends DefaultTypeVisitor<bool> */ class extends DefaultTypeVisitor {
             public function intersection(Type $type, array $ofTypes): mixed
             {
                 return true;
@@ -396,7 +396,7 @@ enum TypeStringifier implements TypeVisitor
 
     public function intersection(Type $type, array $ofTypes): mixed
     {
-        $isUnion = new /** @extends DefaultTypeVisitor<bool> */ class () extends DefaultTypeVisitor {
+        $isUnion = new /** @extends DefaultTypeVisitor<bool> */ class extends DefaultTypeVisitor {
             public function union(Type $type, array $ofTypes): mixed
             {
                 return true;

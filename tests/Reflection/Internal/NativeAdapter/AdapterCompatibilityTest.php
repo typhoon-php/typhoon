@@ -617,8 +617,8 @@ final class AdapterCompatibilityTest extends TestCase
             $parent = $parent->getParentClass();
         }
 
-        yield (new class () {})::class;
-        yield (new class () extends \stdClass {})::class;
+        yield (new class {})::class;
+        yield (new class extends \stdClass {})::class;
         yield \Traversable::class;
         yield \Iterator::class;
         yield \IteratorAggregate::class;
@@ -654,9 +654,9 @@ final class AdapterCompatibilityTest extends TestCase
 
         yield static fn(): int => 1;
         yield (static fn(): \Generator => yield 1)();
-        yield new class () {};
-        yield new class () extends \stdClass {};
-        yield new class () {
+        yield new class {};
+        yield new class extends \stdClass {};
+        yield new class {
             public function __toString(): string
             {
                 return '';

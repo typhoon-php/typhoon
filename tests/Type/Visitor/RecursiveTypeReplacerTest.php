@@ -64,7 +64,7 @@ final class RecursiveTypeReplacerTest extends TestCase
     #[DataProvider('typesProvider')]
     public function testItPreservesTypesIfNothingChanges(Type $type): void
     {
-        $replaced = $type->accept(new class () extends RecursiveTypeReplacer {});
+        $replaced = $type->accept(new class extends RecursiveTypeReplacer {});
 
         self::assertSame($type, $replaced);
     }

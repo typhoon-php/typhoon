@@ -10,7 +10,7 @@ use function PHPUnit\Framework\assertNull;
 use function PHPUnit\Framework\assertSame;
 
 return static function (TyphoonReflector $reflector): void {
-    $object = new class () {};
+    $object = new class {};
 
     $id = $reflector->reflectClass($object::class)->id;
 
