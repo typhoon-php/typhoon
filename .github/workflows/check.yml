@@ -60,7 +60,7 @@ jobs:
         with:
           composer-options: --optimize-autoloader
           dependency-versions: ${{ matrix.dependency-versions }}
-      - run: task psalm -- --php-version=${{ matrix.php }} --stats --output-format=github
+      - run: task psalm -- --stats --output-format=github ${{ matrix.dependency-versions == 'lowest' && '--shepherd' }}
 
   phpstan:
     runs-on: ubuntu-latest
@@ -100,7 +100,11 @@ jobs:
         with:
           composer-options: --optimize-autoloader
           dependency-versions: ${{ matrix.dependency-versions }}
-      - run: task test -- --colors=always
+      - run: task test -- --colors=always --coverage-clover coverage.xml
+      - if: ${{ matrix.php == '8.1' && matrix.dependency-versions == 'lowest' }}
+        uses: codecov/codecov-action@v3
+        env:
+          CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
 
   packages:
     runs-on: ubuntu-latest
