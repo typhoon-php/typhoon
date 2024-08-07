@@ -2,11 +2,10 @@
     <img src="https://github.com/typhoon-php/.github/raw/main/profile/logo.png" width="200" alt="Typhoon logo">
 </p>
 
-[![PHP Version Require](http://poser.pugx.org/typhoon/reflection/require/php)](https://packagist.org/packages/typhoon/reflection)
+![PHP Version Requirement](https://img.shields.io/packagist/dependency-v/typhoon/reflection/php)
 [![GitHub Release](https://img.shields.io/github/v/release/typhoon-php/typhoon)](https://github.com/typhoon-php/typhoon/releases)
-[![Total Downloads](http://poser.pugx.org/typhoon/reflection/downloads)](https://packagist.org/packages/typhoon/reflection)
-[![psalm-level](https://shepherd.dev/github/typhoon-php/typhoon/level.svg)](https://shepherd.dev/github/typhoon-php/typhoon)
-[![type-coverage](https://shepherd.dev/github/typhoon-php/typhoon/coverage.svg)](https://shepherd.dev/github/typhoon-php/typhoon)
+[![Psalm Level](https://shepherd.dev/github/typhoon-php/typhoon/level.svg)](https://shepherd.dev/github/typhoon-php/typhoon)
+[![Psalm Type Coverage](https://shepherd.dev/github/typhoon-php/typhoon/coverage.svg)](https://shepherd.dev/github/typhoon-php/typhoon)
 [![Code Coverage](https://codecov.io/gh/typhoon-php/typhoon/branch/0.4.x/graph/badge.svg)](https://codecov.io/gh/typhoon-php/typhoon/tree/0.4.x)
 
 Hello, PHP developer!
