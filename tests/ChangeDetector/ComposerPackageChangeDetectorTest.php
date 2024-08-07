@@ -12,7 +12,7 @@ final class ComposerPackageChangeDetectorTest extends TestCase
 {
     public function testItDetectsPackageRefChange(): void
     {
-        $changeDetector = new ComposerPackageChangeDetector('nikic/php-parser', 'fake-ref');
+        $changeDetector = new ComposerPackageChangeDetector('phpunit/phpunit', 'wrong-ref');
 
         $changed = $changeDetector->changed();
 
@@ -22,9 +22,9 @@ final class ComposerPackageChangeDetectorTest extends TestCase
     public function testItReturnsDeduplicatedDetectors(): void
     {
         $detector = ChangeDetectors::from([
-            new ComposerPackageChangeDetector('nikic/php-parser', '0.3.0'),
-            ComposerPackageChangeDetector::fromName('nikic/php-parser'),
-            ComposerPackageChangeDetector::fromName('psr/simple-cache'),
+            new ComposerPackageChangeDetector('php', 'ref'),
+            new ComposerPackageChangeDetector('php', 'another-ref'),
+            new ComposerPackageChangeDetector('test', 'ref'),
         ]);
 
         $deduplicated = $detector->deduplicate();
