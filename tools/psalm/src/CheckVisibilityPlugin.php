@@ -8,9 +8,9 @@ use PhpParser\Node\Stmt\Function_;
 use Psalm\CodeLocation;
 use Psalm\Issue\PluginIssue;
 use Psalm\IssueBuffer;
-use Psalm\Plugin\EventHandler\AfterClassLikeAnalysisInterface;
+use Psalm\Plugin\EventHandler\AfterClassLikeVisitInterface;
 use Psalm\Plugin\EventHandler\AfterFunctionLikeAnalysisInterface;
-use Psalm\Plugin\EventHandler\Event\AfterClassLikeAnalysisEvent;
+use Psalm\Plugin\EventHandler\Event\AfterClassLikeVisitEvent;
 use Psalm\Plugin\EventHandler\Event\AfterFunctionLikeAnalysisEvent;
 use Psalm\Plugin\PluginEntryPointInterface;
 use Psalm\Plugin\RegistrationInterface;
@@ -18,23 +18,18 @@ use Psalm\Plugin\RegistrationInterface;
 /**
  * @psalm-suppress UnusedClass
  */
-final class CheckVisibilityPlugin implements PluginEntryPointInterface, AfterClassLikeAnalysisInterface
+final class CheckVisibilityPlugin implements PluginEntryPointInterface, AfterClassLikeVisitInterface
 {
-    public static function afterStatementAnalysis(AfterClassLikeAnalysisEvent $event): ?bool
+    public static function afterClassLikeVisit(AfterClassLikeVisitEvent $event): void
     {
-        $class = $event->getClasslikeStorage();
+        $class = $event->getStorage();
 
         if ($event->getStmt()->name !== null && !$class->internal && !$class->public_api) {
-            IssueBuffer::accepts(
-                new UnspecifiedVisibility(
-                    'Class ' . $class->name,
-                    $class->location ?? new CodeLocation($event->getStatementsSource(), $event->getStmt()),
-                ),
-                $event->getStatementsSource()->getSuppressedIssues(),
+            $class->docblock_issues[] = new UnspecifiedVisibility(
+                'Class ' . $class->name,
+                $class->location ?? new CodeLocation($event->getStatementsSource(), $event->getStmt()),
             );
         }
-
-        return null;
     }
 
     public function __invoke(RegistrationInterface $registration, ?\SimpleXMLElement $config = null): void

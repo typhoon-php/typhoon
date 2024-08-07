@@ -45,7 +45,7 @@ final class DefinedConstantReflectorTest extends TestCase
 
                 yield $name => [Id::constant($name), $extension, $value];
 
-                return ;
+                return;
             }
         }
     }
