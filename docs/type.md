@@ -105,7 +105,8 @@ As you can see, creating types in Typhoon is a lot of fun, especially if you wor
 ## Design
 
 Unlike other solutions, Typhoon Type does not expose concrete type classes in its API. Instead, it provides only
-a [common `Type` interface](../src/Type/Type.php), a [type factory `types`](../src/Type/types.php), and a [`TypeVisitor` with destructurization](../src/Type/TypeVisitor.php).
+a [common `Type` interface](../src/Type/Type.php), a [type factory `types`](../src/Type/types.php), and
+a [`TypeVisitor` with destructurization](../src/Type/TypeVisitor.php).
 This approach gives several advantages:
 
 1. The visitor has only a minimal subset of type methods that must be implemented when describing a type algebra.
@@ -180,11 +181,11 @@ var_dump(types::callableString()->accept(new BasicIntChecker())); // false
 
 | PHPStan                 | Psalm                   | Typhoon                                                                                   |
 |-------------------------|-------------------------|-------------------------------------------------------------------------------------------|
-| `null`                  | `null`                  | `types::null`                                                                             |
+| `null`                  | `null`                  | `types::null`, `types::value(null)`                                                       |
 | `void`                  | `void`                  | `types::void`                                                                             |
 | `never`                 | `never`                 | `types::never`                                                                            |
-| `true`                  | `true`                  | `types::true`, `types::scalar(true)`                                                      |
-| `false`                 | `false`                 | `types::false`, `types::scalar(false)`                                                    |
+| `true`                  | `true`                  | `types::true`, `types::value(true)`                                                       |
+| `false`                 | `false`                 | `types::false`, `types::value(false)`                                                     |
 | `bool`, `boolean`       | `bool`                  | `types::bool`                                                                             |
 | `int`, `integer`        | `int`                   | `types::int`                                                                              |
 | `float`, `double`       | `float`                 | `types::float`                                                                            |
@@ -210,7 +211,7 @@ var_dump(types::callableString()->accept(new BasicIntChecker())); // false
 | PHPStan                   | Psalm                        | Typhoon                                                         |
 |---------------------------|------------------------------|-----------------------------------------------------------------|
 | `literal-int`             | `literal-int`                | `types::literalInt`                                             |
-| `123`                     | `123`                        | `types::int(123)`, `types::scalar(123)`                         |
+| `123`                     | `123`                        | `types::int(123)`, `types::value(123)`                          |
 | `positive-int`            | `positive-int`               | `types::positiveInt`                                            |
 | `negative-int`            | `negative-int`               | `types::negativeInt`                                            |
 | `non-positive-int`        | `non-positive-int`           | `types::nonPositiveInt`                                         |
@@ -223,7 +224,7 @@ var_dump(types::callableString()->accept(new BasicIntChecker())); // false
 | `int-mask-of<Foo::INT_*>` | `int-mask-of<Foo::INT_*>`    | `types::intMaskOf(types::classConstantMask(Foo::class, 'INT_')` |
 | ❌                         | ❌                            | `types::literalFloat`                                           |
 | ❌                         | ❌                            | `types::floatRange(-0.001, 2.344)`                              |
-| `12.5`                    | `12.5`                       | `types::float(12.5)`, `types::scalar(12.5)`                     |
+| `12.5`                    | `12.5`                       | `types::float(12.5)`, `types::value(12.5)`                      |
 | `numeric`                 | `numeric`                    | `types::numeric`                                                |
 
 ### Strings
@@ -232,7 +233,7 @@ var_dump(types::callableString()->accept(new BasicIntChecker())); // false
 |-------------------------------------|-------------------------------------|-------------------------------------------------|
 | `non-empty-string`                  | `non-empty-string`                  | `types::nonEmptyString`                         |
 | `literal-string`                    | `literal-string`                    | `types::literalString`                          |
-| `'abc'`                             | `'abc'`                             | `types::string('abc')`, `types::scalar('abc')`  |
+| `'abc'`                             | `'abc'`                             | `types::string('abc')`, `types::value('abc')`   |
 | `truthy-string`, `non-falsy-string` | `truthy-string`, `non-falsy-string` | `types::truthyString`, `types::nonFalsyString`  |
 | `numeric-string`                    | `numeric-string`                    | `types::numericString`                          |
 | `callable-string`                   | `callable-string`                   | `types::callableString()`                       |
