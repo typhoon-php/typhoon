@@ -67,6 +67,7 @@ final class NodeReflector
         $valueTypeReflector = new ConstantExpressionTypeReflector($context);
 
         return (new TypedMap())
+            ->with(Data::Node, $node)
             ->with(Data::Context, $context)
             ->with(Data::PhpDoc, $node->getDocComment())
             ->with(Data::Location, $this->reflectLocation($context, $node))
@@ -84,6 +85,7 @@ final class NodeReflector
         $valueTypeReflector = new ConstantExpressionTypeReflector($context);
 
         return (new TypedMap())
+            ->with(Data::Node, $node)
             ->with(Data::Location, $this->reflectLocation($context, $node))
             ->with(Data::Namespace, $context->namespace())
             ->with(Data::ValueExpression, $compiler->compile($valueArg->value))
@@ -94,12 +96,14 @@ final class NodeReflector
     {
         return $this
             ->reflectFunctionLike($node, $context)
+            ->with(Data::Node, $node)
             ->with(Data::Namespace, $context->namespace());
     }
 
     public function reflectClassLike(ClassLike $node, Context $context): TypedMap
     {
         $data = (new TypedMap())
+            ->with(Data::Node, $node)
             ->with(Data::PhpDoc, $node->getDocComment())
             ->with(Data::Location, $this->reflectLocation($context, $node))
             ->with(Data::Context, $context)

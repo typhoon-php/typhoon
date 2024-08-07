@@ -66,4 +66,5 @@ enum Data
     public const Deprecation = Data\DeprecationKey::Key;
     public const Optional = Data\BoolKeys::Optional;
     public const Cloneable = Data\BoolKeys::Cloneable;
+    public const Node = Data\NodeKey::Key;
 }
