@@ -60,7 +60,7 @@ jobs:
         with:
           composer-options: --optimize-autoloader
           dependency-versions: ${{ matrix.dependency-versions }}
-      - run: task psalm -- --php-version=${{ matrix.php }} --stats --output-format=github
+      - run: task psalm -- --php-version=${{ matrix.php }} --stats --output-format=github --shepherd
 
   phpstan:
     runs-on: ubuntu-latest
