@@ -42,7 +42,8 @@ use Typhoon\Reflection\Internal\Data;
 use Typhoon\Reflection\Internal\Hook\Hooks;
 use Typhoon\Reflection\Internal\Inheritance\ResolveClassInheritance;
 use Typhoon\Reflection\Internal\Misc\NonSerializable;
-use Typhoon\Reflection\Internal\NativeReflector\NativeReflector;
+use Typhoon\Reflection\Internal\NativeReflector\DefinedConstantReflector;
+use Typhoon\Reflection\Internal\NativeReflector\NativeReflectionBasedReflector;
 use Typhoon\Reflection\Internal\PhpDoc\PhpDocReflector;
 use Typhoon\Reflection\Internal\PhpParser\CodeReflector;
 use Typhoon\Reflection\Internal\PhpParser\NodeReflector;
@@ -141,10 +142,10 @@ final class TyphoonReflector
      */
     private function __construct(
         private readonly CodeReflector $codeReflector,
-        private readonly Locators $locators,
+        private Locators $locators,
         private readonly Hooks $hooks,
         private readonly Cache $cache,
-        private readonly NativeReflector $nativeReflector = new NativeReflector(),
+        private readonly DefinedConstantReflector $definedConstantReflector = new DefinedConstantReflector(),
         private IdMap $buffer = new IdMap(),
     ) {}
 
@@ -276,14 +277,11 @@ final class TyphoonReflector
     {
         $reflectedResource = $this->reflectResource($resource);
 
-        return new self(
-            codeReflector: $this->codeReflector,
-            locators: $this->locators->with(new ScannedResourceLocator($reflectedResource->ids(), $resource)),
-            hooks: $this->hooks,
-            cache: $this->cache,
-            nativeReflector: $this->nativeReflector,
-            buffer: $this->buffer->withMap($reflectedResource),
-        );
+        $copy = clone $this;
+        $copy->locators = $this->locators->with(new ScannedResourceLocator($reflectedResource->ids(), $resource));
+        $copy->buffer = $this->buffer->withMap($reflectedResource);
+
+        return $copy;
     }
 
     private function reflectConstantData(ConstantId $id): TypedMap
@@ -308,7 +306,7 @@ final class TyphoonReflector
             return ($this->buffer[$id] ?? throw new DeclarationNotFound($id))($this);
         }
 
-        $nativeData = $this->nativeReflector->reflectConstant($id);
+        $nativeData = $this->definedConstantReflector->reflectConstant($id);
 
         if ($nativeData !== null) {
             $this->cache->set($id, $nativeData);
@@ -341,7 +339,7 @@ final class TyphoonReflector
             return ($this->buffer[$id] ?? throw new DeclarationNotFound($id))($this);
         }
 
-        $nativeData = $this->nativeReflector->reflectNamedFunction($id);
+        $nativeData = NativeReflectionBasedReflector::reflectNamedFunction($id);
 
         if ($nativeData !== null) {
             $this->cache->set($id, $nativeData);
@@ -375,7 +373,7 @@ final class TyphoonReflector
         }
 
         if ($id instanceof NamedClassId) {
-            $nativeData = $this->nativeReflector->reflectNamedClass($id);
+            $nativeData = NativeReflectionBasedReflector::reflectNamedClass($id);
 
             if ($nativeData !== null) {
                 $this->cache->set($id, $nativeData);

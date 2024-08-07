@@ -5,10 +5,8 @@ declare(strict_types=1);
 namespace Typhoon\Reflection\Internal\NativeReflector;
 
 use Typhoon\ChangeDetector\ChangeDetector;
-use Typhoon\ChangeDetector\ConstantChangeDetector;
 use Typhoon\ChangeDetector\PhpExtensionVersionChangeDetector;
 use Typhoon\ChangeDetector\PhpVersionChangeDetector;
-use Typhoon\DeclarationId\ConstantId;
 use Typhoon\DeclarationId\Id;
 use Typhoon\DeclarationId\NamedClassId;
 use Typhoon\DeclarationId\NamedFunctionId;
@@ -25,35 +23,16 @@ use Typhoon\Type\Type;
 use Typhoon\Type\types;
 use Typhoon\TypedMap\TypedMap;
 use function Typhoon\Reflection\Internal\class_like_exists;
-use function Typhoon\Reflection\Internal\get_namespace;
 
 /**
  * @internal
  * @psalm-internal Typhoon\Reflection
  */
-final class NativeReflector
+enum NativeReflectionBasedReflector
 {
     private const CORE_EXTENSION = 'Core';
 
-    public function reflectConstant(ConstantId $id): ?TypedMap
-    {
-        if (!\defined($id->name)) {
-            return null;
-        }
-
-        $value = \constant($id->name);
-        $extension = $this->constantExtensions()[$id->name] ?? null;
-
-        return (new TypedMap())
-            ->with(Data::Type, new TypeData(inferred: types::value($value)))
-            ->with(Data::Namespace, get_namespace($id->name))
-            ->with(Data::ValueExpression, Value::from($value))
-            ->with(Data::PhpExtension, $extension)
-            ->with(Data::ChangeDetector, new ConstantChangeDetector(name: $id->name, exists: true, value: $value))
-            ->with(Data::InternallyDefined, $extension !== null);
-    }
-
-    public function reflectNamedFunction(NamedFunctionId $id): ?TypedMap
+    public static function reflectNamedFunction(NamedFunctionId $id): ?TypedMap
     {
         if (!\function_exists($id->name)) {
             return null;
@@ -65,14 +44,14 @@ final class NativeReflector
             return null;
         }
 
-        return $this->reflectFunctionLike($function, static: $function->getClosureCalledClass(), self: $function->getClosureScopeClass())
-            ->with(Data::ChangeDetector, $this->reflectChangeDetector($function))
+        return self::reflectFunctionLike($function, static: $function->getClosureCalledClass(), self: $function->getClosureScopeClass())
+            ->with(Data::ChangeDetector, self::reflectChangeDetector($function))
             ->with(Data::InternallyDefined, true)
             ->with(Data::PhpExtension, $function->getExtensionName() === false ? null : $function->getExtensionName())
             ->with(Data::Namespace, $function->getNamespaceName());
     }
 
-    public function reflectNamedClass(NamedClassId $id): ?TypedMap
+    public static function reflectNamedClass(NamedClassId $id): ?TypedMap
     {
         if (!class_like_exists($id->name, autoload: false)) {
             return null;
@@ -87,8 +66,8 @@ final class NativeReflector
         $data = (new TypedMap())
             ->with(Data::NativeFinal, $class->isFinal())
             ->with(Data::Abstract, (bool) ($class->getModifiers() & \ReflectionClass::IS_EXPLICIT_ABSTRACT))
-            ->with(Data::NativeReadonly, $this->reflectClassNativeReadonly($class))
-            ->with(Data::ChangeDetector, $this->reflectChangeDetector($class))
+            ->with(Data::NativeReadonly, self::reflectClassNativeReadonly($class))
+            ->with(Data::ChangeDetector, self::reflectChangeDetector($class))
             ->with(Data::InternallyDefined, true)
             ->with(Data::PhpExtension, $class->getExtensionName() === false ? null : $class->getExtensionName())
             ->with(Data::ClassKind, match (true) {
@@ -97,22 +76,22 @@ final class NativeReflector
                 $class->isEnum() => Data\ClassKind::Enum,
                 default => Data\ClassKind::Class_,
             })
-            ->with(Data::Properties, $this->reflectProperties($class->getProperties(), $class))
-            ->with(Data::Constants, $this->reflectConstants($class->getReflectionConstants(), $class))
-            ->with(Data::Methods, $this->reflectMethods($class->getMethods(), $class))
-            ->with(Data::Attributes, $this->reflectAttributes($class->getAttributes()))
-            ->with(Data::Parents, $this->reflectParents($class))
+            ->with(Data::Properties, self::reflectProperties($class->getProperties(), $class))
+            ->with(Data::Constants, self::reflectConstants($class->getReflectionConstants(), $class))
+            ->with(Data::Methods, self::reflectMethods($class->getMethods(), $class))
+            ->with(Data::Attributes, self::reflectAttributes($class->getAttributes()))
+            ->with(Data::Parents, self::reflectParents($class))
             ->with(Data::Interfaces, array_fill_keys($class->getInterfaceNames(), []))
             ->with(Data::Cloneable, $class->isCloneable());
 
         if ($class->isEnum()) {
-            $data = $data->with(Data::BackingType, $this->reflectBackingType(new \ReflectionEnum($class->name)));
+            $data = $data->with(Data::BackingType, self::reflectBackingType(new \ReflectionEnum($class->name)));
         }
 
         return $data;
     }
 
-    private function reflectChangeDetector(\ReflectionFunction|\ReflectionClass $reflection): ChangeDetector
+    private static function reflectChangeDetector(\ReflectionFunction|\ReflectionClass $reflection): ChangeDetector
     {
         $extension = $reflection->getExtension();
 
@@ -134,7 +113,7 @@ final class NativeReflector
     /**
      * @psalm-suppress RedundantCondition, UnusedPsalmSuppress
      */
-    private function reflectClassNativeReadonly(\ReflectionClass $class): bool
+    private static function reflectClassNativeReadonly(\ReflectionClass $class): bool
     {
         return method_exists($class, 'isReadonly') && $class->isReadonly();
     }
@@ -142,7 +121,7 @@ final class NativeReflector
     /**
      * @return array<class-string, array{}>
      */
-    private function reflectParents(\ReflectionClass $class): array
+    private static function reflectParents(\ReflectionClass $class): array
     {
         $parents = [];
         $parentClass = $class->getParentClass();
@@ -158,7 +137,7 @@ final class NativeReflector
     /**
      * @return ?Type<int|string>
      */
-    private function reflectBackingType(\ReflectionEnum $enum): ?Type
+    private static function reflectBackingType(\ReflectionEnum $enum): ?Type
     {
         $type = $enum->getBackingType();
 
@@ -175,17 +154,17 @@ final class NativeReflector
      * @param array<\ReflectionClassConstant> $constants
      * @return array<non-empty-string, TypedMap>
      */
-    private function reflectConstants(array $constants, \ReflectionClass $static): array
+    private static function reflectConstants(array $constants, \ReflectionClass $static): array
     {
         $datas = [];
 
         foreach ($constants as $constant) {
             $data = (new TypedMap())
                 ->with(Data::DeclaringClassId, Id::namedClass($constant->class))
-                ->with(Data::Attributes, $this->reflectAttributes($constant->getAttributes()))
+                ->with(Data::Attributes, self::reflectAttributes($constant->getAttributes()))
                 ->with(Data::NativeFinal, (bool) $constant->isFinal())
-                ->with(Data::Type, new TypeData($this->reflectClassConstantType($constant, static: $static, self: $constant->getDeclaringClass())))
-                ->with(Data::Visibility, $this->reflectVisibility($constant))
+                ->with(Data::Type, new TypeData(self::reflectClassConstantType($constant, static: $static, self: $constant->getDeclaringClass())))
+                ->with(Data::Visibility, self::reflectVisibility($constant))
                 ->with(Data::ValueExpression, Value::from($constant->getValue()));
 
             if ($constant->isEnumCase()) {
@@ -205,13 +184,13 @@ final class NativeReflector
         return $datas;
     }
 
-    private function reflectClassConstantType(\ReflectionClassConstant $constant, \ReflectionClass $static, \ReflectionClass $self): ?Type
+    private static function reflectClassConstantType(\ReflectionClassConstant $constant, \ReflectionClass $static, \ReflectionClass $self): ?Type
     {
         if (method_exists($constant, 'getType')) {
             /** @var ?\ReflectionType */
             $type = $constant->getType();
 
-            return $this->reflectType($type, static: $static, self: $self);
+            return self::reflectType($type, static: $static, self: $self);
         }
 
         return null;
@@ -221,7 +200,7 @@ final class NativeReflector
      * @param array<\ReflectionProperty> $properties
      * @return array<non-empty-string, TypedMap>
      */
-    private function reflectProperties(array $properties, \ReflectionClass $static): array
+    private static function reflectProperties(array $properties, \ReflectionClass $static): array
     {
         $data = [];
 
@@ -232,11 +211,11 @@ final class NativeReflector
 
             $data[$property->name] = (new TypedMap())
                 ->with(Data::DeclaringClassId, Id::namedClass($property->class))
-                ->with(Data::Attributes, $this->reflectAttributes($property->getAttributes()))
+                ->with(Data::Attributes, self::reflectAttributes($property->getAttributes()))
                 ->with(Data::Static, $property->isStatic())
                 ->with(Data::NativeReadonly, $property->isReadonly())
-                ->with(Data::Type, new TypeData(native: $this->reflectType($property->getType(), static: $static, self: $property->getDeclaringClass())))
-                ->with(Data::Visibility, $this->reflectVisibility($property))
+                ->with(Data::Type, new TypeData(native: self::reflectType($property->getType(), static: $static, self: $property->getDeclaringClass())))
+                ->with(Data::Visibility, self::reflectVisibility($property))
                 ->with(Data::DefaultValueExpression, $property->hasDefaultValue() ? Value::from($property->getDefaultValue()) : null);
         }
 
@@ -247,14 +226,14 @@ final class NativeReflector
      * @param array<\ReflectionMethod> $methods
      * @return array<non-empty-string, TypedMap>
      */
-    private function reflectMethods(array $methods, \ReflectionClass $static): array
+    private static function reflectMethods(array $methods, \ReflectionClass $static): array
     {
         $data = [];
 
         foreach ($methods as $method) {
-            $data[$method->name] = $this->reflectFunctionLike($method, static: $static, self: $method->getDeclaringClass())
+            $data[$method->name] = self::reflectFunctionLike($method, static: $static, self: $method->getDeclaringClass())
                 ->with(Data::DeclaringClassId, Id::namedClass($method->class))
-                ->with(Data::Visibility, $this->reflectVisibility($method))
+                ->with(Data::Visibility, self::reflectVisibility($method))
                 ->with(Data::Static, $method->isStatic())
                 ->with(Data::NativeFinal, $method->isFinal())
                 ->with(Data::Abstract, $method->isAbstract());
@@ -263,7 +242,7 @@ final class NativeReflector
         return $data;
     }
 
-    private function reflectVisibility(\ReflectionClassConstant|\ReflectionProperty|\ReflectionMethod $reflection): Visibility
+    private static function reflectVisibility(\ReflectionClassConstant|\ReflectionProperty|\ReflectionMethod $reflection): Visibility
     {
         return match (true) {
             $reflection->isPrivate() => Visibility::Private,
@@ -272,39 +251,39 @@ final class NativeReflector
         };
     }
 
-    private function reflectFunctionLike(\ReflectionFunctionAbstract $function, ?\ReflectionClass $static, ?\ReflectionClass $self): TypedMap
+    private static function reflectFunctionLike(\ReflectionFunctionAbstract $function, ?\ReflectionClass $static, ?\ReflectionClass $self): TypedMap
     {
         return (new TypedMap())
             ->with(Data::Deprecation, $function->isDeprecated() ? new Deprecation() : null)
             ->with(Data::Type, new TypeData(
-                native: $this->reflectType($function->getReturnType(), static: $static, self: $self),
-                tentative: $this->reflectType($function->getTentativeReturnType(), static: $static, self: $self),
+                native: self::reflectType($function->getReturnType(), static: $static, self: $self),
+                tentative: self::reflectType($function->getTentativeReturnType(), static: $static, self: $self),
             ))
             ->with(Data::ReturnsReference, $function->returnsReference())
             ->with(Data::Generator, $function->isGenerator())
-            ->with(Data::Attributes, $this->reflectAttributes($function->getAttributes()))
-            ->with(Data::Parameters, $this->reflectParameters($function->getParameters(), static: $static, self: $self));
+            ->with(Data::Attributes, self::reflectAttributes($function->getAttributes()))
+            ->with(Data::Parameters, self::reflectParameters($function->getParameters(), static: $static, self: $self));
     }
 
     /**
      * @param list<\ReflectionParameter> $parameters
      * @return array<non-empty-string, TypedMap>
      */
-    private function reflectParameters(array $parameters, ?\ReflectionClass $static, ?\ReflectionClass $self): array
+    private static function reflectParameters(array $parameters, ?\ReflectionClass $static, ?\ReflectionClass $self): array
     {
         $data = [];
 
         foreach ($parameters as $index => $reflection) {
             $data[$reflection->name] = (new TypedMap())
                 ->with(Data::Index, $index)
-                ->with(Data::Attributes, $this->reflectAttributes($reflection->getAttributes()))
-                ->with(Data::Type, new TypeData($this->reflectType($reflection->getType(), static: $static, self: $self)))
+                ->with(Data::Attributes, self::reflectAttributes($reflection->getAttributes()))
+                ->with(Data::Type, new TypeData(self::reflectType($reflection->getType(), static: $static, self: $self)))
                 ->with(Data::PassedBy, match (true) {
                     $reflection->canBePassedByValue() && $reflection->isPassedByReference() => PassedBy::ValueOrReference,
                     $reflection->canBePassedByValue() => PassedBy::Value,
                     default => PassedBy::Reference,
                 })
-                ->with(Data::DefaultValueExpression, $this->reflectParameterDefaultValueExpression($reflection))
+                ->with(Data::DefaultValueExpression, self::reflectParameterDefaultValueExpression($reflection))
                 ->with(Data::Optional, $reflection->isOptional())
                 ->with(Data::Promoted, $reflection->isPromoted())
                 ->with(Data::Variadic, $reflection->isVariadic());
@@ -313,7 +292,7 @@ final class NativeReflector
         return $data;
     }
 
-    private function reflectParameterDefaultValueExpression(\ReflectionParameter $reflection): ?Expression
+    private static function reflectParameterDefaultValueExpression(\ReflectionParameter $reflection): ?Expression
     {
         if (!$reflection->isDefaultValueAvailable()) {
             return null;
@@ -342,7 +321,7 @@ final class NativeReflector
      * @param array<\ReflectionAttribute> $reflectionAttributes
      * @return list<TypedMap>
      */
-    private function reflectAttributes(array $reflectionAttributes): array
+    private static function reflectAttributes(array $reflectionAttributes): array
     {
         $attributes = [];
 
@@ -358,7 +337,7 @@ final class NativeReflector
     /**
      * @return ($reflectionType is null ? null : Type)
      */
-    private function reflectType(?\ReflectionType $reflectionType, ?\ReflectionClass $static, ?\ReflectionClass $self): ?Type
+    private static function reflectType(?\ReflectionType $reflectionType, ?\ReflectionClass $static, ?\ReflectionClass $self): ?Type
     {
         if ($reflectionType === null) {
             return null;
@@ -366,14 +345,14 @@ final class NativeReflector
 
         if ($reflectionType instanceof \ReflectionUnionType) {
             return types::union(...array_map(
-                fn(\ReflectionType $child): Type => $this->reflectType($child, $static, $self),
+                static fn(\ReflectionType $child): Type => self::reflectType($child, $static, $self),
                 $reflectionType->getTypes(),
             ));
         }
 
         if ($reflectionType instanceof \ReflectionIntersectionType) {
             return types::intersection(...array_map(
-                fn(\ReflectionType $child): Type => $this->reflectType($child, $static, $self),
+                static fn(\ReflectionType $child): Type => self::reflectType($child, $static, $self),
                 $reflectionType->getTypes(),
             ));
         }
@@ -383,7 +362,7 @@ final class NativeReflector
         }
 
         $name = $reflectionType->getName();
-        $type = $this->reflectNameAsType($name, $static, $self);
+        $type = self::reflectNameAsType($name, $static, $self);
 
         if ($reflectionType->allowsNull() && $name !== 'null' && $name !== 'mixed') {
             return types::nullable($type);
@@ -395,7 +374,7 @@ final class NativeReflector
     /**
      * @param non-empty-string $name
      */
-    private function reflectNameAsType(string $name, ?\ReflectionClass $static, ?\ReflectionClass $self): Type
+    private static function reflectNameAsType(string $name, ?\ReflectionClass $static, ?\ReflectionClass $self): Type
     {
         if ($name === 'self') {
             \assert($self !== null);
@@ -445,38 +424,5 @@ final class NativeReflector
             'mixed' => types::mixed,
             default => types::object($name),
         };
-    }
-
-    /**
-     * @var ?array<non-empty-string, non-empty-string>
-     */
-    private ?array $constantExtensions = null;
-
-    /**
-     * @return array<non-empty-string, non-empty-string>
-     */
-    private function constantExtensions(): array
-    {
-        if ($this->constantExtensions !== null) {
-            return $this->constantExtensions;
-        }
-
-        $this->constantExtensions = [];
-
-        foreach (get_defined_constants(categorize: true) as $category => $constants) {
-            if ($category === 'user') {
-                continue;
-            }
-
-            foreach ($constants as $name => $_value) {
-                /**
-                 * @var non-empty-string $name
-                 * @var non-empty-string $category
-                 */
-                $this->constantExtensions[$name] = $category;
-            }
-        }
-
-        return $this->constantExtensions;
     }
 }
