@@ -10,7 +10,6 @@ use Typhoon\Type\TypeVisitor;
 /**
  * @internal
  * @psalm-internal Typhoon\Type
- * @implements Type<mixed>
  */
 final class OffsetType implements Type
 {

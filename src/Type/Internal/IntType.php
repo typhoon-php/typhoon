@@ -11,8 +11,6 @@ use Typhoon\Type\TypeVisitor;
  * @internal
  * @psalm-internal Typhoon\Type
  * @readonly
- * @template-covariant TValue of int
- * @implements Type<TValue>
  */
 final class IntType implements Type
 {

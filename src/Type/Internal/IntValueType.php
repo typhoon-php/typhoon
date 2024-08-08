@@ -10,14 +10,9 @@ use Typhoon\Type\TypeVisitor;
 /**
  * @internal
  * @psalm-internal Typhoon\Type
- * @template-covariant TValue of int
- * @implements Type<TValue>
  */
 final class IntValueType implements Type
 {
-    /**
-     * @param TValue $value
-     */
     public function __construct(
         private readonly int $value,
     ) {}

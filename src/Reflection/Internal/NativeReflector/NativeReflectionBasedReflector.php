@@ -134,9 +134,6 @@ enum NativeReflectionBasedReflector
         return $parents;
     }
 
-    /**
-     * @return ?Type<int|string>
-     */
     private static function reflectBackingType(\ReflectionEnum $enum): ?Type
     {
         $type = $enum->getBackingType();

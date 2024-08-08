@@ -11,8 +11,6 @@ use Typhoon\Type\TypeVisitor;
  * @internal
  * @psalm-internal Typhoon\Type
  * @readonly
- * @template-covariant TValue of float
- * @implements Type<TValue>
  */
 final class FloatType implements Type
 {

@@ -11,7 +11,7 @@ use Typhoon\TypedMap\TypedMap;
 /**
  * @internal
  * @psalm-internal Typhoon\Reflection\Internal
- * @implements OptionalKey<?Type<int|string>>
+ * @implements OptionalKey<?Type>
  */
 enum BackingTypeKey implements OptionalKey
 {

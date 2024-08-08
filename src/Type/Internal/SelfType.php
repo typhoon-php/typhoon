@@ -12,7 +12,6 @@ use Typhoon\Type\TypeVisitor;
 /**
  * @internal
  * @psalm-internal Typhoon\Type
- * @implements Type<object>
  */
 final class SelfType implements Type
 {

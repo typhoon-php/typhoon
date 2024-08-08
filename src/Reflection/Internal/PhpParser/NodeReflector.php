@@ -127,7 +127,6 @@ final class NodeReflector
         }
 
         if ($node instanceof Enum_) {
-            /** @var ?Type<int|string> */
             $backingType = $this->reflectType($context, $node->scalarType);
 
             return $data

@@ -11,7 +11,6 @@ use Typhoon\Type\TypeVisitor;
 /**
  * @internal
  * @psalm-internal Typhoon\Reflection\Internal\PhpParser
- * @implements Type<mixed>
  */
 final class UnresolvedConstantType implements Type
 {

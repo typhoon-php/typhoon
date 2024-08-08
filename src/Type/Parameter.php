@@ -6,13 +6,9 @@ namespace Typhoon\Type;
 
 /**
  * @api
- * @template-covariant TType
  */
 final class Parameter
 {
-    /**
-     * @param Type<TType> $type
-     */
     public function __construct(
         public readonly Type $type = types::mixed,
         public readonly bool $hasDefault = false,
