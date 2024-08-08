@@ -5,7 +5,8 @@
     },
     "source": {
         "directories": [
-            "src/ChangeDetector"
+            "src/ChangeDetector",
+            "src/TypedMap"
         ]
     },
     "logs": {
@@ -19,5 +20,5 @@
     "mutators": {
         "@default": true
     },
-    "testFrameworkOptions": "--testsuite=ChangeDetector"
+    "testFrameworkOptions": "--testsuite=ChangeDetector,TypedMap"
 }

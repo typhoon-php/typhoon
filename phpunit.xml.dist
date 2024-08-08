@@ -27,6 +27,10 @@
         <testsuite name="ChangeDetector">
             <directory>tests/ChangeDetector</directory>
         </testsuite>
+
+        <testsuite name="TypedMap">
+            <directory>tests/TypedMap</directory>
+        </testsuite>
     </testsuites>
 
     <source restrictDeprecations="true" restrictNotices="true" restrictWarnings="true">
