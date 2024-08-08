@@ -594,7 +594,7 @@ enum types implements Type
             $value === true => self::true,
             $value === false => self::false,
             \is_int($value) => new Internal\IntValueType($value),
-            \is_float($value) => is_nan($value) ? self::constant('NAN') : new Internal\FloatValueType($value),
+            \is_float($value) => new Internal\FloatValueType($value),
             \is_string($value) => new Internal\StringValueType($value),
             \is_array($value) => self::arrayShape(array_map(self::value(...), $value)),
             \is_object($value) => self::object($value::class),

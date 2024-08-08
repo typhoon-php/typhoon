@@ -78,7 +78,7 @@ final class DefinedConstantReflectorTest extends TestCase
 
         self::assertNotNull($data);
         self::assertNan($data[Data::ValueExpression]->evaluate());
-        self::assertEquals(new TypeData(inferred: types::constant('NAN')), $data[Data::Type]);
+        self::assertSame(serialize(new TypeData(inferred: types::float(NAN))), serialize($data[Data::Type]));
         self::assertSame('standard', $data[Data::PhpExtension]);
         self::assertTrue($data[Data::InternallyDefined]);
         self::assertNull($data[Data::PhpDoc]);
