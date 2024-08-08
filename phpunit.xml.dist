@@ -23,6 +23,10 @@
         <testsuite name="compatibility">
             <file>tests/Reflection/Internal/NativeAdapter/AdapterCompatibilityTest.php</file>
         </testsuite>
+
+        <testsuite name="ChangeDetector">
+            <directory>tests/ChangeDetector</directory>
+        </testsuite>
     </testsuites>
 
     <source restrictDeprecations="true" restrictNotices="true" restrictWarnings="true">

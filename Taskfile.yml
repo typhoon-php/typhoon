@@ -6,6 +6,7 @@ vars:
   REQUIRE_CHECKER: "{{.PHP}} tools/composer-require-checker/vendor/bin/composer-require-checker"
   PSALM: "{{.PHP}} tools/psalm/vendor/bin/psalm --show-info --no-diff --no-cache"
   PHPUNIT: "{{.PHP}} tools/phpunit/vendor/bin/phpunit"
+  INFECTION: "{{.PHP}} vendor/bin/infection --threads=max --show-mutations"
   PACKAGES:
     sh: find src -type d -maxdepth 1 -mindepth 1 -exec basename {} ';'
 
@@ -48,6 +49,10 @@ tasks:
   test:
     deps: [var, install]
     cmd: "{{.PHPUNIT}} {{.CLI_ARGS}}"
+
+  infection:
+    deps: [var, install]
+    cmd: "{{.INFECTION}} {{.CLI_ARGS}}"
 
   composer-normalize-fix:
     deps: [install]

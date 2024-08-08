@@ -7,6 +7,7 @@ namespace Typhoon\ChangeDetector;
 use org\bovigo\vfs\vfsStream;
 use org\bovigo\vfs\vfsStreamDirectory;
 use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\TestWith;
 use PHPUnit\Framework\TestCase;
 
 #[CoversClass(FileChangeDetector::class)]
@@ -85,5 +86,14 @@ final class FileChangeDetectorTest extends TestCase
         $deduplicated = $detector->deduplicate();
 
         self::assertCount(3, $deduplicated);
+    }
+
+    #[TestWith([false, 'awdawd'])]
+    #[TestWith([123, false])]
+    public function testCannotCreateWithInvalidMtimeXxh3Combinations(false|int $mtime, false|string $xxh3): void
+    {
+        $this->expectException(\AssertionError::class);
+
+        new FileChangeDetector('a', $mtime, $xxh3);
     }
 }

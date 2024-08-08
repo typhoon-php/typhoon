@@ -46,4 +46,13 @@ final class ComposerPackageChangeDetectorTest extends TestCase
 
         ComposerPackageChangeDetector::fromName('abc');
     }
+
+    public function testDeduplicateResult(): void
+    {
+        $changeDetector = new ComposerPackageChangeDetector('abc', '123');
+
+        $deduplicate = $changeDetector->deduplicate();
+
+        self::assertSame(['Typhoon\ChangeDetector\ComposerPackageChangeDetector{"name":"abc","reference":"123"}' => $changeDetector], $deduplicate);
+    }
 }

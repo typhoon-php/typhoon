@@ -1,0 +1,23 @@
+{
+    "$schema": "vendor/infection/infection/resources/schema.json",
+    "phpUnit": {
+        "customPath": "tools/phpunit/vendor/bin/phpunit"
+    },
+    "source": {
+        "directories": [
+            "src/ChangeDetector"
+        ]
+    },
+    "logs": {
+        "html": "var/infection_report.html",
+        "stryker": {
+            "report": "/^\\d+\\.\\d+\\.x$/"
+        }
+    },
+    "tmpDir": "var",
+    "minCoveredMsi": 80,
+    "mutators": {
+        "@default": true
+    },
+    "testFrameworkOptions": "--testsuite=ChangeDetector"
+}

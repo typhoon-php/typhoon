@@ -20,3 +20,4 @@ Typhoon's mission is to give you everything you need to accomplish this:
 [![Psalm Level](https://shepherd.dev/github/typhoon-php/typhoon/level.svg)](https://shepherd.dev/github/typhoon-php/typhoon)
 [![Psalm Type Coverage](https://shepherd.dev/github/typhoon-php/typhoon/coverage.svg)](https://shepherd.dev/github/typhoon-php/typhoon)
 [![Code Coverage](https://codecov.io/gh/typhoon-php/typhoon/branch/0.4.x/graph/badge.svg)](https://codecov.io/gh/typhoon-php/typhoon/tree/0.4.x)
+[![Mutation testing badge](https://img.shields.io/endpoint?style=flat&url=https%3A%2F%2Fbadge-api.stryker-mutator.io%2Fgithub.com%2Ftyphoon-php%2Ftyphoon%2F0.4.x)](https://dashboard.stryker-mutator.io/reports/github.com/typhoon-php/typhoon/0.4.x)

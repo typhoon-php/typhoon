@@ -28,6 +28,7 @@
         "dragon-code/benchmark": "^2.6 || ^3",
         "ergebnis/composer-normalize": "^2.43.0",
         "friendsofphp/php-cs-fixer": "^3.62.0",
+        "infection/infection": "^0.29.6",
         "mikey179/vfsstream": "^1.6.11",
         "phpstan/phpstan": "^1.11.9",
         "phpyh/coding-standard": "^2.6.1",
@@ -52,7 +53,8 @@
     "config": {
         "allow-plugins": {
             "bamarni/composer-bin-plugin": true,
-            "ergebnis/composer-normalize": true
+            "ergebnis/composer-normalize": true,
+            "infection/extension-installer": true
         },
         "lock": false,
         "sort-packages": true
