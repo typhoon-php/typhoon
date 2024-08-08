@@ -16,4 +16,13 @@ final class FileIsNotReadableTest extends TestCase
 
         self::assertSame('File "a.txt" does not exist or is not readable', $exception->getMessage());
     }
+
+    public function testPreviousPreserved(): void
+    {
+        $previous = new \Exception();
+
+        $exception = new FileIsNotReadable('a.txt', $previous);
+
+        self::assertSame($previous, $exception->getPrevious());
+    }
 }

@@ -31,4 +31,19 @@ final class ComposerPackageChangeDetectorTest extends TestCase
 
         self::assertCount(3, $deduplicated);
     }
+
+    public function testFromNameReturnsConsistentReference(): void
+    {
+        $changeDetector1 = ComposerPackageChangeDetector::fromName('phpunit/phpunit');
+        $changeDetector2 = ComposerPackageChangeDetector::fromName('phpunit/phpunit');
+
+        self::assertEquals($changeDetector1, $changeDetector2);
+    }
+
+    public function testFromNameThrowsOnNonInstalledPackage(): void
+    {
+        $this->expectExceptionObject(new PackageIsNotInstalled('abc'));
+
+        ComposerPackageChangeDetector::fromName('abc');
+    }
 }

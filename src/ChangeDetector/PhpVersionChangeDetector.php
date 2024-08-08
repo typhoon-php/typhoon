@@ -15,7 +15,7 @@ final class PhpVersionChangeDetector implements ChangeDetector
 
     public function changed(): bool
     {
-        return $this->version === \PHP_VERSION_ID;
+        return $this->version !== \PHP_VERSION_ID;
     }
 
     public function deduplicate(): array

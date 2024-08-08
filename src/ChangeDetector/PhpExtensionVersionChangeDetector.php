@@ -33,14 +33,15 @@ final class PhpExtensionVersionChangeDetector implements ChangeDetector
 
     public static function fromReflection(\ReflectionExtension $extension): self
     {
-        \assert($extension->name !== '');
+        /** @var non-empty-string */
+        $name = $extension->name;
 
-        return new self($extension->name, $extension->getVersion() ?? false);
+        return new self($name, $extension->getVersion() ?? false);
     }
 
     public function changed(): bool
     {
-        return $this->version === phpversion($this->name);
+        return $this->version !== phpversion($this->name);
     }
 
     public function deduplicate(): array
