@@ -88,6 +88,9 @@ final class FileChangeDetectorTest extends TestCase
         self::assertCount(3, $deduplicated);
     }
 
+    /**
+     * @param false|non-empty-string $xxh3
+     */
     #[TestWith([false, 'awdawd'])]
     #[TestWith([123, false])]
     public function testCannotCreateWithInvalidMtimeXxh3Combinations(false|int $mtime, false|string $xxh3): void
