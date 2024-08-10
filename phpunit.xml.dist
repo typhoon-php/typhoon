@@ -28,6 +28,10 @@
             <directory>tests/ChangeDetector</directory>
         </testsuite>
 
+        <testsuite name="Type">
+            <directory>tests/Type</directory>
+        </testsuite>
+
         <testsuite name="TypedMap">
             <directory>tests/TypedMap</directory>
         </testsuite>
