@@ -49,4 +49,23 @@ final class InMemoryChangeDetectorTest extends TestCase
         self::assertFalse($deduplicated[array_key_first($deduplicated)]->changed());
         self::assertTrue($deduplicated[array_key_last($deduplicated)]->changed());
     }
+
+    public function testDeduplicateResult(): void
+    {
+        $detector = new InMemoryChangeDetector();
+
+        $deduplicate = $detector->deduplicate();
+
+        self::assertSame(['Typhoon\ChangeDetector\InMemoryChangeDetector.0' => $detector], $deduplicate);
+    }
+
+    public function testUnserializedDeduplicateResult(): void
+    {
+        $detector = unserialize(serialize(new InMemoryChangeDetector()));
+        \assert($detector instanceof InMemoryChangeDetector);
+
+        $deduplicate = $detector->deduplicate();
+
+        self::assertSame(['Typhoon\ChangeDetector\InMemoryChangeDetector.1' => $detector], $deduplicate);
+    }
 }

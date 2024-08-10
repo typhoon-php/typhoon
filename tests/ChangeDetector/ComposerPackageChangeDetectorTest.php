@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Typhoon\ChangeDetector;
 
 use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\TestWith;
 use PHPUnit\Framework\TestCase;
 
 #[CoversClass(ComposerPackageChangeDetector::class)]
@@ -47,12 +48,12 @@ final class ComposerPackageChangeDetectorTest extends TestCase
         ComposerPackageChangeDetector::fromName('abc');
     }
 
-    public function testDeduplicateResult(): void
+    #[TestWith([new ComposerPackageChangeDetector('abc', '123'), 'Typhoon\ChangeDetector\ComposerPackageChangeDetector.abc.123'])]
+    #[TestWith([new ComposerPackageChangeDetector('abc', null), 'Typhoon\ChangeDetector\ComposerPackageChangeDetector.abc.'])]
+    public function testDeduplicateResult(ComposerPackageChangeDetector $detector, string $expectedHash): void
     {
-        $changeDetector = new ComposerPackageChangeDetector('abc', '123');
+        $deduplicate = $detector->deduplicate();
 
-        $deduplicate = $changeDetector->deduplicate();
-
-        self::assertSame(['Typhoon\ChangeDetector\ComposerPackageChangeDetector{"name":"abc","reference":"123"}' => $changeDetector], $deduplicate);
+        self::assertSame([$expectedHash => $detector], $deduplicate);
     }
 }

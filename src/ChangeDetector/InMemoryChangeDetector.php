@@ -18,7 +18,7 @@ final class InMemoryChangeDetector implements ChangeDetector
 
     public function deduplicate(): array
     {
-        return [self::class . json_encode(get_object_vars($this)) => $this];
+        return [\sprintf('%s.%d', self::class, (int) $this->changed) => $this];
     }
 
     public function __serialize(): array

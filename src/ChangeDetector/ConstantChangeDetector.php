@@ -45,6 +45,6 @@ final class ConstantChangeDetector implements ChangeDetector
 
     public function deduplicate(): array
     {
-        return [self::class . json_encode(get_object_vars($this)) => $this];
+        return [\sprintf('%s.%s.%d.%s', self::class, $this->name, (int) $this->exists, serialize($this->value)) => $this];
     }
 }

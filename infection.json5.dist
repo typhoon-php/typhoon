@@ -10,15 +10,16 @@
         ]
     },
     "logs": {
-        "html": "var/infection_report.html",
+        "text": "var/infection.log",
         "stryker": {
             "report": "/^\\d+\\.\\d+\\.x$/"
-        }
+        },
     },
     "tmpDir": "var",
-    "minCoveredMsi": 80,
+    "minCoveredMsi": 95,
     "mutators": {
-        "@default": true
+        "@default": true,
+        "CastInt": false, // Usually covered by Psalm
     },
     "testFrameworkOptions": "--testsuite=ChangeDetector,TypedMap"
 }

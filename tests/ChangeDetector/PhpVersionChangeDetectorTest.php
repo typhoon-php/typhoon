@@ -45,4 +45,13 @@ final class PhpVersionChangeDetectorTest extends TestCase
 
         self::assertSame([$detector2, $detector3, $detector5], array_values($deduplicated));
     }
+
+    public function testDeduplicateResult(): void
+    {
+        $detector = new PhpVersionChangeDetector(123);
+
+        $deduplicate = $detector->deduplicate();
+
+        self::assertSame(['Typhoon\ChangeDetector\PhpVersionChangeDetector.123' => $detector], $deduplicate);
+    }
 }

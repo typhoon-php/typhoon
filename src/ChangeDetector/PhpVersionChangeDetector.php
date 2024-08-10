@@ -20,6 +20,6 @@ final class PhpVersionChangeDetector implements ChangeDetector
 
     public function deduplicate(): array
     {
-        return [self::class . json_encode(get_object_vars($this)) => $this];
+        return [self::class . '.' . $this->version => $this];
     }
 }

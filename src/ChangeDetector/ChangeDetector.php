@@ -13,6 +13,7 @@ interface ChangeDetector
 
     /**
      * This method should return deduplicated underlying change detectors with their hashes as keys.
+     * Keys are not covered by the backward compatibility promise of ChangeDetector.
      *
      * @see FileChangeDetector::deduplicate()
      * @see ChangeDetectors::from()

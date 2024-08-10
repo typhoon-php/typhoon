@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Typhoon\ChangeDetector;
 
 use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\TestWith;
 use PHPUnit\Framework\TestCase;
 
 #[CoversClass(ConstantChangeDetector::class)]
@@ -98,5 +99,20 @@ final class ConstantChangeDetectorTest extends TestCase
         $deduplicated = $detector->deduplicate();
 
         self::assertCount(4, $deduplicated);
+    }
+
+    #[TestWith([
+        new ConstantChangeDetector('A', true, new \stdClass()),
+        'Typhoon\ChangeDetector\ConstantChangeDetector.A.1.O:8:"stdClass":0:{}',
+    ])]
+    #[TestWith([
+        new ConstantChangeDetector('A', false, 'abc'),
+        'Typhoon\ChangeDetector\ConstantChangeDetector.A.0.s:3:"abc";',
+    ])]
+    public function testDeduplicateResult(ConstantChangeDetector $detector, string $expectedHash): void
+    {
+        $deduplicate = $detector->deduplicate();
+
+        self::assertSame([$expectedHash => $detector], $deduplicate);
     }
 }

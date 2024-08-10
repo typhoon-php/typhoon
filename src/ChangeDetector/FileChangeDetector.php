@@ -51,6 +51,14 @@ final class FileChangeDetector implements ChangeDetector
 
     public function deduplicate(): array
     {
-        return [self::class . json_encode(get_object_vars($this)) => $this];
+        $hash = \sprintf(
+            '%s.%s.%s.%s',
+            self::class,
+            $this->file,
+            $this->mtime === false ? 'false' : $this->mtime,
+            $this->xxh3 === false ? 'false' : $this->xxh3,
+        );
+
+        return [$hash => $this];
     }
 }

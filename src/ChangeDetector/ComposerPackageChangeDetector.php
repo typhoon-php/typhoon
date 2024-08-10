@@ -49,6 +49,6 @@ final class ComposerPackageChangeDetector implements ChangeDetector
 
     public function deduplicate(): array
     {
-        return [self::class . json_encode(get_object_vars($this)) => $this];
+        return [\sprintf('%s.%s.%s', self::class, $this->name, $this->reference ?? '') => $this];
     }
 }

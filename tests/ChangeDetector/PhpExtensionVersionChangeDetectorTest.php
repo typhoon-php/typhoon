@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Typhoon\ChangeDetector;
 
 use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\TestWith;
 use PHPUnit\Framework\TestCase;
 
 #[CoversClass(PhpExtensionVersionChangeDetector::class)]
@@ -74,5 +75,14 @@ final class PhpExtensionVersionChangeDetectorTest extends TestCase
         $fromReflection = PhpExtensionVersionChangeDetector::fromReflection(new \ReflectionExtension('date'));
 
         self::assertEquals($detector, $fromReflection);
+    }
+
+    #[TestWith([new PhpExtensionVersionChangeDetector('abc', '123'), 'Typhoon\ChangeDetector\PhpExtensionVersionChangeDetector.abc.123'])]
+    #[TestWith([new PhpExtensionVersionChangeDetector('abc', false), 'Typhoon\ChangeDetector\PhpExtensionVersionChangeDetector.abc.false'])]
+    public function testDeduplicateResult(PhpExtensionVersionChangeDetector $detector, string $expectedHash): void
+    {
+        $deduplicate = $detector->deduplicate();
+
+        self::assertSame([$expectedHash => $detector], $deduplicate);
     }
 }

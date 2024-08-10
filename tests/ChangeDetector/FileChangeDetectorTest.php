@@ -31,14 +31,15 @@ final class FileChangeDetectorTest extends TestCase
     {
         $file = $this->root->url() . '/test.txt';
         touch($file);
+
+        $this->expectExceptionObject(new FileIsNotReadable($file));
+
         /**
          * @psalm-suppress UnusedFunctionCall
          * trigger internal filemtime caching
          */
         filemtime($file);
         $this->root->removeChild('test.txt');
-
-        $this->expectExceptionObject(new FileIsNotReadable($file));
 
         FileChangeDetector::fromFile($file);
     }
@@ -98,5 +99,14 @@ final class FileChangeDetectorTest extends TestCase
         $this->expectException(\AssertionError::class);
 
         new FileChangeDetector('a', $mtime, $xxh3);
+    }
+
+    #[TestWith([new FileChangeDetector('a.txt', 123, 'xxh3'), 'Typhoon\ChangeDetector\FileChangeDetector.a.txt.123.xxh3'])]
+    #[TestWith([new FileChangeDetector('a.txt', false, false), 'Typhoon\ChangeDetector\FileChangeDetector.a.txt.false.false'])]
+    public function testDeduplicateResult(FileChangeDetector $detector, string $expectedHash): void
+    {
+        $deduplicate = $detector->deduplicate();
+
+        self::assertSame([$expectedHash => $detector], $deduplicate);
     }
 }
