@@ -16,7 +16,6 @@ use Typhoon\DeclarationId\TemplateId;
 
 /**
  * @api
- * @implements Type<mixed>
  */
 enum types implements Type
 {
@@ -57,19 +56,11 @@ enum types implements Type
     case scalar;
     case mixed;
 
-    /**
-     * @template TValue of int
-     * @param TValue $value
-     * @return Type<TValue>
-     */
     public static function int(int $value): Type
     {
         return new Internal\IntValueType($value);
     }
 
-    /**
-     * @return Type<int>
-     */
     public static function intRange(int|Type $min = self::PHP_INT_MIN, int|Type $max = self::PHP_INT_MAX): Type
     {
         return match (true) {
@@ -89,7 +80,6 @@ enum types implements Type
      * @no-named-arguments
      * @param positive-int $value
      * @param positive-int ...$values
-     * @return Type<int>
      */
     public static function intMask(int $value, int ...$values): Type
     {
@@ -99,27 +89,16 @@ enum types implements Type
         )));
     }
 
-    /**
-     * @return Type<int>
-     */
     public static function intMaskOf(Type $type): Type
     {
         return new Internal\IntMaskType($type);
     }
 
-    /**
-     * @template TValue of float
-     * @param TValue $value
-     * @return Type<TValue>
-     */
     public static function float(float $value): Type
     {
         return new Internal\FloatValueType($value);
     }
 
-    /**
-     * @return Type<float>
-     */
     public static function floatRange(int|float|Type $min = self::PHP_FLOAT_MIN, int|float|Type $max = self::PHP_FLOAT_MAX): Type
     {
         if ($min === self::PHP_FLOAT_MIN && $max === self::PHP_FLOAT_MAX) {
@@ -140,21 +119,11 @@ enum types implements Type
         );
     }
 
-    /**
-     * @template TType
-     * @param Type<TType> $type
-     * @return Type<TType>
-     */
     public static function literal(Type $type): Type
     {
         return new Internal\LiteralType($type);
     }
 
-    /**
-     * @template TValue of string
-     * @param TValue $value
-     * @return Type<TValue>
-     */
     public static function string(string $value): Type
     {
         return new Internal\StringValueType($value);
@@ -173,17 +142,11 @@ enum types implements Type
         return new Internal\ClassStringType($class);
     }
 
-    /**
-     * @return Type<list<mixed>>
-     */
     public static function list(Type $value = self::mixed): Type
     {
         return new Internal\ListType($value, []);
     }
 
-    /**
-     * @return Type<list<mixed>>
-     */
     public static function nonEmptyList(Type $value = self::mixed): Type
     {
         return new Internal\ListType($value, [new ShapeElement($value)]);
@@ -191,7 +154,6 @@ enum types implements Type
 
     /**
      * @param list<Type|ShapeElement> $elements
-     * @return Type<list<mixed>>
      */
     public static function listShape(array $elements = []): Type
     {
@@ -200,7 +162,6 @@ enum types implements Type
 
     /**
      * @param array<non-negative-int, Type|ShapeElement> $elements
-     * @return Type<list<mixed>>
      */
     public static function unsealedListShape(array $elements = [], Type $value = self::mixed): Type
     {
@@ -210,9 +171,6 @@ enum types implements Type
         ));
     }
 
-    /**
-     * @return Type<array<mixed>>
-     */
     public static function array(Type $key = self::arrayKey, Type $value = self::mixed): Type
     {
         if ($key === self::arrayKey && $value === self::mixed) {
@@ -222,9 +180,6 @@ enum types implements Type
         return new Internal\ArrayType($key, $value, []);
     }
 
-    /**
-     * @return Type<non-empty-array<mixed>>
-     */
     public static function nonEmptyArray(Type $key = self::arrayKey, Type $value = self::mixed): Type
     {
         return new Internal\NonEmptyArrayType($key, $value);
@@ -232,7 +187,6 @@ enum types implements Type
 
     /**
      * @param array<Type|ShapeElement> $elements
-     * @return Type<array<mixed>>
      */
     public static function arrayShape(array $elements = []): Type
     {
@@ -241,7 +195,6 @@ enum types implements Type
 
     /**
      * @param array<Type|ShapeElement> $elements
-     * @return Type<array<mixed>>
      */
     public static function unsealedArrayShape(array $elements = [], Type $key = self::arrayKey, Type $value = self::mixed): Type
     {
@@ -251,13 +204,6 @@ enum types implements Type
         ));
     }
 
-    /**
-     * @template TKey
-     * @template TValue
-     * @param Type<TKey> $key
-     * @param Type<TValue> $value
-     * @return Type<iterable<TKey, TValue>>
-     */
     public static function iterable(Type $key = self::mixed, Type $value = self::mixed): Type
     {
         if ($key === self::mixed && $value === self::mixed) {
@@ -282,11 +228,6 @@ enum types implements Type
         return new Internal\OffsetType($array, $key);
     }
 
-    /**
-     * @template TType
-     * @param Type<TType> $type
-     * @return ShapeElement<TType>
-     */
     public static function optional(Type $type): ShapeElement
     {
         return new ShapeElement($type, true);
@@ -295,7 +236,6 @@ enum types implements Type
     /**
      * @param non-empty-string|NamedClassId|AnonymousClassId $class
      * @param list<Type> $arguments
-     * @return Type<object>
      */
     public static function object(string|NamedClassId|AnonymousClassId $class, array $arguments = []): Type
     {
@@ -317,7 +257,6 @@ enum types implements Type
 
     /**
      * @param array<string, Type|ShapeElement> $properties
-     * @return Type<object>
      */
     public static function objectShape(array $properties = []): Type
     {
@@ -371,10 +310,7 @@ enum types implements Type
     }
 
     /**
-     * @template TReturn
      * @param list<Type|Parameter> $parameters
-     * @param Type<TReturn> $return
-     * @return Type<callable>
      */
     public static function callable(array $parameters = [], Type $return = self::mixed): Type
     {
@@ -392,9 +328,7 @@ enum types implements Type
     }
 
     /**
-     * @template TReturn
      * @param list<Type|Parameter> $parameters
-     * @param Type<TReturn> $return
      */
     public static function callableString(array $parameters = [], Type $return = self::mixed): Type
     {
@@ -402,9 +336,7 @@ enum types implements Type
     }
 
     /**
-     * @template TReturn
      * @param list<Type|Parameter> $parameters
-     * @param Type<TReturn> $return
      */
     public static function callableArray(array $parameters = [], Type $return = self::mixed): Type
     {
@@ -423,11 +355,6 @@ enum types implements Type
         return self::intersection(self::Closure, self::callable($parameters, $return));
     }
 
-    /**
-     * @template TType
-     * @param Type<TType> $type
-     * @return Parameter<TType>
-     */
     public static function param(Type $type = self::mixed, bool $hasDefault = false, bool $variadic = false, bool $byReference = false): Parameter
     {
         return new Parameter($type, $hasDefault, $variadic, $byReference);
@@ -533,11 +460,6 @@ enum types implements Type
         return self::template(Id::template(Id::method($class, $method), $name));
     }
 
-    /**
-     * @template TType
-     * @param Type<TType> $type
-     * @return Type<TType>
-     */
     public static function varianceAware(Type $type, Variance $variance): Type
     {
         return new Internal\VarianceAwareType($type, $variance);
@@ -545,9 +467,6 @@ enum types implements Type
 
     /**
      * @no-named-arguments
-     * @template TType
-     * @param Type<TType> ...$types
-     * @return Type<TType>
      */
     public static function union(Type ...$types): Type
     {
@@ -558,11 +477,6 @@ enum types implements Type
         };
     }
 
-    /**
-     * @template TType
-     * @param Type<TType> $type
-     * @return Type<?TType>
-     */
     public static function nullable(Type $type): Type
     {
         return self::union(self::null, $type);

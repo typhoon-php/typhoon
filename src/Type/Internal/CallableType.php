@@ -11,7 +11,6 @@ use Typhoon\Type\TypeVisitor;
 /**
  * @internal
  * @psalm-internal Typhoon\Type
- * @implements Type<callable>
  */
 final class CallableType implements Type
 {

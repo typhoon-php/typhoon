@@ -10,14 +10,9 @@ use Typhoon\Type\TypeVisitor;
 /**
  * @internal
  * @psalm-internal Typhoon\Type
- * @template-covariant TType
- * @implements Type<TType>
  */
 final class LiteralType implements Type
 {
-    /**
-     * @param Type<TType> $type
-     */
     public function __construct(
         private readonly Type $type,
     ) {}

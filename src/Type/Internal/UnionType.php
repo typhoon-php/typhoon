@@ -10,13 +10,11 @@ use Typhoon\Type\TypeVisitor;
 /**
  * @internal
  * @psalm-internal Typhoon\Type
- * @template-covariant TType
- * @implements Type<TType>
  */
 final class UnionType implements Type
 {
     /**
-     * @param non-empty-list<Type<TType>> $types
+     * @param non-empty-list<Type> $types
      */
     public function __construct(
         private readonly array $types,

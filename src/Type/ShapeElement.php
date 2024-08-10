@@ -6,13 +6,9 @@ namespace Typhoon\Type;
 
 /**
  * @api
- * @template-covariant TType
  */
 final class ShapeElement
 {
-    /**
-     * @param Type<TType> $type
-     */
     public function __construct(
         public readonly Type $type,
         public readonly bool $optional = false,

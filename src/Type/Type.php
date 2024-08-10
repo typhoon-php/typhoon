@@ -6,7 +6,6 @@ namespace Typhoon\Type;
 
 /**
  * @api
- * @template-covariant TType
  */
 interface Type
 {
