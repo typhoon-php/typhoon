@@ -79,8 +79,8 @@ enum types implements Type
             $min === 0 && $max === self::PHP_INT_MAX => self::nonNegativeInt,
             $min === 1 && $max === self::PHP_INT_MAX => self::positiveInt,
             default => new Internal\IntType(
-                minType: \is_int($min) ? new Internal\IntValueType($min) : $min,
-                maxType: \is_int($max) ? new Internal\IntValueType($max) : $max,
+                minType: \is_int($min) ? self::int($min) : $min,
+                maxType: \is_int($max) ? self::int($max) : $max,
             ),
         };
     }
@@ -93,8 +93,8 @@ enum types implements Type
      */
     public static function intMask(int $value, int ...$values): Type
     {
-        return new Internal\IntMaskType(self::union(...array_map(
-            static fn(int $value): Internal\IntValueType => new Internal\IntValueType($value),
+        return self::intMaskOf(self::union(...array_map(
+            static fn(int $value): Type => self::int($value),
             [$value, ...$values],
         )));
     }
@@ -128,13 +128,13 @@ enum types implements Type
 
         return new Internal\FloatType(
             minType: match (true) {
-                \is_int($min) => new Internal\IntValueType($min),
-                \is_float($min) => new Internal\FloatValueType($min),
+                \is_int($min) => self::int($min),
+                \is_float($min) => self::float($min),
                 default => $min
             },
             maxType: match (true) {
-                \is_int($max) => new Internal\IntValueType($max),
-                \is_float($max) => new Internal\FloatValueType($max),
+                \is_int($max) => self::int($max),
+                \is_float($max) => self::float($max),
                 default => $max
             },
         );
@@ -312,7 +312,7 @@ enum types implements Type
 
     public static function Generator(Type $key = self::mixed, Type $value = self::mixed, Type $send = self::mixed, Type $return = self::mixed): Type
     {
-        return new Internal\NamedObjectType(Id::namedClass(\Generator::class), [$key, $value, $send, $return]);
+        return self::object(\Generator::class, [$key, $value, $send, $return]);
     }
 
     /**
@@ -413,7 +413,6 @@ enum types implements Type
 
     /**
      * @param list<Type|Parameter> $parameters
-     * @return Type<\Closure>
      */
     public static function Closure(array $parameters = [], Type $return = self::mixed): Type
     {
@@ -421,16 +420,7 @@ enum types implements Type
             return self::Closure;
         }
 
-        return new Internal\IntersectionType([
-            self::Closure,
-            new Internal\CallableType(
-                array_map(
-                    static fn(Type|Parameter $parameter): Parameter => $parameter instanceof Type ? new Parameter($parameter) : $parameter,
-                    $parameters,
-                ),
-                $return,
-            ),
-        ]);
+        return self::intersection(self::Closure, self::callable($parameters, $return));
     }
 
     /**
@@ -466,7 +456,7 @@ enum types implements Type
         }
 
         if (str_ends_with($name, '*')) {
-            return new Internal\ClassConstantMaskType($class, substr($name, 0, -1));
+            return self::classConstantMask($class, substr($name, 0, -1));
         }
 
         return new Internal\ClassConstantType($class, $name);
@@ -499,7 +489,7 @@ enum types implements Type
      */
     public static function classAlias(string|NamedClassId|AnonymousClassId $class, string $name, array $arguments = []): Type
     {
-        return new Internal\AliasType(Id::alias($class, $name), $arguments);
+        return self::alias(Id::alias($class, $name), $arguments);
     }
 
     public static function template(TemplateId $id): Type
@@ -517,7 +507,7 @@ enum types implements Type
             $function = Id::namedFunction($function);
         }
 
-        return new Internal\TemplateType(Id::template($function, $name));
+        return self::template(Id::template($function, $name));
     }
 
     /**
@@ -530,7 +520,7 @@ enum types implements Type
             $class = Id::class($class);
         }
 
-        return new Internal\TemplateType(Id::template($class, $name));
+        return self::template(Id::template($class, $name));
     }
 
     /**
@@ -540,7 +530,7 @@ enum types implements Type
      */
     public static function methodTemplate(string|NamedClassId|AnonymousClassId $class, string $method, string $name): Type
     {
-        return new Internal\TemplateType(Id::template(Id::method($class, $method), $name));
+        return self::template(Id::template(Id::method($class, $method), $name));
     }
 
     /**
@@ -575,7 +565,7 @@ enum types implements Type
      */
     public static function nullable(Type $type): Type
     {
-        return new Internal\UnionType([self::null, $type]);
+        return self::union(self::null, $type);
     }
 
     /**
@@ -593,9 +583,9 @@ enum types implements Type
             $value === null => self::null,
             $value === true => self::true,
             $value === false => self::false,
-            \is_int($value) => new Internal\IntValueType($value),
-            \is_float($value) => new Internal\FloatValueType($value),
-            \is_string($value) => new Internal\StringValueType($value),
+            \is_int($value) => self::int($value),
+            \is_float($value) => self::float($value),
+            \is_string($value) => self::string($value),
             \is_array($value) => self::arrayShape(array_map(self::value(...), $value)),
             \is_object($value) => self::object($value::class),
             \is_resource($value) => self::resource,
@@ -622,7 +612,7 @@ enum types implements Type
             $function = Id::namedFunction($function);
         }
 
-        return new Internal\ArgumentType(Id::parameter($function, $name));
+        return self::arg(Id::parameter($function, $name));
     }
 
     /**
@@ -632,7 +622,7 @@ enum types implements Type
      */
     public static function methodArg(string|NamedClassId|AnonymousClassId $class, string $method, string $name): Type
     {
-        return new Internal\ArgumentType(Id::parameter(Id::method($class, $method), $name));
+        return self::arg(Id::parameter(Id::method($class, $method), $name));
     }
 
     /**
@@ -671,29 +661,22 @@ enum types implements Type
             self::never => $visitor->never($this),
             self::callable => $visitor->callable($this, [], self::mixed),
             self::Closure => $visitor->namedObject($this, Id::namedClass(\Closure::class), []),
-            self::nonEmptyString => $visitor->intersection($this, [
-                self::string,
-                new Internal\NotType(new Internal\StringValueType('')),
-            ]),
+            self::nonEmptyString => $visitor->intersection($this, [self::string, self::not(self::string(''))]),
             self::resource => $visitor->resource($this),
             self::PHP_INT_MIN => $visitor->constant($this, Id::constant('PHP_INT_MIN')),
             self::PHP_INT_MAX => $visitor->constant($this, Id::constant('PHP_INT_MAX')),
             self::PHP_FLOAT_MIN => $visitor->constant($this, Id::constant('PHP_FLOAT_MIN')),
             self::PHP_FLOAT_MAX => $visitor->constant($this, Id::constant('PHP_FLOAT_MAX')),
-            self::negativeInt => $visitor->int($this, self::PHP_INT_MIN, new Internal\IntValueType(-1)),
-            self::nonPositiveInt => $visitor->int($this, self::PHP_INT_MIN, new Internal\IntValueType(0)),
-            self::nonNegativeInt => $visitor->int($this, new Internal\IntValueType(0), self::PHP_INT_MAX),
-            self::positiveInt => $visitor->int($this, new Internal\IntValueType(1), self::PHP_INT_MAX),
+            self::negativeInt => $visitor->int($this, self::PHP_INT_MIN, self::int(-1)),
+            self::nonPositiveInt => $visitor->int($this, self::PHP_INT_MIN, self::int(0)),
+            self::nonNegativeInt => $visitor->int($this, self::int(0), self::PHP_INT_MAX),
+            self::positiveInt => $visitor->int($this, self::int(1), self::PHP_INT_MAX),
             self::classString => $visitor->classString($this, types::object),
             self::arrayKey => $visitor->union($this, [self::int, self::string]),
             self::numeric => $visitor->numeric($this),
             self::numericString => $visitor->intersection($this, [self::string, self::numeric]),
             self::scalar => $visitor->union($this, [self::bool, self::int, self::float, self::string]),
-            self::truthyString => $visitor->intersection($this, [
-                self::string,
-                new Internal\NotType(new Internal\StringValueType('')),
-                new Internal\NotType(new Internal\StringValueType('0')),
-            ]),
+            self::truthyString => $visitor->intersection($this, [self::string, self::not(self::string('')), self::not(self::string('0'))]),
             self::literalInt => $visitor->literal($this, self::int),
             self::literalFloat => $visitor->literal($this, self::float),
             self::literalString => $visitor->literal($this, self::string),
