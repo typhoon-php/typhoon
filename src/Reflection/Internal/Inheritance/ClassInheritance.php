@@ -313,6 +313,6 @@ final class ClassInheritance
             ));
         }
 
-        return TypeResolvers::from($typeResolvers);
+        return new TypeResolvers($typeResolvers);
     }
 }
