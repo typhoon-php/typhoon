@@ -19,4 +19,18 @@ final class Parameter
         public readonly bool $variadic = false,
         public readonly bool $byReference = false,
     ) {}
+
+    public function with(
+        ?Type $type = null,
+        ?bool $hasDefault = null,
+        ?bool $variadic = null,
+        ?bool $byReference = null,
+    ): self {
+        return new self(
+            type: $type ?? $this->type,
+            hasDefault: $hasDefault ?? $this->hasDefault,
+            variadic: $variadic ?? $this->variadic,
+            byReference: $byReference ?? $this->byReference,
+        );
+    }
 }

@@ -7,8 +7,6 @@ namespace Typhoon\Type\Visitor;
 use Typhoon\DeclarationId\AliasId;
 use Typhoon\DeclarationId\AnonymousClassId;
 use Typhoon\DeclarationId\NamedClassId;
-use Typhoon\Type\Parameter;
-use Typhoon\Type\ShapeElement;
 use Typhoon\Type\Type;
 use Typhoon\Type\types;
 use Typhoon\Type\Variance;
@@ -91,7 +89,7 @@ abstract class RecursiveTypeReplacer extends DefaultTypeVisitor
                 continue;
             }
 
-            $newElements[] = new ShapeElement($newElementType, $element->optional);
+            $newElements[] = $element->with(type: $newElementType);
             $changed = true;
         }
 
@@ -118,7 +116,7 @@ abstract class RecursiveTypeReplacer extends DefaultTypeVisitor
                 continue;
             }
 
-            $newElements[$key] = new ShapeElement($newElementType, $element->optional);
+            $newElements[$key] = $element->with(type: $newElementType);
             $changed = true;
         }
 
@@ -178,7 +176,7 @@ abstract class RecursiveTypeReplacer extends DefaultTypeVisitor
                 continue;
             }
 
-            $newProperties[$name] = new ShapeElement($newPropertyType, $property->optional);
+            $newProperties[$name] = $property->with(type: $newPropertyType);
             $changed = true;
         }
 
@@ -248,12 +246,7 @@ abstract class RecursiveTypeReplacer extends DefaultTypeVisitor
                 continue;
             }
 
-            $newParameters[] = new Parameter(
-                type: $newParameterType,
-                hasDefault: $parameter->hasDefault,
-                variadic: $parameter->variadic,
-                byReference: $parameter->byReference,
-            );
+            $newParameters[] = $parameter->with(type: $newParameterType);
             $changed = true;
         }
 

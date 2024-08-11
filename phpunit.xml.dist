@@ -27,6 +27,8 @@
         <testsuite name="infection">
             <directory>tests/ChangeDetector</directory>
             <file>tests/Type/Visitor/TypeResolversTest.php</file>
+            <file>tests/Type/ParameterTest.php</file>
+            <file>tests/Type/ShapeElementTest.php</file>
             <directory>tests/TypedMap</directory>
         </testsuite>
     </testsuites>
