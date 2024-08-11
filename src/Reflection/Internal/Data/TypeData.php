@@ -4,10 +4,10 @@ declare(strict_types=1);
 
 namespace Typhoon\Reflection\Internal\Data;
 
-use Typhoon\Reflection\Internal\Inheritance\TypeResolver;
 use Typhoon\Reflection\TypeKind;
 use Typhoon\Type\Type;
 use Typhoon\Type\types;
+use Typhoon\Type\TypeVisitor;
 
 /**
  * @internal
@@ -50,13 +50,16 @@ final class TypeData
         return $data;
     }
 
-    public function inherit(TypeResolver $typeResolver): self
+    /**
+     * @param TypeVisitor<Type> $typeResolver
+     */
+    public function inherit(TypeVisitor $typeResolver): self
     {
         return new self(
-            native: $typeResolver->resolveNativeType($this->native),
-            annotated: $typeResolver->resolveType($this->annotated),
-            tentative: $typeResolver->resolveNativeType($this->tentative),
-            inferred: $typeResolver->resolveNativeType($this->inferred),
+            native: $this->native?->accept($typeResolver),
+            annotated: $this->annotated?->accept($typeResolver),
+            tentative: $this->tentative?->accept($typeResolver),
+            inferred: $this->inferred?->accept($typeResolver),
         );
     }
 

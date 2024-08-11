@@ -6,6 +6,7 @@ namespace Typhoon\Reflection\Internal\Inheritance;
 
 use Typhoon\Reflection\Internal\Data\TypeData;
 use Typhoon\Type\Type;
+use Typhoon\Type\TypeVisitor;
 
 /**
  * @internal
@@ -16,7 +17,7 @@ final class TypeInheritance
     private ?TypeData $own = null;
 
     /**
-     * @var list<array{TypeData, TypeResolver}>
+     * @var list<array{TypeData, TypeVisitor<Type>}>
      */
     private array $inherited = [];
 
@@ -33,7 +34,10 @@ final class TypeInheritance
         $this->own = $data;
     }
 
-    public function applyInherited(TypeData $data, TypeResolver $typeResolver): void
+    /**
+     * @param TypeVisitor<Type> $typeResolver
+     */
+    public function applyInherited(TypeData $data, TypeVisitor $typeResolver): void
     {
         $this->inherited[] = [$data, $typeResolver];
     }

@@ -6,6 +6,8 @@ namespace Typhoon\Reflection\Internal\Inheritance;
 
 use Typhoon\Reflection\Internal\Data;
 use Typhoon\Reflection\Internal\Data\Visibility;
+use Typhoon\Type\Type;
+use Typhoon\Type\TypeVisitor;
 use Typhoon\TypedMap\TypedMap;
 
 /**
@@ -31,13 +33,19 @@ final class PropertyInheritance
         $this->type->applyOwn($data[Data::Type]);
     }
 
-    public function applyUsed(TypedMap $data, TypeResolver $typeResolver): void
+    /**
+     * @param TypeVisitor<Type> $typeResolver
+     */
+    public function applyUsed(TypedMap $data, TypeVisitor $typeResolver): void
     {
         $this->data ??= $data;
         $this->type->applyInherited($data[Data::Type], $typeResolver);
     }
 
-    public function applyInherited(TypedMap $data, TypeResolver $typeResolver): void
+    /**
+     * @param TypeVisitor<Type> $typeResolver
+     */
+    public function applyInherited(TypedMap $data, TypeVisitor $typeResolver): void
     {
         if ($data[Data::Visibility] === Visibility::Private) {
             return;

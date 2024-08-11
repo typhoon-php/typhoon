@@ -14,6 +14,10 @@ use Typhoon\Reflection\Internal\Data;
 use Typhoon\Reflection\Internal\Data\ClassKind;
 use Typhoon\Reflection\TyphoonReflector;
 use Typhoon\Type\Type;
+use Typhoon\Type\TypeVisitor;
+use Typhoon\Type\Visitor\RelativeClassTypeResolver;
+use Typhoon\Type\Visitor\TemplateTypeResolver;
+use Typhoon\Type\Visitor\TypeResolvers;
 use Typhoon\TypedMap\TypedMap;
 
 /**
@@ -107,7 +111,7 @@ final class ClassInheritance
         $traitData = $this->recompileTraitExpressions($this->reflector->reflect($traitId)->data);
 
         $this->changeDetectors[] = $traitData[Data::ChangeDetector];
-        $typeResolver = TypeResolver::from($this->id, $this->data, $traitId, $traitData, $typeArguments);
+        $typeResolver = $this->createTypeResolvers($traitId, $traitData, $typeArguments);
 
         foreach ($traitData[Data::Constants] as $constantName => $constant) {
             $this->constant($constantName)->applyUsed($constant, $typeResolver);
@@ -178,7 +182,7 @@ final class ClassInheritance
             $this->parents = [$className => $typeArguments, ...$classData[Data::Parents]];
         }
 
-        $typeResolver = TypeResolver::from($this->id, $this->data, $classId, $classData, $typeArguments);
+        $typeResolver = $this->createTypeResolvers($classId, $classData, $typeArguments);
 
         foreach ($classData[Data::Constants] as $constantName => $constant) {
             $this->constant($constantName)->applyInherited($constant, $typeResolver);
@@ -277,5 +281,38 @@ final class ClassInheritance
                 ),
                 $data[Data::Methods],
             ));
+    }
+
+    /**
+     * @param list<Type> $typeArguments
+     * @return TypeVisitor<Type>
+     */
+    private function createTypeResolvers(NamedClassId $inheritedId, TypedMap $inheritedData, array $typeArguments): TypeVisitor
+    {
+        $typeResolvers = [];
+
+        if ($this->data[Data::ClassKind] !== ClassKind::Trait) {
+            $parent = $this->data[Data::UnresolvedParent];
+            $typeResolvers[] = new RelativeClassTypeResolver(
+                self: $this->id,
+                parent: $parent === null ? null : Id::namedClass($parent[0]),
+            );
+        }
+
+        $templates = $inheritedData[Data::Templates];
+
+        if ($templates !== []) {
+            $typeResolvers[] = new TemplateTypeResolver(array_map(
+                static fn(int $index, string $name, TypedMap $template): array => [
+                    Id::template($inheritedId, $name),
+                    $typeArguments[$index] ?? $template[Data::Constraint],
+                ],
+                range(0, \count($templates) - 1),
+                array_keys($templates),
+                $templates,
+            ));
+        }
+
+        return TypeResolvers::from($typeResolvers);
     }
 }

@@ -7,6 +7,8 @@ namespace Typhoon\Reflection\Internal\Inheritance;
 use Typhoon\Reflection\Internal\Data;
 use Typhoon\Reflection\Internal\Data\TypeData;
 use Typhoon\Reflection\Internal\Data\Visibility;
+use Typhoon\Type\Type;
+use Typhoon\Type\TypeVisitor;
 use Typhoon\TypedMap\TypedMap;
 
 /**
@@ -44,7 +46,10 @@ final class MethodInheritance
         $this->throwsType->applyOwn(new TypeData(annotated: $data[Data::ThrowsType]));
     }
 
-    public function applyUsed(TypedMap $data, TypeResolver $typeResolver): void
+    /**
+     * @param TypeVisitor<Type> $typeResolver
+     */
+    public function applyUsed(TypedMap $data, TypeVisitor $typeResolver): void
     {
         if ($this->data !== null) {
             $usedParameters = array_values($data[Data::Parameters]);
@@ -70,7 +75,10 @@ final class MethodInheritance
         $this->throwsType->applyInherited(new TypeData(annotated: $data[Data::ThrowsType]), $typeResolver);
     }
 
-    public function applyInherited(TypedMap $data, TypeResolver $typeResolver): void
+    /**
+     * @param TypeVisitor<Type> $typeResolver
+     */
+    public function applyInherited(TypedMap $data, TypeVisitor $typeResolver): void
     {
         if ($data[Data::Visibility] === Visibility::Private) {
             return;
