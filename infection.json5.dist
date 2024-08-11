@@ -6,7 +6,8 @@
     "source": {
         "directories": [
             "src/ChangeDetector",
-            "src/TypedMap"
+            "src/Type",
+            "src/TypedMap",
         ]
     },
     "logs": {
@@ -21,5 +22,5 @@
         "@default": true,
         "CastInt": false, // Usually covered by Psalm
     },
-    "testFrameworkOptions": "--testsuite=ChangeDetector,TypedMap"
+    "testFrameworkOptions": "--testsuite=infection"
 }

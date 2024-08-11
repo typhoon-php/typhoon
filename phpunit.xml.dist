@@ -24,15 +24,9 @@
             <file>tests/Reflection/Internal/NativeAdapter/AdapterCompatibilityTest.php</file>
         </testsuite>
 
-        <testsuite name="ChangeDetector">
+        <testsuite name="infection">
             <directory>tests/ChangeDetector</directory>
-        </testsuite>
-
-        <testsuite name="Type">
-            <directory>tests/Type</directory>
-        </testsuite>
-
-        <testsuite name="TypedMap">
+            <file>tests/Type/Visitor/TypeResolversTest.php</file>
             <directory>tests/TypedMap</directory>
         </testsuite>
     </testsuites>
