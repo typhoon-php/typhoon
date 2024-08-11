@@ -9,8 +9,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
-- Add `IdentityTypeResolver` — a type resolver that resolves to the passed type.
-- Add `TypeResolvers` — a composite for type resolvers.
+- Add `TypeResolvers`.
 
 ## [0.4.3] 2024-08-06
 

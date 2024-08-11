@@ -14,23 +14,10 @@ use Typhoon\Type\TypeVisitor;
 final class TypeResolvers extends DefaultTypeVisitor
 {
     /**
-     * @param list<TypeVisitor<Type>> $resolvers
-     * @return TypeVisitor<Type>
+     * @param iterable<TypeVisitor<Type>> $resolvers
      */
-    public static function from(array $resolvers): TypeVisitor
-    {
-        return match (\count($resolvers)) {
-            0 => new IdentityTypeResolver(),
-            1 => $resolvers[0],
-            default => new self($resolvers),
-        };
-    }
-
-    /**
-     * @param non-empty-list<TypeVisitor<Type>> $resolvers
-     */
-    private function __construct(
-        private readonly array $resolvers,
+    public function __construct(
+        private readonly iterable $resolvers = [],
     ) {}
 
     protected function default(Type $type): mixed
