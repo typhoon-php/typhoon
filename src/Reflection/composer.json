@@ -22,7 +22,7 @@
         "symfony/deprecation-contracts": "^3.0",
         "typhoon/change-detector": "^0.4.4",
         "typhoon/declaration-id": "^0.4",
-        "typhoon/type": "^0.4.3",
+        "typhoon/type": "^0.4.4",
         "typhoon/typed-map": "^0.4"
     },
     "conflict": {
