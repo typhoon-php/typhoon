@@ -10,6 +10,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 
 - Add `TypeResolvers`.
+- Add `Parameter::with()`.
+- Add `ShapeElement::with()`.
+
+### Changed
+
+- Make `ShapeElement::__construct($type)` optional with `types::mixed` as a default value.
 
 ## [0.4.3] 2024-08-06
 
