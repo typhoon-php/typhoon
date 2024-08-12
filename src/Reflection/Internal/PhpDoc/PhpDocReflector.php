@@ -250,9 +250,15 @@ final class PhpDocReflector implements AnnotatedDeclarationsDiscoverer, Constant
      */
     private function reflectInterfaces(Context $context, TypedMap $data, PhpDoc $phpDoc): array
     {
-        $inheritedTypes = $this->reflectInheritedTypes($context, $data[Data::ClassKind] === ClassKind::Interface ? $phpDoc->extendedTypes() : $phpDoc->implementedTypes());
+        $typeNodes = $data[Data::ClassKind] === ClassKind::Interface
+            ? $phpDoc->extendedTypes()
+            : $phpDoc->implementedTypes();
+        $inheritedTypes = $this->reflectInheritedTypes($context, $typeNodes);
 
-        return array_intersect_key($inheritedTypes, $data[Data::UnresolvedInterfaces]);
+        return [
+            ...$data[Data::UnresolvedInterfaces],
+            ...array_intersect_key($inheritedTypes, $data[Data::UnresolvedInterfaces]),
+        ];
     }
 
     /**
@@ -471,18 +477,18 @@ final class PhpDocReflector implements AnnotatedDeclarationsDiscoverer, Constant
     }
 
     /**
-     * @param list<GenericTypeNode> $nodes
+     * @param list<GenericTypeNode> $typeNodes
      * @return array<non-empty-string, list<Type>>
      */
-    private function reflectInheritedTypes(Context $context, array $nodes): array
+    private function reflectInheritedTypes(Context $context, array $typeNodes): array
     {
         $typeReflector = new PhpDocTypeReflector($context, $this->customTypeResolver);
         $destructurizer = new NamedObjectTypeDestructurizer();
 
         $types = [];
 
-        foreach ($nodes as $node) {
-            [$classId, $typeArguments] = $typeReflector->reflectType($node)->accept($destructurizer);
+        foreach ($typeNodes as $typeNode) {
+            [$classId, $typeArguments] = $typeReflector->reflectType($typeNode)->accept($destructurizer);
             \assert($classId instanceof NamedClassId);
 
             $types[$classId->name] = $typeArguments;
