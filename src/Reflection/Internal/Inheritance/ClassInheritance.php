@@ -117,7 +117,9 @@ final class ClassInheritance
 
         $this->changeDetectors[] = $trait->changeDetector();
 
-        $resolvedTypeArguments = $this->resolveTypeArguments($trait->templates(), $typeArguments);
+        $resolvedTypeArguments = $trait
+            ->templates()
+            ->map(static fn(TemplateReflection $template): Type => $typeArguments[$template->index()] ?? $template->constraint());
         $typeResolver = $this->createTypeResolvers($traitId, $resolvedTypeArguments);
 
         $recompilationContext = new CompilationContext($this->data[Data::Context]);
@@ -187,20 +189,36 @@ final class ClassInheritance
 
         $this->changeDetectors[] = $class->changeDetector();
 
+        $resolvedTypeArguments = $class
+            ->templates()
+            ->map(static fn(TemplateReflection $template): Type => $typeArguments[$template->index()] ?? $template->constraint());
+        $typeResolver = $this->createTypeResolvers($classId, $resolvedTypeArguments);
+
         $this->inheritedInterfaces = [
             ...$this->inheritedInterfaces,
-            ...$class->data[Data::Interfaces],
+            ...array_map(
+                static fn(array $typeArguments): array => array_map(
+                    static fn(Type $type): Type => $type->accept($typeResolver),
+                    $typeArguments,
+                ),
+                $class->data[Data::Interfaces],
+            ),
         ];
-
-        $resolvedTypeArguments = $this->resolveTypeArguments($class->templates(), $typeArguments);
 
         if ($class->data[Data::ClassKind] === ClassKind::Interface) {
             $this->ownInterfaces[$classId->name] ??= $resolvedTypeArguments->toList();
         } else {
-            $this->parents = [$classId->name => $resolvedTypeArguments->toList(), ...$class->data[Data::Parents]];
+            $this->parents = [
+                $classId->name => $resolvedTypeArguments->toList(),
+                ...array_map(
+                    static fn(array $typeArguments): array => array_map(
+                        static fn(Type $type): Type => $type->accept($typeResolver),
+                        $typeArguments,
+                    ),
+                    $class->data[Data::Parents],
+                ),
+            ];
         }
-
-        $typeResolver = $this->createTypeResolvers($classId, $resolvedTypeArguments);
 
         foreach ($class->data[Data::Constants] as $constantName => $constant) {
             $this->constant($constantName)->applyInherited($constant, $typeResolver);
@@ -265,18 +283,6 @@ final class ClassInheritance
     private function method(string $name): MethodInheritance
     {
         return $this->methods[$name] ??= new MethodInheritance();
-    }
-
-    /**
-     * @param Templates $templates
-     * @param list<Type> $typeArguments
-     * @return Collection<non-empty-string, Type>
-     */
-    private function resolveTypeArguments(Collection $templates, array $typeArguments): Collection
-    {
-        return $templates->map(
-            static fn(TemplateReflection $template): Type => $typeArguments[$template->index()] ?? $template->constraint(),
-        );
     }
 
     /**
