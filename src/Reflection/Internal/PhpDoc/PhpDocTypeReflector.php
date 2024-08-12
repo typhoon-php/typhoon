@@ -457,7 +457,7 @@ final class PhpDocTypeReflector
         );
     }
 
-    public function reflectConditionalSubject(ConditionalTypeNode|ConditionalTypeForParameterNode $node): Type
+    private function reflectConditionalSubject(ConditionalTypeNode|ConditionalTypeForParameterNode $node): Type
     {
         if ($node instanceof ConditionalTypeNode) {
             return $this->reflectType($node->subjectType);
