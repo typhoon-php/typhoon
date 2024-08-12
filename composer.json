@@ -48,7 +48,10 @@
     "autoload-dev": {
         "psr-4": {
             "Typhoon\\": "tests/"
-        }
+        },
+        "files": [
+            "tests/Reflection/functions.php"
+        ]
     },
     "config": {
         "allow-plugins": {
