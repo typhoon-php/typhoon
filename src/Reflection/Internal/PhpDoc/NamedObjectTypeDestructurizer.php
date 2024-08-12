@@ -12,7 +12,7 @@ use Typhoon\Type\Visitor\DefaultTypeVisitor;
 /**
  * @internal
  * @psalm-internal Typhoon\Reflection\Internal\PhpDoc
- * @extends DefaultTypeVisitor<array{NamedClassId|AnonymousClassId, list<Type>}>
+ * @extends DefaultTypeVisitor<?array{NamedClassId|AnonymousClassId, list<Type>}>
  */
 final class NamedObjectTypeDestructurizer extends DefaultTypeVisitor
 {
@@ -23,6 +23,6 @@ final class NamedObjectTypeDestructurizer extends DefaultTypeVisitor
 
     protected function default(Type $type): mixed
     {
-        throw new \LogicException();
+        return null;
     }
 }

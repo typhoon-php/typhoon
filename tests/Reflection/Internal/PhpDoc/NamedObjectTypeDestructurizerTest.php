@@ -6,6 +6,7 @@ namespace Typhoon\Reflection\Internal\PhpDoc;
 
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
+use Typhoon\DeclarationId\Id;
 use Typhoon\Type\types;
 
 #[CoversClass(NamedObjectTypeDestructurizer::class)]
@@ -13,18 +14,20 @@ final class NamedObjectTypeDestructurizerTest extends TestCase
 {
     public function testItThrowsForOtherTypes(): void
     {
-        $this->expectExceptionObject(new \LogicException());
+        $destructurized = types::object->accept(new NamedObjectTypeDestructurizer());
 
-        types::object->accept(new NamedObjectTypeDestructurizer());
+        self::assertNull($destructurized);
     }
 
     public function testItDestructuresNamedObject(): void
     {
         $type = types::object(\ArrayAccess::class, [types::int, types::string]);
 
-        [$class, $typeArguments] = $type->accept(new NamedObjectTypeDestructurizer());
+        $destructurized = $type->accept(new NamedObjectTypeDestructurizer());
 
-        self::assertSame(\ArrayAccess::class, $class->name);
-        self::assertSame([types::int, types::string], $typeArguments);
+        self::assertEquals(
+            [Id::namedClass(\ArrayAccess::class), [types::int, types::string]],
+            $destructurized,
+        );
     }
 }

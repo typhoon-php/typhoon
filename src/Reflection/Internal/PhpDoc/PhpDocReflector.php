@@ -15,7 +15,6 @@ use PHPStan\PhpDocParser\Ast\PhpDoc\PropertyTagValueNode;
 use PHPStan\PhpDocParser\Ast\PhpDoc\TemplateTagValueNode;
 use PHPStan\PhpDocParser\Ast\PhpDoc\TypeAliasImportTagValueNode;
 use PHPStan\PhpDocParser\Ast\PhpDoc\TypeAliasTagValueNode;
-use PHPStan\PhpDocParser\Ast\Type\GenericTypeNode;
 use PHPStan\PhpDocParser\Ast\Type\TypeNode;
 use Typhoon\DeclarationId\AnonymousClassId;
 use Typhoon\DeclarationId\AnonymousFunctionId;
@@ -29,7 +28,6 @@ use Typhoon\Reflection\Internal\Annotated\AnnotatedDeclarations;
 use Typhoon\Reflection\Internal\Annotated\AnnotatedDeclarationsDiscoverer;
 use Typhoon\Reflection\Internal\Context\Context;
 use Typhoon\Reflection\Internal\Data;
-use Typhoon\Reflection\Internal\Data\ClassKind;
 use Typhoon\Reflection\Internal\Data\PassedBy;
 use Typhoon\Reflection\Internal\Data\TypeData;
 use Typhoon\Reflection\Internal\Data\Visibility;
@@ -236,7 +234,7 @@ final class PhpDocReflector implements AnnotatedDeclarationsDiscoverer, Constant
             return null;
         }
 
-        $inheritedTypes = $this->reflectInheritedTypes($context, $phpDoc->extendedTypes());
+        $inheritedTypes = $this->reflectInheritedTypes($context, $phpDoc);
 
         if (isset($inheritedTypes[$parent[0]])) {
             return [$parent[0], $inheritedTypes[$parent[0]]];
@@ -250,10 +248,7 @@ final class PhpDocReflector implements AnnotatedDeclarationsDiscoverer, Constant
      */
     private function reflectInterfaces(Context $context, TypedMap $data, PhpDoc $phpDoc): array
     {
-        $typeNodes = $data[Data::ClassKind] === ClassKind::Interface
-            ? $phpDoc->extendedTypes()
-            : $phpDoc->implementedTypes();
-        $inheritedTypes = $this->reflectInheritedTypes($context, $typeNodes);
+        $inheritedTypes = $this->reflectInheritedTypes($context, $phpDoc);
 
         return [
             ...$data[Data::UnresolvedInterfaces],
@@ -477,23 +472,31 @@ final class PhpDocReflector implements AnnotatedDeclarationsDiscoverer, Constant
     }
 
     /**
-     * @param list<GenericTypeNode> $typeNodes
      * @return array<non-empty-string, list<Type>>
      */
-    private function reflectInheritedTypes(Context $context, array $typeNodes): array
+    private function reflectInheritedTypes(Context $context, PhpDoc $phpDoc): array
     {
         $typeReflector = new PhpDocTypeReflector($context, $this->customTypeResolver);
-        $destructurizer = new NamedObjectTypeDestructurizer();
+        $namedObjectTypeDestructurizer = new NamedObjectTypeDestructurizer();
 
-        $types = [];
+        $inheritedTypes = [];
 
-        foreach ($typeNodes as $typeNode) {
-            [$classId, $typeArguments] = $typeReflector->reflectType($typeNode)->accept($destructurizer);
-            \assert($classId instanceof NamedClassId);
+        foreach ([...$phpDoc->extendedTypes(), ...$phpDoc->implementedTypes()] as $typeNode) {
+            $destructurized = $typeReflector->reflectType($typeNode)->accept($namedObjectTypeDestructurizer);
 
-            $types[$classId->name] = $typeArguments;
+            if ($destructurized === null) {
+                continue;
+            }
+
+            [$classId, $typeArguments] = $destructurized;
+
+            if ($classId instanceof AnonymousClassId) {
+                continue;
+            }
+
+            $inheritedTypes[$classId->name] = $typeArguments;
         }
 
-        return $types;
+        return $inheritedTypes;
     }
 }
