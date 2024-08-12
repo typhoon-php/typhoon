@@ -9,9 +9,12 @@ use Typhoon\ChangeDetector\ChangeDetectors;
 use Typhoon\DeclarationId\AnonymousClassId;
 use Typhoon\DeclarationId\Id;
 use Typhoon\DeclarationId\NamedClassId;
+use Typhoon\Reflection\Collection;
 use Typhoon\Reflection\Internal\ConstantExpression\CompilationContext;
 use Typhoon\Reflection\Internal\Data;
 use Typhoon\Reflection\Internal\Data\ClassKind;
+use Typhoon\Reflection\ReflectionCollections;
+use Typhoon\Reflection\TemplateReflection;
 use Typhoon\Reflection\TyphoonReflector;
 use Typhoon\Type\Type;
 use Typhoon\Type\TypeVisitor;
@@ -23,6 +26,7 @@ use Typhoon\TypedMap\TypedMap;
 /**
  * @internal
  * @psalm-internal Typhoon\Reflection\Internal\Inheritance
+ * @psalm-import-type Templates from ReflectionCollections
  */
 final class ClassInheritance
 {
@@ -112,7 +116,9 @@ final class ClassInheritance
         \assert($traitId instanceof NamedClassId);
 
         $this->changeDetectors[] = $trait->changeDetector();
-        $typeResolver = $this->createTypeResolvers($traitId, $trait->data, $typeArguments);
+
+        $resolvedTypeArguments = $this->resolveTypeArguments($trait->templates(), $typeArguments);
+        $typeResolver = $this->createTypeResolvers($traitId, $resolvedTypeArguments);
 
         $recompilationContext = new CompilationContext($this->data[Data::Context]);
 
@@ -186,13 +192,15 @@ final class ClassInheritance
             ...$class->data[Data::Interfaces],
         ];
 
+        $resolvedTypeArguments = $this->resolveTypeArguments($class->templates(), $typeArguments);
+
         if ($class->data[Data::ClassKind] === ClassKind::Interface) {
-            $this->ownInterfaces[$classId->name] ??= $typeArguments;
+            $this->ownInterfaces[$classId->name] ??= $resolvedTypeArguments->toList();
         } else {
-            $this->parents = [$classId->name => $typeArguments, ...$class->data[Data::Parents]];
+            $this->parents = [$classId->name => $resolvedTypeArguments->toList(), ...$class->data[Data::Parents]];
         }
 
-        $typeResolver = $this->createTypeResolvers($classId, $class->data, $typeArguments);
+        $typeResolver = $this->createTypeResolvers($classId, $resolvedTypeArguments);
 
         foreach ($class->data[Data::Constants] as $constantName => $constant) {
             $this->constant($constantName)->applyInherited($constant, $typeResolver);
@@ -260,10 +268,22 @@ final class ClassInheritance
     }
 
     /**
+     * @param Templates $templates
      * @param list<Type> $typeArguments
+     * @return Collection<non-empty-string, Type>
+     */
+    private function resolveTypeArguments(Collection $templates, array $typeArguments): Collection
+    {
+        return $templates->map(
+            static fn(TemplateReflection $template): Type => $typeArguments[$template->index()] ?? $template->constraint(),
+        );
+    }
+
+    /**
+     * @param Collection<non-empty-string, Type> $resolvedTypeArguments
      * @return TypeVisitor<Type>
      */
-    private function createTypeResolvers(NamedClassId $inheritedId, TypedMap $inheritedData, array $typeArguments): TypeVisitor
+    private function createTypeResolvers(NamedClassId $inheritedId, Collection $resolvedTypeArguments): TypeVisitor
     {
         $typeResolvers = [];
 
@@ -275,18 +295,13 @@ final class ClassInheritance
             );
         }
 
-        $templates = $inheritedData[Data::Templates];
-
-        if ($templates !== []) {
-            $typeResolvers[] = new TemplateTypeResolver(array_map(
-                static fn(int $index, string $name, TypedMap $template): array => [
+        if (!$resolvedTypeArguments->isEmpty()) {
+            $typeResolvers[] = new TemplateTypeResolver(
+                $resolvedTypeArguments->map(static fn(Type $type, string $name): array => [
                     Id::template($inheritedId, $name),
-                    $typeArguments[$index] ?? $template[Data::Constraint],
-                ],
-                range(0, \count($templates) - 1),
-                array_keys($templates),
-                $templates,
-            ));
+                    $type,
+                ]),
+            );
         }
 
         return new TypeResolvers($typeResolvers);
