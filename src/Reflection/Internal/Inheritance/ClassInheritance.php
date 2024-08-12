@@ -102,34 +102,44 @@ final class ClassInheritance
     }
 
     /**
-     * @param non-empty-string $traitName
+     * @param non-empty-string $name
      * @param list<Type> $typeArguments
      */
-    private function applyOneUsed(string $traitName, array $typeArguments): void
+    private function applyOneUsed(string $name, array $typeArguments): void
     {
-        $traitId = Id::namedClass($traitName);
-        $traitData = $this->recompileTraitExpressions($this->reflector->reflect($traitId)->data);
+        $trait = $this->reflector->reflectClass($name);
+        $traitId = $trait->id;
+        \assert($traitId instanceof NamedClassId);
 
-        $this->changeDetectors[] = $traitData[Data::ChangeDetector];
-        $typeResolver = $this->createTypeResolvers($traitId, $traitData, $typeArguments);
+        $this->changeDetectors[] = $trait->changeDetector();
+        $typeResolver = $this->createTypeResolvers($traitId, $trait->data, $typeArguments);
 
-        foreach ($traitData[Data::Constants] as $constantName => $constant) {
+        $recompilationContext = new CompilationContext($this->data[Data::Context]);
+
+        foreach ($trait->data[Data::Constants] as $constantName => $constant) {
+            $constant = $constant->with(Data::ValueExpression, $constant[Data::ValueExpression]->recompile($recompilationContext));
             $this->constant($constantName)->applyUsed($constant, $typeResolver);
         }
 
-        foreach ($traitData[Data::Properties] as $propertyName => $property) {
+        foreach ($trait->data[Data::Properties] as $propertyName => $property) {
+            $property = $property->with(Data::DefaultValueExpression, $property[Data::DefaultValueExpression]?->recompile($recompilationContext));
             $this->property($propertyName)->applyUsed($property, $typeResolver);
         }
 
-        foreach ($traitData[Data::Methods] as $methodName => $method) {
+        foreach ($trait->data[Data::Methods] as $methodName => $method) {
             $precedence = $this->data[Data::TraitMethodPrecedence][$methodName] ?? null;
 
-            if ($precedence !== null && $precedence !== $traitName) {
+            if ($precedence !== null && $precedence !== $traitId->name) {
                 continue;
             }
 
+            $method = $method->with(Data::Parameters, array_map(
+                static fn(TypedMap $parameter): TypedMap => $parameter->with(Data::DefaultValueExpression, $parameter[Data::DefaultValueExpression]?->recompile($recompilationContext)),
+                $method[Data::Parameters],
+            ));
+
             foreach ($this->data[Data::TraitMethodAliases] as $alias) {
-                if ($alias->trait !== $traitName || $alias->method !== $methodName) {
+                if ($alias->trait !== $traitId->name || $alias->method !== $methodName) {
                     continue;
                 }
 
@@ -160,39 +170,39 @@ final class ClassInheritance
     }
 
     /**
-     * @param non-empty-string $className
+     * @param non-empty-string $name
      * @param list<Type> $typeArguments
      */
-    private function addInherited(string $className, array $typeArguments): void
+    private function addInherited(string $name, array $typeArguments): void
     {
-        $classId = Id::namedClass($className);
-        $classData = $this->reflector->reflect($classId)->data;
+        $class = $this->reflector->reflectClass($name);
+        $classId = $class->id;
+        \assert($classId instanceof NamedClassId);
 
-        $this->changeDetectors[] = $classData[Data::ChangeDetector];
+        $this->changeDetectors[] = $class->changeDetector();
 
         $this->inheritedInterfaces = [
             ...$this->inheritedInterfaces,
-            ...$classData[Data::Interfaces],
+            ...$class->data[Data::Interfaces],
         ];
 
-        /** @var class-string $className */
-        if ($classData[Data::ClassKind] === ClassKind::Interface) {
-            $this->ownInterfaces[$className] ??= $typeArguments;
+        if ($class->data[Data::ClassKind] === ClassKind::Interface) {
+            $this->ownInterfaces[$classId->name] ??= $typeArguments;
         } else {
-            $this->parents = [$className => $typeArguments, ...$classData[Data::Parents]];
+            $this->parents = [$classId->name => $typeArguments, ...$class->data[Data::Parents]];
         }
 
-        $typeResolver = $this->createTypeResolvers($classId, $classData, $typeArguments);
+        $typeResolver = $this->createTypeResolvers($classId, $class->data, $typeArguments);
 
-        foreach ($classData[Data::Constants] as $constantName => $constant) {
+        foreach ($class->data[Data::Constants] as $constantName => $constant) {
             $this->constant($constantName)->applyInherited($constant, $typeResolver);
         }
 
-        foreach ($classData[Data::Properties] as $propertyName => $property) {
+        foreach ($class->data[Data::Properties] as $propertyName => $property) {
             $this->property($propertyName)->applyInherited($property, $typeResolver);
         }
 
-        foreach ($classData[Data::Methods] as $methodName => $method) {
+        foreach ($class->data[Data::Methods] as $methodName => $method) {
             $this->method($methodName)->applyInherited($method, $typeResolver);
         }
     }
@@ -247,40 +257,6 @@ final class ClassInheritance
     private function method(string $name): MethodInheritance
     {
         return $this->methods[$name] ??= new MethodInheritance();
-    }
-
-    private function recompileTraitExpressions(TypedMap $data): TypedMap
-    {
-        $context = new CompilationContext($this->data[Data::Context]);
-
-        return $data
-            ->with(Data::Constants, array_map(
-                static fn(TypedMap $constant): TypedMap => $constant->with(
-                    Data::ValueExpression,
-                    $constant[Data::ValueExpression]->recompile($context),
-                ),
-                $data[Data::Constants],
-            ))
-            ->with(Data::Properties, array_map(
-                static fn(TypedMap $property): TypedMap => $property->with(
-                    Data::DefaultValueExpression,
-                    $property[Data::DefaultValueExpression]?->recompile($context),
-                ),
-                $data[Data::Properties],
-            ))
-            ->with(Data::Methods, array_map(
-                static fn(TypedMap $method): TypedMap => $method->with(
-                    Data::Parameters,
-                    array_map(
-                        static fn(TypedMap $parameter): TypedMap => $parameter->with(
-                            Data::DefaultValueExpression,
-                            $parameter[Data::DefaultValueExpression]?->recompile($context),
-                        ),
-                        $method[Data::Parameters],
-                    ),
-                ),
-                $data[Data::Methods],
-            ));
     }
 
     /**
