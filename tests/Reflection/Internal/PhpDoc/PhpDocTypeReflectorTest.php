@@ -81,6 +81,9 @@ final class PhpDocTypeReflectorTest extends TestCase
         yield ['closed-resource', types::resource];
         yield ['open-resource', types::resource];
         yield ['array-key', types::arrayKey];
+        yield ['literal', new InvalidPhpDocType('literal type should have 1 type argument, got 0')];
+        yield ['literal<string>', types::literal(types::string)];
+        yield ['literal<int, string>', new InvalidPhpDocType('literal type should have 1 type argument, got 2')];
         yield ['mixed', types::mixed];
         yield ['list', types::list()];
         yield ['list<mixed>', types::list()];

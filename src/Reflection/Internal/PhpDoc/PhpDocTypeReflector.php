@@ -185,6 +185,10 @@ final class PhpDocTypeReflector
             'literal-int' => types::literalInt,
             'literal-string' => types::literalString,
             'literal-float' => types::literalFloat,
+            'literal' => match ($number = \count($typeArguments)) {
+                1 => types::literal($typeArguments[0]),
+                default => throw new InvalidPhpDocType(\sprintf('literal type should have 1 type argument, got %d', $number)),
+            },
             'callable-string' => types::callableString(),
             'interface-string', 'enum-string', 'trait-string' => types::classString,
             'callable-array' => types::callableArray(),
