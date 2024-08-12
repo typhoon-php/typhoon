@@ -10,6 +10,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 
 - Add `ConstantReflection` and `TyphoonReflector::reflectConstant()`.
+- Add `ClassReflection::typeArgumentsOf($class)`.
+- Add `ClassReflection::resolvedTypeArgumentsOf($class)`.
 
 ## [0.4.2] 2024-08-05
 
