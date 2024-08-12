@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Typhoon\Reflection;
 
+use Typhoon\Reflection\Internal\Data;
 use Typhoon\Reflection\Locator\Resource;
 use Typhoon\Type\types;
 use function PHPUnit\Framework\assertEquals;
@@ -12,8 +13,11 @@ return static function (TyphoonReflector $reflector): void {
     $reflection = $reflector->withResource(Resource::fromCode(
         <<<'PHP'
             <?php
-
-            final class A
+            
+            /**
+             * @implements Iterator<string>
+             */
+            abstract class A implements Iterator
             {
                 /** @var array<string> */
                 public $array;
@@ -42,4 +46,6 @@ return static function (TyphoonReflector $reflector): void {
     assertEquals(types::object(\Iterator::class, [types::mixed, types::string]), $reflection->properties()['Iterator']->type());
     assertEquals(types::object(\IteratorAggregate::class, [types::mixed, types::string]), $reflection->properties()['IteratorAggregate']->type());
     assertEquals(types::Generator(value: types::string), $reflection->properties()['Generator']->type());
+    /** @psalm-suppress PossiblyUndefinedStringArrayOffset */
+    assertEquals([types::mixed, types::string], $reflection->data[Data::Interfaces][\Iterator::class]);
 };

@@ -15,6 +15,7 @@ use PHPStan\PhpDocParser\Ast\PhpDoc\PropertyTagValueNode;
 use PHPStan\PhpDocParser\Ast\PhpDoc\TemplateTagValueNode;
 use PHPStan\PhpDocParser\Ast\PhpDoc\TypeAliasImportTagValueNode;
 use PHPStan\PhpDocParser\Ast\PhpDoc\TypeAliasTagValueNode;
+use PHPStan\PhpDocParser\Ast\Type\GenericTypeNode;
 use PHPStan\PhpDocParser\Ast\Type\TypeNode;
 use Typhoon\DeclarationId\AnonymousClassId;
 use Typhoon\DeclarationId\AnonymousFunctionId;
@@ -235,12 +236,10 @@ final class PhpDocReflector implements AnnotatedDeclarationsDiscoverer, Constant
             return null;
         }
 
-        $typeReflector = new PhpDocTypeReflector($context, $this->customTypeResolver);
+        $inheritedTypes = $this->reflectInheritedTypes($context, $phpDoc->extendedTypes());
 
-        foreach ($phpDoc->extendedTypes() as $type) {
-            if ($parent[0] === $typeReflector->resolveClass($type->type)) {
-                $parent[1] = array_map($typeReflector->reflectType(...), $type->genericTypes);
-            }
+        if (isset($inheritedTypes[$parent[0]])) {
+            return [$parent[0], $inheritedTypes[$parent[0]]];
         }
 
         return $parent;
@@ -251,24 +250,9 @@ final class PhpDocReflector implements AnnotatedDeclarationsDiscoverer, Constant
      */
     private function reflectInterfaces(Context $context, TypedMap $data, PhpDoc $phpDoc): array
     {
-        $interfaces = $data[Data::UnresolvedInterfaces];
+        $inheritedTypes = $this->reflectInheritedTypes($context, $data[Data::ClassKind] === ClassKind::Interface ? $phpDoc->extendedTypes() : $phpDoc->implementedTypes());
 
-        if ($interfaces === []) {
-            return [];
-        }
-
-        $typeReflector = new PhpDocTypeReflector($context, $this->customTypeResolver);
-        $types = $data[Data::ClassKind] === ClassKind::Interface ? $phpDoc->extendedTypes() : $phpDoc->implementedTypes();
-
-        foreach ($types as $type) {
-            $name = $typeReflector->resolveClass($type->type);
-
-            if (isset($interfaces[$name])) {
-                $interfaces[$name] = array_map($typeReflector->reflectType(...), $type->genericTypes);
-            }
-        }
-
-        return $interfaces;
+        return array_intersect_key($inheritedTypes, $data[Data::UnresolvedInterfaces]);
     }
 
     /**
@@ -484,5 +468,26 @@ final class PhpDocReflector implements AnnotatedDeclarationsDiscoverer, Constant
             startLine: $startLine,
             startPosition: $startPosition,
         );
+    }
+
+    /**
+     * @param list<GenericTypeNode> $nodes
+     * @return array<non-empty-string, list<Type>>
+     */
+    private function reflectInheritedTypes(Context $context, array $nodes): array
+    {
+        $typeReflector = new PhpDocTypeReflector($context, $this->customTypeResolver);
+        $destructurizer = new NamedObjectTypeDestructurizer();
+
+        $types = [];
+
+        foreach ($nodes as $node) {
+            [$classId, $typeArguments] = $typeReflector->reflectType($node)->accept($destructurizer);
+            \assert($classId instanceof NamedClassId);
+
+            $types[$classId->name] = $typeArguments;
+        }
+
+        return $types;
     }
 }
