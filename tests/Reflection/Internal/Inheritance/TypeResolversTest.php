@@ -2,12 +2,13 @@
 
 declare(strict_types=1);
 
-namespace Typhoon\Type\Visitor;
+namespace Typhoon\Reflection\Internal\Inheritance;
 
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Typhoon\Type\Type;
 use Typhoon\Type\types;
+use Typhoon\Type\Visitor\RecursiveTypeReplacer;
 
 #[CoversClass(TypeResolvers::class)]
 final class TypeResolversTest extends TestCase

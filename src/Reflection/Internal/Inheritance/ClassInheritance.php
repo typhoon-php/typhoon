@@ -20,7 +20,6 @@ use Typhoon\Type\Type;
 use Typhoon\Type\TypeVisitor;
 use Typhoon\Type\Visitor\RelativeClassTypeResolver;
 use Typhoon\Type\Visitor\TemplateTypeResolver;
-use Typhoon\Type\Visitor\TypeResolvers;
 use Typhoon\TypedMap\TypedMap;
 
 /**

@@ -2,13 +2,15 @@
 
 declare(strict_types=1);
 
-namespace Typhoon\Type\Visitor;
+namespace Typhoon\Reflection\Internal\Inheritance;
 
 use Typhoon\Type\Type;
 use Typhoon\Type\TypeVisitor;
+use Typhoon\Type\Visitor\DefaultTypeVisitor;
 
 /**
- * @api
+ * @internal
+ * @psalm-internal Typhoon\Reflection\Internal\Inheritance
  * @extends DefaultTypeVisitor<Type>
  */
 final class TypeResolvers extends DefaultTypeVisitor
