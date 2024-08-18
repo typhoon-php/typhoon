@@ -172,7 +172,7 @@ final class ContextVisitor extends NodeVisitorAbstract implements ContextProvide
         return null;
     }
 
-    public function leaveNode(Node $node)
+    public function leaveNode(Node $node): null|int|Node|array
     {
         if ($node instanceof FunctionLike || $node instanceof ClassLike) {
             array_pop($this->contextStack);
