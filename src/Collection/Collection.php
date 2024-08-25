@@ -19,36 +19,50 @@ namespace Typhoon\Collection;
 final class Collection implements \ArrayAccess, \IteratorAggregate, \Countable
 {
     /**
-     * @var array<array{TKey, TValue}>
+     * @var array<int|non-empty-string, array{TKey, TValue}>
      */
     private array $values = [];
 
     /**
-     * @param iterable<TKey, TValue> $values
+     * @param iterable<TKey, TValue>|callable(): iterable<TKey, TValue> $values
      */
-    public function __construct(iterable $values = [])
+    public function __construct(iterable|callable $values = [])
     {
+        if (\is_callable($values)) {
+            $values = $values();
+        }
+
         foreach ($values as $key => $value) {
             $this->values[KeyHasher::hash($key)] = [$key, $value];
         }
     }
 
     /**
-     * @template TTKey
-     * @template TTValue
-     * @param iterable<array{TTKey, TTValue}> $keyValuePairs
-     * @return self<TTKey, TTValue>
+     * @template TNewKey
+     * @template TNewValue
+     * @param iterable<array{TNewKey, TNewValue}> $kvPairs
+     * @return self<TNewKey, TNewValue>
      */
-    public static function fromKeyValuePairs(iterable $keyValuePairs): self
+    public static function fromKVPairs(iterable $kvPairs): self
     {
-        /** @var self<TTKey, TTValue> */
+        /** @var self<TNewKey, TNewValue> */
         $collection = new self();
 
-        foreach ($keyValuePairs as $keyValuePair) {
-            $collection->values[KeyHasher::hash($keyValuePair[0])] = $keyValuePair;
+        foreach ($kvPairs as $kvPair) {
+            $collection->values[KeyHasher::hash($kvPair[0])] = $kvPair;
         }
 
         return $collection;
+    }
+
+    /**
+     * @template T of object
+     * @param class-string<T> $class
+     * @param callable(T): non-empty-string $hasher
+     */
+    public static function registerObjectHasher(string $class, callable $hasher): void
+    {
+        KeyHasher::registerObjectHasher($class, $hasher);
     }
 
     public function offsetExists(mixed $offset): bool
@@ -63,17 +77,33 @@ final class Collection implements \ArrayAccess, \IteratorAggregate, \Countable
     }
 
     /**
+     * @template TNewKey
+     * @template TNewValue
+     * @param TNewKey $key
+     * @param TNewValue $value
+     * @return self<TKey|TNewKey, TValue|TNewValue>
+     */
+    public function with(mixed $key, mixed $value): self
+    {
+        /** @var self<TKey|TNewKey, TValue|TNewValue> */
+        $collection = clone $this;
+        $collection->values[KeyHasher::hash($key)] = [$key, $value];
+
+        return $collection;
+    }
+
+    /**
      * @template TNewValue
      * @param callable(TValue, TKey): TNewValue $mapper
      * @return self<TKey, TNewValue>
-     * @psalm-suppress UnusedVariable, InvalidReturnType, InvalidReturnStatement
      */
     public function map(callable $mapper): self
     {
-        $collection = clone $this;
+        /** @var self<TKey, TNewValue> */
+        $collection = new self();
 
-        foreach ($collection->values as [$key, &$value]) {
-            $value = $mapper($value, $key);
+        foreach ($this->values as $hash => [$key, $value]) {
+            $collection->values[$hash] = [$key, $mapper($value, $key)];
         }
 
         return $collection;
@@ -85,11 +115,12 @@ final class Collection implements \ArrayAccess, \IteratorAggregate, \Countable
      */
     public function filter(callable $filter): self
     {
-        $collection = clone $this;
+        /** @var self<TKey, TValue> */
+        $collection = new self();
 
-        foreach ($collection->values as $hash => [$key, $value]) {
-            if (!$filter($value, $key)) {
-                unset($collection->values[$hash]);
+        foreach ($this->values as $hash => [$key, $value]) {
+            if ($filter($value, $key)) {
+                $collection->values[$hash] = [$key, $value];
             }
         }
 
@@ -165,7 +196,15 @@ final class Collection implements \ArrayAccess, \IteratorAggregate, \Countable
      */
     public function toIndexed(): self
     {
-        return new self($this->toList());
+        /** @var self<non-negative-int, TValue> */
+        $collection = new self();
+        $index = 0;
+
+        foreach ($this->values as [, $value]) {
+            $collection->values[] = [$index++, $value];
+        }
+
+        return $collection;
     }
 
     /**
