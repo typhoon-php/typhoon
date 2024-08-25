@@ -280,4 +280,22 @@ final class Collection implements \ArrayAccess, \IteratorAggregate, \Countable
     {
         throw new \BadMethodCallException(\sprintf('%s is immutable', self::class));
     }
+
+    /**
+     * @return list<array{TKey, TValue}>
+     */
+    public function __serialize(): array
+    {
+        return array_values($this->values);
+    }
+
+    /**
+     * @param list<array{TKey, TValue}> $kvPairs
+     */
+    public function __unserialize(array $kvPairs): void
+    {
+        foreach ($kvPairs as $kvPair) {
+            $this->values[KeyHasher::hash($kvPair[0])] = $kvPair;
+        }
+    }
 }
