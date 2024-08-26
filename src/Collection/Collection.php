@@ -33,7 +33,7 @@ final class Collection implements \ArrayAccess, \IteratorAggregate, \Countable
         }
 
         foreach ($values as $key => $value) {
-            $this->values[KeyHasher::hash($key)] = [$key, $value];
+            $this->values[KeyEncoder::encode($key)] = [$key, $value];
         }
     }
 
@@ -43,13 +43,13 @@ final class Collection implements \ArrayAccess, \IteratorAggregate, \Countable
      * @param iterable<array{TNewKey, TNewValue}> $kvPairs
      * @return self<TNewKey, TNewValue>
      */
-    public static function fromKVPairs(iterable $kvPairs): self
+    public static function kv(iterable $kvPairs): self
     {
         /** @var self<TNewKey, TNewValue> */
         $collection = new self();
 
         foreach ($kvPairs as $kvPair) {
-            $collection->values[KeyHasher::hash($kvPair[0])] = $kvPair;
+            $collection->values[KeyEncoder::encode($kvPair[0])] = $kvPair;
         }
 
         return $collection;
@@ -58,22 +58,22 @@ final class Collection implements \ArrayAccess, \IteratorAggregate, \Countable
     /**
      * @template T of object
      * @param class-string<T> $class
-     * @param callable(T): non-empty-string $hasher
+     * @param callable(T): mixed $normalizer
      */
-    public static function registerObjectHasher(string $class, callable $hasher): void
+    public static function registerObjectKeyNormalizer(string $class, callable $normalizer): void
     {
-        KeyHasher::registerObjectHasher($class, $hasher);
+        KeyEncoder::registerObjectNormalizer($class, $normalizer);
     }
 
     public function offsetExists(mixed $offset): bool
     {
-        return isset($this->values[KeyHasher::hash($offset)]);
+        return isset($this->values[KeyEncoder::encode($offset)]);
     }
 
     public function offsetGet(mixed $offset): mixed
     {
         /** @var TValue */
-        return $this->values[KeyHasher::hash($offset)][1] ?? throw new KeyIsNotDefined($offset);
+        return $this->values[KeyEncoder::encode($offset)][1] ?? throw new KeyIsNotDefined($offset);
     }
 
     /**
@@ -87,7 +87,7 @@ final class Collection implements \ArrayAccess, \IteratorAggregate, \Countable
     {
         /** @var self<TKey|TNewKey, TValue|TNewValue> */
         $collection = clone $this;
-        $collection->values[KeyHasher::hash($key)] = [$key, $value];
+        $collection->values[KeyEncoder::encode($key)] = [$key, $value];
 
         return $collection;
     }
@@ -102,8 +102,8 @@ final class Collection implements \ArrayAccess, \IteratorAggregate, \Countable
         /** @var self<TKey, TNewValue> */
         $collection = new self();
 
-        foreach ($this->values as $hash => [$key, $value]) {
-            $collection->values[$hash] = [$key, $mapper($value, $key)];
+        foreach ($this->values as $encodedKey => [$key, $value]) {
+            $collection->values[$encodedKey] = [$key, $mapper($value, $key)];
         }
 
         return $collection;
@@ -118,9 +118,9 @@ final class Collection implements \ArrayAccess, \IteratorAggregate, \Countable
         /** @var self<TKey, TValue> */
         $collection = new self();
 
-        foreach ($this->values as $hash => [$key, $value]) {
+        foreach ($this->values as $encodedKey => [$key, $value]) {
             if ($filter($value, $key)) {
-                $collection->values[$hash] = [$key, $value];
+                $collection->values[$encodedKey] = [$key, $value];
             }
         }
 
@@ -140,13 +140,13 @@ final class Collection implements \ArrayAccess, \IteratorAggregate, \Countable
      */
     public function firstKey(): mixed
     {
-        $hash = array_key_first($this->values);
+        $encodedKey = array_key_first($this->values);
 
-        if ($hash === null) {
+        if ($encodedKey === null) {
             return null;
         }
 
-        return $this->values[$hash][0];
+        return $this->values[$encodedKey][0];
     }
 
     /**
@@ -154,13 +154,13 @@ final class Collection implements \ArrayAccess, \IteratorAggregate, \Countable
      */
     public function lastKey(): mixed
     {
-        $hash = array_key_last($this->values);
+        $encodedKey = array_key_last($this->values);
 
-        if ($hash === null) {
+        if ($encodedKey === null) {
             return null;
         }
 
-        return $this->values[$hash][0];
+        return $this->values[$encodedKey][0];
     }
 
     /**
@@ -168,13 +168,13 @@ final class Collection implements \ArrayAccess, \IteratorAggregate, \Countable
      */
     public function first(): mixed
     {
-        $hash = array_key_first($this->values);
+        $encodedKey = array_key_first($this->values);
 
-        if ($hash === null) {
+        if ($encodedKey === null) {
             return null;
         }
 
-        return $this->values[$hash][1];
+        return $this->values[$encodedKey][1];
     }
 
     /**
@@ -182,13 +182,13 @@ final class Collection implements \ArrayAccess, \IteratorAggregate, \Countable
      */
     public function last(): mixed
     {
-        $hash = array_key_last($this->values);
+        $encodedKey = array_key_last($this->values);
 
-        if ($hash === null) {
+        if ($encodedKey === null) {
             return null;
         }
 
-        return $this->values[$hash][1];
+        return $this->values[$encodedKey][1];
     }
 
     /**
@@ -295,7 +295,7 @@ final class Collection implements \ArrayAccess, \IteratorAggregate, \Countable
     public function __unserialize(array $kvPairs): void
     {
         foreach ($kvPairs as $kvPair) {
-            $this->values[KeyHasher::hash($kvPair[0])] = $kvPair;
+            $this->values[KeyEncoder::encode($kvPair[0])] = $kvPair;
         }
     }
 }
