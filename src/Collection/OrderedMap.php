@@ -35,4 +35,14 @@ interface OrderedMap extends Collection
      * @return self<TKey, TValue>
      */
     public function toMutable(): self;
+
+    public function sort(int $flags = SORT_REGULAR): static;
+
+    public function sortDesc(int $flags = SORT_REGULAR): static;
+
+    /**
+     * @psalm-suppress InvalidTemplateParam
+     * @param callable(TValue, TValue, TKey, TKey): int $comparator
+     */
+    public function sortBy(callable $comparator): static;
 }

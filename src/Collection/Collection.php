@@ -90,14 +90,21 @@ interface Collection extends \ArrayAccess, \IteratorAggregate, \Countable
 
     public function isEmpty(): bool;
 
-    public function sort(int $flags = SORT_REGULAR): static;
+    /**
+     * @return List_<TValue>|OrderedMap<TKey, TValue>
+     */
+    public function sort(int $flags = SORT_REGULAR): List_|OrderedMap;
 
-    public function sortDesc(int $flags = SORT_REGULAR): static;
+    /**
+     * @return List_<TValue>|OrderedMap<TKey, TValue>
+     */
+    public function sortDesc(int $flags = SORT_REGULAR): List_|OrderedMap;
 
     /**
      * @param callable(TValue, TValue, TKey, TKey): int $comparator
+     * @return List_<TValue>|OrderedMap<TKey, TValue>
      */
-    public function sortBy(callable $comparator): static;
+    public function sortBy(callable $comparator): List_|OrderedMap;
 
     public function slice(int $offset, ?int $length = null): static;
 

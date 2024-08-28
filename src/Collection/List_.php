@@ -28,4 +28,14 @@ interface List_ extends Collection
      * @return self<TValue>
      */
     public function toMutable(): self;
+
+    public function sort(int $flags = SORT_REGULAR): static;
+
+    public function sortDesc(int $flags = SORT_REGULAR): static;
+
+    /**
+     * @psalm-suppress InvalidTemplateParam
+     * @param callable(TValue, TValue, non-negative-int, non-negative-int): int $comparator
+     */
+    public function sortBy(callable $comparator): static;
 }
