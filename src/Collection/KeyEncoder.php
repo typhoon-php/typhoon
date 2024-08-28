@@ -42,7 +42,7 @@ final class KeyEncoder
         $keyEncoder = self::$instance ??= new self();
 
         if ($keyEncoder->locked) {
-            throw new \LogicException(\sprintf('Please register all normalizers before using %s', Collection::class));
+            throw new \LogicException('Please register all normalizers at bootstrap of your application before using collections');
         }
 
         $keyEncoder->objectNormalizer[$class] =

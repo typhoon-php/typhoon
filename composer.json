@@ -16,6 +16,8 @@
         "php": "^8.1",
         "ext-tokenizer": "*",
         "composer-runtime-api": "*",
+        "doctrine/collections": "^2.2",
+        "illuminate/collections": "^11.21",
         "jetbrains/phpstorm-stubs": "^2024.1",
         "nikic/php-parser": "^4.18 || ^5.0",
         "phpstan/phpdoc-parser": "^1.21",
@@ -41,8 +43,9 @@
             "Typhoon\\": "src/"
         },
         "files": [
-            "src/Type/functions.php",
-            "src/Reflection/Internal/functions.php"
+            "src/Collection/functions.php",
+            "src/Reflection/Internal/functions.php",
+            "src/Type/functions.php"
         ]
     },
     "autoload-dev": {

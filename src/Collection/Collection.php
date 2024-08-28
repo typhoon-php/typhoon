@@ -8,294 +8,129 @@ namespace Typhoon\Collection;
  * @api
  * @template TKey
  * @template-covariant TValue
- *
+ * @extends \IteratorAggregate<TKey, TValue>
+ * @extends \ArrayAccess<TKey, TValue>
  * It is valid to implement ArrayAccess with a covariant TValue, because we do not allow to call mutating offsetSet()
  * and offsetUnset() methods.
  * @psalm-suppress InvalidTemplateParam
- * @implements \ArrayAccess<TKey, TValue>
- *
- * @implements \IteratorAggregate<TKey, TValue>
  */
-final class Collection implements \ArrayAccess, \IteratorAggregate, \Countable
+interface Collection extends \ArrayAccess, \IteratorAggregate, \Countable
 {
-    /**
-     * @var array<int|non-empty-string, array{TKey, TValue}>
-     */
-    private array $values = [];
+    public function offsetSet(mixed $offset, mixed $value): never;
 
-    /**
-     * @param iterable<TKey, TValue>|callable(): iterable<TKey, TValue> $values
-     */
-    public function __construct(iterable|callable $values = [])
-    {
-        if (\is_callable($values)) {
-            $values = $values();
-        }
-
-        foreach ($values as $key => $value) {
-            $this->values[KeyEncoder::encode($key)] = [$key, $value];
-        }
-    }
-
-    /**
-     * @template TNewKey
-     * @template TNewValue
-     * @param iterable<array{TNewKey, TNewValue}> $kvPairs
-     * @return self<TNewKey, TNewValue>
-     */
-    public static function kv(iterable $kvPairs): self
-    {
-        /** @var self<TNewKey, TNewValue> */
-        $collection = new self();
-
-        foreach ($kvPairs as $kvPair) {
-            $collection->values[KeyEncoder::encode($kvPair[0])] = $kvPair;
-        }
-
-        return $collection;
-    }
-
-    /**
-     * @template T of object
-     * @param class-string<T> $class
-     * @param callable(T): mixed $normalizer
-     */
-    public static function registerObjectKeyNormalizer(string $class, callable $normalizer): void
-    {
-        KeyEncoder::registerObjectNormalizer($class, $normalizer);
-    }
-
-    public function offsetExists(mixed $offset): bool
-    {
-        return isset($this->values[KeyEncoder::encode($offset)]);
-    }
-
-    public function offsetGet(mixed $offset): mixed
-    {
-        /** @var TValue */
-        return $this->values[KeyEncoder::encode($offset)][1] ?? throw new KeyIsNotDefined($offset);
-    }
-
-    /**
-     * @template TNewKey
-     * @template TNewValue
-     * @param TNewKey $key
-     * @param TNewValue $value
-     * @return self<TKey|TNewKey, TValue|TNewValue>
-     */
-    public function with(mixed $key, mixed $value): self
-    {
-        /** @var self<TKey|TNewKey, TValue|TNewValue> */
-        $collection = clone $this;
-        $collection->values[KeyEncoder::encode($key)] = [$key, $value];
-
-        return $collection;
-    }
+    public function offsetUnset(mixed $offset): never;
 
     /**
      * @template TNewValue
      * @param callable(TValue, TKey): TNewValue $mapper
-     * @return self<TKey, TNewValue>
+     * @return static<TKey, TNewValue>
      */
-    public function map(callable $mapper): self
-    {
-        /** @var self<TKey, TNewValue> */
-        $collection = new self();
-
-        foreach ($this->values as $encodedKey => [$key, $value]) {
-            $collection->values[$encodedKey] = [$key, $mapper($value, $key)];
-        }
-
-        return $collection;
-    }
+    public function map(callable $mapper): static;
 
     /**
      * @param callable(TValue, TKey): bool $filter
-     * @return self<TKey, TValue>
+     * @return static<TKey, TValue>
      */
-    public function filter(callable $filter): self
-    {
-        /** @var self<TKey, TValue> */
-        $collection = new self();
-
-        foreach ($this->values as $encodedKey => [$key, $value]) {
-            if ($filter($value, $key)) {
-                $collection->values[$encodedKey] = [$key, $value];
-            }
-        }
-
-        return $collection;
-    }
+    public function filter(callable $filter): static;
 
     /**
-     * @return list<TKey>
+     * @return List_<TKey>
      */
-    public function keys(): array
-    {
-        return array_column($this->values, 0);
-    }
+    public function keys(): List_;
 
     /**
      * @return ?TKey
      */
-    public function firstKey(): mixed
-    {
-        $encodedKey = array_key_first($this->values);
-
-        if ($encodedKey === null) {
-            return null;
-        }
-
-        return $this->values[$encodedKey][0];
-    }
+    public function firstKey(): mixed;
 
     /**
      * @return ?TKey
      */
-    public function lastKey(): mixed
-    {
-        $encodedKey = array_key_last($this->values);
-
-        if ($encodedKey === null) {
-            return null;
-        }
-
-        return $this->values[$encodedKey][0];
-    }
+    public function lastKey(): mixed;
 
     /**
      * @return ?TValue
      */
-    public function first(): mixed
-    {
-        $encodedKey = array_key_first($this->values);
-
-        if ($encodedKey === null) {
-            return null;
-        }
-
-        return $this->values[$encodedKey][1];
-    }
+    public function firstValue(): mixed;
 
     /**
      * @return ?TValue
      */
-    public function last(): mixed
-    {
-        $encodedKey = array_key_last($this->values);
-
-        if ($encodedKey === null) {
-            return null;
-        }
-
-        return $this->values[$encodedKey][1];
-    }
+    public function lastValue(): mixed;
 
     /**
-     * @return self<non-negative-int, TValue>
+     * @return List_<TValue>
      */
-    public function toIndexed(): self
-    {
-        /** @var self<non-negative-int, TValue> */
-        $collection = new self();
-        $index = 0;
-
-        foreach ($this->values as [, $value]) {
-            $collection->values[] = [$index++, $value];
-        }
-
-        return $collection;
-    }
+    public function values(): List_;
 
     /**
      * @return array<TKey, TValue>
      */
-    public function toArray(): array
-    {
-        return array_column($this->values, 1, 0);
-    }
+    public function toArray(): array;
 
     /**
-     * @return list<TValue>
+     * @return List_<array{TKey, TValue}>
      */
-    public function toList(): array
-    {
-        return array_column($this->values, 1);
-    }
+    public function keyValuePairs(): List_;
 
     /**
      * @param callable(TValue, TKey): bool $predicate
      */
-    public function any(callable $predicate): bool
-    {
-        foreach ($this->values as [$key, $value]) {
-            if ($predicate($value, $key)) {
-                return true;
-            }
-        }
-
-        return false;
-    }
+    public function any(callable $predicate): bool;
 
     /**
      * @param callable(TValue, TKey): bool $predicate
      */
-    public function all(callable $predicate): bool
-    {
-        foreach ($this->values as [$key, $value]) {
-            if (!$predicate($value, $key)) {
-                return false;
-            }
-        }
-
-        return true;
-    }
-
-    public function getIterator(): \Generator
-    {
-        foreach ($this->values as [$key, $value]) {
-            yield $key => $value;
-        }
-    }
+    public function all(callable $predicate): bool;
 
     /**
      * @return non-negative-int
      */
-    public function count(): int
-    {
-        return \count($this->values);
-    }
+    public function count(): int;
 
-    public function isEmpty(): bool
-    {
-        return $this->values === [];
-    }
+    public function isEmpty(): bool;
 
-    public function offsetSet(mixed $offset, mixed $value): never
-    {
-        throw new \BadMethodCallException(\sprintf('%s is immutable', self::class));
-    }
+    public function sort(int $flags = SORT_REGULAR): static;
 
-    public function offsetUnset(mixed $offset): never
-    {
-        throw new \BadMethodCallException(\sprintf('%s is immutable', self::class));
-    }
+    public function sortDesc(int $flags = SORT_REGULAR): static;
 
     /**
-     * @return list<array{TKey, TValue}>
+     * @param callable(TValue, TValue, TKey, TKey): int $comparator
      */
-    public function __serialize(): array
-    {
-        return array_values($this->values);
-    }
+    public function sortBy(callable $comparator): static;
+
+    public function slice(int $offset, ?int $length = null): static;
 
     /**
-     * @param list<array{TKey, TValue}> $kvPairs
+     * @template TReturn
+     * @template TInitial
+     * @param callable(TReturn|TInitial, TValue, TKey): TReturn $reducer
+     * @param TInitial $initial
+     * @return TReturn|TInitial
      */
-    public function __unserialize(array $kvPairs): void
-    {
-        foreach ($kvPairs as $kvPair) {
-            $this->values[KeyEncoder::encode($kvPair[0])] = $kvPair;
-        }
-    }
+    public function reduce(callable $reducer, mixed $initial = null): mixed;
+
+    public function reverse(): static;
+
+    /**
+     * @return OrderedMap<TValue, TKey>
+     */
+    public function flip(): OrderedMap;
+
+    /**
+     * @param callable(TValue, TKey): bool $filter
+     * @return ?TValue
+     */
+    public function find(callable $filter): mixed;
+
+    /**
+     * @param callable(TValue, TKey): bool $filter
+     * @return ?TKey
+     */
+    public function findKey(callable $filter): mixed;
+
+    /**
+     * @return self<TKey, TValue>
+     */
+    public function toMutable(): self;
 }
