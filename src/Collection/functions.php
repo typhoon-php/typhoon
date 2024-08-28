@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Typhoon\Collection;
 
+use Typhoon\Collection\Internal\KeyEncoder;
 use Typhoon\Collection\Internal\TheList;
 use Typhoon\Collection\Internal\TheOrderedMap;
 

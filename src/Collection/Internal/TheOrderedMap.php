@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace Typhoon\Collection\Internal;
 
-use Typhoon\Collection\KeyEncoder;
 use Typhoon\Collection\KeyIsNotDefined;
 use Typhoon\Collection\List_;
 use Typhoon\Collection\MutableOrderedMap;

@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Typhoon\Collection;
+namespace Typhoon\Collection\Internal;
 
 /**
  * @internal

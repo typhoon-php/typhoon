@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace Typhoon\Collection;
 
+use Typhoon\Collection\Internal\ValueStringifier;
+
 /**
  * @api
  */
