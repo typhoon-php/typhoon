@@ -48,9 +48,45 @@ final class ArrayMap extends MutableMap
     }
 
     /**
+     * @template NK
+     * @template NV
+     * @param iterable<NK> $keys
+     * @param callable(NK): NV $value
+     * @return self<NK, NV>
+     */
+    public static function fromKeys(iterable $keys, callable $value): self
+    {
+        $map = new self();
+
+        foreach ($keys as $key) {
+            $map->put($key, $value($key));
+        }
+
+        return $map;
+    }
+
+    /**
+     * @template NK
+     * @template NV
+     * @param iterable<NV> $values
+     * @param callable(NV): NK $key
+     * @return self<NK, NV>
+     */
+    public static function fromValues(iterable $values, callable $key): self
+    {
+        $map = new self();
+
+        foreach ($values as $value) {
+            $map->put($key($value), $value);
+        }
+
+        return $map;
+    }
+
+    /**
      * @param array<KVPair<K, V>> $kvPairs
      */
-    public function __construct(
+    private function __construct(
         private array $kvPairs = [],
     ) {}
 

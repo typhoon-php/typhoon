@@ -42,6 +42,30 @@ abstract class Map implements \IteratorAggregate, \Countable, \ArrayAccess
     /**
      * @template NK
      * @template NV
+     * @param iterable<NK> $keys
+     * @param callable(NK): NV $value
+     * @return self<NK, NV>
+     */
+    public static function fromKeys(iterable $keys, callable $value): self
+    {
+        return ArrayMap::fromKeys($keys, $value);
+    }
+
+    /**
+     * @template NK
+     * @template NV
+     * @param iterable<NV> $values
+     * @param callable(NV): NK $key
+     * @return self<NK, NV>
+     */
+    public static function fromValues(iterable $values, callable $key): self
+    {
+        return ArrayMap::fromValues($values, $key);
+    }
+
+    /**
+     * @template NK
+     * @template NV
      * @param NK $key
      * @param NV $value
      * @return static<K|NK, V|NV>
