@@ -242,6 +242,18 @@ final class ArrayMap extends MutableMap
         return new self(array_map(static fn (KVPair $kv): KVPair => $kv->withValue($mapper($kv->key, $kv->value)), $this->kvPairs));
     }
 
+    public function reindexKV(callable $mapper): static
+    {
+        $map = new self();
+
+        foreach ($this->kvPairs as $kvPair) {
+            $key = $mapper($kvPair->key, $kvPair->value);
+            $map->kvPairs[ArrayMapKeyEncoder::encode($key)] = $kvPair->withKey($key);
+        }
+
+        return $map;
+    }
+
     public function flip(): static
     {
         $map = new self();

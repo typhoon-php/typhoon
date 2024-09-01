@@ -308,6 +308,26 @@ abstract class Map implements \IteratorAggregate, \Countable, \ArrayAccess
     abstract public function mapKV(callable $mapper): static;
 
     /**
+     * @template NK
+     * @param callable(V): NK $mapper
+     * @return static<NK, V>
+     */
+    final public function reindex(callable $mapper): static
+    {
+        return $this->reindexKV(
+            /** @param V $value */
+            static fn(mixed $key, mixed $value): mixed => $mapper($value),
+        );
+    }
+
+    /**
+     * @template NK
+     * @param callable(K, V): NK $mapper
+     * @return static<NK, V>
+     */
+    abstract public function reindexKV(callable $mapper): static;
+
+    /**
      * @return static<V, K>
      */
     abstract public function flip(): static;
