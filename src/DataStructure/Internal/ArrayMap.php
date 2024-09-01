@@ -187,6 +187,45 @@ final class ArrayMap extends MutableMap
         return $this->kvPairs[$key];
     }
 
+    public function reduceKV(callable $operation): mixed
+    {
+        $kvPairs = $this->kvPairs;
+        $initial = array_shift($kvPairs) ?? throw new \RuntimeException('Empty map');
+
+        if ($kvPairs === []) {
+            return $initial->value;
+        }
+
+        return array_reduce(
+            $kvPairs,
+            /**
+             * @param V $accumulator
+             * @param KVPair<K,V> $kv
+             */
+            static fn (mixed $accumulator, KVPair $kv): mixed => $operation($accumulator, $kv->key, $kv->value),
+            $initial->value,
+        );
+    }
+
+    /**
+     * @template R
+     * @param R $initial
+     * @param callable(R, K, V): R $operation
+     * @return R
+     */
+    public function foldKV(mixed $initial, callable $operation): mixed
+    {
+        return array_reduce(
+            $this->kvPairs,
+            /**
+             * @param R $accumulator
+             * @param KVPair<K,V> $kv
+             */
+            static fn (mixed $accumulator, KVPair $kv): mixed => $operation($accumulator, $kv->key, $kv->value),
+            $initial,
+        );
+    }
+
     public function filterKV(callable $predicate): static
     {
         return new self(array_filter($this->kvPairs, static fn (KVPair $kv): bool => $predicate($kv->key, $kv->value)));

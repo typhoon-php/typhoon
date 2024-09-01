@@ -219,6 +219,53 @@ abstract class Map implements \IteratorAggregate, \Countable, \ArrayAccess
     }
 
     /**
+     * @param callable(V, V): V $operation
+     * @return V
+     */
+    final public function reduce(callable $operation): mixed
+    {
+        return $this->reduceKV(
+            /**
+             * @param V $accumulator
+             * @param V $value
+             */
+            static fn (mixed $accumulator, mixed $key, mixed $value): mixed => $operation($accumulator, $value)
+        );
+    }
+
+    /**
+     * @param callable(V, K, V): V $operation
+     * @return V
+     */
+    abstract public function reduceKV(callable $operation): mixed;
+
+    /**
+     * @template R
+     * @param R $initial
+     * @param callable(R, V): R $operation
+     * @return R
+     */
+    final public function fold(mixed $initial, callable $operation): mixed
+    {
+        return $this->foldKV(
+            $initial,
+            /**
+             * @param R $accumulator
+             * @param V $value
+             */
+            static fn (mixed $accumulator, mixed $key, mixed $value): mixed => $operation($accumulator, $value)
+        );
+    }
+
+    /**
+     * @template R
+     * @param R $initial
+     * @param callable(R, K, V): R $operation
+     * @return R
+     */
+    abstract public function foldKV(mixed $initial, callable $operation): mixed;
+
+    /**
      * @param callable(V): bool $predicate
      * @return static<K, V>
      */
