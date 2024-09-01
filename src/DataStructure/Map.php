@@ -4,8 +4,6 @@ declare(strict_types=1);
 
 namespace Typhoon\DataStructure;
 
-use Typhoon\DataStructure\Internal\ArrayMap;
-
 /**
  * @api
  * @template-covariant K
@@ -25,10 +23,11 @@ abstract class Map implements \IteratorAggregate, \Countable, \ArrayAccess
      */
     public static function of(iterable|\Closure $values = []): self
     {
-        return ArrayMap::of($values);
+        return MutableMap::of($values);
     }
 
     /**
+     * @no-named-arguments
      * @template NK
      * @template NV
      * @param KVPair<NK, NV> ...$kvPairs
@@ -36,7 +35,7 @@ abstract class Map implements \IteratorAggregate, \Countable, \ArrayAccess
      */
     public static function fromPairs(KVPair ...$kvPairs): self
     {
-        return ArrayMap::fromPairs(...$kvPairs);
+        return MutableMap::fromPairs(...$kvPairs);
     }
 
     /**
@@ -48,7 +47,7 @@ abstract class Map implements \IteratorAggregate, \Countable, \ArrayAccess
      */
     public static function fromKeys(iterable $keys, callable $value): self
     {
-        return ArrayMap::fromKeys($keys, $value);
+        return MutableMap::fromKeys($keys, $value);
     }
 
     /**
@@ -60,7 +59,7 @@ abstract class Map implements \IteratorAggregate, \Countable, \ArrayAccess
      */
     public static function fromValues(iterable $values, callable $key): self
     {
-        return ArrayMap::fromValues($values, $key);
+        return MutableMap::fromValues($values, $key);
     }
 
     /**
@@ -73,6 +72,7 @@ abstract class Map implements \IteratorAggregate, \Countable, \ArrayAccess
     abstract public function with(mixed $key, mixed $value): static;
 
     /**
+     * @no-named-arguments
      * @template NK
      * @template NV
      * @param KVPair<NK, NV> ...$kvPairs
@@ -86,19 +86,45 @@ abstract class Map implements \IteratorAggregate, \Countable, \ArrayAccess
      * @param iterable<NK, NV>|\Closure(): iterable<NK, NV> $values
      * @return static<K|NK, V|NV>
      */
-    abstract public function withAll(iterable|\Closure $values): static;
+    final public function withAll(iterable|\Closure $values): static
+    {
+        if ($values instanceof \Closure) {
+            $values = $values();
+        }
+
+        if ($values === []) {
+            return $this;
+        }
+
+        return $this->doWithAll($values);
+    }
 
     /**
+     * @template NK
+     * @template NV
+     * @param iterable<NK, NV> $values
+     * @return static<K|NK, V|NV>
+     */
+    abstract protected function doWithAll(iterable $values): static;
+
+    /**
+     * @no-named-arguments
      * @return static<K, V>
      */
     abstract public function without(mixed ...$keys): static;
 
-    abstract public function isEmpty(): bool;
+    public function isEmpty(): bool
+    {
+        return $this->count() === 0;
+    }
 
     /**
      * @return non-negative-int
      */
-    abstract public function count(): int;
+    public function count(): int
+    {
+        return iterator_count($this->getIterator());
+    }
 
     /**
      * @return ($key is K ? bool : false)
@@ -125,18 +151,35 @@ abstract class Map implements \IteratorAggregate, \Countable, \ArrayAccess
     /**
      * @return ?KVPair<K, V>
      */
-    abstract public function first(): ?KVPair;
+    public function first(): ?KVPair
+    {
+        return $this->findFirst(static fn(): bool => true);
+    }
 
     /**
      * @return ?KVPair<K, V>
      */
-    abstract public function last(): ?KVPair;
+    public function last(): ?KVPair
+    {
+        $started = false;
+
+        foreach ($this->getIterator() as $key => $value) {
+            $started = true;
+        }
+
+        if ($started) {
+            /** @psalm-suppress PossiblyUndefinedVariable */
+            return new KVPair($key, $value);
+        }
+
+        return null;
+    }
 
     /**
      * @param callable(V): bool $predicate
      * @return ?KVPair<K, V>
      */
-    final public function findFirst(callable $predicate): ?KVPair
+    public function findFirst(callable $predicate): ?KVPair
     {
         foreach ($this->getIterator() as $key => $value) {
             if ($predicate($value)) {
@@ -151,7 +194,7 @@ abstract class Map implements \IteratorAggregate, \Countable, \ArrayAccess
      * @param callable(K, V): bool $predicate
      * @return ?KVPair<K, V>
      */
-    final public function findFirstKV(callable $predicate): ?KVPair
+    public function findFirstKV(callable $predicate): ?KVPair
     {
         foreach ($this->getIterator() as $key => $value) {
             if ($predicate($key, $value)) {
@@ -230,7 +273,7 @@ abstract class Map implements \IteratorAggregate, \Countable, \ArrayAccess
              * @param V|R $accumulator
              * @param V $value
              */
-            static fn (mixed $accumulator, mixed $key, mixed $value): mixed => $operation($accumulator, $value)
+            static fn(mixed $accumulator, mixed $key, mixed $value): mixed => $operation($accumulator, $value),
         );
     }
 
@@ -239,7 +282,27 @@ abstract class Map implements \IteratorAggregate, \Countable, \ArrayAccess
      * @param callable(V|R, K, V): R $operation
      * @return V|R
      */
-    abstract public function reduceKV(callable $operation): mixed;
+    public function reduceKV(callable $operation): mixed
+    {
+        $started = false;
+        /** @var V|R */
+        $accumulator = null;
+
+        foreach ($this->getIterator() as $key => $value) {
+            if ($started) {
+                $accumulator = $operation($accumulator, $key, $value);
+            } else {
+                $started = true;
+                $accumulator = $value;
+            }
+        }
+
+        if ($started) {
+            return $accumulator;
+        }
+
+        throw new \RuntimeException('Empty map');
+    }
 
     /**
      * @template I
@@ -256,7 +319,7 @@ abstract class Map implements \IteratorAggregate, \Countable, \ArrayAccess
              * @param I|R $accumulator
              * @param V $value
              */
-            static fn (mixed $accumulator, mixed $key, mixed $value): mixed => $operation($accumulator, $value)
+            static fn(mixed $accumulator, mixed $key, mixed $value): mixed => $operation($accumulator, $value),
         );
     }
 
@@ -267,13 +330,20 @@ abstract class Map implements \IteratorAggregate, \Countable, \ArrayAccess
      * @param callable(I|R, K, V): R $operation
      * @return I|R
      */
-    abstract public function foldKV(mixed $initial, callable $operation): mixed;
+    public function foldKV(mixed $initial, callable $operation): mixed
+    {
+        foreach ($this->getIterator() as $key => $value) {
+            $initial = $operation($initial, $key, $value);
+        }
+
+        return $initial;
+    }
 
     /**
      * @param callable(V): bool $predicate
      * @return static<K, V>
      */
-    final public function filter(callable $predicate): static
+    public function filter(callable $predicate): static
     {
         return $this->filterKV(
             /** @param V $value */
@@ -312,9 +382,9 @@ abstract class Map implements \IteratorAggregate, \Countable, \ArrayAccess
      * @param callable(V): NK $mapper
      * @return static<NK, V>
      */
-    final public function reindex(callable $mapper): static
+    public function mapKey(callable $mapper): static
     {
-        return $this->reindexKV(
+        return $this->mapKeyKV(
             /** @param V $value */
             static fn(mixed $key, mixed $value): mixed => $mapper($value),
         );
@@ -325,17 +395,36 @@ abstract class Map implements \IteratorAggregate, \Countable, \ArrayAccess
      * @param callable(K, V): NK $mapper
      * @return static<NK, V>
      */
-    abstract public function reindexKV(callable $mapper): static;
+    abstract public function mapKeyKV(callable $mapper): static;
+
+    /**
+     * @template NK
+     * @template NV
+     * @param callable(V): iterable<NK, NV> $mapper
+     * @return static<NK, NV>
+     */
+    public function flatMap(callable $mapper): static
+    {
+        return $this->flatMapKV(
+            /** @param V $value */
+            static fn(mixed $key, mixed $value): mixed => $mapper($value),
+        );
+    }
+
+    /**
+     * @template NK
+     * @template NV
+     * @param callable(K, V): iterable<NK, NV> $mapper
+     * @return static<NK, NV>
+     */
+    abstract public function flatMapKV(callable $mapper): static;
 
     /**
      * @return static<V, K>
      */
     abstract public function flip(): static;
 
-    /**
-     * @return static<K, V>
-     */
-    abstract public function reverse(): static;
+    // TODO public function reverse(): static;
 
     /**
      * @return static<K, V>
@@ -395,25 +484,17 @@ abstract class Map implements \IteratorAggregate, \Countable, \ArrayAccess
      */
     abstract public function slice(int $offset, ?int $length = null): static;
 
-    /**
-     * @return Sequence<K>
-     */
-    abstract public function keys(): Sequence;
-
-    /**
-     * @return Sequence<V>
-     */
-    abstract public function values(): Sequence;
-
-    /**
-     * @return Sequence<KVPair<K, V>>
-     */
-    abstract public function pairs(): Sequence;
+    // TODO: public function keys(): Sequence
+    // TODO: public function values(): Sequence
+    // TODO: public function pairs(): Sequence
 
     /**
      * @return (K is array-key ? array<K, V>: never)
      */
-    abstract public function toArray(): array;
+    public function toArray(): array
+    {
+        return iterator_to_array($this->getIterator());
+    }
 
     /**
      * @return ($offset is K ? bool : false)

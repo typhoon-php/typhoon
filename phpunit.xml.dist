@@ -24,6 +24,10 @@
             <file>tests/Reflection/Internal/NativeAdapter/AdapterCompatibilityTest.php</file>
         </testsuite>
 
+        <testsuite name="DataStructure">
+            <directory>tests/DataStructure</directory>
+        </testsuite>
+
         <testsuite name="infection">
             <directory>tests/ChangeDetector</directory>
             <file>tests/Reflection/Internal/Inheritance/TypeResolversTest.php</file>

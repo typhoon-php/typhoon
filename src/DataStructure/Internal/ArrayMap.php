@@ -6,7 +6,6 @@ namespace Typhoon\DataStructure\Internal;
 
 use Typhoon\DataStructure\KVPair;
 use Typhoon\DataStructure\MutableMap;
-use Typhoon\DataStructure\Sequence;
 
 /**
  * @internal
@@ -18,75 +17,9 @@ use Typhoon\DataStructure\Sequence;
 final class ArrayMap extends MutableMap
 {
     /**
-     * @template NK
-     * @template NV
-     * @param iterable<NK, NV>|\Closure(): iterable<NK, NV> $values
-     * @return self<NK, NV>
-     */
-    public static function of(iterable|\Closure $values = []): self
-    {
-        /** @var self<NK, NV> */
-        $map = new self();
-        $map->putAll($values);
-
-        return $map;
-    }
-
-    /**
-     * @template NK
-     * @template NV
-     * @param KVPair<NK, NV> ...$kvPairs
-     * @return self<NK, NV>
-     */
-    public static function fromPairs(KVPair ...$kvPairs): self
-    {
-        /** @var self<NK, NV> */
-        $map = new self();
-        $map->putPairs(...$kvPairs);
-
-        return $map;
-    }
-
-    /**
-     * @template NK
-     * @template NV
-     * @param iterable<NK> $keys
-     * @param callable(NK): NV $value
-     * @return self<NK, NV>
-     */
-    public static function fromKeys(iterable $keys, callable $value): self
-    {
-        $map = new self();
-
-        foreach ($keys as $key) {
-            $map->put($key, $value($key));
-        }
-
-        return $map;
-    }
-
-    /**
-     * @template NK
-     * @template NV
-     * @param iterable<NV> $values
-     * @param callable(NV): NK $key
-     * @return self<NK, NV>
-     */
-    public static function fromValues(iterable $values, callable $key): self
-    {
-        $map = new self();
-
-        foreach ($values as $value) {
-            $map->put($key($value), $value);
-        }
-
-        return $map;
-    }
-
-    /**
      * @param array<KVPair<K, V>> $kvPairs
      */
-    private function __construct(
+    public function __construct(
         private array $kvPairs = [],
     ) {}
 
@@ -110,14 +43,10 @@ final class ArrayMap extends MutableMap
         }
     }
 
-    public function putAll(iterable|\Closure $values): void
+    protected function doPutAll(iterable $values): void
     {
-        if ($values instanceof \Closure) {
-            $values = $values();
-        }
-
         if ($values instanceof self) {
-            $this->kvPairs = [...$this->kvPairs, ...$values->kvPairs];
+            $this->kvPairs = array_replace($this->kvPairs, $values->kvPairs);
 
             return;
         }
@@ -207,7 +136,7 @@ final class ArrayMap extends MutableMap
              * @param V|R $accumulator
              * @param KVPair<K,V> $kv
              */
-            static fn (mixed $accumulator, KVPair $kv): mixed => $operation($accumulator, $kv->key, $kv->value),
+            static fn(mixed $accumulator, KVPair $kv): mixed => $operation($accumulator, $kv->key, $kv->value),
             $initial->value,
         );
     }
@@ -227,47 +156,22 @@ final class ArrayMap extends MutableMap
              * @param I|R $accumulator
              * @param KVPair<K,V> $kv
              */
-            static fn (mixed $accumulator, KVPair $kv): mixed => $operation($accumulator, $kv->key, $kv->value),
+            static fn(mixed $accumulator, KVPair $kv): mixed => $operation($accumulator, $kv->key, $kv->value),
             $initial,
         );
     }
 
     public function filterKV(callable $predicate): static
     {
-        return new self(array_filter($this->kvPairs, static fn (KVPair $kv): bool => $predicate($kv->key, $kv->value)));
+        return new self(array_filter($this->kvPairs, static fn(KVPair $kv): bool => $predicate($kv->key, $kv->value)));
     }
 
     public function mapKV(callable $mapper): static
     {
-        return new self(array_map(static fn (KVPair $kv): KVPair => $kv->withValue($mapper($kv->key, $kv->value)), $this->kvPairs));
-    }
-
-    public function reindexKV(callable $mapper): static
-    {
-        $map = new self();
-
-        foreach ($this->kvPairs as $kvPair) {
-            $key = $mapper($kvPair->key, $kvPair->value);
-            $map->kvPairs[ArrayMapKeyEncoder::encode($key)] = $kvPair->withKey($key);
-        }
-
-        return $map;
-    }
-
-    public function flip(): static
-    {
-        $map = new self();
-
-        foreach ($this->kvPairs as $kvPair) {
-            $map->kvPairs[ArrayMapKeyEncoder::encode($kvPair->value)] = $kvPair->flip();
-        }
-
-        return $map;
-    }
-
-    public function reverse(): static
-    {
-        return new self(array_reverse($this->kvPairs, preserve_keys: true));
+        return new self(array_map(
+            static fn(KVPair $kv): KVPair => $kv->withValue($mapper($kv->key, $kv->value)),
+            $this->kvPairs,
+        ));
     }
 
     public function usortKV(callable $comparator): static
@@ -279,7 +183,7 @@ final class ArrayMap extends MutableMap
              * @param KVPair<K, V> $kv1
              * @param KVPair<K, V> $kv2
              */
-            static fn (KVPair $kv1, KVPair $kv2) => $comparator($kv1->key, $kv1->value, $kv2->key, $kv2->value)
+            static fn(KVPair $kv1, KVPair $kv2) => $comparator($kv1->key, $kv1->value, $kv2->key, $kv2->value),
         );
 
         return new self($kvPairs);
@@ -287,27 +191,7 @@ final class ArrayMap extends MutableMap
 
     public function slice(int $offset, ?int $length = null): static
     {
-        return new self(\array_slice($this->kvPairs, $offset, $length));
-    }
-
-    public function keys(): Sequence
-    {
-        throw new \LogicException('TODO');
-    }
-
-    public function values(): Sequence
-    {
-        throw new \LogicException('TODO');
-    }
-
-    public function pairs(): Sequence
-    {
-        throw new \LogicException('TODO');
-    }
-
-    public function toArray(): array
-    {
-        return iterator_to_array($this->getIterator());
+        return new self(\array_slice($this->kvPairs, $offset, $length, preserve_keys: true));
     }
 
     /**
