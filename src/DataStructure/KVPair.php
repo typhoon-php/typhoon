@@ -9,7 +9,7 @@ namespace Typhoon\DataStructure;
  * @template-covariant K
  * @template-covariant V
  */
-final class KeyValue
+final class KVPair
 {
     /**
      * @param K $key

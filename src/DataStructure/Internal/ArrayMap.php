@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Typhoon\DataStructure\Internal;
 
-use Typhoon\DataStructure\KeyValue;
+use Typhoon\DataStructure\KVPair;
 use Typhoon\DataStructure\MutableMap;
 use Typhoon\DataStructure\Sequence;
 
@@ -35,10 +35,10 @@ final class ArrayMap extends MutableMap
     /**
      * @template NK
      * @template NV
-     * @param KeyValue<NK, NV> ...$keyValues
+     * @param KVPair<NK, NV> ...$keyValues
      * @return self<NK, NV>
      */
-    public static function ofKV(KeyValue ...$keyValues): self
+    public static function ofKV(KVPair ...$keyValues): self
     {
         /** @var self<NK, NV> */
         $map = new self();
@@ -48,13 +48,13 @@ final class ArrayMap extends MutableMap
     }
 
     /**
-     * @param array<KeyValue<K, V>> $keyValues
+     * @param array<KVPair<K, V>> $keyValues
      */
     public function __construct(
         private array $keyValues = [],
     ) {}
 
-    public function putKV(KeyValue ...$keyValues): void
+    public function putKV(KVPair ...$keyValues): void
     {
         foreach ($keyValues as $keyValue) {
             $this->keyValues[ArrayMapKeyEncoder::encode($keyValue->key)] = $keyValue;
@@ -74,7 +74,7 @@ final class ArrayMap extends MutableMap
         }
 
         foreach ($values as $key => $value) {
-            $this->keyValues[ArrayMapKeyEncoder::encode($key)] = new KeyValue($key, $value);
+            $this->keyValues[ArrayMapKeyEncoder::encode($key)] = new KVPair($key, $value);
         }
     }
 
@@ -116,7 +116,7 @@ final class ArrayMap extends MutableMap
         return $or();
     }
 
-    public function first(): ?KeyValue
+    public function first(): ?KVPair
     {
         $key = array_key_first($this->keyValues);
 
@@ -127,7 +127,7 @@ final class ArrayMap extends MutableMap
         return $this->keyValues[$key];
     }
 
-    public function last(): ?KeyValue
+    public function last(): ?KVPair
     {
         $key = array_key_last($this->keyValues);
 
@@ -138,7 +138,7 @@ final class ArrayMap extends MutableMap
         return $this->keyValues[$key];
     }
 
-    public function findFirstKV(callable $predicate): ?KeyValue
+    public function findFirstKV(callable $predicate): ?KVPair
     {
         foreach ($this->keyValues as $keyValue) {
             if ($predicate($keyValue)) {
@@ -214,7 +214,7 @@ final class ArrayMap extends MutableMap
         throw new \LogicException('TODO');
     }
 
-    public function keyValues(): Sequence
+    public function pairs(): Sequence
     {
         throw new \LogicException('TODO');
     }

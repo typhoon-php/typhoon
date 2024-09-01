@@ -31,10 +31,10 @@ abstract class Map implements \IteratorAggregate, \Countable, \ArrayAccess
     /**
      * @template NK
      * @template NV
-     * @param KeyValue<NK, NV> ...$keyValues
+     * @param KVPair<NK, NV> ...$keyValues
      * @return self<NK, NV>
      */
-    public static function ofKV(KeyValue ...$keyValues): self
+    public static function ofKV(KVPair ...$keyValues): self
     {
         return ArrayMap::ofKV(...$keyValues);
     }
@@ -48,16 +48,16 @@ abstract class Map implements \IteratorAggregate, \Countable, \ArrayAccess
      */
     final public function with(mixed $key, mixed $value): static
     {
-        return $this->withKV(new KeyValue($key, $value));
+        return $this->withKV(new KVPair($key, $value));
     }
 
     /**
      * @template NK
      * @template NV
-     * @param KeyValue<NK, NV> ...$keyValues
+     * @param KVPair<NK, NV> ...$keyValues
      * @return static<K|NK, V|NV>
      */
-    abstract public function withKV(KeyValue ...$keyValues): static;
+    abstract public function withKV(KVPair ...$keyValues): static;
 
     /**
      * @template NK
@@ -102,32 +102,32 @@ abstract class Map implements \IteratorAggregate, \Countable, \ArrayAccess
     abstract public function getOr(mixed $key, callable $or): mixed;
 
     /**
-     * @return ?KeyValue<K, V>
+     * @return ?KVPair<K, V>
      */
-    abstract public function first(): ?KeyValue;
+    abstract public function first(): ?KVPair;
 
     /**
-     * @return ?KeyValue<K, V>
+     * @return ?KVPair<K, V>
      */
-    abstract public function last(): ?KeyValue;
+    abstract public function last(): ?KVPair;
 
     /**
      * @param callable(V): bool $predicate
-     * @return ?KeyValue<K, V>
+     * @return ?KVPair<K, V>
      */
-    final public function findFirst(callable $predicate): ?KeyValue
+    final public function findFirst(callable $predicate): ?KVPair
     {
         return $this->findFirstKV(
-            /** @param KeyValue<K, V> $keyValue */
-            static fn(KeyValue $keyValue): bool => $predicate($keyValue->value),
+            /** @param KVPair<K, V> $keyValue */
+            static fn(KVPair $keyValue): bool => $predicate($keyValue->value),
         );
     }
 
     /**
-     * @param callable(KeyValue<K, V>): bool $predicate
-     * @return ?KeyValue<K, V>
+     * @param callable(KVPair<K, V>): bool $predicate
+     * @return ?KVPair<K, V>
      */
-    abstract public function findFirstKV(callable $predicate): ?KeyValue;
+    abstract public function findFirstKV(callable $predicate): ?KVPair;
 
     /**
      * @param callable(V): bool $predicate
@@ -135,13 +135,13 @@ abstract class Map implements \IteratorAggregate, \Countable, \ArrayAccess
     final public function any(callable $predicate): bool
     {
         return $this->anyKV(
-            /** @param KeyValue<K, V> $keyValue */
-            static fn(KeyValue $keyValue): bool => $predicate($keyValue->value),
+            /** @param KVPair<K, V> $keyValue */
+            static fn(KVPair $keyValue): bool => $predicate($keyValue->value),
         );
     }
 
     /**
-     * @param callable(KeyValue<K, V>): bool $predicate
+     * @param callable(KVPair<K, V>): bool $predicate
      */
     abstract public function anyKV(callable $predicate): bool;
 
@@ -151,13 +151,13 @@ abstract class Map implements \IteratorAggregate, \Countable, \ArrayAccess
     final public function all(callable $predicate): bool
     {
         return $this->allKV(
-            /** @param KeyValue<K, V> $keyValue */
-            static fn(KeyValue $keyValue): bool => $predicate($keyValue->value),
+            /** @param KVPair<K, V> $keyValue */
+            static fn(KVPair $keyValue): bool => $predicate($keyValue->value),
         );
     }
 
     /**
-     * @param callable(KeyValue<K, V>): bool $predicate
+     * @param callable(KVPair<K, V>): bool $predicate
      */
     abstract public function allKV(callable $predicate): bool;
 
@@ -173,9 +173,9 @@ abstract class Map implements \IteratorAggregate, \Countable, \ArrayAccess
         return $this->reduceKV(
             /**
              * @param I|R $carry
-             * @param KeyValue<K, V> $keyValue
+             * @param KVPair<K, V> $keyValue
              */
-            static fn(mixed $carry, KeyValue $keyValue): mixed => $reducer($carry, $keyValue->value),
+            static fn(mixed $carry, KVPair $keyValue): mixed => $reducer($carry, $keyValue->value),
             $initial,
         );
     }
@@ -183,7 +183,7 @@ abstract class Map implements \IteratorAggregate, \Countable, \ArrayAccess
     /**
      * @template I
      * @template R
-     * @param callable(I|R, KeyValue<K, V>): R $reducer
+     * @param callable(I|R, KVPair<K, V>): R $reducer
      * @param I $initial
      * @return I|R
      */
@@ -196,13 +196,13 @@ abstract class Map implements \IteratorAggregate, \Countable, \ArrayAccess
     final public function filter(callable $predicate): static
     {
         return $this->filterKV(
-            /** @param KeyValue<K, V> $keyValue */
-            static fn(KeyValue $keyValue): bool => $predicate($keyValue->value),
+            /** @param KVPair<K, V> $keyValue */
+            static fn(KVPair $keyValue): bool => $predicate($keyValue->value),
         );
     }
 
     /**
-     * @param callable(KeyValue<K, V>): bool $predicate
+     * @param callable(KVPair<K, V>): bool $predicate
      * @return static<K, V>
      */
     abstract public function filterKV(callable $predicate): static;
@@ -215,15 +215,15 @@ abstract class Map implements \IteratorAggregate, \Countable, \ArrayAccess
     final public function map(callable $mapper): static
     {
         return $this->mapKV(
-            /** @param KeyValue<K, V> $keyValue */
-            static fn(KeyValue $keyValue): KeyValue => $keyValue->withValue($mapper($keyValue->value)),
+            /** @param KVPair<K, V> $keyValue */
+            static fn(KVPair $keyValue): KVPair => $keyValue->withValue($mapper($keyValue->value)),
         );
     }
 
     /**
      * @template NK
      * @template NV
-     * @param callable(KeyValue<K, V>): KeyValue<NK, NV> $mapper
+     * @param callable(KVPair<K, V>): KVPair<NK, NV> $mapper
      * @return static<NK, NV>
      */
     abstract public function mapKV(callable $mapper): static;
@@ -233,7 +233,7 @@ abstract class Map implements \IteratorAggregate, \Countable, \ArrayAccess
      */
     final public function flip(): static
     {
-        return $this->mapKV(static fn(KeyValue $keyValue): KeyValue => $keyValue->flip());
+        return $this->mapKV(static fn(KVPair $keyValue): KVPair => $keyValue->flip());
     }
 
     /**
@@ -246,7 +246,7 @@ abstract class Map implements \IteratorAggregate, \Countable, \ArrayAccess
      */
     final public function sort(): static
     {
-        return $this->usortKV(static fn(KeyValue $kv1, KeyValue $kv2): int => $kv1->value <=> $kv2->value);
+        return $this->usortKV(static fn(KVPair $kv1, KVPair $kv2): int => $kv1->value <=> $kv2->value);
     }
 
     /**
@@ -254,7 +254,7 @@ abstract class Map implements \IteratorAggregate, \Countable, \ArrayAccess
      */
     final public function sortDesc(): static
     {
-        return $this->usortKV(static fn(KeyValue $kv1, KeyValue $kv2): int => $kv2->value <=> $kv1->value);
+        return $this->usortKV(static fn(KVPair $kv1, KVPair $kv2): int => $kv2->value <=> $kv1->value);
     }
 
     /**
@@ -262,7 +262,7 @@ abstract class Map implements \IteratorAggregate, \Countable, \ArrayAccess
      */
     final public function ksort(): static
     {
-        return $this->usortKV(static fn(KeyValue $kv1, KeyValue $kv2): int => $kv1->key <=> $kv2->key);
+        return $this->usortKV(static fn(KVPair $kv1, KVPair $kv2): int => $kv1->key <=> $kv2->key);
     }
 
     /**
@@ -270,7 +270,7 @@ abstract class Map implements \IteratorAggregate, \Countable, \ArrayAccess
      */
     final public function ksortDesc(): static
     {
-        return $this->usortKV(static fn(KeyValue $kv1, KeyValue $kv2): int => $kv2->key <=> $kv1->key);
+        return $this->usortKV(static fn(KVPair $kv1, KVPair $kv2): int => $kv2->key <=> $kv1->key);
     }
 
     /**
@@ -281,15 +281,15 @@ abstract class Map implements \IteratorAggregate, \Countable, \ArrayAccess
     {
         return $this->usortKV(
             /**
-             * @param KeyValue<K, V> $keyValue1
-             * @param KeyValue<K, V> $keyValue2
+             * @param KVPair<K, V> $keyValue1
+             * @param KVPair<K, V> $keyValue2
              */
-            static fn(KeyValue $keyValue1, KeyValue $keyValue2): int => $comparator($keyValue1->value, $keyValue2->value),
+            static fn(KVPair $keyValue1, KVPair $keyValue2): int => $comparator($keyValue1->value, $keyValue2->value),
         );
     }
 
     /**
-     * @param callable(KeyValue<K, V>, KeyValue<K, V>): int $comparator
+     * @param callable(KVPair<K, V>, KVPair<K, V>): int $comparator
      * @return static<K, V>
      */
     abstract public function usortKV(callable $comparator): static;
@@ -310,9 +310,9 @@ abstract class Map implements \IteratorAggregate, \Countable, \ArrayAccess
     abstract public function values(): Sequence;
 
     /**
-     * @return Sequence<KeyValue<K, V>>
+     * @return Sequence<KVPair<K, V>>
      */
-    abstract public function keyValues(): Sequence;
+    abstract public function pairs(): Sequence;
 
     /**
      * @return (K is array-key ? array<K, V>: never)

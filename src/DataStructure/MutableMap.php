@@ -28,10 +28,10 @@ abstract class MutableMap extends Map
     /**
      * @template NK
      * @template NV
-     * @param KeyValue<NK, NV> ...$keyValues
+     * @param KVPair<NK, NV> ...$keyValues
      * @return self<NK, NV>
      */
-    public static function ofKV(KeyValue ...$keyValues): self
+    public static function ofKV(KVPair ...$keyValues): self
     {
         return ArrayMap::ofKV(...$keyValues);
     }
@@ -39,10 +39,10 @@ abstract class MutableMap extends Map
     /**
      * @template NK
      * @template NV
-     * @param KeyValue<NK, NV> ...$keyValues
+     * @param KVPair<NK, NV> ...$keyValues
      * @return static<K|NK, V|NV>
      */
-    final public function withKV(KeyValue ...$keyValues): static
+    final public function withKV(KVPair ...$keyValues): static
     {
         $map = clone $this;
         $map->putKV(...$keyValues);
@@ -81,13 +81,13 @@ abstract class MutableMap extends Map
      */
     final public function put(mixed $key, mixed $value): void
     {
-        $this->putKV(new KeyValue($key, $value));
+        $this->putKV(new KVPair($key, $value));
     }
 
     /**
-     * @param KeyValue<K, V> ...$keyValues
+     * @param KVPair<K, V> ...$keyValues
      */
-    abstract public function putKV(KeyValue ...$keyValues): void;
+    abstract public function putKV(KVPair ...$keyValues): void;
 
     /**
      * @param iterable<K, V>|\Closure(): iterable<K, V> $values
