@@ -115,9 +115,9 @@ abstract class Map implements \IteratorAggregate, \Countable, \ArrayAccess
      * @param callable(V): bool $predicate
      * @return ?KeyValue<K, V>
      */
-    final public function find(callable $predicate): ?KeyValue
+    final public function findFirst(callable $predicate): ?KeyValue
     {
-        return $this->findKV(
+        return $this->findFirstKV(
             /** @param KeyValue<K, V> $keyValue */
             static fn(KeyValue $keyValue): bool => $predicate($keyValue->value),
         );
@@ -127,7 +127,7 @@ abstract class Map implements \IteratorAggregate, \Countable, \ArrayAccess
      * @param callable(KeyValue<K, V>): bool $predicate
      * @return ?KeyValue<K, V>
      */
-    abstract public function findKV(callable $predicate): ?KeyValue;
+    abstract public function findFirstKV(callable $predicate): ?KeyValue;
 
     /**
      * @param callable(V): bool $predicate

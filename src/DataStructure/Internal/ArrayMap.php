@@ -138,7 +138,7 @@ final class ArrayMap extends MutableMap
         return $this->keyValues[$key];
     }
 
-    public function findKV(callable $predicate): ?KeyValue
+    public function findFirstKV(callable $predicate): ?KeyValue
     {
         foreach ($this->keyValues as $keyValue) {
             if ($predicate($keyValue)) {
