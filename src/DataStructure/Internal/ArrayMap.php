@@ -187,6 +187,11 @@ final class ArrayMap extends MutableMap
         return $this->kvPairs[$key];
     }
 
+    /**
+     * @template R
+     * @param callable(V|R, K, V): R $operation
+     * @return V|R
+     */
     public function reduceKV(callable $operation): mixed
     {
         $kvPairs = $this->kvPairs;
@@ -199,7 +204,7 @@ final class ArrayMap extends MutableMap
         return array_reduce(
             $kvPairs,
             /**
-             * @param V $accumulator
+             * @param V|R $accumulator
              * @param KVPair<K,V> $kv
              */
             static fn (mixed $accumulator, KVPair $kv): mixed => $operation($accumulator, $kv->key, $kv->value),
@@ -208,17 +213,18 @@ final class ArrayMap extends MutableMap
     }
 
     /**
+     * @template I
      * @template R
-     * @param R $initial
-     * @param callable(R, K, V): R $operation
-     * @return R
+     * @param I $initial
+     * @param callable(I|R, K, V): R $operation
+     * @return I|R
      */
     public function foldKV(mixed $initial, callable $operation): mixed
     {
         return array_reduce(
             $this->kvPairs,
             /**
-             * @param R $accumulator
+             * @param I|R $accumulator
              * @param KVPair<K,V> $kv
              */
             static fn (mixed $accumulator, KVPair $kv): mixed => $operation($accumulator, $kv->key, $kv->value),

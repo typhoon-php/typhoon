@@ -219,14 +219,15 @@ abstract class Map implements \IteratorAggregate, \Countable, \ArrayAccess
     }
 
     /**
-     * @param callable(V, V): V $operation
-     * @return V
+     * @template R
+     * @param callable(V|R, V): R $operation
+     * @return V|R
      */
     final public function reduce(callable $operation): mixed
     {
         return $this->reduceKV(
             /**
-             * @param V $accumulator
+             * @param V|R $accumulator
              * @param V $value
              */
             static fn (mixed $accumulator, mixed $key, mixed $value): mixed => $operation($accumulator, $value)
@@ -234,23 +235,25 @@ abstract class Map implements \IteratorAggregate, \Countable, \ArrayAccess
     }
 
     /**
-     * @param callable(V, K, V): V $operation
-     * @return V
+     * @template R
+     * @param callable(V|R, K, V): R $operation
+     * @return V|R
      */
     abstract public function reduceKV(callable $operation): mixed;
 
     /**
+     * @template I
      * @template R
-     * @param R $initial
-     * @param callable(R, V): R $operation
-     * @return R
+     * @param I $initial
+     * @param callable(I|R, V): R $operation
+     * @return I|R
      */
     final public function fold(mixed $initial, callable $operation): mixed
     {
         return $this->foldKV(
             $initial,
             /**
-             * @param R $accumulator
+             * @param I|R $accumulator
              * @param V $value
              */
             static fn (mixed $accumulator, mixed $key, mixed $value): mixed => $operation($accumulator, $value)
@@ -258,10 +261,11 @@ abstract class Map implements \IteratorAggregate, \Countable, \ArrayAccess
     }
 
     /**
+     * @template I
      * @template R
-     * @param R $initial
-     * @param callable(R, K, V): R $operation
-     * @return R
+     * @param I $initial
+     * @param callable(I|R, K, V): R $operation
+     * @return I|R
      */
     abstract public function foldKV(mixed $initial, callable $operation): mixed;
 
