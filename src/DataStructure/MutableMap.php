@@ -36,6 +36,12 @@ abstract class MutableMap extends Map
         return ArrayMap::ofKV(...$keyValues);
     }
 
+    /**
+     * @template NK
+     * @template NV
+     * @param KeyValue<NK, NV> ...$keyValues
+     * @return static<K|NK, V|NV>
+     */
     final public function withKV(KeyValue ...$keyValues): static
     {
         $map = clone $this;
@@ -44,6 +50,12 @@ abstract class MutableMap extends Map
         return $map;
     }
 
+    /**
+     * @template NK
+     * @template NV
+     * @param iterable<NK, NV>|\Closure(): iterable<NK, NV> $values
+     * @return static<K|NK, V|NV>
+     */
     public function withAll(iterable|\Closure $values): static
     {
         $map = clone $this;
@@ -52,6 +64,9 @@ abstract class MutableMap extends Map
         return $map;
     }
 
+    /**
+     * @return static<K, V>
+     */
     final public function without(mixed ...$keys): static
     {
         $map = clone $this;

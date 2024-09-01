@@ -67,6 +67,9 @@ abstract class Map implements \IteratorAggregate, \Countable, \ArrayAccess
      */
     abstract public function withAll(iterable|\Closure $values): static;
 
+    /**
+     * @return static<K, V>
+     */
     abstract public function without(mixed ...$keys): static;
 
     abstract public function isEmpty(): bool;
@@ -188,6 +191,7 @@ abstract class Map implements \IteratorAggregate, \Countable, \ArrayAccess
 
     /**
      * @param callable(V): bool $predicate
+     * @return static<K, V>
      */
     final public function filter(callable $predicate): static
     {
@@ -199,6 +203,7 @@ abstract class Map implements \IteratorAggregate, \Countable, \ArrayAccess
 
     /**
      * @param callable(KeyValue<K, V>): bool $predicate
+     * @return static<K, V>
      */
     abstract public function filterKV(callable $predicate): static;
 
@@ -231,23 +236,38 @@ abstract class Map implements \IteratorAggregate, \Countable, \ArrayAccess
         return $this->mapKV(static fn(KeyValue $keyValue): KeyValue => $keyValue->flip());
     }
 
+    /**
+     * @return static<K, V>
+     */
     abstract public function reverse(): static;
 
+    /**
+     * @return static<K, V>
+     */
     final public function sort(): static
     {
         return $this->usortKV(static fn(KeyValue $kv1, KeyValue $kv2): int => $kv1->value <=> $kv2->value);
     }
 
+    /**
+     * @return static<K, V>
+     */
     final public function sortDesc(): static
     {
         return $this->usortKV(static fn(KeyValue $kv1, KeyValue $kv2): int => $kv2->value <=> $kv1->value);
     }
 
+    /**
+     * @return static<K, V>
+     */
     final public function ksort(): static
     {
         return $this->usortKV(static fn(KeyValue $kv1, KeyValue $kv2): int => $kv1->key <=> $kv2->key);
     }
 
+    /**
+     * @return static<K, V>
+     */
     final public function ksortDesc(): static
     {
         return $this->usortKV(static fn(KeyValue $kv1, KeyValue $kv2): int => $kv2->key <=> $kv1->key);
@@ -255,6 +275,7 @@ abstract class Map implements \IteratorAggregate, \Countable, \ArrayAccess
 
     /**
      * @param callable(V, V): int $comparator
+     * @return static<K, V>
      */
     final public function usort(callable $comparator): static
     {
@@ -269,9 +290,13 @@ abstract class Map implements \IteratorAggregate, \Countable, \ArrayAccess
 
     /**
      * @param callable(KeyValue<K, V>, KeyValue<K, V>): int $comparator
+     * @return static<K, V>
      */
     abstract public function usortKV(callable $comparator): static;
 
+    /**
+     * @return static<K, V>
+     */
     abstract public function slice(int $offset, ?int $length = null): static;
 
     /**
