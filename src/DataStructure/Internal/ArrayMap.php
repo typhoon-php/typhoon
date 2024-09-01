@@ -35,29 +35,29 @@ final class ArrayMap extends MutableMap
     /**
      * @template NK
      * @template NV
-     * @param KVPair<NK, NV> ...$keyValues
+     * @param KVPair<NK, NV> ...$kvPairs
      * @return self<NK, NV>
      */
-    public static function ofKV(KVPair ...$keyValues): self
+    public static function fromPairs(KVPair ...$kvPairs): self
     {
         /** @var self<NK, NV> */
         $map = new self();
-        $map->putKV(...$keyValues);
+        $map->putPairs(...$kvPairs);
 
         return $map;
     }
 
     /**
-     * @param array<KVPair<K, V>> $keyValues
+     * @param array<KVPair<K, V>> $kvPairs
      */
     public function __construct(
-        private array $keyValues = [],
+        private array $kvPairs = [],
     ) {}
 
-    public function putKV(KVPair ...$keyValues): void
+    public function putPairs(KVPair ...$kvPairs): void
     {
-        foreach ($keyValues as $keyValue) {
-            $this->keyValues[ArrayMapKeyEncoder::encode($keyValue->key)] = $keyValue;
+        foreach ($kvPairs as $kvPair) {
+            $this->kvPairs[ArrayMapKeyEncoder::encode($kvPair->key)] = $kvPair;
         }
     }
 
@@ -68,49 +68,49 @@ final class ArrayMap extends MutableMap
         }
 
         if ($values instanceof self) {
-            $this->keyValues = [...$this->keyValues, ...$values->keyValues];
+            $this->kvPairs = [...$this->kvPairs, ...$values->kvPairs];
 
             return;
         }
 
         foreach ($values as $key => $value) {
-            $this->keyValues[ArrayMapKeyEncoder::encode($key)] = new KVPair($key, $value);
+            $this->kvPairs[ArrayMapKeyEncoder::encode($key)] = new KVPair($key, $value);
         }
     }
 
     public function remove(mixed ...$keys): void
     {
         foreach ($keys as $key) {
-            unset($this->keyValues[ArrayMapKeyEncoder::encode($key)]);
+            unset($this->kvPairs[ArrayMapKeyEncoder::encode($key)]);
         }
     }
 
     public function clear(): void
     {
-        $this->keyValues = [];
+        $this->kvPairs = [];
     }
 
     public function isEmpty(): bool
     {
-        return $this->keyValues === [];
+        return $this->kvPairs === [];
     }
 
     public function count(): int
     {
-        return \count($this->keyValues);
+        return \count($this->kvPairs);
     }
 
     public function contains(mixed $key): bool
     {
-        return isset($this->keyValues[ArrayMapKeyEncoder::encode($key)]);
+        return isset($this->kvPairs[ArrayMapKeyEncoder::encode($key)]);
     }
 
     public function getOr(mixed $key, callable $or): mixed
     {
         $encodedKey = ArrayMapKeyEncoder::encode($key);
 
-        if (isset($this->keyValues[$encodedKey])) {
-            return $this->keyValues[$encodedKey]->value;
+        if (isset($this->kvPairs[$encodedKey])) {
+            return $this->kvPairs[$encodedKey]->value;
         }
 
         return $or();
@@ -118,31 +118,31 @@ final class ArrayMap extends MutableMap
 
     public function first(): ?KVPair
     {
-        $key = array_key_first($this->keyValues);
+        $key = array_key_first($this->kvPairs);
 
         if ($key === null) {
             return null;
         }
 
-        return $this->keyValues[$key];
+        return $this->kvPairs[$key];
     }
 
     public function last(): ?KVPair
     {
-        $key = array_key_last($this->keyValues);
+        $key = array_key_last($this->kvPairs);
 
         if ($key === null) {
             return null;
         }
 
-        return $this->keyValues[$key];
+        return $this->kvPairs[$key];
     }
 
     public function findFirstKV(callable $predicate): ?KVPair
     {
-        foreach ($this->keyValues as $keyValue) {
-            if ($predicate($keyValue)) {
-                return $keyValue;
+        foreach ($this->kvPairs as $kvPair) {
+            if ($predicate($kvPair->key, $kvPair->value)) {
+                return $kvPair;
             }
         }
 
@@ -151,8 +151,8 @@ final class ArrayMap extends MutableMap
 
     public function anyKV(callable $predicate): bool
     {
-        foreach ($this->keyValues as $keyValue) {
-            if ($predicate($keyValue)) {
+        foreach ($this->kvPairs as $kvPair) {
+            if ($predicate($kvPair->key, $kvPair->value)) {
                 return true;
             }
         }
@@ -162,8 +162,8 @@ final class ArrayMap extends MutableMap
 
     public function allKV(callable $predicate): bool
     {
-        foreach ($this->keyValues as $keyValue) {
-            if (!$predicate($keyValue)) {
+        foreach ($this->kvPairs as $kvPair) {
+            if (!$predicate($kvPair->key, $kvPair->value)) {
                 return false;
             }
         }
@@ -173,35 +173,42 @@ final class ArrayMap extends MutableMap
 
     public function reduceKV(callable $reducer, mixed $initial = null): mixed
     {
-        return array_reduce($this->keyValues, $reducer, $initial);
+        throw new \LogicException('TODO');
     }
 
     public function filterKV(callable $predicate): static
     {
-        return new self(array_filter($this->keyValues, $predicate));
+        return new self(array_filter($this->kvPairs, static fn (KVPair $kv): bool => $predicate($kv->key, $kv->value)));
     }
 
     public function mapKV(callable $mapper): static
     {
-        return new self(array_map($mapper, $this->keyValues));
+        return new self(array_map(static fn (KVPair $kv): KVPair => $kv->withValue($mapper($kv->key, $kv->value)), $this->kvPairs));
     }
 
     public function reverse(): static
     {
-        return new self(array_reverse($this->keyValues, preserve_keys: true));
+        return new self(array_reverse($this->kvPairs, preserve_keys: true));
     }
 
     public function usortKV(callable $comparator): static
     {
-        $keyValues = $this->keyValues;
-        uasort($keyValues, $comparator);
+        $kvPairs = $this->kvPairs;
+        uasort(
+            $kvPairs,
+            /**
+             * @param KVPair<K, V> $kv1
+             * @param KVPair<K, V> $kv2
+             */
+            static fn (KVPair $kv1, KVPair $kv2) => $comparator($kv1->key, $kv1->value, $kv2->key, $kv2->value)
+        );
 
-        return new self($keyValues);
+        return new self($kvPairs);
     }
 
     public function slice(int $offset, ?int $length = null): static
     {
-        return new self(\array_slice($this->keyValues, $offset, $length));
+        return new self(\array_slice($this->kvPairs, $offset, $length));
     }
 
     public function keys(): Sequence
@@ -229,8 +236,8 @@ final class ArrayMap extends MutableMap
      */
     public function getIterator(): \Generator
     {
-        foreach ($this->keyValues as $keyValue) {
-            yield $keyValue->key => $keyValue->value;
+        foreach ($this->kvPairs as $kvPair) {
+            yield $kvPair->key => $kvPair->value;
         }
     }
 }
