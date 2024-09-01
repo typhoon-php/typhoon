@@ -44,6 +44,10 @@ abstract class MutableMap extends Map
      */
     final public function withPairs(KVPair ...$kvPairs): static
     {
+        if ($kvPairs === []) {
+            return $this;
+        }
+
         $map = clone $this;
         /** @psalm-suppress InvalidArgument */
         $map->putPairs(...$kvPairs);
@@ -57,8 +61,16 @@ abstract class MutableMap extends Map
      * @param iterable<NK, NV>|\Closure(): iterable<NK, NV> $values
      * @return static<K|NK, V|NV>
      */
-    public function withAll(iterable|\Closure $values): static
+    final public function withAll(iterable|\Closure $values): static
     {
+        if ($values instanceof \Closure) {
+            $values = $values();
+        }
+
+        if ($values === []) {
+            return $this;
+        }
+
         $map = clone $this;
         /** @psalm-suppress InvalidArgument */
         $map->putAll($values);
@@ -81,10 +93,7 @@ abstract class MutableMap extends Map
      * @param K $key
      * @param V $value
      */
-    final public function put(mixed $key, mixed $value): void
-    {
-        $this->putPairs(new KVPair($key, $value));
-    }
+    abstract public function put(mixed $key, mixed $value): void;
 
     /**
      * @param KVPair<K, V> ...$kvPairs

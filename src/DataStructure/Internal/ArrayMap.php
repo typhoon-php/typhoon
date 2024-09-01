@@ -54,6 +54,19 @@ final class ArrayMap extends MutableMap
         private array $kvPairs = [],
     ) {}
 
+    public function with(mixed $key, mixed $value): static
+    {
+        $map = clone $this;
+        $map->kvPairs[ArrayMapKeyEncoder::encode($key)] = new KVPair($key, $value);
+
+        return $map;
+    }
+
+    public function put(mixed $key, mixed $value): void
+    {
+        $this->kvPairs[ArrayMapKeyEncoder::encode($key)] = new KVPair($key, $value);
+    }
+
     public function putPairs(KVPair ...$kvPairs): void
     {
         foreach ($kvPairs as $kvPair) {
@@ -138,44 +151,6 @@ final class ArrayMap extends MutableMap
         return $this->kvPairs[$key];
     }
 
-    public function findFirstKV(callable $predicate): ?KVPair
-    {
-        foreach ($this->kvPairs as $kvPair) {
-            if ($predicate($kvPair->key, $kvPair->value)) {
-                return $kvPair;
-            }
-        }
-
-        return null;
-    }
-
-    public function anyKV(callable $predicate): bool
-    {
-        foreach ($this->kvPairs as $kvPair) {
-            if ($predicate($kvPair->key, $kvPair->value)) {
-                return true;
-            }
-        }
-
-        return false;
-    }
-
-    public function allKV(callable $predicate): bool
-    {
-        foreach ($this->kvPairs as $kvPair) {
-            if (!$predicate($kvPair->key, $kvPair->value)) {
-                return false;
-            }
-        }
-
-        return true;
-    }
-
-    public function reduceKV(callable $reducer, mixed $initial = null): mixed
-    {
-        throw new \LogicException('TODO');
-    }
-
     public function filterKV(callable $predicate): static
     {
         return new self(array_filter($this->kvPairs, static fn (KVPair $kv): bool => $predicate($kv->key, $kv->value)));
@@ -184,6 +159,17 @@ final class ArrayMap extends MutableMap
     public function mapKV(callable $mapper): static
     {
         return new self(array_map(static fn (KVPair $kv): KVPair => $kv->withValue($mapper($kv->key, $kv->value)), $this->kvPairs));
+    }
+
+    public function flip(): static
+    {
+        $map = new self();
+
+        foreach ($this->kvPairs as $kvPair) {
+            $map->kvPairs[ArrayMapKeyEncoder::encode($kvPair->value)] = $kvPair->flip();
+        }
+
+        return $map;
     }
 
     public function reverse(): static

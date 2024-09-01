@@ -46,10 +46,7 @@ abstract class Map implements \IteratorAggregate, \Countable, \ArrayAccess
      * @param NV $value
      * @return static<K|NK, V|NV>
      */
-    final public function with(mixed $key, mixed $value): static
-    {
-        return $this->withPairs(new KVPair($key, $value));
-    }
+    abstract public function with(mixed $key, mixed $value): static;
 
     /**
      * @template NK
@@ -117,77 +114,85 @@ abstract class Map implements \IteratorAggregate, \Countable, \ArrayAccess
      */
     final public function findFirst(callable $predicate): ?KVPair
     {
-        return $this->findFirstKV(
-            /** @param V $value */
-            static fn(mixed $key, mixed $value): bool => $predicate($value),
-        );
+        foreach ($this->getIterator() as $key => $value) {
+            if ($predicate($value)) {
+                return new KVPair($key, $value);
+            }
+        }
+
+        return null;
     }
 
     /**
      * @param callable(K, V): bool $predicate
      * @return ?KVPair<K, V>
      */
-    abstract public function findFirstKV(callable $predicate): ?KVPair;
+    final public function findFirstKV(callable $predicate): ?KVPair
+    {
+        foreach ($this->getIterator() as $key => $value) {
+            if ($predicate($key, $value)) {
+                return new KVPair($key, $value);
+            }
+        }
+
+        return null;
+    }
 
     /**
      * @param callable(V): bool $predicate
      */
     final public function any(callable $predicate): bool
     {
-        return $this->anyKV(
-            /** @param V $value */
-            static fn(mixed $key, mixed $value): bool => $predicate($value),
-        );
+        foreach ($this->getIterator() as $value) {
+            if ($predicate($value)) {
+                return true;
+            }
+        }
+
+        return false;
     }
 
     /**
      * @param callable(K, V): bool $predicate
      */
-    abstract public function anyKV(callable $predicate): bool;
+    final public function anyKV(callable $predicate): bool
+    {
+        foreach ($this->getIterator() as $key => $value) {
+            if ($predicate($key, $value)) {
+                return true;
+            }
+        }
+
+        return false;
+    }
 
     /**
      * @param callable(V): bool $predicate
      */
     final public function all(callable $predicate): bool
     {
-        return $this->allKV(
-            /** @param V $value */
-            static fn(mixed $key, mixed $value): bool => $predicate($value),
-        );
+        foreach ($this->getIterator() as $value) {
+            if (!$predicate($value)) {
+                return false;
+            }
+        }
+
+        return true;
     }
 
     /**
      * @param callable(K, V): bool $predicate
      */
-    abstract public function allKV(callable $predicate): bool;
-
-    /**
-     * @template I
-     * @template R
-     * @param callable(I|R, V): R $reducer
-     * @param I $initial
-     * @return I|R
-     */
-    public function reduce(callable $reducer, mixed $initial = null): mixed
+    final public function allKV(callable $predicate): bool
     {
-        return $this->reduceKV(
-            /**
-             * @param I|R $carry
-             * @param V $value
-             */
-            static fn(mixed $carry, mixed $key, mixed $value): mixed => $reducer($carry, $value),
-            $initial,
-        );
-    }
+        foreach ($this->getIterator() as $key => $value) {
+            if (!$predicate($key, $value)) {
+                return false;
+            }
+        }
 
-    /**
-     * @template I
-     * @template R
-     * @param callable(I|R, K, V): R $reducer
-     * @param I $initial
-     * @return I|R
-     */
-    abstract public function reduceKV(callable $reducer, mixed $initial = null): mixed;
+        return true;
+    }
 
     /**
      * @param callable(V): bool $predicate
@@ -227,7 +232,10 @@ abstract class Map implements \IteratorAggregate, \Countable, \ArrayAccess
      */
     abstract public function mapKV(callable $mapper): static;
 
-    // todo flip
+    /**
+     * @return static<V, K>
+     */
+    abstract public function flip(): static;
 
     /**
      * @return static<K, V>
