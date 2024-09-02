@@ -14,16 +14,24 @@ final class Encoder
     private const TRUE = 't';
     private const FALSE = 'f';
     private const STRING_QUOTE = '`';
-    private const ARRAY_LEFT = '[';
-    private const ARRAY_RIGHT = ']';
+    private const ARRAY_START = '[';
+    private const ARRAY_END = ']';
+    private const ARRAY_COMMA = ',';
+    private const ARRAY_COLON = ':';
     private const OBJECT_ID = '#';
+    private const OBJECT_PREFIX_PATTERN = '/^[\w\\\.]+$/';
+    private const OBJECT_DATA = '@';
     private const RESOURCE = 'r';
-    private const PREFIX_ANTI_PATTERN = '/(^(|n|t|f|\d+(\.\d+)?|NAN|INF|#|r)$|[\[\]`])/';
 
     private static bool $locked = false;
 
     /**
-     * @var array<non-empty-string, ?callable(object): non-empty-string>
+     * @var ?\Closure(object): non-empty-string
+     */
+    private static ?\Closure $defaultObjectEncoder = null;
+
+    /**
+     * @var array<non-empty-string, callable(object): non-empty-string>
      */
     private static array $objectEncoders = [];
 
@@ -41,12 +49,12 @@ final class Encoder
             throw new \LogicException('Please register object encoders before using data structures');
         }
 
-        if (preg_match(self::PREFIX_ANTI_PATTERN, $prefix) !== 0) {
-            throw new \LogicException(\sprintf('Invalid prefix "%s"', $prefix));
+        if (preg_match(self::OBJECT_PREFIX_PATTERN, $prefix) !== 1) {
+            throw new \InvalidArgumentException(\sprintf('Invalid prefix "%s"', $prefix));
         }
 
         /** @psalm-suppress InvalidPropertyAssignmentValue */
-        self::$objectEncoders[$class] = /** @param TObject $object */ static fn(object $object): string => $prefix . self::encode($encoder($object));
+        self::$objectEncoders[$class] = /** @param TObject $object */ static fn(object $object): string => $prefix . self::OBJECT_DATA . self::encode($encoder($object));
     }
 
     /**
@@ -65,13 +73,25 @@ final class Encoder
         }
 
         if (\is_object($value)) {
-            $objectEncoder = self::objectEncoder($value::class);
+            $class = $value::class;
 
-            if ($objectEncoder === null) {
-                return self::OBJECT_ID . spl_object_id($value);
+            if (isset(self::$objectEncoders[$class])) {
+                return self::$objectEncoders[$class]($value);
             }
 
-            return $objectEncoder($value);
+            foreach (class_parents($class) as $parent) {
+                if (isset(self::$objectEncoders[$parent])) {
+                    return (self::$objectEncoders[$class] = self::$objectEncoders[$parent])($value);
+                }
+            }
+
+            foreach (class_implements($class) as $interface) {
+                if (isset(self::$objectEncoders[$interface])) {
+                    return (self::$objectEncoders[$class] = self::$objectEncoders[$interface])($value);
+                }
+            }
+
+            return (self::$objectEncoders[$class] = (self::$defaultObjectEncoder ??= static fn(object $object): string => self::OBJECT_ID . spl_object_id($object)))($value);
         }
 
         if ($value === null) {
@@ -91,19 +111,19 @@ final class Encoder
         }
 
         if (\is_array($value)) {
-            $encoded = self::ARRAY_LEFT;
+            $encoded = self::ARRAY_START;
 
             if (array_is_list($value)) {
                 foreach ($value as $item) {
-                    $encoded .= self::encode($item) . ',';
+                    $encoded .= self::encode($item) . self::ARRAY_COMMA;
                 }
             } else {
                 foreach ($value as $key => $item) {
-                    $encoded .= self::encode($key) . ':' . self::encode($item) . ',';
+                    $encoded .= self::encode($key) . self::ARRAY_COLON . self::encode($item) . self::ARRAY_COMMA;
                 }
             }
 
-            return $encoded . self::ARRAY_RIGHT;
+            return $encoded . self::ARRAY_END;
         }
 
         if (\is_resource($value)) {
@@ -111,53 +131,5 @@ final class Encoder
         }
 
         throw new \LogicException(\sprintf('Type %s is not supported', get_debug_type($value)));
-    }
-
-    public static function encodeDs(mixed $value): mixed
-    {
-        if (\is_object($value)) {
-            if ($value instanceof DsHashable) {
-                return $value;
-            }
-
-            $objectEncoder = self::objectEncoder($value::class);
-
-            if ($objectEncoder === null) {
-                return $value;
-            }
-
-            return new DsHashable($value, $objectEncoder($value));
-        }
-
-        if (\is_float($value) && is_nan($value)) {
-            return 'NAN';
-        }
-
-        return $value;
-    }
-
-    /**
-     * @param class-string $class
-     * @return ?callable(object): non-empty-string
-     */
-    private static function objectEncoder(string $class): ?callable
-    {
-        if (\array_key_exists($class, self::$objectEncoders)) {
-            return self::$objectEncoders[$class];
-        }
-
-        foreach (class_parents($class) as $parent) {
-            if (\array_key_exists($parent, self::$objectEncoders)) {
-                return self::$objectEncoders[$class] = self::$objectEncoders[$parent];
-            }
-        }
-
-        foreach (class_implements($class) as $interface) {
-            if (\array_key_exists($interface, self::$objectEncoders)) {
-                return self::$objectEncoders[$class] = self::$objectEncoders[$interface];
-            }
-        }
-
-        return self::$objectEncoders[$class] = null;
     }
 }

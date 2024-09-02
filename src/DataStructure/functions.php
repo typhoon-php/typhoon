@@ -9,13 +9,13 @@ use Typhoon\DataStructure\Internal\Encoder;
 /**
  * @api
  * @template TObject of object
- * @param non-empty-list<class-string<TObject>> $classes
+ * @param class-string<TObject>|array<class-string<TObject>> $classes
  * @param ?non-empty-string $prefix
  * @param callable(TObject): mixed $encoder
  */
-function registerObjectEncoder(array $classes, callable $encoder, ?string $prefix = null): void
+function registerObjectEncoder(string|array $classes, callable $encoder, ?string $prefix = null): void
 {
-    foreach ($classes as $class) {
+    foreach ((array) $classes as $class) {
         Encoder::registerObjectEncoder($class, $prefix ?? $class, $encoder);
     }
 }
