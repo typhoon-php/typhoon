@@ -23,12 +23,7 @@ final class Encoder
     private static bool $locked = false;
 
     /**
-     * @var ?\Closure(object): non-empty-string
-     */
-    private static ?\Closure $defaultObjectEncoder = null;
-
-    /**
-     * @var array<non-empty-string, callable(object): non-empty-string>
+     * @var array<non-empty-string, ?callable(object): non-empty-string>
      */
     private static array $objectEncoders = [];
 
@@ -70,25 +65,13 @@ final class Encoder
         }
 
         if (\is_object($value)) {
-            $class = $value::class;
+            $objectEncoder = self::objectEncoder($value::class);
 
-            if (isset(self::$objectEncoders[$class])) {
-                return self::$objectEncoders[$class]($value);
+            if ($objectEncoder === null) {
+                return self::OBJECT_ID . spl_object_id($value);
             }
 
-            foreach (class_parents($class) as $parent) {
-                if (isset(self::$objectEncoders[$parent])) {
-                    return (self::$objectEncoders[$class] = self::$objectEncoders[$parent])($value);
-                }
-            }
-
-            foreach (class_implements($class) as $interface) {
-                if (isset(self::$objectEncoders[$interface])) {
-                    return (self::$objectEncoders[$class] = self::$objectEncoders[$interface])($value);
-                }
-            }
-
-            return (self::$objectEncoders[$class] = (self::$defaultObjectEncoder ??= static fn(object $object): string => self::OBJECT_ID . spl_object_id($object)))($value);
+            return $objectEncoder($value);
         }
 
         if ($value === null) {
@@ -128,5 +111,53 @@ final class Encoder
         }
 
         throw new \LogicException(\sprintf('Type %s is not supported', get_debug_type($value)));
+    }
+
+    public static function encodeDs(mixed $value): mixed
+    {
+        if (\is_object($value)) {
+            if ($value instanceof DsHashable) {
+                return $value;
+            }
+
+            $objectEncoder = self::objectEncoder($value::class);
+
+            if ($objectEncoder === null) {
+                return $value;
+            }
+
+            return new DsHashable($value, $objectEncoder($value));
+        }
+
+        if (\is_float($value) && is_nan($value)) {
+            return 'NAN';
+        }
+
+        return $value;
+    }
+
+    /**
+     * @param class-string $class
+     * @return ?callable(object): non-empty-string
+     */
+    private static function objectEncoder(string $class): ?callable
+    {
+        if (\array_key_exists($class, self::$objectEncoders)) {
+            return self::$objectEncoders[$class];
+        }
+
+        foreach (class_parents($class) as $parent) {
+            if (\array_key_exists($parent, self::$objectEncoders)) {
+                return self::$objectEncoders[$class] = self::$objectEncoders[$parent];
+            }
+        }
+
+        foreach (class_implements($class) as $interface) {
+            if (\array_key_exists($interface, self::$objectEncoders)) {
+                return self::$objectEncoders[$class] = self::$objectEncoders[$interface];
+            }
+        }
+
+        return self::$objectEncoders[$class] = null;
     }
 }
