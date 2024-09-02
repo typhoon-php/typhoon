@@ -145,6 +145,26 @@ final class ArrayMap extends MutableMap
      * @template I
      * @template R
      * @param I $initial
+     * @param callable(I|R, V): R $operation
+     * @return I|R
+     */
+    public function fold(mixed $initial, callable $operation): mixed
+    {
+        return array_reduce(
+            $this->kvPairs,
+            /**
+             * @param I|R $accumulator
+             * @param KVPair<K,V> $kv
+             */
+            static fn(mixed $accumulator, KVPair $kv): mixed => $operation($accumulator, $kv->value),
+            $initial,
+        );
+    }
+
+    /**
+     * @template I
+     * @template R
+     * @param I $initial
      * @param callable(I|R, K, V): R $operation
      * @return I|R
      */
@@ -161,9 +181,22 @@ final class ArrayMap extends MutableMap
         );
     }
 
+    public function filter(callable $predicate): static
+    {
+        return new self(array_filter($this->kvPairs, static fn(KVPair $kv): bool => $predicate($kv->value)));
+    }
+
     public function filterKV(callable $predicate): static
     {
         return new self(array_filter($this->kvPairs, static fn(KVPair $kv): bool => $predicate($kv->key, $kv->value)));
+    }
+
+    public function map(callable $mapper): static
+    {
+        return new self(array_map(
+            static fn(KVPair $kv): KVPair => $kv->withValue($mapper($kv->value)),
+            $this->kvPairs,
+        ));
     }
 
     public function mapKV(callable $mapper): static

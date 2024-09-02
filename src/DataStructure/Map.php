@@ -208,7 +208,7 @@ abstract class Map implements \IteratorAggregate, \Countable, \ArrayAccess
     /**
      * @param callable(V): bool $predicate
      */
-    final public function any(callable $predicate): bool
+    public function any(callable $predicate): bool
     {
         foreach ($this->getIterator() as $value) {
             if ($predicate($value)) {
@@ -222,7 +222,7 @@ abstract class Map implements \IteratorAggregate, \Countable, \ArrayAccess
     /**
      * @param callable(K, V): bool $predicate
      */
-    final public function anyKV(callable $predicate): bool
+    public function anyKV(callable $predicate): bool
     {
         foreach ($this->getIterator() as $key => $value) {
             if ($predicate($key, $value)) {
@@ -236,7 +236,7 @@ abstract class Map implements \IteratorAggregate, \Countable, \ArrayAccess
     /**
      * @param callable(V): bool $predicate
      */
-    final public function all(callable $predicate): bool
+    public function all(callable $predicate): bool
     {
         foreach ($this->getIterator() as $value) {
             if (!$predicate($value)) {
@@ -250,7 +250,7 @@ abstract class Map implements \IteratorAggregate, \Countable, \ArrayAccess
     /**
      * @param callable(K, V): bool $predicate
      */
-    final public function allKV(callable $predicate): bool
+    public function allKV(callable $predicate): bool
     {
         foreach ($this->getIterator() as $key => $value) {
             if (!$predicate($key, $value)) {
@@ -266,7 +266,7 @@ abstract class Map implements \IteratorAggregate, \Countable, \ArrayAccess
      * @param callable(V|R, V): R $operation
      * @return V|R
      */
-    final public function reduce(callable $operation): mixed
+    public function reduce(callable $operation): mixed
     {
         return $this->reduceKV(
             /**
@@ -311,7 +311,7 @@ abstract class Map implements \IteratorAggregate, \Countable, \ArrayAccess
      * @param callable(I|R, V): R $operation
      * @return I|R
      */
-    final public function fold(mixed $initial, callable $operation): mixed
+    public function fold(mixed $initial, callable $operation): mixed
     {
         return $this->foldKV(
             $initial,
@@ -362,7 +362,7 @@ abstract class Map implements \IteratorAggregate, \Countable, \ArrayAccess
      * @param callable(V): NV $mapper
      * @return static<K, NV>
      */
-    final public function map(callable $mapper): static
+    public function map(callable $mapper): static
     {
         return $this->mapKV(
             /** @param V $value */

@@ -12,8 +12,8 @@ abstract class MapTestCase extends TestCase
     final protected static function assertMapEquals(array $expected, Map $map): void
     {
         self::assertSame($expected, $map->toArray());
-        // check map internal keys are same
-        self::assertEquals(static::createMap($expected), $map);
+        // check map hashes are correct
+        self::assertTrue($map->without(...array_keys($expected))->isEmpty());
     }
 
     final public function testWithReturnsNewMapWithAddedElement(): void

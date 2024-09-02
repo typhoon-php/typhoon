@@ -108,7 +108,7 @@ abstract class MutableMap extends Map
      * @param KVPair<NK, NV> ...$kvPairs
      * @return static<K|NK, V|NV>
      */
-    final public function withPairs(KVPair ...$kvPairs): static
+    public function withPairs(KVPair ...$kvPairs): static
     {
         if ($kvPairs === []) {
             return $this;
@@ -140,7 +140,7 @@ abstract class MutableMap extends Map
      * @no-named-arguments
      * @return static<K, V>
      */
-    final public function without(mixed ...$keys): static
+    public function without(mixed ...$keys): static
     {
         if ($keys === []) {
             return $this;
@@ -239,7 +239,7 @@ abstract class MutableMap extends Map
      * @param callable(K, V): NK $mapper
      * @return static<NK, V>
      */
-    final public function mapKeyKV(callable $mapper): static
+    public function mapKeyKV(callable $mapper): static
     {
         /** @var static<NK, V> */
         $map = new static();
@@ -255,7 +255,7 @@ abstract class MutableMap extends Map
     /**
      * @return static<V, K>
      */
-    final public function flip(): static
+    public function flip(): static
     {
         $map = new static();
 
