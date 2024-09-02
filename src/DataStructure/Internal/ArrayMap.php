@@ -236,4 +236,22 @@ final class ArrayMap extends MutableMap
             yield $kvPair->key => $kvPair->value;
         }
     }
+
+    /**
+     * @return list<KVPair<K, V>>
+     */
+    public function __serialize(): array
+    {
+        return array_values($this->kvPairs);
+    }
+
+    /**
+     * @param list<KVPair<K, V>> $kvPairs
+     */
+    public function __unserialize(array $kvPairs): void
+    {
+        foreach ($kvPairs as $kvPair) {
+            $this->kvPairs[UniqueHasher::hash($kvPair->key)] = $kvPair;
+        }
+    }
 }
