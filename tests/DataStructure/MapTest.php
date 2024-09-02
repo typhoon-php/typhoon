@@ -66,7 +66,7 @@ final class MapTest extends MapTestCase
 
     protected static function createMap(iterable|\Closure $values = []): MutableMap
     {
-        $map = new SerializedKeyArrayMap();
+        $map = new TestArrayMap();
         $map->putAll($values);
 
         return $map;

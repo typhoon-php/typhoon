@@ -11,7 +11,7 @@ use Typhoon\DataStructure\Internal\Encoder;
  * @template V
  * @extends MutableMap<K, V>
  */
-final class SerializedKeyArrayMap extends MutableMap
+final class TestArrayMap extends MutableMap
 {
     /**
      * @param array<KVPair<K, V>> $kvPairs
