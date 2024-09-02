@@ -18,10 +18,10 @@ final class UniqueHasher
     private const ARRAY_END = ']';
     private const ARRAY_COMMA = ',';
     private const ARRAY_COLON = ':';
-    private const OBJECT_ID = '#';
+    private const OBJECT_ID_PREFIX = '#';
     private const OBJECT_PREFIX_PATTERN = '/^[\w\\\.]+$/';
-    private const OBJECT_DATA = '@';
-    private const RESOURCE = 'r';
+    private const OBJECT_DATA_PREFIX = '@';
+    private const RESOURCE_ID_PREFIX = 'r';
 
     private static bool $locked = false;
 
@@ -54,7 +54,7 @@ final class UniqueHasher
         }
 
         /** @psalm-suppress InvalidPropertyAssignmentValue */
-        self::$objectHashers[$class] = /** @param TObject $object */ static fn(object $object): string => $prefix . self::OBJECT_DATA . self::hash($hasher($object));
+        self::$objectHashers[$class] = /** @param TObject $object */ static fn(object $object): string => $prefix . self::OBJECT_DATA_PREFIX . self::hash($hasher($object));
     }
 
     /**
@@ -91,7 +91,9 @@ final class UniqueHasher
                 }
             }
 
-            return (self::$objectHashers[$class] = (self::$defaultObjectHasher ??= static fn(object $object): string => self::OBJECT_ID . spl_object_id($object)))($value);
+            self::$defaultObjectHasher ??= static fn(object $object): string => self::OBJECT_ID_PREFIX . spl_object_id($object);
+
+            return (self::$objectHashers[$class] = self::$defaultObjectHasher)($value);
         }
 
         if ($value === null) {
@@ -127,7 +129,7 @@ final class UniqueHasher
         }
 
         if (\is_resource($value)) {
-            return self::RESOURCE . get_resource_id($value);
+            return self::RESOURCE_ID_PREFIX . get_resource_id($value);
         }
 
         throw new \LogicException(\sprintf('Type %s is not supported', get_debug_type($value)));
