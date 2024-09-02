@@ -99,7 +99,6 @@ final class AdapterCompatibilityTest extends TestCase
 
     private static function assertFunctionEquals(\ReflectionFunction $native, \ReflectionFunction $typhoon, string $messagePrefix = 'function'): void
     {
-        /** @psalm-suppress RedundantCondition */
         self::assertTrue(isset($typhoon->name), "isset({$messagePrefix}.name)");
         self::assertSame($native->name, $typhoon->name, $messagePrefix . '.name');
         self::assertSame($native->__toString(), $typhoon->__toString(), $messagePrefix . '.__toString()');
@@ -146,7 +145,6 @@ final class AdapterCompatibilityTest extends TestCase
 
     private static function assertClassEquals(\ReflectionClass $native, \ReflectionClass $typhoon): void
     {
-        /** @psalm-suppress RedundantCondition */
         self::assertTrue(isset($typhoon->name), 'isset(class.name)');
         self::assertSame($native->name, $typhoon->name, 'class.name');
         self::assertSame($native->__toString(), $typhoon->__toString(), 'class.__toString()');
@@ -285,7 +283,6 @@ final class AdapterCompatibilityTest extends TestCase
     private static function assertConstantEquals(\ReflectionClassConstant $native, \ReflectionClassConstant $typhoon, string $messagePrefix): void
     {
         self::assertSame($native->class, $typhoon->class, $messagePrefix . '.class');
-        /** @psalm-suppress RedundantCondition */
         self::assertTrue(isset($typhoon->name), "isset({$messagePrefix}.name)");
         self::assertSame($native->name, $typhoon->name, $messagePrefix . '.name');
         self::assertSame($native->__toString(), $typhoon->__toString(), $messagePrefix . '.__toString()');
@@ -325,7 +322,6 @@ final class AdapterCompatibilityTest extends TestCase
     private static function assertPropertyEquals(\ReflectionProperty $native, \ReflectionProperty $typhoon, string $messagePrefix): void
     {
         self::assertSame($native->class, $typhoon->class, $messagePrefix . '.class');
-        /** @psalm-suppress RedundantCondition */
         self::assertTrue(isset($typhoon->name), "isset({$messagePrefix}.name)");
         self::assertSame($native->name, $typhoon->name, $messagePrefix . '.name');
         self::assertSame($native->__toString(), $typhoon->__toString(), $messagePrefix . '.__toString()');
@@ -353,7 +349,6 @@ final class AdapterCompatibilityTest extends TestCase
     private static function assertMethodEquals(\ReflectionMethod $native, \ReflectionMethod $typhoon, string $messagePrefix): void
     {
         self::assertSame($native->class, $typhoon->class, $messagePrefix . '.class');
-        /** @psalm-suppress RedundantCondition */
         self::assertTrue(isset($typhoon->name), "isset({$messagePrefix}.name)");
         self::assertSame($native->name, $typhoon->name, $messagePrefix . '.name');
         self::assertSame($native->__toString(), $typhoon->__toString(), $messagePrefix . '.__toString()');
@@ -431,7 +426,6 @@ final class AdapterCompatibilityTest extends TestCase
 
     private static function assertParameterEquals(\ReflectionParameter $native, \ReflectionParameter $typhoon, string $messagePrefix, bool $assertType = true): void
     {
-        /** @psalm-suppress RedundantCondition */
         self::assertTrue(isset($typhoon->name), "isset({$messagePrefix}.name)");
         self::assertSame($native->name, $typhoon->name, $messagePrefix . '.name');
         self::assertSame($native->__toString(), $typhoon->__toString(), $messagePrefix . '.__toString()');

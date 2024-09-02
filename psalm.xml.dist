@@ -71,6 +71,16 @@
                 <directory name="tests"/>
             </errorLevel>
         </PossiblyUnusedMethod>
+        <RedundantCondition>
+            <errorLevel type="suppress">
+                <directory name="tests"/>
+            </errorLevel>
+        </RedundantCondition>
+        <RedundantConditionGivenDocblockType>
+            <errorLevel type="suppress">
+                <directory name="tests"/>
+            </errorLevel>
+        </RedundantConditionGivenDocblockType>
         <UnusedConstructor errorLevel="suppress"/>
     </issueHandlers>
 
