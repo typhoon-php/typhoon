@@ -41,6 +41,7 @@
             "Typhoon\\": "src/"
         },
         "files": [
+            "src/DataStructure/functions.php",
             "src/DataStructure/bootstrap.php",
             "src/Reflection/Internal/functions.php",
             "src/Type/functions.php"

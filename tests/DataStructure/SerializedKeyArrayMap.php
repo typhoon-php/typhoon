@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace Typhoon\DataStructure;
 
+use Typhoon\DataStructure\Internal\Encoder;
+
 /**
  * @template K
  * @template V
@@ -11,15 +13,6 @@ namespace Typhoon\DataStructure;
  */
 final class SerializedKeyArrayMap extends MutableMap
 {
-    private static function encodeKey(mixed $key): string
-    {
-        if (\is_resource($key)) {
-            return 'r:' . get_resource_id($key) . ';';
-        }
-
-        return serialize($key);
-    }
-
     /**
      * @param array<KVPair<K, V>> $kvPairs
      */
@@ -29,12 +22,12 @@ final class SerializedKeyArrayMap extends MutableMap
 
     public function contains(mixed $key): bool
     {
-        return isset($this->kvPairs[self::encodeKey($key)]);
+        return isset($this->kvPairs[Encoder::encode($key)]);
     }
 
     public function getOr(mixed $key, callable $or): mixed
     {
-        $encodedKey = self::encodeKey($key);
+        $encodedKey = Encoder::encode($key);
 
         if (isset($this->kvPairs[$encodedKey])) {
             return $this->kvPairs[$encodedKey]->value;
@@ -60,13 +53,13 @@ final class SerializedKeyArrayMap extends MutableMap
 
     public function put(mixed $key, mixed $value): void
     {
-        $this->kvPairs[self::encodeKey($key)] = new KVPair($key, $value);
+        $this->kvPairs[Encoder::encode($key)] = new KVPair($key, $value);
     }
 
     public function remove(mixed ...$keys): void
     {
         foreach ($keys as $key) {
-            unset($this->kvPairs[self::encodeKey($key)]);
+            unset($this->kvPairs[Encoder::encode($key)]);
         }
     }
 
