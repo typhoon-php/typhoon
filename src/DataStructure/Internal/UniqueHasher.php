@@ -8,7 +8,7 @@ namespace Typhoon\DataStructure\Internal;
  * @internal
  * @psalm-internal Typhoon\DataStructure
  */
-final class Encoder
+final class UniqueHasher
 {
     private const NULL = 'n';
     private const TRUE = 't';
@@ -28,12 +28,12 @@ final class Encoder
     /**
      * @var ?\Closure(object): non-empty-string
      */
-    private static ?\Closure $defaultObjectEncoder = null;
+    private static ?\Closure $defaultObjectHasher = null;
 
     /**
      * @var array<non-empty-string, callable(object): non-empty-string>
      */
-    private static array $objectEncoders = [];
+    private static array $objectHashers = [];
 
     private function __construct() {}
 
@@ -41,12 +41,12 @@ final class Encoder
      * @template TObject of object
      * @param class-string<TObject> $class
      * @param non-empty-string $prefix
-     * @param callable(TObject): mixed $encoder
+     * @param callable(TObject): mixed $hasher
      */
-    public static function registerObjectEncoder(string $class, string $prefix, callable $encoder): void
+    public static function registerObjectHasher(string $class, string $prefix, callable $hasher): void
     {
         if (self::$locked) {
-            throw new \LogicException('Please register object encoders before using data structures');
+            throw new \LogicException('Please register object hashers before using data structures');
         }
 
         if (preg_match(self::OBJECT_PREFIX_PATTERN, $prefix) !== 1) {
@@ -54,13 +54,13 @@ final class Encoder
         }
 
         /** @psalm-suppress InvalidPropertyAssignmentValue */
-        self::$objectEncoders[$class] = /** @param TObject $object */ static fn(object $object): string => $prefix . self::OBJECT_DATA . self::encode($encoder($object));
+        self::$objectHashers[$class] = /** @param TObject $object */ static fn(object $object): string => $prefix . self::OBJECT_DATA . self::hash($hasher($object));
     }
 
     /**
      * @return int|non-empty-string
      */
-    public static function encode(mixed $value): int|string
+    public static function hash(mixed $value): int|string
     {
         self::$locked = true;
 
@@ -75,23 +75,23 @@ final class Encoder
         if (\is_object($value)) {
             $class = $value::class;
 
-            if (isset(self::$objectEncoders[$class])) {
-                return self::$objectEncoders[$class]($value);
+            if (isset(self::$objectHashers[$class])) {
+                return self::$objectHashers[$class]($value);
             }
 
             foreach (class_parents($class) as $parent) {
-                if (isset(self::$objectEncoders[$parent])) {
-                    return (self::$objectEncoders[$class] = self::$objectEncoders[$parent])($value);
+                if (isset(self::$objectHashers[$parent])) {
+                    return (self::$objectHashers[$class] = self::$objectHashers[$parent])($value);
                 }
             }
 
             foreach (class_implements($class) as $interface) {
-                if (isset(self::$objectEncoders[$interface])) {
-                    return (self::$objectEncoders[$class] = self::$objectEncoders[$interface])($value);
+                if (isset(self::$objectHashers[$interface])) {
+                    return (self::$objectHashers[$class] = self::$objectHashers[$interface])($value);
                 }
             }
 
-            return (self::$objectEncoders[$class] = (self::$defaultObjectEncoder ??= static fn(object $object): string => self::OBJECT_ID . spl_object_id($object)))($value);
+            return (self::$objectHashers[$class] = (self::$defaultObjectHasher ??= static fn(object $object): string => self::OBJECT_ID . spl_object_id($object)))($value);
         }
 
         if ($value === null) {
@@ -111,19 +111,19 @@ final class Encoder
         }
 
         if (\is_array($value)) {
-            $encoded = self::ARRAY_START;
+            $hash = self::ARRAY_START;
 
             if (array_is_list($value)) {
                 foreach ($value as $item) {
-                    $encoded .= self::encode($item) . self::ARRAY_COMMA;
+                    $hash .= self::hash($item) . self::ARRAY_COMMA;
                 }
             } else {
                 foreach ($value as $key => $item) {
-                    $encoded .= self::encode($key) . self::ARRAY_COLON . self::encode($item) . self::ARRAY_COMMA;
+                    $hash .= self::hash($key) . self::ARRAY_COLON . self::hash($item) . self::ARRAY_COMMA;
                 }
             }
 
-            return $encoded . self::ARRAY_END;
+            return $hash . self::ARRAY_END;
         }
 
         if (\is_resource($value)) {

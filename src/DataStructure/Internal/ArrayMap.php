@@ -26,20 +26,20 @@ final class ArrayMap extends MutableMap
     public function with(mixed $key, mixed $value): static
     {
         $map = clone $this;
-        $map->kvPairs[Encoder::encode($key)] = new KVPair($key, $value);
+        $map->kvPairs[UniqueHasher::hash($key)] = new KVPair($key, $value);
 
         return $map;
     }
 
     public function put(mixed $key, mixed $value): void
     {
-        $this->kvPairs[Encoder::encode($key)] = new KVPair($key, $value);
+        $this->kvPairs[UniqueHasher::hash($key)] = new KVPair($key, $value);
     }
 
     public function putPairs(KVPair ...$kvPairs): void
     {
         foreach ($kvPairs as $kvPair) {
-            $this->kvPairs[Encoder::encode($kvPair->key)] = $kvPair;
+            $this->kvPairs[UniqueHasher::hash($kvPair->key)] = $kvPair;
         }
     }
 
@@ -52,14 +52,14 @@ final class ArrayMap extends MutableMap
         }
 
         foreach ($values as $key => $value) {
-            $this->kvPairs[Encoder::encode($key)] = new KVPair($key, $value);
+            $this->kvPairs[UniqueHasher::hash($key)] = new KVPair($key, $value);
         }
     }
 
     public function remove(mixed ...$keys): void
     {
         foreach ($keys as $key) {
-            unset($this->kvPairs[Encoder::encode($key)]);
+            unset($this->kvPairs[UniqueHasher::hash($key)]);
         }
     }
 
@@ -80,15 +80,15 @@ final class ArrayMap extends MutableMap
 
     public function contains(mixed $key): bool
     {
-        return isset($this->kvPairs[Encoder::encode($key)]);
+        return isset($this->kvPairs[UniqueHasher::hash($key)]);
     }
 
     public function getOr(mixed $key, callable $or): mixed
     {
-        $encodedKey = Encoder::encode($key);
+        $hash = UniqueHasher::hash($key);
 
-        if (isset($this->kvPairs[$encodedKey])) {
-            return $this->kvPairs[$encodedKey]->value;
+        if (isset($this->kvPairs[$hash])) {
+            return $this->kvPairs[$hash]->value;
         }
 
         return $or();

@@ -4,18 +4,18 @@ declare(strict_types=1);
 
 namespace Typhoon\DataStructure;
 
-use Typhoon\DataStructure\Internal\Encoder;
+use Typhoon\DataStructure\Internal\UniqueHasher;
 
 /**
  * @api
  * @template TObject of object
  * @param class-string<TObject>|array<class-string<TObject>> $classes
  * @param ?non-empty-string $prefix
- * @param callable(TObject): mixed $encoder
+ * @param callable(TObject): mixed $hasher
  */
-function registerObjectEncoder(string|array $classes, callable $encoder, ?string $prefix = null): void
+function registerObjectHasher(string|array $classes, callable $hasher, ?string $prefix = null): void
 {
     foreach ((array) $classes as $class) {
-        Encoder::registerObjectEncoder($class, $prefix ?? $class, $encoder);
+        UniqueHasher::registerObjectHasher($class, $prefix ?? $class, $hasher);
     }
 }
