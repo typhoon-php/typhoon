@@ -217,7 +217,6 @@ abstract class MapTestCase extends TestCase
 
         $value = $map->get(1, 'NO KEY');
 
-        /** @psalm-suppress RedundantConditionGivenDocblockType */
         self::assertSame('NO KEY', $value);
     }
 
@@ -408,7 +407,6 @@ abstract class MapTestCase extends TestCase
 
         $value = $map->reduceKV(static fn(): never => self::fail());
 
-        /** @psalm-suppress RedundantConditionGivenDocblockType */
         self::assertSame('a', $value);
     }
 
