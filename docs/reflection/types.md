@@ -29,7 +29,7 @@ final class A
 
 $reflector = TyphoonReflector::build();
 
-$class = $reflector->reflectClass(A::class);
+$class = $reflector->reflectClass(ChildOfArrayObject::class);
 
 $constant = $class->constants()['CONSTANT'];
 
