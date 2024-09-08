@@ -30,6 +30,7 @@ use Typhoon\Reflection\Internal\CompleteReflection\CompleteEnum;
 use Typhoon\Reflection\Internal\CompleteReflection\CopyPromotedParameterToProperty;
 use Typhoon\Reflection\Internal\CompleteReflection\RemoveCode;
 use Typhoon\Reflection\Internal\CompleteReflection\RemoveContext;
+use Typhoon\Reflection\Internal\CompleteReflection\RemoveNode;
 use Typhoon\Reflection\Internal\CompleteReflection\SetAttributeRepeated;
 use Typhoon\Reflection\Internal\CompleteReflection\SetClassCloneable;
 use Typhoon\Reflection\Internal\CompleteReflection\SetInterfaceMethodAbstract;
@@ -103,6 +104,7 @@ final class TyphoonReflector
                 SetTemplateIndex::Instance,
                 ResolveClassInheritance::Instance,
                 RemoveContext::Instance,
+                RemoveNode::Instance,
                 RemoveCode::Instance,
                 CleanUpInternallyDefined::Instance,
             ]),
