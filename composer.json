@@ -41,8 +41,10 @@
             "Typhoon\\": "src/"
         },
         "files": [
-            "src/Type/functions.php",
-            "src/Reflection/Internal/functions.php"
+            "src/DataStructure/functions.php",
+            "src/DataStructure/bootstrap.php",
+            "src/Reflection/Internal/functions.php",
+            "src/Type/functions.php"
         ]
     },
     "autoload-dev": {
