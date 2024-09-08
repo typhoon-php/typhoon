@@ -13,6 +13,7 @@ use Typhoon\Reflection\Internal\Data\ClassKind;
 use Typhoon\Reflection\Internal\Misc\NonSerializable;
 use Typhoon\Reflection\Internal\NativeAdapter\ClassAdapter;
 use Typhoon\Type\Type;
+use Typhoon\Type\types;
 use Typhoon\Type\Visitor\TemplateTypeResolver;
 use Typhoon\TypedMap\TypedMap;
 
@@ -197,6 +198,52 @@ final class ClassReflection
 
         return \array_key_exists($class->name, $this->data[Data::Parents])
             || \array_key_exists($class->name, $this->data[Data::Interfaces]);
+    }
+
+    /**
+     * @param non-empty-string|NamedClassId|AnonymousClassId $class
+     * @return list<Type>
+     */
+    public function typeArgumentsOf(string|NamedClassId|AnonymousClassId $class): array
+    {
+        if (\is_string($class)) {
+            $class = Id::class($class);
+        }
+
+        if ($this->id->equals($class)) {
+            return $this
+                ->templates()
+                ->map(static fn(TemplateReflection $template): Type => types::template($template->id))
+                ->toList();
+        }
+
+        if ($class instanceof AnonymousClassId) {
+            return [];
+        }
+
+        /** @psalm-suppress PossiblyInvalidArrayOffset */
+        return $this->data[Data::Parents][$class->name] ?? $this->data[Data::Interfaces][$class->name] ?? [];
+    }
+
+    /**
+     * @param non-empty-string|NamedClassId|AnonymousClassId $class
+     * @param list<Type> $typeArguments
+     * @return list<Type>
+     */
+    public function resolvedTypeArgumentsOf(string|NamedClassId|AnonymousClassId $class, array $typeArguments = []): array
+    {
+        $classTypeArguments = $this->typeArgumentsOf($class);
+
+        if ($classTypeArguments === []) {
+            return [];
+        }
+
+        $templateResolver = $this->createTemplateResolver($typeArguments);
+
+        return array_map(
+            static fn(Type $type): Type => $type->accept($templateResolver),
+            $classTypeArguments,
+        );
     }
 
     public function isClass(): bool
