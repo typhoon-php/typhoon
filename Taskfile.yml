@@ -11,6 +11,8 @@ vars:
     sh: find src -type d -maxdepth 1 -mindepth 1 -exec basename {} ';'
 
 tasks:
+  default: task --list-all
+
   install:
     cmd: "{{.COMPOSER}} install"
     sources:
