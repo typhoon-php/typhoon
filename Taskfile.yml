@@ -1,7 +1,7 @@
 version: '3'
 
 vars:
-  PHP: php
+  PHP: XDEBUG_MODE=off php
   COMPOSER: composer
   REQUIRE_CHECKER: "{{.PHP}} tools/composer-require-checker/vendor/bin/composer-require-checker"
   PSALM: "{{.PHP}} tools/psalm/vendor/bin/psalm --show-info --no-diff --no-cache"
